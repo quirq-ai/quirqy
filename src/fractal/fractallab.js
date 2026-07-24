@@ -4,13 +4,15 @@
 
 import * as THREE from 'three';
 import { getPreset, PRESETS } from './presets.js';
-import { VERT_FULLSCREEN, FRAG_ESCAPE, FRAG_RAY, paletteIndex } from './shaders.js';
+import { VERT_FULLSCREEN, FRAG_ESCAPE, FRAG_RAY, FRAG_DIFFRACTION, paletteIndex } from './shaders.js';
 import { generateIFS, IFS_DIM } from './ifs.js';
 import { escapeProbe, fmtComplex } from './fractals.js';
+import { computeKochDiffraction, KOCH_DIM } from './kochDiffraction.js';
 
 const KIND_CODE = { mandelbrot: 0, julia: 1, burning: 2, newton: 3 };
 const RAY_KIND = { mandelbulb: 0, quatjulia: 1 };
 const TRAP_CODE = { none: 0, circle: 1, cross: 2, dots: 3 };
+const VIEW_CODE = { aperture: 0, diffraction: 1, split: 2 };
 
 // Crisp disc for IFS: hard core, thin edge. Soft glow maps look blurry.
 function sharpDotTexture() {
@@ -137,6 +139,34 @@ export class FractalLab {
     this.rayQuad.visible = false;
     this.group.add(this.rayQuad);
 
+    // Fraunhofer diffraction (Koch snowflake aperture → |FFT|²)
+    this.diffTex = null;
+    this.diffMeta = null;
+    this.diffUniforms = {
+      uResolution: { value: new THREE.Vector2(1, 1) },
+      uTime: { value: 0 },
+      uExposure: { value: 1.05 },
+      uGamma: { value: 1.9 },
+      uTex: { value: null },
+      uPalette: { value: 3 },
+      uGlow: { value: 1.15 },
+      uZoom: { value: 1 },
+      uPan: { value: new THREE.Vector2(0, 0) },
+      uView: { value: 1 },
+      uWavelength: { value: 1 },
+    };
+    this.diffMat = new THREE.ShaderMaterial({
+      uniforms: this.diffUniforms,
+      vertexShader: VERT_FULLSCREEN,
+      fragmentShader: FRAG_DIFFRACTION,
+      depthTest: false,
+      depthWrite: false,
+    });
+    this.diffQuad = makeFullscreenQuad(this.diffMat);
+    this.diffQuad.visible = false;
+    this.group.add(this.diffQuad);
+    this._diffRebuildTimer = null;
+
     // IFS void stage
     this.ifsGroup = new THREE.Group();
     this.ifsGroup.visible = false;
@@ -179,6 +209,11 @@ export class FractalLab {
       glow: 1.1,
       exposure: 0.95,
       autoOrbit: false,
+      zoom: 1,
+      panX: 0,
+      panY: 0,
+      view: 'diffraction',
+      wavelength: 1,
       ...p.params,
     };
     this.probe = null;
@@ -200,6 +235,10 @@ export class FractalLab {
       } else {
         this.rebuildIFS();
       }
+    }
+    if (this.family === 'diffraction') {
+      const heavy = key === 'iterations' || key === 'gridSize' || key === 'invert' || key === 'logGain';
+      if (heavy) this.scheduleDiffractionRebuild();
     }
   }
 
@@ -234,14 +273,64 @@ export class FractalLab {
       this.rayUniforms.uCamDist.value = p.camDist ?? 3.0;
       this.rayUniforms.uGlow.value = p.glow ?? 1.15;
       this.rayUniforms.uExposure.value = p.exposure ?? 1.1;
+    } else if (this.family === 'diffraction') {
+      this.diffUniforms.uPalette.value = paletteIndex(p.palette);
+      this.diffUniforms.uGlow.value = p.glow ?? 1.15;
+      this.diffUniforms.uExposure.value = p.exposure ?? 1.05;
+      this.diffUniforms.uZoom.value = p.zoom ?? 1;
+      this.diffUniforms.uPan.value.set(p.panX ?? 0, p.panY ?? 0);
+      this.diffUniforms.uView.value = VIEW_CODE[p.view] ?? 1;
+      this.diffUniforms.uWavelength.value = p.wavelength ?? 1;
     }
   }
 
   rebuildFamily() {
     this.escapeQuad.visible = this.family === 'escape';
     this.rayQuad.visible = this.family === 'ray';
+    this.diffQuad.visible = this.family === 'diffraction';
     this.ifsGroup.visible = this.family === 'ifs';
     if (this.family === 'ifs') this.rebuildIFS();
+    if (this.family === 'diffraction') this.rebuildDiffraction();
+  }
+
+  scheduleDiffractionRebuild() {
+    if (this._diffRebuildTimer) clearTimeout(this._diffRebuildTimer);
+    this._diffRebuildTimer = setTimeout(() => {
+      this._diffRebuildTimer = null;
+      this.rebuildDiffraction();
+    }, 80);
+  }
+
+  rebuildDiffraction() {
+    const p = this.params;
+    const grid = Math.min(512, Math.max(128, Math.round(p.gridSize ?? 512)));
+    // Snap to power of two for FFT
+    let N = 128;
+    while (N < grid) N <<= 1;
+    const result = computeKochDiffraction({
+      iterations: Math.round(p.iterations ?? 4),
+      size: N,
+      invert: !!p.invert,
+      logGain: p.logGain ?? 12,
+      margin: 0.14,
+    });
+    if (this.diffTex) this.diffTex.dispose();
+    this.diffTex = new THREE.DataTexture(result.rgba, result.size, result.size, THREE.RGBAFormat);
+    this.diffTex.magFilter = THREE.LinearFilter;
+    this.diffTex.minFilter = THREE.LinearFilter;
+    this.diffTex.flipY = false;
+    this.diffTex.needsUpdate = true;
+    this.diffUniforms.uTex.value = this.diffTex;
+    this.diffMeta = {
+      size: result.size,
+      iterations: result.iterations,
+      segments: result.segments,
+      openFraction: result.openFraction,
+      dimension: result.dimension ?? KOCH_DIM,
+      peak: result.peak,
+      invert: result.invert,
+    };
+    this.applyParams();
   }
 
   rebuildIFS() {
@@ -354,6 +443,7 @@ export class FractalLab {
   setResolution(w, h) {
     this.escapeUniforms.uResolution.value.set(w, h);
     this.rayUniforms.uResolution.value.set(w, h);
+    this.diffUniforms.uResolution.value.set(w, h);
   }
 
   // Screen pixel → complex plane (escape family)
@@ -408,13 +498,27 @@ export class FractalLab {
   }
 
   pan(dRe, dIm) {
-    if (this.family !== 'escape') return;
-    this.params.centerX = (this.params.centerX ?? 0) - dRe;
-    this.params.centerY = (this.params.centerY ?? 0) - dIm;
-    this.applyParams();
+    if (this.family === 'escape') {
+      this.params.centerX = (this.params.centerX ?? 0) - dRe;
+      this.params.centerY = (this.params.centerY ?? 0) - dIm;
+      this.applyParams();
+      return;
+    }
+    if (this.family === 'diffraction') {
+      const z = this.params.zoom ?? 1;
+      this.params.panX = (this.params.panX ?? 0) - dRe / Math.max(z, 0.05);
+      this.params.panY = (this.params.panY ?? 0) - dIm / Math.max(z, 0.05);
+      this.applyParams();
+    }
   }
 
   zoomAt(factor, re, im, animate = false) {
+    if (this.family === 'diffraction') {
+      const z0 = this.params.zoom ?? 1;
+      this.params.zoom = Math.min(Math.max(z0 / factor, 0.15), 12);
+      this.applyParams();
+      return;
+    }
     if (this.family !== 'escape') return;
     const ox = this.params.centerX ?? 0;
     const oy = this.params.centerY ?? 0;
@@ -457,6 +561,7 @@ export class FractalLab {
     this.t += dt;
     this.escapeUniforms.uTime.value = this.t;
     this.rayUniforms.uTime.value = this.t;
+    this.diffUniforms.uTime.value = this.t;
 
     if (this._zoomAnim) {
       const a = this._zoomAnim;
@@ -498,6 +603,10 @@ export class FractalLab {
     if (this.family === 'ray') {
       return `${this.preset?.name || this.kind} · p=${p.power} · d=${Number(p.camDist).toFixed(2)}`;
     }
+    if (this.family === 'diffraction') {
+      const m = this.diffMeta;
+      return `${this.preset?.name || 'Koch diffractal'} · gen ${m?.iterations ?? p.iterations} · ${m?.size ?? p.gridSize}² FFT · λ×${Number(p.wavelength ?? 1).toFixed(2)}`;
+    }
     return `${this.preset?.name || this.kind} · ${this.ifsGrowth.visible.toLocaleString()}/${(this._ifsMeta?.count || 0).toLocaleString()} pts${this.ifsGrowth.on ? ' · growing' : ''} · dim≈${(this._ifsMeta?.dim || 0).toFixed(2)}`;
   }
 
@@ -528,6 +637,20 @@ export class FractalLab {
         power: p.power,
         maxIter: p.maxIter,
         cam: { theta: p.camTheta, phi: p.camPhi, dist: p.camDist },
+      };
+    }
+    if (this.family === 'diffraction') {
+      const m = this.diffMeta || {};
+      return {
+        ...base,
+        iterations: m.iterations ?? p.iterations,
+        grid: m.size ?? p.gridSize,
+        segments: m.segments,
+        openFraction: m.openFraction,
+        dimension: m.dimension ?? KOCH_DIM,
+        view: p.view,
+        wavelength: p.wavelength,
+        zoom: p.zoom,
       };
     }
     return {

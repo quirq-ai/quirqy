@@ -220,7 +220,7 @@ photosynthesis.
 
 ### 7. Fractals Lab
 
-A GPU-first fractal instrument with three families on one stage:
+A GPU-first fractal instrument with four families on one stage:
 
 - **Escape time:** Mandelbrot, Julia, Burning Ship, and Newton (z^3 - 1) on a shader plane.
   Smooth continuous potential coloring, orbit traps (circle / line), live palettes, pan /
@@ -230,9 +230,11 @@ A GPU-first fractal instrument with three families on one stage:
   soft AO, Fresnel rims, and drag-to-orbit / scroll-to-dolly.
 - **IFS attractors:** Barnsley fern, Sierpiński gasket, dragon curve, maple leaf as
   additive point clouds with theoretical Hausdorff dimension readout.
+- **Light diffraction:** Koch snowflake aperture → Fraunhofer diffractal via 2D FFT
+  (I ∝ |ℱ{A}|²). Generation, λ scale, aperture/pattern/split views, Babinet complement.
 
-Curated destinations (seahorse valley, mini-set, Douady rabbit, …) ship as one-click
-presets; every parameter stays live.
+Curated destinations (seahorse valley, mini-set, Douady rabbit, Koch diffractal, …) ship as
+one-click presets; every parameter stays live.
 
 ---
 
@@ -291,6 +293,7 @@ Observatory is meant to be trustworthy enough to reason with, so the methods are
 | Gravity sandbox | Symplectic leapfrog; orbital elements from h and e vectors; F ∝ 1/rⁿ | Vallado / Battin; Bertrand's theorem |
 | Photoelectric | Einstein K_max = hf − φ; stopping potential; photocurrent ∝ intensity above threshold | CODATA h, e, c; standard metal work functions |
 | Photosynthesis | Pigment absorbance (Gaussian peaks), quantum yield, action spectrum | Chlorophyll a/b and carotenoid in-vivo peaks |
+| Koch diffractal | Fraunhofer I ∝ |FFT2(aperture)|² of Koch snowflake mask | Uozumi et al.; Babinet complement option |
 
 Numbers are checked against known values where possible. For example, the default mooring
 case (30 m depth, 300 m span, 315 m chain at 250 kg/m) reproduces the analytic catenary

@@ -538,8 +538,8 @@ async function init() {
       camera.position.copy(home.pos);
       controls.target.copy(home.target);
     }
-    // Escape/ray fractals own pan-zoom; keep orbit subtle for IFS framing
-    controls.enabled = !(isFractal && (fractallab.family === 'escape' || fractallab.family === 'ray'));
+    // Escape/ray/diffraction fractals own pan-zoom; keep orbit subtle for IFS framing
+    controls.enabled = !(isFractal && (fractallab.family === 'escape' || fractallab.family === 'ray' || fractallab.family === 'diffraction'));
     focusCtl.baseMinDistance = isSolar ? 0.2 : isMath ? 0.6 : 1.5;
     controls.minDistance = focusCtl.baseMinDistance;
     controls.maxDistance = isSolar ? 250000 : 3000;
@@ -988,7 +988,7 @@ async function init() {
     }
     if (tabState.mode === 'fractal') {
       renderer.domElement.style.cursor =
-        fractallab.family === 'escape' || fractallab.family === 'ray' ? 'crosshair' : 'default';
+        fractallab.family === 'escape' || fractallab.family === 'ray' || fractallab.family === 'diffraction' ? 'crosshair' : 'default';
       return;
     }
     if (tabState.mode !== 'solar') return;
@@ -1000,7 +1000,7 @@ async function init() {
   // Fractals Lab: screen-space pan / zoom / orbit
   renderer.domElement.addEventListener('pointerdown', (e) => {
     if (tabState.mode !== 'fractal') return;
-    if (fractallab.family !== 'escape' && fractallab.family !== 'ray') return;
+    if (fractallab.family !== 'escape' && fractallab.family !== 'ray' && fractallab.family !== 'diffraction') return;
     fractalDrag.on = true;
     fractalDrag.moved = false;
     fractalDrag.x = e.clientX;
@@ -1021,6 +1021,11 @@ async function init() {
       const dIm = (dy / innerHeight) * scale * 2;
       fractallab.pan(dRe, dIm);
       fractalPanel.renderLive();
+    } else if (fractallab.family === 'diffraction') {
+      const dRe = -(dx / innerHeight) * 0.55;
+      const dIm = (dy / innerHeight) * 0.55;
+      fractallab.pan(dRe, dIm);
+      fractalPanel.renderLive();
     } else if (fractallab.family === 'ray') {
       fractallab.orbitRay(-dy * 0.005, -dx * 0.005);
       fractalPanel.renderLive();
@@ -1033,11 +1038,16 @@ async function init() {
   });
   renderer.domElement.addEventListener('wheel', (e) => {
     if (tabState.mode !== 'fractal') return;
-    if (fractallab.family !== 'escape' && fractallab.family !== 'ray') return;
+    if (fractallab.family !== 'escape' && fractallab.family !== 'ray' && fractallab.family !== 'diffraction') return;
     e.preventDefault();
     const factor = Math.exp(e.deltaY * 0.0012);
     if (fractallab.family === 'ray') {
       fractallab.dollyRay(factor);
+      fractalPanel.renderLive();
+      return;
+    }
+    if (fractallab.family === 'diffraction') {
+      fractallab.zoomAt(factor, 0, 0, false);
       fractalPanel.renderLive();
       return;
     }

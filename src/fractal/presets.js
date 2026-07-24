@@ -213,6 +213,67 @@ export const PRESETS = [
       'Botanical IFS leaf: skewed contractions compose a maple silhouette.',
     params: { points: 230000, size: 1.05, palette: 'autumn' },
   },
+  {
+    id: 'koch-diffract',
+    name: 'Koch · Fraunhofer diffractal',
+    family: 'diffraction',
+    kind: 'koch',
+    blurb:
+      'Light through a Koch snowflake aperture. Far-field intensity is |FFT(A)|²: ' +
+      'a self-similar diffractal with hexagonal symmetry (Uozumi). Raise generation ' +
+      'to enlarge the fractal core; λ scales the pattern like wavelength.',
+    params: {
+      iterations: 4, gridSize: 512, invert: false, logGain: 12,
+      view: 'diffraction', wavelength: 1, zoom: 1.35,
+      palette: 'ice', glow: 1.2, exposure: 1.1,
+      panX: 0, panY: 0,
+    },
+  },
+  {
+    id: 'koch-split',
+    name: 'Koch · aperture + pattern',
+    family: 'diffraction',
+    kind: 'koch',
+    blurb:
+      'Split view: snowflake aperture (transmission mask) beside its Fraunhofer ' +
+      'diffraction pattern. Boundary Hausdorff dim = log 4 / log 3 ≈ 1.262.',
+    params: {
+      iterations: 5, gridSize: 512, invert: false, logGain: 11,
+      view: 'split', wavelength: 1, zoom: 1.1,
+      palette: 'aurora', glow: 1.15, exposure: 1.05,
+      panX: 0, panY: 0,
+    },
+  },
+  {
+    id: 'koch-obstacle',
+    name: 'Koch · opaque flake',
+    family: 'diffraction',
+    kind: 'koch',
+    blurb:
+      'Complementary aperture: opaque Koch flake in a clear field (Babinet). ' +
+      'Diffraction differs mainly near the bright DC core.',
+    params: {
+      iterations: 4, gridSize: 512, invert: true, logGain: 13,
+      view: 'diffraction', wavelength: 0.85, zoom: 1.5,
+      palette: 'plasma', glow: 1.25, exposure: 1.15,
+      panX: 0, panY: 0,
+    },
+  },
+  {
+    id: 'koch-aperture',
+    name: 'Koch · aperture only',
+    family: 'diffraction',
+    kind: 'koch',
+    blurb:
+      'The binary transmission mask alone. Generation controls perimeter detail; ' +
+      'switch View to Diffraction to see the Fourier image.',
+    params: {
+      iterations: 5, gridSize: 512, invert: false, logGain: 12,
+      view: 'aperture', wavelength: 1, zoom: 1,
+      palette: 'ice', glow: 1, exposure: 1,
+      panX: 0, panY: 0,
+    },
+  },
 ];
 
 export function getPreset(id) {

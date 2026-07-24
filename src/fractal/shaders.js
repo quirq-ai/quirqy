@@ -474,6 +474,79 @@ void main() {
 }
 `;
 
+// Packed R = aperture, G = log-stretched |FFT|². uView: 0 aperture, 1 diffraction, 2 split.
+export const FRAG_DIFFRACTION = /* glsl */ `
+${COMMON}
+uniform sampler2D uTex;
+uniform int uPalette;
+uniform float uGlow;
+uniform float uZoom;
+uniform vec2 uPan;
+uniform int uView; // 0 aperture 1 diffraction 2 split
+uniform float uWavelength; // relative pattern scale (λ proxy)
+
+vec3 sampleView(vec2 uv, bool aperture) {
+  vec2 p = (uv - 0.5) / max(uZoom, 0.05) + 0.5 + uPan;
+  if (p.x < 0.0 || p.x > 1.0 || p.y < 0.0 || p.y > 1.0) {
+    return aperture ? vec3(0.02, 0.025, 0.04) : vec3(0.004, 0.006, 0.012);
+  }
+  vec4 s = texture2D(uTex, p);
+  if (aperture) {
+    float a = s.r;
+    vec3 ink = vec3(0.04, 0.05, 0.08);
+    vec3 flake = vec3(0.92, 0.96, 1.0);
+    return mix(ink, flake, smoothstep(0.35, 0.65, a));
+  }
+  // wavelength scales how much of frequency space we show (Fraunhofer ∝ λ)
+  vec2 q = (uv - 0.5) / max(uZoom * uWavelength, 0.02) + 0.5 + uPan;
+  if (q.x < 0.0 || q.x > 1.0 || q.y < 0.0 || q.y > 1.0) {
+    return vec3(0.004, 0.006, 0.012);
+  }
+  vec4 d = texture2D(uTex, q);
+  float I = d.g;
+  vec3 base = palette(I * 0.85 + 0.05, uPalette);
+  vec3 col = base * pow(I, 0.85) * (1.6 * uGlow);
+  col += vec3(1.0, 0.95, 0.9) * pow(I, 4.0) * 1.4; // DC / bright rings
+  col += vec3(0.01, 0.015, 0.03);
+  return col;
+}
+
+void main() {
+  float aspect = uResolution.x / max(uResolution.y, 1.0);
+  vec2 frag = gl_FragCoord.xy / uResolution;
+  vec2 uv = frag;
+  // letterbox to square content
+  if (aspect > 1.0) {
+    uv.x = (frag.x - 0.5) * aspect + 0.5;
+  } else {
+    uv.y = (frag.y - 0.5) / aspect + 0.5;
+  }
+
+  vec3 col;
+  if (uView == 2) {
+    bool left = frag.x < 0.5;
+    vec2 local = left
+      ? vec2(frag.x * 2.0, frag.y)
+      : vec2((frag.x - 0.5) * 2.0, frag.y);
+    if (aspect > 1.0) {
+      local.x = (local.x - 0.5) * (aspect * 0.5) + 0.5;
+    } else {
+      local.y = (local.y - 0.5) / aspect + 0.5;
+    }
+    col = sampleView(local, left);
+    // divider
+    float edge = smoothstep(0.0, 0.003, abs(frag.x - 0.5));
+    col = mix(vec3(0.55, 0.7, 1.0), col, edge);
+  } else {
+    col = sampleView(uv, uView == 0);
+  }
+
+  float vig = smoothstep(1.15, 0.25, length((frag - 0.5) * vec2(aspect, 1.0)));
+  col *= 0.55 + 0.45 * vig;
+  gl_FragColor = vec4(tonemap(col), 1.0);
+}
+`;
+
 export function paletteIndex(name) {
   const map = {
     plasma: 0, ember: 1, aurora: 2, ice: 3, gold: 4, neon: 5,

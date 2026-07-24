@@ -10,7 +10,12 @@ function fmt(n, d = 4) {
   return n.toFixed(d);
 }
 
-const FAMILY_LABEL = { escape: 'Escape time', ray: 'Raymarch 3D', ifs: 'IFS attractor' };
+const FAMILY_LABEL = {
+  escape: 'Escape time',
+  ray: 'Raymarch 3D',
+  ifs: 'IFS attractor',
+  diffraction: 'Light diffraction',
+};
 
 export class FractalPanel {
   constructor(lab, hooks) {
@@ -33,6 +38,7 @@ export class FractalPanel {
         <button class="btn tiny" data-fam="escape">Escape</button>
         <button class="btn tiny" data-fam="ray">3D Ray</button>
         <button class="btn tiny" data-fam="ifs">IFS</button>
+        <button class="btn tiny" data-fam="diffraction">Diffract</button>
       </div>
 
       <div class="section-title">Destinations</div>
@@ -68,6 +74,7 @@ export class FractalPanel {
         <div class="fg-row"><kbd>click</kbd> probe</div>
         <div class="fg-row"><kbd>double-click</kbd> dive ×2.2</div>
         <div class="fg-row"><kbd>IFS</kbd> Points 100→320k · Grow attractor</div>
+        <div class="fg-row"><kbd>Diffract</kbd> Koch aperture · |FFT|² Fraunhofer</div>
       </div>
     `;
 
@@ -193,7 +200,7 @@ export class FractalPanel {
     input.addEventListener('input', () => {
       let v = Number(input.value);
       if (input.dataset.log === '1') v = this._logVal(v, Number(input.dataset.min), Number(input.dataset.max));
-      if (key === 'maxIter' || key === 'points') v = Math.round(v);
+      if (key === 'maxIter' || key === 'points' || key === 'iterations' || key === 'gridSize') v = Math.round(v);
       this.lab.setParam(key, v);
       row.querySelector(`[data-v="${key}"]`).textContent =
         key === 'points' ? Math.round(v).toLocaleString()
@@ -240,13 +247,21 @@ export class FractalPanel {
         this._addRange(box, 'juliaZ', 'c.z', p.juliaZ, -1, 1, 0.01);
         this._addRange(box, 'juliaW', 'c.w', p.juliaW, -1, 1, 0.01);
       }
+    } else if (fam === 'diffraction') {
+      this._addRange(box, 'iterations', 'Koch generation', p.iterations ?? 4, 0, 6, 1);
+      this._addRange(box, 'gridSize', 'FFT grid', p.gridSize ?? 512, 128, 512, 128);
+      this._addRange(box, 'wavelength', 'λ scale', p.wavelength ?? 1, 0.25, 3, 0.01);
+      this._addRange(box, 'zoom', 'Zoom', p.zoom ?? 1, 0.2, 8, 0.01);
+      this._addRange(box, 'logGain', 'Log stretch', p.logGain ?? 12, 4, 20, 0.5);
+      this._addRange(box, 'glow', 'Glow', p.glow ?? 1.15, 0.2, 2.5, 0.01);
+      this._addRange(box, 'exposure', 'Exposure', p.exposure ?? 1.05, 0.5, 2.5, 0.01);
     } else {
       // Log scale: 100 → 320k so sparse chaos-game and dense clouds both fit
       this._addRange(box, 'points', 'Points', p.points, 100, 320000, 'log');
       this._addRange(box, 'size', 'Point size', p.size, 0.5, 2.5, 0.05);
     }
 
-    if (fam === 'escape' || fam === 'ray') {
+    if (fam === 'escape' || fam === 'ray' || fam === 'diffraction') {
       const pals = ['plasma', 'ember', 'aurora', 'ice', 'gold', 'neon'];
       const palRow = document.createElement('div');
       palRow.className = 'spm-row';
@@ -292,6 +307,32 @@ export class FractalPanel {
         this.lab.setParam('autoOrbit', e.target.checked);
       });
       box.appendChild(autoRow);
+    }
+
+    if (fam === 'diffraction') {
+      const viewRow = document.createElement('div');
+      viewRow.className = 'spm-row';
+      viewRow.innerHTML = `
+        <label>View</label>
+        <select>${['diffraction', 'aperture', 'split'].map((x) =>
+          `<option value="${x}" ${p.view === x ? 'selected' : ''}>${x}</option>`).join('')}</select>`;
+      viewRow.querySelector('select').addEventListener('change', (e) => {
+        this.lab.setParam('view', e.target.value);
+        this.renderLive();
+        this.renderAnalysis();
+      });
+      box.appendChild(viewRow);
+
+      const invRow = document.createElement('div');
+      invRow.className = 'spm-row check-row';
+      invRow.innerHTML = `
+        <label><input type="checkbox" ${p.invert ? 'checked' : ''}/> Opaque flake (Babinet)</label>`;
+      invRow.querySelector('input').addEventListener('change', (e) => {
+        this.lab.setParam('invert', e.target.checked);
+        this.renderLive();
+        this.renderAnalysis();
+      });
+      box.appendChild(invRow);
     }
 
     if (fam === 'ifs') {
@@ -342,6 +383,16 @@ export class FractalPanel {
         <div class="kv"><span>θ / φ</span><b>${fmt(a.cam.theta, 2)} / ${fmt(a.cam.phi, 2)}</b></div>
         <div class="kv"><span>Distance</span><b>${fmt(a.cam.dist, 2)}</b></div>
       `;
+    } else if (a.family === 'diffraction') {
+      const openPct = a.openFraction != null ? `${(a.openFraction * 100).toFixed(1)}%` : 'n/a';
+      el.innerHTML = `
+        <div class="kv"><span>Generation</span><b>${a.iterations}</b></div>
+        <div class="kv"><span>FFT grid</span><b>${a.grid}²</b></div>
+        <div class="kv"><span>Edges</span><b>${(a.segments || 0).toLocaleString()}</b></div>
+        <div class="kv"><span>Open area</span><b>${openPct}</b></div>
+        <div class="kv"><span>λ / zoom</span><b>${fmt(a.wavelength, 2)} / ${fmt(a.zoom, 2)}</b></div>
+        <div class="kv"><span>View</span><b>${a.view}</b></div>
+      `;
     } else {
       const vis = a.visible ?? a.points ?? 0;
       const tot = a.points || 0;
@@ -358,6 +409,11 @@ export class FractalPanel {
 
   renderProbe() {
     const el = this.el.querySelector('#fractal-probe');
+    if (this.lab.family === 'diffraction') {
+      el.innerHTML = `<p class="lab-note">Diffractal probe: drag / scroll to explore frequency space.
+        Intensity is log-stretched |ℱ{aperture}|² (Fraunhofer).</p>`;
+      return;
+    }
     if (this.lab.family !== 'escape') {
       el.innerHTML = `<p class="lab-note">Probe is available on escape-time fractals.</p>`;
       return;
@@ -397,6 +453,17 @@ export class FractalPanel {
         <div class="kv"><span>Palette</span><b>${a.params.palette}</b></div>
         <p class="lab-note" style="margin-top:8px">Each pixel raymarches until DE &lt; ε.
         Trap radius drives ambient occlusion and volumetric glow.</p>
+      `;
+    } else if (a.family === 'diffraction') {
+      el.innerHTML = `
+        <div class="kv"><span>Model</span><b>Fraunhofer (far-field)</b></div>
+        <div class="kv"><span>Transform</span><b>2D FFT of aperture A(x,y)</b></div>
+        <div class="kv"><span>Intensity</span><b>I ∝ |ℱ{A}|²</b></div>
+        <div class="kv"><span>Boundary dim</span><b>${fmt(a.dimension, 4)}</b></div>
+        <div class="kv"><span>Palette</span><b>${a.params.palette}</b></div>
+        <p class="lab-note" style="margin-top:8px">Koch diffractals show a fractal core ringed by
+        a periodic lattice from the finite generation cutoff (Uozumi). λ scale mimics
+        wavelength: longer λ spreads the pattern.</p>
       `;
     } else {
       el.innerHTML = `

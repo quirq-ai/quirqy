@@ -76,6 +76,24 @@ export const MATH_PRESETS = [
     description: 'Three perpendicular oscillations woven together. Integer frequency ratios close the curve into a knot; drag a, b, c and watch it re-tie itself. The bead chain shows the same curve at 46 moments in time at once.',
   },
   {
+    id: 'euler', name: "Euler's formula", type: 'parametric',
+    // e^{i ω t} = cos(ω t) + i sin(ω t): x = Re, y = Im, z = time pitch
+    exprs: {
+      x: 'a cos(b t)',
+      y: 'a sin(b t)',
+      z: 'c t + 18',
+    },
+    params: {
+      a: { value: 18, min: 1, max: 40 },
+      b: { value: 1, min: 0.1, max: 6 },
+      c: { value: 1.2, min: 0, max: 4 },
+    },
+    particles: 52, spread: 0, speed: 0.85, chainOffset: 0.12,
+    ic: {},
+    camera: { pos: [52, 48, 78], target: [0, 22, 0] },
+    description: "Euler's formula: e^{i ω t} = cos(ω t) + i sin(ω t). x and y are the real and imaginary parts on the complex plane (a unit circle of radius a); z advances with time so the phasor unwraps into a helix on a cylinder. a is |e^{iωt}| (always 1, scaled), b is ω, and set c → 0 to flatten back to the pure unit-circle view.",
+  },
+  {
     id: 'torusknot', name: 'Torus knot', type: 'parametric',
     exprs: {
       x: '(18 + 7 cos(a t)) cos(b t)',
