@@ -1,6 +1,7 @@
 import { makePanelDraggable } from './dragPanel.js';
 import './floating-layout.css';
 import { REPOSITORY_LABS } from './repository-labs.js';
+import { mountRepositoryDockApps } from './repository-dock-apps.js';
 
 /** Attach shared floating behavior without tying it to a lab's scene lifecycle. */
 export function mountFloatingLayout() {
@@ -11,8 +12,9 @@ export function mountFloatingLayout() {
 
   function restoreRepositoryControls() {
     if (!repositoryControls) return;
-    const { moves, header, dock, group } = repositoryControls;
+    const { moves, header, dock, group, apps } = repositoryControls;
     repositoryControls = null;
+    apps?.dispose();
     // Restore the actual controls so their listeners and focus behavior survive.
     for (const { node, placeholder, label } of moves) {
       placeholder.replaceWith(node);
@@ -30,13 +32,14 @@ export function mountFloatingLayout() {
     const header = lab && document.querySelector(`#${lab.panelId} > .list-title`);
     const dock = lab && document.getElementById(lab.dockId);
     if (repositoryControls) {
-      if (repositoryControls.header === header && repositoryControls.dock === dock && repositoryControls.group.isConnected) return;
+      if (repositoryControls.header === header && repositoryControls.dock === dock && repositoryControls.group.isConnected
+        && repositoryControls.apps?.links.every(link => repositoryControls.apps.element.contains(link))) return;
       restoreRepositoryControls();
     }
     const view = dock?.querySelector(':scope > .glass-opacity-trigger');
     const help = document.getElementById('btn-help');
     const status = document.getElementById('sim-date');
-    if (!header || !view || !help || !status) return;
+    if (!header || !view || !help || !status || !REPOSITORY_LABS.every(app => document.getElementById(`tab-${app.mode}`))) return;
 
     const group = document.createElement('div');
     group.className = 'repository-dock-actions';
@@ -49,12 +52,13 @@ export function mountFloatingLayout() {
     });
     help.setAttribute('aria-label', 'Help');
     group.append(help);
+    const apps = mountRepositoryDockApps(group, lab.mode);
     view.after(group);
     header.insertBefore(status, header.querySelector('button'));
     header.classList.add('repository-status-header');
     dock.classList.add('repository-actions-dock');
     document.body.classList.add('repository-dock-layout');
-    repositoryControls = { moves, header, dock, group };
+    repositoryControls = { moves, header, dock, group, apps };
   }
 
   function release(element, entry) {
