@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { softDotTexture } from '../scene/setup.js';
 import { radialSpriteTexture } from '../textures/procedural.js';
-import { createActivityLayout, activityRadius, activityHash, ACTIVITY_KIND_COLORS, ACTIVITY_KIND_LABELS, REPOSITORY_NODE_ID } from './scene-layout.js';
+import { createActivityLayout, activityFrameBounds, activityClusterVisible, activityRadius, activityHash, ACTIVITY_KIND_COLORS, ACTIVITY_KIND_LABELS, REPOSITORY_NODE_ID } from './scene-layout.js';
 
 export { ACTIVITY_KIND_COLORS, ACTIVITY_KIND_LABELS } from './scene-layout.js';
 const UP = new THREE.Vector3(0, 1, 0);
@@ -40,6 +40,8 @@ export class ActivityScene {
     this.onHover = onHover;
     this.nodes = new Map();
     this.visibleIds = new Set();
+    this.visibleKinds = new Set();
+    this.kindStats = {};
     this.selectedId = null;
     this.hoveredId = null;
     this.view = 'constellation';
@@ -48,6 +50,7 @@ export class ActivityScene {
     this.links = [];
     this.clusterLabels = [];
     this.decorations = [];
+    this.envelopes = [];
     this.dataMaterials = new Set();
     this.dataGeometries = new Set();
     this.ownedTextures = new Set();
@@ -72,7 +75,7 @@ export class ActivityScene {
     this.linkGroup = new THREE.Group();
     this.linkGroup.name = 'Supplied parent and actor relationships';
     this.guideGroup = new THREE.Group();
-    this.guideGroup.name = 'Layout reference rings';
+    this.guideGroup.name = 'Repository total-capacity envelopes';
     this.labelGroup = new THREE.Group();
     this.group.add(this.world, this.linkGroup, this.guideGroup, this.labelGroup);
     this.scene.add(this.group);
@@ -207,12 +210,13 @@ export class ActivityScene {
     on('dblclick', event => { const hit = this._hit(event); if (hit?.id) this.focus(hit.id); else if (hit?.kind === 'repository') this.frame(); });
   }
 
-  setData(items, repository = {}) {
+  setData(items, repository = {}, kindStats = {}) {
     if (this.disposed) return;
     this._clearData();
     this.items = Array.isArray(items) ? items : [];
     this.repository = repository || {};
-    this.layout = createActivityLayout(this.items, this.view);
+    this.layout = createActivityLayout(this.items, this.view, kindStats);
+    this.kindStats = this.layout.kindStats;
     this.controls.maxDistance = Math.max(1500, this.layout.extent * 12);
     this.repositoryLabel.element.textContent = this.repository.fullName || this.repository.name || 'Repository';
     for (const item of this.layout.items) {
@@ -257,7 +261,7 @@ export class ActivityScene {
   setView(view) {
     if (!['constellation', 'orbits', 'contributors'].includes(view) || this.view === view || this.disposed) return;
     this.view = view;
-    this.layout = createActivityLayout(this.items, view);
+    this.layout = createActivityLayout(this.items, view, this.kindStats);
     this.controls.maxDistance = Math.max(1500, this.layout.extent * 12);
     const from = new Map([...this.nodes].map(([id, record]) => [id, record.position.clone()]));
     this.layoutTransition = { elapsed: 0, duration: .8, from };
@@ -269,22 +273,41 @@ export class ActivityScene {
 
   _buildGuidesAndLinks() {
     this._clearGuidesAndLinks();
+    const addDecoration = (object, cluster) => {
+      object.raycast = () => {};
+      object.userData = { kind: cluster.kind, role: 'capacity-envelope', total: cluster.total, loaded: cluster.loaded };
+      this.guideGroup.add(object);
+      this.decorations.push({ line: object, cluster });
+    };
     for (const cluster of this.layout.clusters) {
-      const label = textLabel(`${cluster.label} · ${cluster.ids.length}`, cluster.color, cluster.actor ? 10 : 11);
+      const label = textLabel('', cluster.color, cluster.actor ? 10 : 11);
       label.position.fromArray(cluster.position).add(new THREE.Vector3(0, cluster.labelOnly ? 4 : cluster.radius + 4.5, 0));
       this.labelGroup.add(label);
       this.clusterLabels.push({ cluster, label });
-      if (cluster.radius > 0) {
+      // These quiet translucent volumes describe capacity, not extra entities.
+      // In particular, an all-closed category retains its complete envelope.
+      const geometry = cluster.envelope === 'band'
+        ? new THREE.TorusGeometry(cluster.orbitRadius, cluster.tubeRadius, 12, 128)
+        : new THREE.SphereGeometry(cluster.radius, 32, 20);
+      const material = new THREE.MeshBasicMaterial({ color: cluster.color, transparent: true, opacity: cluster.actor ? .014 : .027,
+        side: THREE.BackSide, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
+      this.dataGeometries.add(geometry); this.dataMaterials.add(material);
+      const shell = new THREE.Mesh(geometry, material);
+      if (cluster.envelope === 'band') shell.rotation.set(Math.PI / 2 - cluster.tilt, -cluster.rotation, 0, 'YXZ');
+      else shell.position.fromArray(cluster.position);
+      addDecoration(shell, cluster);
+      this.envelopes.push({ cluster, object: shell });
+      if (cluster.radius > 0) for (const plane of ['xy', 'xz']) {
         const points = Array.from({ length: 129 }, (_, index) => {
           const angle = index / 128 * Math.PI * 2;
-          return vec(cluster.position).add(new THREE.Vector3(Math.cos(angle) * cluster.radius, Math.sin(angle) * cluster.radius * .82, Math.sin(angle) * cluster.radius * .16));
+          const point = plane === 'xy' ? [Math.cos(angle), Math.sin(angle), 0] : [Math.cos(angle), 0, Math.sin(angle)];
+          return vec(cluster.position).add(vec(point).multiplyScalar(cluster.radius));
         });
-        const geometry = new THREE.BufferGeometry().setFromPoints(points);
-        const material = new THREE.LineDashedMaterial({ color: cluster.color, transparent: true, opacity: .17, dashSize: .5, gapSize: .85, depthWrite: false });
-        this.dataGeometries.add(geometry); this.dataMaterials.add(material);
-        const line = new THREE.Line(geometry, material);
-        line.computeLineDistances(); line.raycast = () => {};
-        this.guideGroup.add(line); this.decorations.push({ line, ids: cluster.ids });
+        const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+        const lineMaterial = new THREE.LineBasicMaterial({ color: cluster.color, transparent: true,
+          opacity: cluster.actor ? .13 : plane === 'xy' ? .26 : .16, depthWrite: false });
+        this.dataGeometries.add(lineGeometry); this.dataMaterials.add(lineMaterial);
+        addDecoration(new THREE.Line(lineGeometry, lineMaterial), cluster);
       }
     }
     for (const ring of this.layout.rings) {
@@ -294,12 +317,9 @@ export class ActivityScene {
         return new THREE.Vector3(x * Math.cos(ring.rotation) - z * Math.cos(ring.tilt) * Math.sin(ring.rotation), z * Math.sin(ring.tilt), x * Math.sin(ring.rotation) + z * Math.cos(ring.tilt) * Math.cos(ring.rotation));
       });
       const geometry = new THREE.BufferGeometry().setFromPoints(points);
-      const material = new THREE.LineBasicMaterial({ color: ACTIVITY_KIND_COLORS[ring.kind], transparent: true, opacity: .16, depthWrite: false });
+      const material = new THREE.LineBasicMaterial({ color: ACTIVITY_KIND_COLORS[ring.kind], transparent: true, opacity: .21, depthWrite: false });
       this.dataGeometries.add(geometry); this.dataMaterials.add(material);
-      const line = new THREE.Line(geometry, material);
-      line.raycast = () => {};
-      this.guideGroup.add(line);
-      this.decorations.push({ line, ids: this.layout.items.filter(item => item.kind === ring.kind).map(item => item.id) });
+      addDecoration(new THREE.Line(geometry, material), this.layout.clusters.find(cluster => cluster.kind === ring.kind));
     }
     for (const link of this.layout.links) {
       const geometry = new THREE.BufferGeometry();
@@ -334,9 +354,10 @@ export class ActivityScene {
     }
   }
 
-  setVisible(ids) {
+  setVisible(ids, { kinds } = {}) {
     if (this.disposed) return;
     this.visibleIds = new Set(ids || []);
+    if (kinds !== undefined) this.visibleKinds = new Set(kinds || []);
     if (this.hoveredId && !this.visibleIds.has(this.hoveredId)) this._clearHover();
     this._paint();
   }
@@ -364,12 +385,16 @@ export class ActivityScene {
       link.line.visible = visible && (link.kind !== 'actor' || this.view === 'contributors' || selected);
       link.line.material.opacity = selected ? .7 : link.kind === 'repository' ? .1 : this.view === 'contributors' ? .2 : .22;
     }
-    for (const decoration of this.decorations) decoration.line.visible = decoration.ids.some(id => this.visibleIds.has(id));
+    for (const decoration of this.decorations) decoration.line.visible = activityClusterVisible(decoration.cluster, this.visibleKinds);
     for (const { cluster, label } of this.clusterLabels) {
       const count = cluster.ids.filter(id => this.visibleIds.has(id)).length;
-      label.element.textContent = `${cluster.label} · ${count}`;
-      label.userData.active = count > 0;
-      label.userData.count = count;
+      const total = cluster.total.toLocaleString('en-US');
+      const denominator = cluster.actor ? `${total} loaded` : `${cluster.exact ? '' : '≥'}${total}`;
+      label.element.textContent = `${cluster.label} · ${count} / ${denominator}`;
+      label.element.title = cluster.actor ? 'Shown / loaded participation; per-person repository totals are unavailable.'
+        : 'Shown / repository total, including closed and merged history. ≥ indicates a known lower bound.';
+      label.userData.active = activityClusterVisible(cluster, this.visibleKinds);
+      label.userData.count = cluster.total;
     }
     const highlighted = this.nodes.get(this.hoveredId || this.selectedId);
     this.focusHalo.visible = Boolean(highlighted && this.visibleIds.has(highlighted.item.id));
@@ -457,8 +482,8 @@ export class ActivityScene {
 
   frame(immediate = false) {
     if (this.disposed) return;
-    const records = [{ position: new THREE.Vector3(), radius: 9 }];
-    for (const [id, record] of this.nodes) if (this.visibleIds.has(id)) records.push({ position: vec(this.layout.positions.get(id)), radius: record.radius + 4 });
+    this.frameBounds = activityFrameBounds(this.layout, this.visibleKinds);
+    const records = this.frameBounds.map(bound => ({ position: vec(bound.position), radius: bound.radius }));
     this.camera.up.set(0, 1, 0);
     const direction = this.view === 'orbits' ? new THREE.Vector3(.2, .78, 1) : new THREE.Vector3(.12, .18, 1);
     this._flyTo(this._pose(records, direction), immediate);
@@ -598,7 +623,7 @@ export class ActivityScene {
       });
       group.clear();
     }
-    this.links = []; this.decorations = [];
+    this.links = []; this.decorations = []; this.envelopes = [];
   }
 
   _clearData() {

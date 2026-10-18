@@ -4,6 +4,9 @@ export const COMMUNITY_KINDS = Object.freeze(['pull_request', 'issue', 'review',
 const kindSet = new Set(COMMUNITY_KINDS);
 const validDate = value => typeof value === 'string' && Number.isFinite(Date.parse(value));
 const timestamp = value => validDate(value) ? new Date(value).toISOString() : null;
+const isOpen = item => item.state === 'open' || item.state === 'draft';
+const lifecycleKind = kind => kind === 'pull_request' || kind === 'issue';
+const validCount = value => Number.isSafeInteger(value) && value >= 0;
 const safeUrl = value => {
   try { const url = new URL(value); return url.protocol === 'https:' && url.hostname === 'github.com' && !url.username && !url.password && !url.port ? url.href : null; }
   catch { return null; }
@@ -34,14 +37,23 @@ export function buildCommunityModel(dataset) {
   }
   for (const item of items) addActor(item.actor, 'itemCount', item.kind);
   for (const event of events) addActor(event.actor, 'eventCount', event.kind);
-  return { dataset, repository: dataset.repository, items, byId, events,
+  const kindStats = Object.fromEntries(COMMUNITY_KINDS.map(kind => {
+    const records = items.filter(item => item.kind === kind);
+    const loaded = records.length, loadedOpen = lifecycleKind(kind) ? records.filter(isOpen).length : null;
+    const raw = dataset.counts?.[kind];
+    const total = Math.max(loaded, validCount(raw?.total) ? raw.total : 0, lifecycleKind(kind) && validCount(raw?.open) ? raw.open : 0);
+    const open = lifecycleKind(kind) ? Math.max(loadedOpen, validCount(raw?.open) ? raw.open : 0) : null;
+    return [kind, { total, open, loaded, loadedOpen, exact: Boolean(raw?.exact === true && validCount(raw.total) && raw.total === total), openExact: Boolean(lifecycleKind(kind) && raw?.openExact === true && validCount(raw.open) && raw.open === open) }];
+  }));
+  return { dataset, repository: dataset.repository, items, byId, events, kindStats,
     actors: [...actors.values()].map(actor => ({ ...actor, kinds: [...actor.kinds] })).sort((a, b) => a.login.localeCompare(b.login)) };
 }
 
 /** Cursor hides objects not yet created; it never fabricates past states/counts. */
-export function filterCommunityItems(model, { query = '', kinds = [], actor = '', state = '' } = {}, cursorDate = null) {
+export function filterCommunityItems(model, { query = '', kinds = [], actor = '', state = '', historyKind = null } = {}, cursorDate = null) {
   const search = String(query).trim().toLowerCase();
   const selectedKinds = new Set(kinds || []);
+  const historicalKind = selectedKinds.size === 1 && selectedKinds.has(historyKind) && lifecycleKind(historyKind) ? historyKind : null;
   const selectedActor = String(actor || '').toLowerCase();
   const cursor = cursorDate instanceof Date ? cursorDate.getTime() : validDate(cursorDate) ? Date.parse(cursorDate) : null;
   const related = new Set();
@@ -49,7 +61,8 @@ export function filterCommunityItems(model, { query = '', kinds = [], actor = ''
     if (event.actor.login?.toLowerCase() === selectedActor && (cursor === null || Date.parse(event.date) <= cursor)) related.add(event.itemId);
   }
   return model.items.filter(item => (!selectedKinds.size || selectedKinds.has(item.kind))
-    && (!state || item.state === state)
+    && (!lifecycleKind(item.kind) || isOpen(item) || historicalKind === item.kind)
+    && (!state || (state === 'open' ? isOpen(item) : item.state === state))
     && (!selectedActor || item.actor.login?.toLowerCase() === selectedActor || related.has(item.id))
     && (!search || [item.title, item.id, item.actor.login || '', item.number == null ? '' : `#${item.number}`, item.state || ''].some(value => String(value).toLowerCase().includes(search)))
     && (cursor === null || item.kind === 'contributor' || !item.createdAt || Date.parse(item.createdAt) <= cursor));

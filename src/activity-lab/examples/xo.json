@@ -8,8 +8,54 @@
     "openIssues": 2,
     "openIssuesIncludesPullRequests": true
   },
-  "fetchedAt": "2026-10-18T21:48:36.955Z",
+  "fetchedAt": "2026-10-18T22:45:54.739Z",
   "source": "snapshot",
+  "counts": {
+    "pull_request": {
+      "total": 46,
+      "open": 0,
+      "exact": true,
+      "openExact": true,
+      "source": "https://api.github.com/search/issues?q=repo%3Aquirq-ai%2Fxo+is%3Apr&sort=updated&order=desc&per_page=1&page=1",
+      "openSource": "https://api.github.com/search/issues?q=repo%3Aquirq-ai%2Fxo+is%3Apr+is%3Aopen&sort=updated&order=desc&per_page=50&page=1"
+    },
+    "issue": {
+      "total": 2,
+      "open": 2,
+      "exact": true,
+      "openExact": true,
+      "source": "https://api.github.com/search/issues?q=repo%3Aquirq-ai%2Fxo+is%3Aissue&sort=updated&order=desc&per_page=50&page=1",
+      "openSource": "https://api.github.com/search/issues?q=repo%3Aquirq-ai%2Fxo+is%3Aissue+is%3Aopen&sort=updated&order=desc&per_page=50&page=1"
+    },
+    "review": {
+      "total": 1,
+      "open": null,
+      "exact": false,
+      "openExact": false,
+      "source": "Loaded records only; repository-wide total unavailable"
+    },
+    "comment": {
+      "total": 30,
+      "open": null,
+      "exact": false,
+      "openExact": false,
+      "source": "Loaded records only; repository-wide total unavailable"
+    },
+    "fork": {
+      "total": 0,
+      "open": null,
+      "exact": true,
+      "openExact": false,
+      "source": "GitHub repository forks_count"
+    },
+    "contributor": {
+      "total": 1,
+      "open": null,
+      "exact": true,
+      "openExact": false,
+      "source": "Complete GitHub contributor listing; anonymous contributors excluded"
+    }
+  },
   "items": [
     {
       "id": "quirq-ai/xo:pull_request:48",
@@ -2101,57 +2147,28 @@
     }
   ],
   "limitations": [
+    "PR and issue totals come from complete GitHub search total_count responses and include closed/merged work. Search counts are snapshot values and may lag GitHub updates. Missing or incomplete searches fall back to explicitly labeled loaded lower bounds.",
+    "Review and comment totals are loaded lower bounds, not repository-wide totals. Fork totals use repository metadata; contributor totals are exact only when the requested listing is complete.",
+    "Pull requests: only the first requested page is included; further results are omitted.",
     "Conversation comments: only the first requested page is included; further results are omitted.",
     "Issue workflow events: only the first requested page is included; further results are omitted.",
-    "Pull requests: only the first requested page is included; further results are omitted.",
-    "Bounded public snapshot: up to 20 recently updated PRs; issues from the first 50 mixed issue/PR results; 30 conversation comments, 30 inline comments, 20 newest forks, 30 contributors and 50 issue events. Available parent objects may also be included to connect real comments and events.",
+    "Bounded public snapshot: up to 50 explicitly open PRs and 50 explicitly open issues, plus 20 recently updated PRs, up to 50 recently updated issues, and available parent objects from the first 50 mixed issue/PR results; 30 conversation comments, 30 inline comments, 20 newest forks, 30 contributors and 50 issue events. Available parent objects may also be included to connect real comments and events.",
     "Reviews cover the first 30 reviews, in chronological order, on at most 8 sampled recently updated PRs. Other reviews are not loaded.",
     "Replay uses returned object timestamps and sampled issue events, not a complete historical audit. State, titles, ownership and contributor counts describe the fetched snapshot, not reconstructed historical values. Missing timestamps do not become invented events.",
     "The issues endpoint includes pull requests; issue items and PR items are separated. GitHub’s repository open-issues total includes open pull requests.",
     "Contributor counts are GitHub’s cached aggregate commit counts, not collaboration scores or productivity measures. Undated contributors remain visible outside replay; anonymous contributors are not requested.",
-    "Preloaded from actual GitHub API responses. This bundled snapshot works without API access and does not update automatically."
+    "Preloaded from actual GitHub API responses. This bundled snapshot works without API access and does not update automatically.",
+    "API responses were captured from 2026-10-18T21:47:48.873Z to 2026-10-18T22:45:54.739Z; endpoint provenance records each capture time."
   ],
   "provenance": {
     "provider": "GitHub REST API",
     "endpoints": [
       {
-        "name": "comments",
-        "url": "https://api.github.com/repos/quirq-ai/xo/issues/comments?sort=updated&direction=desc&per_page=30&page=1",
-        "fetchedAt": "2026-10-18T21:47:49.442Z",
+        "name": "repository",
+        "url": "https://api.github.com/repos/quirq-ai/xo",
+        "fetchedAt": "2026-10-18T21:47:48.873Z",
         "status": 200,
-        "count": 30,
-        "more": true
-      },
-      {
-        "name": "contributors",
-        "url": "https://api.github.com/repos/quirq-ai/xo/contributors?per_page=30&page=1",
-        "fetchedAt": "2026-10-18T21:47:50.819Z",
-        "status": 200,
-        "count": 1,
-        "more": false
-      },
-      {
-        "name": "forks",
-        "url": "https://api.github.com/repos/quirq-ai/xo/forks?sort=newest&per_page=20&page=1",
-        "fetchedAt": "2026-10-18T21:47:49.759Z",
-        "status": 200,
-        "count": 0,
-        "more": false
-      },
-      {
-        "name": "issueEvents",
-        "url": "https://api.github.com/repos/quirq-ai/xo/issues/events?per_page=50&page=1",
-        "fetchedAt": "2026-10-18T21:48:35.852Z",
-        "status": 200,
-        "count": 50,
-        "more": true
-      },
-      {
-        "name": "issues",
-        "url": "https://api.github.com/repos/quirq-ai/xo/issues?state=all&sort=updated&direction=desc&per_page=50&page=1",
-        "fetchedAt": "2026-10-18T21:47:49.936Z",
-        "status": 200,
-        "count": 48,
+        "count": null,
         "more": false
       },
       {
@@ -2163,12 +2180,20 @@
         "more": true
       },
       {
-        "name": "repository",
-        "url": "https://api.github.com/repos/quirq-ai/xo",
-        "fetchedAt": "2026-10-18T21:47:48.873Z",
+        "name": "issues",
+        "url": "https://api.github.com/repos/quirq-ai/xo/issues?state=all&sort=updated&direction=desc&per_page=50&page=1",
+        "fetchedAt": "2026-10-18T21:47:49.936Z",
         "status": 200,
-        "count": null,
+        "count": 48,
         "more": false
+      },
+      {
+        "name": "comments",
+        "url": "https://api.github.com/repos/quirq-ai/xo/issues/comments?sort=updated&direction=desc&per_page=30&page=1",
+        "fetchedAt": "2026-10-18T21:47:49.442Z",
+        "status": 200,
+        "count": 30,
+        "more": true
       },
       {
         "name": "reviewComments",
@@ -2179,49 +2204,73 @@
         "more": false
       },
       {
-        "name": "reviews-41",
-        "url": "https://api.github.com/repos/quirq-ai/xo/pulls/41/reviews?per_page=30&page=1",
-        "fetchedAt": "2026-10-18T21:48:36.955Z",
+        "name": "forks",
+        "url": "https://api.github.com/repos/quirq-ai/xo/forks?sort=newest&per_page=20&page=1",
+        "fetchedAt": "2026-10-18T21:47:49.759Z",
+        "status": 200,
+        "count": 0,
+        "more": false
+      },
+      {
+        "name": "contributors",
+        "url": "https://api.github.com/repos/quirq-ai/xo/contributors?per_page=30&page=1",
+        "fetchedAt": "2026-10-18T21:47:50.819Z",
         "status": 200,
         "count": 1,
         "more": false
       },
       {
-        "name": "reviews-42",
-        "url": "https://api.github.com/repos/quirq-ai/xo/pulls/42/reviews?per_page=30&page=1",
-        "fetchedAt": "2026-10-18T21:48:36.644Z",
+        "name": "issueEvents",
+        "url": "https://api.github.com/repos/quirq-ai/xo/issues/events?per_page=50&page=1",
+        "fetchedAt": "2026-10-18T21:48:35.852Z",
         "status": 200,
-        "count": 0,
+        "count": 50,
+        "more": true
+      },
+      {
+        "name": "countPulls",
+        "url": "https://api.github.com/search/issues?q=repo%3Aquirq-ai%2Fxo+is%3Apr&sort=updated&order=desc&per_page=1&page=1",
+        "fetchedAt": "2026-10-18T22:44:19.333Z",
+        "status": 200,
+        "count": 1,
+        "totalCount": 46,
+        "incompleteResults": false,
+        "more": true
+      },
+      {
+        "name": "countIssues",
+        "url": "https://api.github.com/search/issues?q=repo%3Aquirq-ai%2Fxo+is%3Aissue&sort=updated&order=desc&per_page=50&page=1",
+        "fetchedAt": "2026-10-18T22:45:54.739Z",
+        "status": 200,
+        "count": 2,
+        "totalCount": 2,
+        "incompleteResults": false,
         "more": false
       },
       {
-        "name": "reviews-43",
-        "url": "https://api.github.com/repos/quirq-ai/xo/pulls/43/reviews?per_page=30&page=1",
-        "fetchedAt": "2026-10-18T21:48:36.452Z",
+        "name": "openPulls",
+        "url": "https://api.github.com/search/issues?q=repo%3Aquirq-ai%2Fxo+is%3Apr+is%3Aopen&sort=updated&order=desc&per_page=50&page=1",
+        "fetchedAt": "2026-10-18T22:44:20.140Z",
         "status": 200,
         "count": 0,
+        "totalCount": 0,
+        "incompleteResults": false,
         "more": false
       },
       {
-        "name": "reviews-44",
-        "url": "https://api.github.com/repos/quirq-ai/xo/pulls/44/reviews?per_page=30&page=1",
-        "fetchedAt": "2026-10-18T21:48:36.259Z",
+        "name": "openIssues",
+        "url": "https://api.github.com/search/issues?q=repo%3Aquirq-ai%2Fxo+is%3Aissue+is%3Aopen&sort=updated&order=desc&per_page=50&page=1",
+        "fetchedAt": "2026-10-18T22:44:20.655Z",
         "status": 200,
-        "count": 0,
+        "count": 2,
+        "totalCount": 2,
+        "incompleteResults": false,
         "more": false
       },
       {
-        "name": "reviews-45",
-        "url": "https://api.github.com/repos/quirq-ai/xo/pulls/45/reviews?per_page=30&page=1",
-        "fetchedAt": "2026-10-18T21:48:36.052Z",
-        "status": 200,
-        "count": 0,
-        "more": false
-      },
-      {
-        "name": "reviews-46",
-        "url": "https://api.github.com/repos/quirq-ai/xo/pulls/46/reviews?per_page=30&page=1",
-        "fetchedAt": "2026-10-18T21:48:36.609Z",
+        "name": "reviews-48",
+        "url": "https://api.github.com/repos/quirq-ai/xo/pulls/48/reviews?per_page=30&page=1",
+        "fetchedAt": "2026-10-18T21:48:35.432Z",
         "status": 200,
         "count": 0,
         "more": false
@@ -2235,11 +2284,51 @@
         "more": false
       },
       {
-        "name": "reviews-48",
-        "url": "https://api.github.com/repos/quirq-ai/xo/pulls/48/reviews?per_page=30&page=1",
-        "fetchedAt": "2026-10-18T21:48:35.432Z",
+        "name": "reviews-46",
+        "url": "https://api.github.com/repos/quirq-ai/xo/pulls/46/reviews?per_page=30&page=1",
+        "fetchedAt": "2026-10-18T21:48:36.609Z",
         "status": 200,
         "count": 0,
+        "more": false
+      },
+      {
+        "name": "reviews-45",
+        "url": "https://api.github.com/repos/quirq-ai/xo/pulls/45/reviews?per_page=30&page=1",
+        "fetchedAt": "2026-10-18T21:48:36.052Z",
+        "status": 200,
+        "count": 0,
+        "more": false
+      },
+      {
+        "name": "reviews-44",
+        "url": "https://api.github.com/repos/quirq-ai/xo/pulls/44/reviews?per_page=30&page=1",
+        "fetchedAt": "2026-10-18T21:48:36.259Z",
+        "status": 200,
+        "count": 0,
+        "more": false
+      },
+      {
+        "name": "reviews-43",
+        "url": "https://api.github.com/repos/quirq-ai/xo/pulls/43/reviews?per_page=30&page=1",
+        "fetchedAt": "2026-10-18T21:48:36.452Z",
+        "status": 200,
+        "count": 0,
+        "more": false
+      },
+      {
+        "name": "reviews-42",
+        "url": "https://api.github.com/repos/quirq-ai/xo/pulls/42/reviews?per_page=30&page=1",
+        "fetchedAt": "2026-10-18T21:48:36.644Z",
+        "status": 200,
+        "count": 0,
+        "more": false
+      },
+      {
+        "name": "reviews-41",
+        "url": "https://api.github.com/repos/quirq-ai/xo/pulls/41/reviews?per_page=30&page=1",
+        "fetchedAt": "2026-10-18T21:48:36.955Z",
+        "status": 200,
+        "count": 1,
         "more": false
       }
     ]

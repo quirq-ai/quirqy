@@ -31,6 +31,16 @@ body[data-mode="activity"] #attribution { max-width: 225px; font-size: 9px; }
 .activity-kind-key small { display: block; color: var(--text-dim); font-size: 8.5px; }
 .activity-kind-key b { color: var(--text-dim); font-size: 10px; font-weight: 400; font-variant-numeric: tabular-nums; }
 #activity-guide .activity-key-hint { font-size: 9px; padding-top: 6px; }
+.activity-history-controls { margin: 9px 16px 3px; padding: 9px 0 2px; border-top: 1px solid var(--panel-border); border-bottom: 1px solid var(--panel-border); }
+.activity-history-toggle { display: flex; position: relative; align-items: center; justify-content: space-between; gap: 10px; font-size: 10px; color: var(--text); cursor: pointer; }
+.activity-history-toggle input { position: absolute; right: 0; width: 30px; height: 18px; opacity: 0; cursor: pointer; }
+.activity-history-toggle i { width: 30px; height: 18px; flex: none; border: 1px solid var(--panel-border); border-radius: 20px; background: rgba(134,183,255,.08); pointer-events: none; }
+.activity-history-toggle i::after { content: ''; display: block; width: 10px; height: 10px; margin: 3px; border-radius: 50%; background: var(--text-dim); transition: transform .15s ease; }
+.activity-history-toggle input:checked + i { border-color: rgba(255,202,122,.4); background: rgba(255,202,122,.13); }
+.activity-history-toggle input:checked + i::after { transform: translateX(12px); background: var(--accent); }
+.activity-history-toggle input:focus-visible + i { outline: 2px solid var(--accent-cool); outline-offset: 3px; }
+#activity-guide #activity-history-note { padding: 6px 0; font-size: 9px; }
+#activity-guide #activity-count-note { font-size: 8.5px; }
 .activity-fields { display: grid; gap: 6px; padding: 5px 16px 0; }
 .activity-fields label { color: var(--text-dim); font-size: 10px; padding-top: 3px; }
 #activity-repository-url, #activity-search { width: 100%; min-width: 0; background: rgba(16,24,42,.85); border: 1px solid var(--panel-border); border-radius: 8px; color: var(--text); font-size: 11px; padding: 7px 9px; }

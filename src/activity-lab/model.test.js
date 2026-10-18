@@ -101,7 +101,7 @@ test('model sorts actual event dates, groups actors and filters collaboration ki
   const model = buildCommunityModel(data);
   assert.deepEqual(model.events.map(event => event.date), [...model.events.map(event => event.date)].sort());
   assert.equal(model.actors.find(actor => actor.login === 'bob').itemCount, 2);
-  assert.equal(filterCommunityItems(model, { kinds: ['pull_request'], state: 'merged', query: '#7' }).length, 1);
+  assert.equal(filterCommunityItems(model, { kinds: ['pull_request'], historyKind: 'pull_request', state: 'merged', query: '#7' }).length, 1);
   assert.equal(filterCommunityItems(model, { kinds: new Set(['comment']), query: 'inline' }).length, 1);
   assert.equal(filterCommunityItems(model, { kinds: ['issue'], query: 'not present' }).length, 0);
 });
@@ -112,13 +112,13 @@ test('cursor hides future objects while undated contributors remain visible with
   assert.deepEqual(before.map(item => item.kind), ['contributor']);
   assert.equal(filterCommunityItems(model, { kinds: ['comment'] }, '2026-10-03T10:00:00Z').length, 1);
   assert.equal(filterCommunityItems(model, { kinds: ['contributor'] }, new Date('2020-01-01')).length, 1);
-  assert.equal(filterCommunityItems(model, {}, null).length, model.items.length);
+  assert.equal(filterCommunityItems(model, {}, null).length, model.items.length - 1);
 });
 
 test('actor filtering includes actual workflow participation only after that event’s cursor time', () => {
   const model = buildCommunityModel(normalized(fixture()));
-  assert.equal(filterCommunityItems(model, { kinds: ['pull_request'], actor: 'BOB' }, '2026-10-04T23:00:00Z').length, 0);
-  assert.equal(filterCommunityItems(model, { kinds: ['pull_request'], actor: 'bob' }, '2026-10-05T10:00:00Z').length, 1);
+  assert.equal(filterCommunityItems(model, { kinds: ['pull_request'], historyKind: 'pull_request', actor: 'BOB' }, '2026-10-04T23:00:00Z').length, 0);
+  assert.equal(filterCommunityItems(model, { kinds: ['pull_request'], historyKind: 'pull_request', actor: 'bob' }, '2026-10-05T10:00:00Z').length, 1);
 });
 
 test('unknown, duplicate and undated events are excluded without inventing missing items', () => {
@@ -127,6 +127,78 @@ test('unknown, duplicate and undated events are excluded without inventing missi
   const model = buildCommunityModel(data);
   assert.equal(model.events.length, data.events.length - 3);
   assert.equal(model.items.length, data.items.length);
+});
+
+test('default view shows open and draft work while history is scoped to exactly one selected kind', () => {
+  const data = normalized(fixture());
+  const pull = data.items.find(item => item.kind === 'pull_request');
+  const issue = data.items.find(item => item.kind === 'issue');
+  data.items.push({ ...pull, id: 'draft', state: 'draft', number: 99 }, { ...pull, id: 'open-pr', state: 'open', number: 100 }, { ...issue, id: 'closed-issue', state: 'closed', number: 101 });
+  const model = buildCommunityModel(data);
+  const ids = filters => filterCommunityItems(model, filters).map(item => item.id);
+  assert.ok(ids({}).includes('draft'));
+  assert.ok(ids({}).includes('open-pr'));
+  assert.ok(!ids({}).includes(pull.id));
+  assert.ok(!ids({}).includes('closed-issue'));
+  assert.ok(ids({ kinds: ['pull_request'], historyKind: 'pull_request' }).includes(pull.id));
+  assert.ok(!ids({ kinds: ['pull_request'], historyKind: 'issue' }).includes(pull.id));
+  assert.ok(!ids({ kinds: ['pull_request', 'issue'], historyKind: 'pull_request' }).includes(pull.id));
+  assert.ok(!ids({ historyKind: 'issue' }).includes('closed-issue'));
+  assert.ok(ids({ kinds: new Set(['issue']), historyKind: 'issue' }).includes('closed-issue'));
+  assert.deepEqual(ids({ kinds: ['pull_request'], state: 'open' }), ['draft', 'open-pr']);
+  assert.equal(filterCommunityItems(model).filter(item => !['issue', 'pull_request'].includes(item.kind)).length, data.items.filter(item => !['issue', 'pull_request'].includes(item.kind)).length);
+});
+
+test('complete repository search totals stay separate from loaded samples and replay visibility', () => {
+  const response = fixture();
+  response.countPulls = envelope({ total_count: 750, incomplete_results: false, items: [] });
+  response.countIssues = envelope({ total_count: 120, incomplete_results: false, items: [] });
+  response.openPulls = envelope({ total_count: 20, incomplete_results: false, items: [] });
+  response.openIssues = envelope({ total_count: 10, incomplete_results: false, items: [] });
+  const model = buildCommunityModel(normalized(response));
+  assert.deepEqual(model.kindStats.pull_request, { total: 750, open: 20, loaded: 1, loadedOpen: 0, exact: true, openExact: true });
+  assert.deepEqual(model.kindStats.issue, { total: 120, open: 10, loaded: 1, loadedOpen: 1, exact: true, openExact: true });
+  assert.equal(model.kindStats.review.exact, false);
+  assert.equal(model.kindStats.comment.exact, false);
+  assert.equal(model.kindStats.fork.exact, true);
+  assert.equal(model.kindStats.contributor.exact, true);
+  assert.equal(model.kindStats.contributor.open, null);
+  const before = structuredClone(model.kindStats);
+  assert.equal(filterCommunityItems(model, {}, '2020-01-01').length, 1);
+  filterCommunityItems(model, { kinds: ['pull_request'], historyKind: 'pull_request' });
+  assert.deepEqual(model.kindStats, before);
+});
+
+test('incomplete or missing count searches never masquerade as exact totals', () => {
+  const response = fixture();
+  response.countPulls = envelope({ total_count: 9999, incomplete_results: true, items: [] });
+  response.openPulls = envelope({ total_count: 9999, incomplete_results: true, items: [] });
+  response.contributors.more = true;
+  const data = normalized(response), model = buildCommunityModel(data);
+  assert.deepEqual(model.kindStats.pull_request, { total: 1, open: 0, loaded: 1, loadedOpen: 0, exact: false, openExact: false });
+  assert.equal(model.kindStats.issue.exact, false);
+  assert.equal(model.kindStats.contributor.exact, false);
+  assert.ok(data.limitations.some(note => note.includes('incomplete results')));
+  assert.ok(data.limitations.some(note => note.includes('loaded lower bound')));
+  data.counts.pull_request = { total: 0, open: 0, exact: true, openExact: true };
+  assert.equal(buildCommunityModel(data).kindStats.pull_request.total, 1);
+  assert.equal(buildCommunityModel(data).kindStats.pull_request.exact, false);
+});
+
+test('explicit open listings retain older open work outside the recent closed sample and deduplicate matches', () => {
+  const response = fixture();
+  const olderPull = { ...response.pulls.data[0], number: 1, title: 'Still open from last year', state: 'open', draft: true, created_at: '2025-01-01T00:00:00Z', merged_at: null, closed_at: null, pull_request: {} };
+  const olderIssue = { ...response.issues.data[1], number: 2, title: 'Older open issue', created_at: '2025-02-01T00:00:00Z' };
+  response.openPulls = envelope({ total_count: 1, incomplete_results: false, items: [olderPull] });
+  response.openIssues = envelope({ total_count: 2, incomplete_results: false, items: [olderIssue, response.issues.data[1]] });
+  response.countIssues = envelope({ total_count: 3, incomplete_results: false, items: [{ ...olderIssue, number: 3, title: 'Closed issue history', state: 'closed' }] });
+  const model = buildCommunityModel(normalized(response));
+  assert.equal(model.items.filter(item => item.kind === 'pull_request').length, 2);
+  assert.equal(model.items.filter(item => item.kind === 'issue').length, 3);
+  assert.deepEqual(filterCommunityItems(model, { kinds: ['pull_request'] }).map(item => item.number), [1]);
+  assert.equal(filterCommunityItems(model, { kinds: ['issue'] }).length, 2);
+  assert.equal(filterCommunityItems(model, { kinds: ['issue'], historyKind: 'issue' }).length, 3);
+  assert.equal(model.kindStats.pull_request.loadedOpen, 1);
 });
 
 function jsonResponse(data, status = 200, headers = {}) {
@@ -139,6 +211,13 @@ function loaderMock({ failComments = false, manyPulls = false } = {}) {
     calls.push({ request, options });
     const endpoint = new URL(request);
     const path = endpoint.pathname.replace('/repos/owner/repo', '');
+    if (endpoint.pathname === '/search/issues') {
+      const isPull = endpoint.searchParams.get('q').includes('is:pr');
+      const open = endpoint.searchParams.get('q').includes('is:open');
+      const records = isPull ? open ? [] : source.pulls.data : [source.issues.data[1]];
+      return jsonResponse({ total_count: isPull ? open ? 0 : manyPulls ? 20 : 1 : 1, incomplete_results: false, items: records });
+    }
+
     if (path === '') return jsonResponse(source.repository.data);
     if (path === '/pulls') return jsonResponse(manyPulls ? Array.from({ length: 20 }, (_, index) => ({ ...source.pulls.data[0], number: index + 1 })) : source.pulls.data, 200, { Link: '<https://api.github.com/page2>; rel="next"' });
     if (path === '/issues') return jsonResponse(source.issues.data);
@@ -158,7 +237,7 @@ test('live loader uses bounded public reads and never sends credentials or token
   const progress = [];
   const data = await loadActivityRepository(url, { fetcher, onProgress: message => progress.push(message) });
   assert.equal(data.source, 'github');
-  assert.equal(calls.length, 8 + ACTIVITY_LIMITS.reviewedPullRequests);
+  assert.equal(calls.length, 12 + ACTIVITY_LIMITS.reviewedPullRequests);
   assert.ok(calls.every(call => call.options.credentials === 'omit' && !Object.keys(call.options.headers).some(key => key.toLowerCase() === 'authorization')));
   assert.ok(calls.every(call => new URL(call.request).searchParams.get('page') !== '2'));
   assert.ok(progress.includes('Preparing collaboration activity…'));
@@ -174,7 +253,7 @@ test('optional endpoint failures preserve successful activity and surface explic
   assert.ok(data.limitations.some(note => note.includes('Conversation comments unavailable') && note.includes('403')));
 });
 
-test('successful metadata with all seven collaboration sources failing rejects instead of publishing an empty snapshot', async () => {
+test('successful metadata with all collaboration sources failing rejects instead of publishing an empty snapshot', async () => {
   const calls = [];
   const progress = [];
   const fetcher = async request => {
@@ -189,8 +268,17 @@ test('successful metadata with all seven collaboration sources failing rejects i
     assert.match(error.message, /403.*access or rate limit/);
     return true;
   });
-  assert.equal(calls.length, 8, 'Only metadata and the seven bounded sources are requested.');
+  assert.equal(calls.length, 12, 'Only metadata, the seven bounded sources and four search requests are made.');
   assert.equal(progress.includes('Preparing collaboration activity…'), false);
+});
+
+test('successful count queries alone do not turn failed collaboration sources into success', async () => {
+  await assert.rejects(loadActivityRepository(url, { fetcher: async request => {
+    const endpoint = new URL(request);
+    if (endpoint.pathname === '/repos/owner/repo') return jsonResponse(fixture().repository.data);
+    if (endpoint.pathname === '/search/issues' && !endpoint.searchParams.get('q').includes('is:open')) return jsonResponse({ total_count: 0, incomplete_results: false, items: [] });
+    return jsonResponse({ message: 'API rate limit exceeded' }, 403);
+  } }), /all collaboration sources failed/);
 });
 
 test('an empty successful source still permits an honest partial empty snapshot', async () => {
@@ -201,7 +289,7 @@ test('an empty successful source still permits an honest partial empty snapshot'
     return jsonResponse({ message: 'API rate limit exceeded' }, 403);
   } });
   assert.equal(data.items.length, 0);
-  assert.equal(data.provenance.endpoints.filter(endpoint => endpoint.error).length, 6);
+  assert.equal(data.provenance.endpoints.filter(endpoint => endpoint.error).length, 10);
   assert.ok(data.provenance.endpoints.some(endpoint => endpoint.name === 'contributors' && endpoint.status === 204));
 });
 
@@ -217,13 +305,23 @@ test('repository failure throws and cancellation is never turned into a partial 
 
 test('only the two real preloaded examples are available, independently cloned and complete enough to browse offline', async () => {
   assert.deepEqual(ACTIVITY_EXAMPLES.map(item => item.fullName), ['quirq-ai/xo', 'quirq-ai/xo-space']);
-  const expected = { 'quirq-ai/xo': { pull_request: 20, issue: 2, review: 1, comment: 30, fork: 0, contributor: 1 }, 'quirq-ai/xo-space': { pull_request: 21, issue: 2, review: 13, comment: 60, fork: 4, contributor: 13 } };
+  const expected = { 'quirq-ai/xo': { pull_request: 20, issue: 2, review: 1, comment: 30, fork: 0, contributor: 1 }, 'quirq-ai/xo-space': { pull_request: 39, issue: 54, review: 13, comment: 60, fork: 4, contributor: 13 } };
   for (const example of ACTIVITY_EXAMPLES) {
     const data = await getActivityExample(example.url);
     const model = buildCommunityModel(data);
     assert.equal(data.source, 'snapshot');
-    assert.ok(data.provenance.endpoints.every(endpoint => endpoint.status === 200 && endpoint.url.startsWith('https://api.github.com/repos/quirq-ai/')));
-    assert.equal(data.provenance.endpoints.length, 16);
+    assert.ok(data.provenance.endpoints.every(endpoint => endpoint.status === 200 && (endpoint.url.startsWith('https://api.github.com/repos/quirq-ai/') || endpoint.url.startsWith('https://api.github.com/search/issues?'))));
+    assert.equal(data.provenance.endpoints.length, 20);
+    const totals = example.fullName === 'quirq-ai/xo' ? { pull_request: [46, 0], issue: [2, 2] } : { pull_request: [177, 24], issue: [71, 34] };
+    for (const [kind, [total, open]] of Object.entries(totals)) {
+      assert.equal(model.kindStats[kind].total, total);
+      assert.equal(model.kindStats[kind].open, open);
+      assert.equal(model.kindStats[kind].loadedOpen, open);
+      assert.equal(model.kindStats[kind].exact, true);
+      assert.equal(model.kindStats[kind].openExact, true);
+    }
+    assert.ok(filterCommunityItems(model).filter(item => ['pull_request', 'issue'].includes(item.kind)).every(item => ['open', 'draft'].includes(item.state)));
+
     for (const [kind, amount] of Object.entries(expected[example.fullName])) assert.equal(model.items.filter(item => item.kind === kind).length, amount);
     assert.ok(model.events.every(event => model.byId.has(event.itemId) && Number.isFinite(Date.parse(event.date))));
     assert.equal(model.events.some(event => event.kind === 'contributor'), false);

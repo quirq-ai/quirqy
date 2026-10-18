@@ -1,7 +1,7 @@
 import { parseRepositoryUrl } from '../data-lab/github.js';
 
 const API = 'https://api.github.com';
-export const ACTIVITY_LIMITS = Object.freeze({ pullRequests: 20, issueListing: 50, comments: 30, reviewComments: 30, forks: 20, contributors: 30, issueEvents: 50, reviewedPullRequests: 8, reviewsPerPullRequest: 30 });
+export const ACTIVITY_LIMITS = Object.freeze({ pullRequests: 20, issueListing: 50, openPullRequests: 50, openIssues: 50, comments: 30, reviewComments: 30, forks: 20, contributors: 30, issueEvents: 50, reviewedPullRequests: 8, reviewsPerPullRequest: 30 });
 const endpoints = {
   pulls: '/pulls?state=all&sort=updated&direction=desc&per_page=20&page=1',
   issues: '/issues?state=all&sort=updated&direction=desc&per_page=50&page=1',
@@ -11,7 +11,7 @@ const endpoints = {
   contributors: '/contributors?per_page=30&page=1',
   issueEvents: '/issues/events?per_page=50&page=1',
 };
-const labels = { repository: 'Repository details', pulls: 'Pull requests', issues: 'Issue/PR listing', comments: 'Conversation comments', reviewComments: 'Inline review comments', forks: 'Forks', contributors: 'Contributors', issueEvents: 'Issue workflow events' };
+const labels = { countPulls: 'Total pull request count', countIssues: 'Total issue count', openPulls: 'Open pull requests', openIssues: 'Open issues', repository: 'Repository details', pulls: 'Pull requests', issues: 'Issue/PR listing', comments: 'Conversation comments', reviewComments: 'Inline review comments', forks: 'Forks', contributors: 'Contributors', issueEvents: 'Issue workflow events' };
 const emptyActor = () => ({ login: null, avatarUrl: null, url: null });
 const text = (value, max = 500) => typeof value === 'string' ? value.slice(0, max) : '';
 const count = value => Number.isSafeInteger(value) && value >= 0 ? value : 0;
@@ -34,21 +34,21 @@ function checkAbort(signal) {
   if (signal?.aborted) throw new DOMException('Activity loading was cancelled.', 'AbortError');
 }
 function reviewNumbers(responses) {
-  const pulls = Array.isArray(responses.pulls?.data) ? responses.pulls.data : [];
+  const pulls = [...(Array.isArray(responses.pulls?.data) ? responses.pulls.data : []), ...(Array.isArray(responses.openPulls?.data?.items) ? responses.openPulls.data.items : [])];
   const issues = Array.isArray(responses.issues?.data) ? responses.issues.data.filter(issue => issue.pull_request) : [];
   return [...new Set((pulls.length ? pulls : issues).map(pull => pull.number).filter(number => idValue(number)))].slice(0, ACTIVITY_LIMITS.reviewedPullRequests);
 }
 
-/** Public metadata only. At most 16 requests, no token, source code or writes. */
+/** Public metadata only. At most 20 requests, no token, source code or writes. */
 export async function loadActivityRepository(input, { signal, onProgress = () => {}, fetcher = globalThis.fetch } = {}) {
   const parsed = parseRepositoryUrl(input);
   const base = `/repos/${encodeURIComponent(parsed.owner)}/${encodeURIComponent(parsed.repo)}`;
   const responses = {};
-  async function request(key, path, required = false) {
+  async function request(key, path, required = false, search = false) {
     checkAbort(signal);
     const label = labels[key] || `Reviews for PR #${key.replace('reviews-', '')}`;
     onProgress(`Reading ${label.toLowerCase()}…`);
-    const url = `${API}${base}${path}`;
+    const url = search ? `${API}/search/issues?${path}` : `${API}${base}${path}`;
     let result;
     try {
       const response = await fetcher(url, { signal, credentials: 'omit', headers: { Accept: 'application/vnd.github+json' } });
@@ -60,7 +60,9 @@ export async function loadActivityRepository(input, { signal, onProgress = () =>
       }
       const data = response.status === 204 ? [] : await response.json();
       checkAbort(signal);
-      if (required ? !data || typeof data !== 'object' || Array.isArray(data) : !Array.isArray(data)) throw new Error('GitHub returned an invalid response');
+      const valid = search ? data && Number.isSafeInteger(data.total_count) && data.total_count >= 0 && typeof data.incomplete_results === 'boolean' && Array.isArray(data.items)
+        : required ? data && typeof data === 'object' && !Array.isArray(data) : Array.isArray(data);
+      if (!valid) throw new Error('GitHub returned an invalid response');
       result = { url, status: response.status, fetchedAt: new Date().toISOString(), data, more: /rel="next"/.test(response.headers?.get('link') || '') };
     } catch (error) {
       checkAbort(signal);
@@ -76,8 +78,19 @@ export async function loadActivityRepository(input, { signal, onProgress = () =>
   await Promise.all(Array.from({ length: 3 }, async () => {
     while (next < jobs.length) { const [key, path] = jobs[next++]; await request(key, path); }
   }));
+  const searches = [['countPulls', 'pr', false, 1], ['countIssues', 'issue', false, ACTIVITY_LIMITS.issueListing], ['openPulls', 'pr', true, ACTIVITY_LIMITS.openPullRequests], ['openIssues', 'issue', true, ACTIVITY_LIMITS.openIssues]];
+  next = 0;
+  await Promise.all(Array.from({ length: 3 }, async () => {
+    while (next < searches.length) {
+      const [key, kind, open, limit] = searches[next++];
+      const query = new URLSearchParams({ q: `repo:${parsed.fullName} is:${kind}${open ? ' is:open' : ''}`, sort: 'updated', order: 'desc', per_page: String(limit), page: '1' });
+      await request(key, query.toString(), false, true);
+    }
+  }));
   checkAbort(signal);
-  if (jobs.every(([key]) => responses[key]?.error)) {
+  // Counts alone are not usable collaboration records. Open listings are sources.
+  const sourceKeys = [...jobs.map(([key]) => key), 'openPulls', 'openIssues'];
+  if (sourceKeys.every(key => responses[key]?.error)) {
     throw new Error(`Repository details loaded, but all collaboration sources failed. Try again or use a preloaded example. ${responses[jobs[0][0]].error}`);
   }
   const reviews = reviewNumbers(responses);
@@ -104,10 +117,11 @@ export function normalizeActivityResponses(input, responses, { fetchedAt = new D
   const limitations = [];
   const note = message => { if (!limitations.includes(message)) limitations.push(message); };
   const rows = key => Array.isArray(responses[key]?.data) ? responses[key].data : [];
+  const searchRows = key => Array.isArray(responses[key]?.data?.items) ? responses[key].data.items : [];
   const parentId = (kind, number) => `${prefix}${kind}:${number}`;
-  const issueRows = new Map(rows('issues').map(item => [item.number, item]));
+  const issueRows = new Map([...rows('issues'), ...searchRows('countIssues'), ...searchRows('openIssues')].map(item => [item.number, item]));
   for (const event of rows('issueEvents')) if (event.issue?.number && !issueRows.has(event.issue.number)) issueRows.set(event.issue.number, event.issue);
-  const pullRows = new Map(rows('pulls').map(item => [item.number, item]));
+  const pullRows = new Map([...rows('pulls'), ...searchRows('openPulls')].map(item => [item.number, item]));
   const knownPulls = new Set([...pullRows.keys(), ...[...issueRows.values()].filter(item => item.pull_request).map(item => item.number)]);
   function addEvent(item, action, when, actor, eventId = null, provenance = 'object timestamp') {
     const normalizedDate = date(when);
@@ -135,8 +149,8 @@ export function normalizeActivityResponses(input, responses, { fetchedAt = new D
     else if (raw.closed_at) addEvent(item, 'closed', raw.closed_at, raw.closed_by);
     return item;
   }
-  for (const raw of rows('pulls')) addWorkItem(raw, 'pull_request');
-  for (const raw of rows('issues')) if (!raw.pull_request) addWorkItem(raw, 'issue');
+  for (const raw of pullRows.values()) addWorkItem(raw, 'pull_request');
+  for (const raw of [...searchRows('openIssues'), ...searchRows('countIssues'), ...rows('issues')]) if (!raw.pull_request) addWorkItem(raw, 'issue');
   function ensureParent(number, kind = null) {
     if (!idValue(number)) return null;
     const actualKind = kind || (knownPulls.has(number) ? 'pull_request' : 'issue');
@@ -207,21 +221,55 @@ export function normalizeActivityResponses(input, responses, { fetchedAt = new D
     const id = ensureParent(raw.issue.number, raw.issue.pull_request ? 'pull_request' : null);
     addEvent(items.get(id), raw.event, raw.created_at, raw.actor, `${prefix}issue_event:${raw.id}`, 'GitHub issue event');
   }
+  const itemList = [...items.values()];
+  const isOpen = item => item.state === 'open' || item.state === 'draft';
+  const completeSearchCount = key => {
+    const response = responses[key];
+    return response && !response.error && response.status === 200 && response.data?.incomplete_results === false
+      && Number.isSafeInteger(response.data.total_count) && response.data.total_count >= 0 ? response.data.total_count : null;
+  };
+  const counts = {};
+  for (const kind of ['pull_request', 'issue', 'review', 'comment', 'fork', 'contributor']) {
+    const loaded = itemList.filter(item => item.kind === kind);
+    const lifecycle = kind === 'pull_request' || kind === 'issue';
+    counts[kind] = { total: loaded.length, open: lifecycle ? loaded.filter(isOpen).length : null, exact: false, openExact: false, source: 'Loaded records only; repository-wide total unavailable' };
+  }
+  for (const [kind, totalKey, openKey] of [['pull_request', 'countPulls', 'openPulls'], ['issue', 'countIssues', 'openIssues']]) {
+    const stats = counts[kind];
+    const total = completeSearchCount(totalKey), open = completeSearchCount(openKey);
+    if (total !== null && total >= stats.total) Object.assign(stats, { total, exact: true, source: responses[totalKey].url });
+    else note(`${kind === 'pull_request' ? 'Pull request' : 'Issue'} repository-wide total is unavailable or incomplete; its count is a loaded lower bound.`);
+    if (open !== null && open >= stats.open) Object.assign(stats, { open, openExact: true, openSource: responses[openKey].url });
+    else note(`${kind === 'pull_request' ? 'Open pull request' : 'Open issue'} count is unavailable or incomplete; only the loaded open records are counted.`);
+    if (stats.open > stats.total) { stats.total = stats.open; stats.exact = false; note('GitHub count responses disagree across their capture times; the larger known count is retained as a lower bound.'); }
+  }
+  if (Number.isSafeInteger(metadata.forks_count) && metadata.forks_count >= counts.fork.total) Object.assign(counts.fork, { total: metadata.forks_count, exact: true, source: 'GitHub repository forks_count' });
+  const contributorResponse = responses.contributors;
+  if (contributorResponse && !contributorResponse.error && [200, 204].includes(contributorResponse.status) && contributorResponse.more === false) {
+    Object.assign(counts.contributor, { total: Math.max(counts.contributor.total, rows('contributors').length), exact: true, source: 'Complete GitHub contributor listing; anonymous contributors excluded' });
+  }
+  note('PR and issue totals come from complete GitHub search total_count responses and include closed/merged work. Search counts are snapshot values and may lag GitHub updates. Missing or incomplete searches fall back to explicitly labeled loaded lower bounds.');
+  note('Review and comment totals are loaded lower bounds, not repository-wide totals. Fork totals use repository metadata; contributor totals are exact only when the requested listing is complete.');
   for (const [key, response] of Object.entries(responses)) {
     if (response.error) note(response.error);
     else if (response.status && response.status !== 200 && response.status !== 204) note(`${labels[key] || key} unavailable: GitHub HTTP ${response.status}.`);
-    if (response.more) note(`${labels[key] || `Reviews for PR #${key.replace('reviews-', '')}`}: only the first requested page is included; further results are omitted.`);
+    if (response.data?.incomplete_results === true) note(`${labels[key] || key}: GitHub search returned incomplete results; its total is not treated as exact.`);
+    if (response.more && key !== 'countPulls') note(`${labels[key] || `Reviews for PR #${key.replace('reviews-', '')}`}: only the first requested page is included; further results are omitted.`);
   }
-  note('Bounded public snapshot: up to 20 recently updated PRs; issues from the first 50 mixed issue/PR results; 30 conversation comments, 30 inline comments, 20 newest forks, 30 contributors and 50 issue events. Available parent objects may also be included to connect real comments and events.');
+  note('Bounded public snapshot: up to 50 explicitly open PRs and 50 explicitly open issues, plus 20 recently updated PRs, up to 50 recently updated issues, and available parent objects from the first 50 mixed issue/PR results; 30 conversation comments, 30 inline comments, 20 newest forks, 30 contributors and 50 issue events. Available parent objects may also be included to connect real comments and events.');
   note('Reviews cover the first 30 reviews, in chronological order, on at most 8 sampled recently updated PRs. Other reviews are not loaded.');
   note('Replay uses returned object timestamps and sampled issue events, not a complete historical audit. State, titles, ownership and contributor counts describe the fetched snapshot, not reconstructed historical values. Missing timestamps do not become invented events.');
   note('The issues endpoint includes pull requests; issue items and PR items are separated. GitHub’s repository open-issues total includes open pull requests.');
   note('Contributor counts are GitHub’s cached aggregate commit counts, not collaboration scores or productivity measures. Undated contributors remain visible outside replay; anonymous contributors are not requested.');
   if ([...items.values()].some(item => item.parentId && !items.has(item.parentId))) note('Some comments refer to PRs or issues outside the sampled parent listings. Their real parent reference is retained without inventing a parent object.');
-  if (source === 'snapshot') note('Preloaded from actual GitHub API responses. This bundled snapshot works without API access and does not update automatically.');
+  if (source === 'snapshot') {
+    note('Preloaded from actual GitHub API responses. This bundled snapshot works without API access and does not update automatically.');
+    const captures = Object.values(responses).map(response => date(response.fetchedAt)).filter(Boolean).sort();
+    if (captures.length) note(`API responses were captured from ${captures[0]} to ${captures.at(-1)}; endpoint provenance records each capture time.`);
+  }
   return {
     repository: { fullName: metadata.full_name, url: parsed.url, description: text(metadata.description, 8192), stars: count(metadata.stargazers_count), forks: count(metadata.forks_count), openIssues: count(metadata.open_issues_count), openIssuesIncludesPullRequests: true },
-    fetchedAt: date(fetchedAt), source, items: [...items.values()], events: [...events.values()].sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id)), limitations,
-    provenance: { provider: 'GitHub REST API', endpoints: Object.entries(responses).map(([key, response]) => ({ name: key, url: response.url, fetchedAt: response.fetchedAt, status: response.status, count: Array.isArray(response.data) ? response.data.length : null, more: Boolean(response.more), ...(response.error ? { error: response.error } : {}) })) },
+    fetchedAt: date(fetchedAt), source, counts, items: [...items.values()], events: [...events.values()].sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id)), limitations,
+    provenance: { provider: 'GitHub REST API', endpoints: Object.entries(responses).map(([key, response]) => ({ name: key, url: response.url, fetchedAt: response.fetchedAt, status: response.status, count: Array.isArray(response.data) ? response.data.length : Array.isArray(response.data?.items) ? response.data.items.length : null, ...(response.data?.total_count != null ? { totalCount: response.data.total_count, incompleteResults: response.data.incomplete_results } : {}), more: Boolean(response.more), ...(response.error ? { error: response.error } : {}) })) },
   };
 }

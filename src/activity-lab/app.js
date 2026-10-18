@@ -18,7 +18,8 @@ const KINDS = [
   ['contributor', 'Contributors', '#d9dfe9', 'People participating in the project'],
 ];
 const VIEW_LABELS = { constellation: 'Constellation', orbits: 'Orbits', contributors: 'Contributors' };
-const CACHE_KEY = 'quirq-observatory.activity-snapshot.v2';
+const CACHE_KEY = 'quirq-observatory.activity-snapshot.v3';
+const LEGACY_CACHE_KEY = 'quirq-observatory.activity-snapshot.v2';
 const PREF_KEY = 'quirq-observatory.activity-view.v2';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const dateText = value => value && Number.isFinite(Date.parse(value)) ? `${new Date(value).toISOString().slice(0, 16).replace('T', ' ')} UTC` : 'Not dated';
@@ -27,7 +28,9 @@ const safeUrl = value => {
   try { const url = new URL(value); return url.protocol === 'https:' && url.hostname === 'github.com' && !url.username && !url.password && !url.port ? url.href : null; }
   catch { return null; }
 };
-const freshFilters = () => ({ query: '', kinds: [], actor: '', state: '' });
+const freshFilters = () => ({ query: '', kinds: [], actor: '', state: '', historyKind: '' });
+const hasLifecycle = kind => kind === 'pull_request' || kind === 'issue';
+const countText = (value, exact = true) => `${exact ? '' : '≥'}${Number(value || 0).toLocaleString()}`;
 
 export async function mountActivityLab() {
   document.body.dataset.mode = 'activity';
@@ -50,11 +53,13 @@ export async function mountActivityLab() {
     <div id="activity-guide-body"><p class="lab-note activity-intro">A repository is shaped by the people and conversations around it. Explore that community in three dimensions.</p>
     <div class="section-title">Reading the constellation</div><p id="activity-view-description" class="lab-note"></p>
     <div class="activity-kind-key" aria-label="Activity types">${KINDS.map(([kind, label, color, description]) => `<button type="button" data-kind="${kind}" aria-pressed="false" title="Filter ${label.toLowerCase()}"><i style="--kind-color:${color}" aria-hidden="true"></i><span>${label}<small>${description}</small></span><b data-count="${kind}">0</b></button>`).join('')}</div>
-    <p class="lab-note activity-key-hint">Select a type to filter. Lines connect reviews and comments to their thread, and activity to its contributor.</p>
-    <div class="section-title">Find activity</div><div class="activity-fields"><label class="activity-sr-only" for="activity-search">Search activity</label><input id="activity-search" type="search" placeholder="Title, #number or contributor…" autocomplete="off"><label for="activity-author">Contributor</label><select id="activity-author"><option value="">Everyone</option></select><label for="activity-state">Current status</label><select id="activity-state"><option value="">Any status</option><option value="open">Open</option><option value="closed">Closed</option><option value="merged">Merged</option></select></div>
+    <p class="lab-note activity-key-hint">Cluster size reflects total activity. Only open PRs and issues are visible by default. Select a single type to explore its history.</p>
+    <div id="activity-history-controls" class="activity-history-controls" hidden><label class="activity-history-toggle" for="activity-show-historical"><span>Show historical</span><input id="activity-show-historical" type="checkbox" role="switch" aria-describedby="activity-history-note"><i aria-hidden="true"></i></label><p id="activity-history-note" class="lab-note"></p></div>
+    <p id="activity-count-note" class="lab-note activity-key-hint">≥ marks a loaded minimum when a full total is unavailable.</p>
+    <div class="section-title">Find activity</div><div class="activity-fields"><label class="activity-sr-only" for="activity-search">Search activity</label><input id="activity-search" type="search" placeholder="Title, #number or contributor…" autocomplete="off"><label for="activity-author">Contributor</label><select id="activity-author"><option value="">Everyone</option></select><label for="activity-state" id="activity-state-label" hidden>Current status</label><select id="activity-state" hidden><option value="">Any status</option><option value="open">Open, including drafts</option><option value="closed">Closed</option><option value="merged">Merged</option></select></div>
     <div class="activity-filter-footer"><span id="activity-match-count" role="status"></span><button id="activity-clear-filters" class="activity-text-button" type="button">Reset</button></div>
     <div class="section-title">Explore</div><div class="activity-guide-actions"><button id="activity-frame" class="btn tiny" type="button">Frame view <kbd>F</kbd></button></div><p class="lab-note activity-key-hint">Drag to orbit · scroll to zoom<br>Click a body to inspect · double-click to focus</p>
-    <details class="activity-guide-details"><summary class="section-title">What the scene means</summary><p class="lab-note">Every body represents a loaded GitHub record. Color identifies the kind of activity. Position groups relationships; it does not rank people. Contributor totals describe recorded contributions, not effort or productivity.</p><p class="lab-note">Playback reveals records as dated events arrive. Status and contribution totals are the current snapshot. Contributor bodies have no historical timestamp and remain visible throughout replay.</p></details></div>`;
+    <details class="activity-guide-details"><summary class="section-title">What the scene means</summary><p class="lab-note">Every body represents a loaded GitHub record. Cluster volume reflects the total count, including closed and merged records, and stays fixed when history is hidden. Where GitHub does not supply a complete count, ≥ marks the loaded minimum. No bodies are invented for unloaded records. Color identifies the kind of activity; position groups relationships. Contributor totals describe recorded contributions, not effort or productivity.</p><p class="lab-note">Playback reveals records as dated events arrive. Open-only visibility uses current snapshot status, not the status at the playback date. Show historical is available when Pull requests or Issues is the only selected category. Reviews, comments, forks and contributors have no open/closed status and remain available. Status and contribution totals are the current snapshot. Contributor bodies have no historical timestamp and remain visible throughout replay.</p></details></div>`;
 
   const panel = document.createElement('aside');
   panel.id = 'activity-panel'; panel.className = 'panel'; panel.setAttribute('aria-label', 'Activity Lab repository and inspector');
@@ -96,7 +101,7 @@ export async function mountActivityLab() {
   canvas.setAttribute('aria-label', 'Interactive 3D repository activity. Drag to orbit, scroll to zoom, click a body to inspect. The Activity index provides keyboard access to every loaded item.');
   const help = $('#help-overlay');
   const oldHelp = help.innerHTML;
-  help.innerHTML = `<div class="help-card" role="dialog" aria-modal="true" aria-labelledby="activity-help-title" tabindex="-1"><button class="panel-close" id="activity-help-close" type="button" aria-label="Close help">×</button><h2 id="activity-help-title">Activity Lab</h2><p class="help-sub">A three-dimensional view of the collaboration around a repository: pull requests, issues, reviews, comments, forks and contributors.</p><div class="help-grid"><span>Drag / right-drag</span><span>Orbit / pan</span><span>Scroll / pinch</span><span>Zoom</span><span>Click / double-click</span><span>Inspect / focus an activity</span><span>Space</span><span>Play / pause</span><span>← / →</span><span>Previous / next event</span><span>F</span><span>Frame the whole scene</span><span>H / Escape</span><span>Open / close help</span></div><p>Constellation groups bodies by activity type. Orbits arranges them around the repository. Contributors brings related participation together. All three views use the same real records and filters.</p><p>Play to reveal records through their dated events. Contributor totals and statuses are current snapshot values, not historical state. Colors identify activity types. Connections represent real parent threads and matching contributors. Positions and sizes do not measure productivity.</p><p>Only XO and XO Space are bundled examples. Refresh from GitHub for newer public data, or connect another public repository. The Data coverage section lists sampling and access limits. Use View in the dock for scene choices and shared glass opacity.</p></div>`;
+  help.innerHTML = `<div class="help-card" role="dialog" aria-modal="true" aria-labelledby="activity-help-title" tabindex="-1"><button class="panel-close" id="activity-help-close" type="button" aria-label="Close help">×</button><h2 id="activity-help-title">Activity Lab</h2><p class="help-sub">A three-dimensional view of the collaboration around a repository: pull requests, issues, reviews, comments, forks and contributors.</p><div class="help-grid"><span>Drag / right-drag</span><span>Orbit / pan</span><span>Scroll / pinch</span><span>Zoom</span><span>Click / double-click</span><span>Inspect / focus an activity</span><span>Space</span><span>Play / pause</span><span>← / →</span><span>Previous / next event</span><span>F</span><span>Frame the whole scene</span><span>H / Escape</span><span>Open / close help</span></div><p>Constellation groups bodies by activity type. Orbits arranges them around the repository. Contributors brings related participation together. All three views use the same real records and filters. Category envelopes use total activity, including closed and merged records. Only open PRs (including drafts) and open issues are shown by default. Select just Pull requests or Issues, then turn on Show historical to reveal loaded closed and merged records without resizing the cluster. Other activity types have no open/closed state.</p><p>Play to reveal records through their dated events. Contributor totals and statuses are current snapshot values, not historical state. Colors identify activity types. Connections represent real parent threads and matching contributors. Cluster volume encodes record counts, not productivity. Repository-wide totals are used when available; ≥ marks a loaded lower bound. Individual bodies remain a bounded sample even when the total is larger.</p><p>Only XO and XO Space are bundled examples. Refresh from GitHub for newer public data, or connect another public repository. The Data coverage section lists sampling and access limits. Use View in the dock for scene choices and shared glass opacity.</p></div>`;
   const previousAttribution = $('#attribution').textContent;
   $('#attribution').textContent = 'Repository community · Drag to orbit · Scroll to zoom · H for help';
   let visibleLimit = 40;
@@ -169,13 +174,30 @@ export async function mountActivityLab() {
     items = filterCommunityItems(model, filters, cursorDate());
     const ids = new Set(items.map(item => item.id));
     if (selectedId && !ids.has(selectedId)) selectedId = null;
-    scene.setVisible(ids); scene.setSelected(selectedId);
-    $('#activity-match-count').textContent = `${items.length} of ${model.items.length} bodies`;
+    scene.setVisible(ids, { kinds: filters.kinds }); scene.setSelected(selectedId);
+    $('#activity-match-count').textContent = `${items.length} shown · ${model.items.length} loaded`;
     empty.hidden = items.length > 0;
-    empty.textContent = model.items.length ? 'No activity matches these filters or this point in time.' : 'No public collaboration records were returned. Try refreshing or connecting another repository.';
+    const selectedKind = filters.kinds.length === 1 ? filters.kinds[0] : null;
+    const historyAvailable = hasLifecycle(selectedKind);
+    const historical = historyAvailable && filters.historyKind === selectedKind;
+    const stats = model.kindStats?.[selectedKind];
+    empty.textContent = historyAvailable && !historical ? `No open ${selectedKind === 'pull_request' ? 'pull requests' : 'issues'} match this view. Turn on Show historical to see loaded closed records. The cluster retains its total size.` : model.items.length ? 'No activity matches these filters or this point in time.' : 'No public collaboration records were returned. Try refreshing or connecting another repository.';
+    $('#activity-history-controls').hidden = !historyAvailable;
+    $('#activity-show-historical').checked = historical;
+    $('#activity-show-historical').setAttribute('aria-label', `Show historical ${titleKind(selectedKind).toLowerCase()}`);
+    $('#activity-history-note').textContent = historyAvailable && stats ? `${countText(stats.open, stats.openExact !== false)} open · ${countText(stats.total, stats.exact)} total. ${historical ? `${stats.loaded} records loaded, including closed${selectedKind === 'pull_request' ? ' and merged' : ''}.` : `Closed${selectedKind === 'pull_request' ? ' and merged' : ''} records are hidden.`} Cluster size stays fixed.` : '';
+    $('#activity-state').hidden = $('#activity-state-label').hidden = !historical;
+    $('#activity-state').querySelector('option[value="merged"]').hidden = selectedKind !== 'pull_request';
+    for (const [kind] of KINDS) {
+      const value = model.kindStats?.[kind];
+      if (!value) continue;
+      const counter = $(`[data-count="${kind}"]`);
+      counter.textContent = countText(value.total, value.exact);
+      counter.title = `${value.exact ? 'Total' : 'At least'} ${Number(value.total).toLocaleString()} ${titleKind(kind).toLowerCase()}${value.open !== null ? ` · ${countText(value.open, value.openExact !== false)} open` : ''} · ${value.loaded} loaded`;
+    }
     for (const button of viewSwitch.querySelectorAll('[data-view]')) { button.classList.toggle('active', button.dataset.view === view); button.setAttribute('aria-pressed', String(button.dataset.view === view)); }
     for (const button of guide.querySelectorAll('[data-kind]')) button.setAttribute('aria-pressed', String(filters.kinds.includes(button.dataset.kind)));
-    $('#activity-view-description').textContent = { constellation: 'A warm core is the repository. Colored bodies form neighborhoods of pull requests, issues, conversations, forks and contributors.', orbits: 'The repository sits at the center. Its activity occupies colored orbits, with smaller conversations connected to their threads.', contributors: 'People anchor the scene. Activity gathers around its author, with connections back to related conversations.' }[view];
+    $('#activity-view-description').textContent = { constellation: 'The repository is the warm core. Each colored cluster keeps the size of its total activity, with open PRs and issues visible inside.', orbits: 'Colored orbital bands reserve space for total activity. Hiding closed records leaves that space intact.', contributors: 'Activity gathers around its author. Participant groups retain space for all loaded participation, including hidden closed work.' }[view];
     renderPlayback(); renderInspector(); renderIndex();
   }
   function useDataset(dataset, publishConnection = true) {
@@ -188,12 +210,12 @@ export async function mountActivityLab() {
     $('#activity-source-kind').textContent = dataset.source === 'snapshot' ? 'Preloaded' : 'GitHub';
     const actorNames = model.actors.map(actor => actor.login).sort();
     $('#activity-author').innerHTML = '<option value="">Everyone</option>' + actorNames.map(login => `<option value="${esc(login)}">${esc(login)}</option>`).join('');
-    for (const [kind] of KINDS) $(`[data-count="${kind}"]`).textContent = model.items.filter(item => item.kind === kind).length;
+
     for (const button of panel.querySelectorAll('[data-example-url]')) button.setAttribute('aria-pressed', String(button.dataset.exampleUrl === dataset.repository.url));
     $('#date-text').textContent = dateText(dataset.fetchedAt).slice(0, 10);
     $('#live-badge').textContent = '● SNAPSHOT'; $('#live-badge').style.display = 'inline';
     $('#activity-coverage').innerHTML = `<p class="lab-note">Captured ${esc(dateText(dataset.fetchedAt))}. ${model.items.length} records and ${model.events.length} dated events loaded.</p><ul>${(dataset.limitations || []).map(text => `<li>${esc(text)}</li>`).join('')}</ul><p class="lab-note">Current statuses and contributor totals are snapshot values. This bounded sample is not the repository’s complete history.</p>`;
-    scene.setData(model.items, dataset.repository); scene.setView(view); render(); scene.frame();
+    scene.setData(model.items, dataset.repository, model.kindStats); scene.setView(view); render(); scene.frame();
     const failedSources = (dataset.provenance?.endpoints || []).filter(endpoint => endpoint.error);
     status(failedSources.length ? `Partial data · ${failedSources.length} GitHub sources unavailable. ${model.items.length} records loaded; see Data coverage.` : `${dataset.source === 'snapshot' ? 'Preloaded' : 'Loaded'} ${dataset.repository.fullName} · ${model.items.length} collaboration records.`, failedSources.length ? 'warning' : 'success');
     loading(false);
@@ -234,13 +256,28 @@ export async function mountActivityLab() {
   on($('#activity-cancel'), 'click', () => { request++; controller?.abort(); controller = null; loading(false); status('Loading cancelled. Your current scene is unchanged.'); });
   for (const button of panel.querySelectorAll('[data-example-url]')) on(button, 'click', () => load(button.dataset.exampleUrl));
   on(viewSwitch, 'click', event => { const button = event.target.closest('[data-view]'); if (button) switchView(button.dataset.view); });
-  on(guide, 'click', event => { const button = event.target.closest('[data-kind]'); if (!button) return; const kind = button.dataset.kind; filters.kinds = filters.kinds.includes(kind) ? filters.kinds.filter(value => value !== kind) : [...filters.kinds, kind]; visibleLimit = 40; render(); });
+  on(guide, 'click', event => { const button = event.target.closest('[data-kind]'); if (!button) return; const kind = button.dataset.kind; filters.kinds = filters.kinds.includes(kind) ? filters.kinds.filter(value => value !== kind) : [...filters.kinds, kind]; filters.historyKind = ''; filters.state = ''; $('#activity-state').value = ''; visibleLimit = 40; render(); });
+  on($('#activity-show-historical'), 'change', event => {
+    const kind = filters.kinds.length === 1 ? filters.kinds[0] : null;
+    filters.historyKind = hasLifecycle(kind) && event.target.checked ? kind : '';
+    if (!filters.historyKind) { filters.state = ''; $('#activity-state').value = ''; }
+    visibleLimit = 40; render();
+  });
   on($('#activity-search'), 'input', event => { filters.query = event.target.value; visibleLimit = 40; render(); });
   on($('#activity-author'), 'change', event => { filters.actor = event.target.value; visibleLimit = 40; render(); });
   on($('#activity-state'), 'change', event => { filters.state = event.target.value; visibleLimit = 40; render(); });
   on($('#activity-clear-filters'), 'click', resetFilters);
   on($('#activity-index'), 'click', event => { const button = event.target.closest('[data-item]'); if (button) { selectItem(button.dataset.item); scene.focus(button.dataset.item); } });
-  on($('#activity-inspector'), 'click', event => { if (event.target.closest('#activity-focus') && selectedId) scene.focus(selectedId); const parent = event.target.closest('[data-parent]'); if (parent) { if (!items.some(item => item.id === parent.dataset.parent)) resetFilters(); selectItem(parent.dataset.parent); scene.focus(parent.dataset.parent); } });
+  on($('#activity-inspector'), 'click', event => { if (event.target.closest('#activity-focus') && selectedId) scene.focus(selectedId); const parent = event.target.closest('[data-parent]'); if (parent) {
+      const record = model.byId.get(parent.dataset.parent);
+      if (record && !items.some(item => item.id === record.id)) {
+        filters = freshFilters(); filters.kinds = [record.kind];
+        if (hasLifecycle(record.kind) && !['open', 'draft'].includes(record.state)) filters.historyKind = record.kind;
+        for (const id of ['activity-search', 'activity-author', 'activity-state']) $(`#${id}`).value = '';
+        render();
+      }
+      selectItem(parent.dataset.parent); scene.focus(parent.dataset.parent);
+    } });
   on($('#activity-clear-selection'), 'click', () => selectItem(null));
   on($('#activity-more'), 'click', () => { visibleLimit += 40; renderIndex(); });
   on($('#activity-frame'), 'click', () => scene.frame());
@@ -300,7 +337,14 @@ export async function mountActivityLab() {
   if (request !== startupRequest) { $('#loading')?.remove(); return; }
   const url = connectedRepository() || shared?.dataset?.repository?.url || DEFAULT_ACTIVITY_EXAMPLE_URL;
   let restored = false;
-  try { const cached = JSON.parse(localStorage.getItem(CACHE_KEY)); if (cached?.repository?.url) { useDataset(cached, false); restored = true; } } catch { /* Invalid or unavailable cache is ignored. */ }
+  try {
+    let cached = JSON.parse(localStorage.getItem(CACHE_KEY) || localStorage.getItem(LEGACY_CACHE_KEY));
+    if (cached?.repository?.url) {
+      if (cached.source === 'snapshot') cached = await getActivityExample(cached.repository.url) || cached;
+      if (disposed || request !== startupRequest) { $('#loading')?.remove(); return; }
+      useDataset(cached, false); restored = true;
+    }
+  } catch { /* Invalid or unavailable cache is ignored. */ }
   if (!restored) {
     const fallback = await getActivityExample(DEFAULT_ACTIVITY_EXAMPLE_URL);
     if (disposed) return;
