@@ -5,6 +5,7 @@ export const ROOT_ROPE_PITCH = 8;
 const GAP = 1.06;
 const TAU = Math.PI * 2;
 const packings = new Map([[1, [[0, 0]]]]);
+const settledPackings = new Map();
 const touchValue = value => Math.max(0, Number(value) || 0);
 
 function packing(count) {
@@ -28,6 +29,7 @@ function packing(count) {
 }
 
 function packingState(touches) {
+  if (settledPackings.has(touches)) return settledPackings.get(touches);
   const lower = Math.floor(touches), amount = touches - lower;
   const from = packing(lower + 1), to = packing(lower + (amount > 0 ? 2 : 1));
   let outerRadius = 0;
@@ -43,7 +45,9 @@ function packingState(touches) {
     return [Math.cos(angle) * radius, Math.sin(angle) * radius];
   });
   // Polar reflow retains the outside ring while vines move around one another.
-  return { offsets, outerRadius };
+  const state = { offsets, outerRadius };
+  if (Number.isInteger(touches)) settledPackings.set(touches, state);
+  return state;
 }
 
 /** Physical envelope of equally thin vines; touches add vines, never their caliber. */
@@ -82,6 +86,10 @@ export function createRootRopeBatch(edges, { pointed = false, sides = 6, segment
       axisBinormals: new Float64Array((divisions + 1) * 3),
       vineCenters: new Float64Array((divisions + 1) * 3),
       vineProfiles: new Float64Array(divisions + 1),
+      helixCosines: new Float64Array(divisions + 1),
+      helixSines: new Float64Array(divisions + 1),
+      taperProfiles: Float64Array.from({ length: divisions + 1 }, (_, ring) => pointed ? taper(ring / divisions) : 1),
+      dormantPosition: edge.curve.v0.clone(), initialized: false,
     };
     for (let index = 0; index < capacity; index++) range.vines.push({
       index, vertexStart: vertexCount + index * verticesPerVine, vertexCount: verticesPerVine,
@@ -116,7 +124,7 @@ export function createRootRopeBatch(edges, { pointed = false, sides = 6, segment
   geometry.setIndex(new THREE.BufferAttribute(indices, 1));
   const batch = {
     geometry, ranges, centers, profiles, shades, positionDirty: false, colorDirty: false,
-    centerBounds: new THREE.Box3(),
+    centerBounds: new THREE.Box3(), positionRanges: [], colorRanges: [],
     scratch: { center: new THREE.Vector3(), tangent: new THREE.Vector3(), normal: new THREE.Vector3(), binormal: new THREE.Vector3() },
     cosines: Float64Array.from({ length: sides + 1 }, (_, side) => -Math.cos(side / sides * TAU)),
     sines: Float64Array.from({ length: sides + 1 }, (_, side) => Math.sin(side / sides * TAU)),
@@ -185,20 +193,32 @@ export function setRootRopeShape(batch, range, curve, touchesFloat, distanceOffs
     }
     for (let i = 0; i < 4; i++) controls[i].toArray(range.curveSignature, i * 3);
   }
-  const { offsets } = packingState(touches);
+  const { offsets, outerRadius } = packingState(touches);
+  // Mature vines share the same arc phase and taper at every ring. Compute
+  // these once per edge, rather than repeating trigonometry for each vine.
+  for (let ring = 0; ring <= segments; ring++) {
+    const angle = TAU * (distanceOffset + range.length * (ring / segments)) / range.pitch;
+    range.helixCosines[ring] = Math.cos(angle);
+    range.helixSines[ring] = Math.sin(angle);
+  }
+  const previousVineCount = range.vineCount;
   const positions = batch.geometry.attributes.position.array, normals = batch.geometry.attributes.normal.array;
   const min = range.bounds.min.set(Infinity, Infinity, Infinity), max = range.bounds.max.set(-Infinity, -Infinity, -Infinity);
   range.vineCount = 0;
   for (const vine of range.vines) {
     const growth = THREE.MathUtils.clamp(touches + 1 - vine.index, 0, 1);
+    const wasVisible = vine.visible;
     vine.growth = growth; vine.visible = growth > 0;
     if (!vine.visible) {
-      // Reserve future slots without visible geometry or invalid zero normals.
+      // Dormant slots remain at one fixed zero-area point. Initialize their
+      // normals once and collapse them again only when rewinding hides a vine.
+      if (range.initialized && !wasVisible) continue;
+      const dormant = range.dormantPosition;
       for (let vertex = vine.vertexStart; vertex < vine.vertexStart + vine.vertexCount; vertex++) {
         const offset = vertex * 3;
-        positions[offset] = batch.centers[offset] = curve.v0.x;
-        positions[offset + 1] = batch.centers[offset + 1] = curve.v0.y;
-        positions[offset + 2] = batch.centers[offset + 2] = curve.v0.z;
+        positions[offset] = batch.centers[offset] = dormant.x;
+        positions[offset + 1] = batch.centers[offset + 1] = dormant.y;
+        positions[offset + 2] = batch.centers[offset + 2] = dormant.z;
         normals[offset] = 0; normals[offset + 1] = 0; normals[offset + 2] = 1;
         batch.profiles[vertex] = 0;
       }
@@ -212,9 +232,12 @@ export function setRootRopeShape(batch, range, curve, touchesFloat, distanceOffs
       if (growth === 1) {
         center.fromArray(range.axisCenters, offset); normal.fromArray(range.axisNormals, offset); binormal.fromArray(range.axisBinormals, offset);
       } else axisFrame(curve, fraction, batch.scratch);
-      const angle = TAU * (distanceOffset + range.length * fraction) / range.pitch;
-      const cos = Math.cos(angle), sin = Math.sin(angle);
-      const profile = range.pointed ? taper(fraction) : 1;
+      let cos = range.helixCosines[ring], sin = range.helixSines[ring];
+      if (growth !== 1) {
+        const angle = TAU * (distanceOffset + range.length * fraction) / range.pitch;
+        cos = Math.cos(angle); sin = Math.sin(angle);
+      }
+      const profile = growth === 1 ? range.taperProfiles[ring] : range.pointed ? taper(fraction) : 1;
       const spread = range.pointed ? profile : 1;
       const nx = (x * cos - y * sin) * spread, ny = (x * sin + y * cos) * spread;
       center.addScaledVector(normal, nx).addScaledVector(binormal, ny);
@@ -232,6 +255,9 @@ export function setRootRopeShape(batch, range, curve, touchesFloat, distanceOffs
       const profile = range.vineProfiles[ring];
       const distance = Math.hypot(range.vineCenters[after] - range.vineCenters[before], range.vineCenters[after + 1] - range.vineCenters[before + 1], range.vineCenters[after + 2] - range.vineCenters[before + 2]);
       const slope = distance > 1e-10 ? ROOT_VINE_RADIUS * (range.vineProfiles[Math.min(segments, ring + 1)] - range.vineProfiles[Math.max(0, ring - 1)]) / distance : 0;
+      // The radial frame is orthonormal: |radial - tangent*slope| is
+      // sqrt(1+slope²), independent of side. Normalize once for the ring.
+      const inverseNormalLength = 1 / Math.hypot(1, slope);
       for (let side = 0; side <= sides; side++) {
         const vertex = vine.vertexStart + ring * (sides + 1) + side, target = vertex * 3;
         const cos = batch.cosines[side], sin = batch.sines[side];
@@ -241,15 +267,17 @@ export function setRootRopeShape(batch, range, curve, touchesFloat, distanceOffs
         positions[target + 1] = center.y + ry * ROOT_VINE_RADIUS * profile;
         positions[target + 2] = center.z + rz * ROOT_VINE_RADIUS * profile;
         const dx = rx - tangent.x * slope, dy = ry - tangent.y * slope, dz = rz - tangent.z * slope;
-        const length = Math.hypot(dx, dy, dz) || 1;
-        normals[target] = dx / length; normals[target + 1] = dy / length; normals[target + 2] = dz / length;
+        normals[target] = dx * inverseNormalLength; normals[target + 1] = dy * inverseNormalLength; normals[target + 2] = dz * inverseNormalLength;
         min.x = Math.min(min.x, positions[target]); max.x = Math.max(max.x, positions[target]);
         min.y = Math.min(min.y, positions[target + 1]); max.y = Math.max(max.y, positions[target + 1]);
         min.z = Math.min(min.z, positions[target + 2]); max.z = Math.max(max.z, positions[target + 2]);
       }
     }
   }
-  range.touches = touches; range.radius = rootRopeRadius(touches); range.distanceOffset = distanceOffset;
+  const updatedVines = range.initialized ? Math.max(previousVineCount, range.vineCount) : range.capacity;
+  batch.positionRanges.push({ start: range.vertexStart * 3, count: updatedVines * range.vines[0].vertexCount * 3 });
+  range.initialized = true;
+  range.touches = touches; range.radius = outerRadius + ROOT_VINE_RADIUS; range.distanceOffset = distanceOffset;
   range.endDistance = distanceOffset + range.length; range.curve = curve;
   batch.positionDirty = true;
 }
@@ -262,18 +290,40 @@ export function setRootRopeColor(batch, range, color) {
     colors[offset] = color.r * shade; colors[offset + 1] = color.g * shade; colors[offset + 2] = color.b * shade;
   }
   range.color.copy(color); batch.colorDirty = true;
+  batch.colorRanges.push({ start: range.vertexStart * 3, count: range.vertexCount * 3 });
+}
+
+// Keep pending updates until WebGL consumes them. Multiple setters can finish
+// before a render, so merge with existing ranges instead of discarding them.
+function uploadRanges(attribute, pending) {
+  const ranges = [...attribute.updateRanges, ...pending].sort((a, b) => a.start - b.start);
+  attribute.clearUpdateRanges();
+  let merged = null;
+  for (const range of ranges) {
+    if (merged && range.start <= merged.start + merged.count) {
+      merged.count = Math.max(merged.count, range.start + range.count - merged.start);
+    } else {
+      merged = { start: range.start, count: range.count };
+      attribute.updateRanges.push(merged);
+    }
+  }
+  attribute.needsUpdate = true;
 }
 
 export function finishRootRopeUpdate(batch) {
   if (!batch) return;
   if (batch.positionDirty) {
-    batch.geometry.attributes.position.needsUpdate = true;
-    batch.geometry.attributes.normal.needsUpdate = true;
+    uploadRanges(batch.geometry.attributes.position, batch.positionRanges);
+    uploadRanges(batch.geometry.attributes.normal, batch.positionRanges);
+    batch.positionRanges.length = 0;
     const bounds = batch.geometry.boundingBox ||= new THREE.Box3(); bounds.makeEmpty();
     batch.centerBounds.makeEmpty();
     for (const range of batch.ranges.values()) { bounds.union(range.bounds); batch.centerBounds.union(range.centerBounds); }
     batch.geometry.boundingSphere ||= new THREE.Sphere(); bounds.getBoundingSphere(batch.geometry.boundingSphere);
     batch.positionDirty = false;
   }
-  if (batch.colorDirty) { batch.geometry.attributes.color.needsUpdate = true; batch.colorDirty = false; }
+  if (batch.colorDirty) {
+    uploadRanges(batch.geometry.attributes.color, batch.colorRanges);
+    batch.colorRanges.length = 0; batch.colorDirty = false;
+  }
 }

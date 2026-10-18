@@ -7,6 +7,13 @@ const TIP_FOOTPRINT = 3.2;
 const SIBLING_GAP = 2.2;
 const MAX_WIDTH = 160;
 const MAX_DEPTH = 100;
+const ADAPTIVE_FILE_THRESHOLD = 160;
+const ADAPTIVE_GAP = 3.2;
+const ADAPTIVE_TIP_DEPTH = 6;
+const ADAPTIVE_MIN_TIP_WIDTH = 8;
+const WORLD_PER_CHARACTER = 0.8;
+const BASE_FILES = 64;
+const BASE_PADDING = 6;
 
 // Small groups form the familiar horizontal sibling row. Dense groups use
 // symmetric rows in Z, preserving every real child without an enormous strip.
@@ -65,6 +72,81 @@ function packChildren(children, footprints) {
   return { width, depth: occupiedDepth * 2, offsets };
 }
 
+// Large repositories reserve readable local slots before packing. A folder's
+// footprint includes its entire descendant hierarchy, so neighbouring branches
+// cannot borrow the same space merely because one has fewer immediate children.
+// Shelves stay in X/Z: vertical levels continue to mean actual path depth.
+function packAdaptiveChildren(children, footprints) {
+  if (!children.length) return { width: ADAPTIVE_MIN_TIP_WIDTH, depth: ADAPTIVE_TIP_DEPTH, offsets: new Map() };
+  const area = children.reduce((sum, child) => {
+    const box = footprints.get(child);
+    return sum + (box.width + ADAPTIVE_GAP) * (box.depth + ADAPTIVE_GAP);
+  }, 0);
+  const widest = Math.max(...children.map(child => footprints.get(child).width));
+  const preferredWidth = Math.max(widest, Math.sqrt(area * 5 / 3));
+  let best;
+  // A few bounded alternatives avoid a narrow final shelf or one tall subtree
+  // wasting most of a row. Input order stays lexical in every alternative.
+  for (const factor of [0.8, 1, 1.25, 1.6]) {
+    const limit = Math.max(widest, preferredWidth * factor);
+    const rows = [];
+    let row = { members: [], width: 0, depth: 0 };
+    for (const child of children) {
+      const box = footprints.get(child);
+      const nextWidth = row.width + (row.members.length ? ADAPTIVE_GAP : 0) + box.width;
+      if (row.members.length && nextWidth > limit) {
+        rows.push(row);
+        row = { members: [], width: 0, depth: 0 };
+      }
+      row.width += (row.members.length ? ADAPTIVE_GAP : 0) + box.width;
+      row.depth = Math.max(row.depth, box.depth);
+      row.members.push(child);
+    }
+    rows.push(row);
+    const width = Math.max(...rows.map(item => item.width));
+    const depth = rows.reduce((sum, item) => sum + item.depth, 0) + ADAPTIVE_GAP * (rows.length - 1);
+    // Minimise the containing 5:3 footprint, so tall nested subtrees cannot
+    // produce a long ribbon just because that arrangement has slightly less area.
+    const cost = Math.max(width ** 2 / (5 / 3), depth ** 2 * (5 / 3));
+    if (!best || cost < best.cost) best = { rows, width, depth, cost };
+  }
+  const offsets = new Map();
+  let z = -best.depth / 2;
+  let occupiedDepth = best.depth / 2;
+  for (const row of best.rows) {
+    let x = -row.width / 2;
+    const centerZ = z + row.depth / 2;
+    for (const child of row.members) {
+      const box = footprints.get(child);
+      const centerX = x + box.width / 2;
+      const normalizedX = row.width > box.width ? centerX / ((row.width - box.width) / 2) : 0;
+      const relief = best.rows.length === 1 && children.length > 1 ? 2 + 3 * (1 - normalizedX ** 2) : 0;
+      const childZ = centerZ + relief;
+      offsets.set(child, [centerX, childZ]);
+      occupiedDepth = Math.max(occupiedDepth, Math.abs(childZ) + box.depth / 2);
+      x += box.width + ADAPTIVE_GAP;
+    }
+    z += row.depth + ADAPTIVE_GAP;
+  }
+  return { width: best.width, depth: occupiedDepth * 2, offsets };
+}
+
+function baseForFootprint(fileCount, min, max) {
+  const capacityScale = Math.sqrt(Math.max(1, fileCount / BASE_FILES));
+  const countRadiusX = 50 * capacityScale;
+  const countRadiusZ = 30 * capacityScale;
+  const halfWidth = Math.max(Math.abs(min[0]), Math.abs(max[0])) + BASE_PADDING;
+  const halfDepth = Math.max(Math.abs(min[2]), Math.abs(max[2])) + BASE_PADDING;
+  let radiusX = Math.max(countRadiusX, halfWidth);
+  let radiusZ = Math.max(countRadiusZ, halfDepth);
+  // The ellipse must contain the reserved rectangular footprint, not just its
+  // axis extrema. Expand both axes together to preserve their chosen proportion.
+  const enclosure = Math.max(1, Math.hypot(halfWidth / radiusX, halfDepth / radiusZ));
+  radiusX *= enclosure;
+  radiusZ *= enclosure;
+  return { radiusX, radiusZ, fileCount, capacityScale, countRadiusX, countRadiusZ, padding: BASE_PADDING };
+}
+
 function cubicBetween(start, end) {
   const dx = end[0] - start[0], dy = end[1] - start[1], dz = end[2] - start[2];
   const bow = Math.min(2.1, 1.2 + Math.abs(dx) * 0.02);
@@ -81,6 +163,7 @@ function cubicBetween(start, end) {
  * Every real folder/file keeps its immediate parent. The repository root is the
  * canopy trunk's ground anchor, not a second node below it. No display caps,
  * collapsed directories, pagination, inferred empty folders, or fake clusters.
+ * Dot-prefixed path segments and their descendants are omitted from roots only.
  *
  * `paths` maps stable file IDs to historical paths. Omitted activeIds uses pinned
  * head membership when supplied by the model. Curves contain four cubic Bezier
@@ -97,7 +180,8 @@ export function createRootLayout(model, { activeIds, paths, groundY = -40 } = {}
     return typeof path === 'string' ? path : node.path;
   };
   const files = [...source.values()].filter(node => active.has(node.id)).map(node => ({ ...node, path: currentPath(node) }))
-    .filter(node => typeof node.path === 'string' && node.path.length > 0)
+    .filter(node => typeof node.path === 'string' && node.path.length > 0
+      && !node.path.split('/').some(segment => segment.startsWith('.')))
     .sort((a, b) => compare(a.path, b.path) || compare(a.id, b.id));
   const folderPaths = new Set(['']);
   for (const file of files) {
@@ -124,19 +208,24 @@ export function createRootLayout(model, { activeIds, paths, groundY = -40 } = {}
   for (const folder of folders) if (folder.parent !== null) byPath.get(folder.parent).children.push(folder.path);
   for (const node of nodes) byPath.get(node.folder).directFiles.push(node.id);
   const entries = new Map();
-  const footprints = new Map(nodes.map(node => [node, { width: TIP_FOOTPRINT, depth: TIP_FOOTPRINT }]));
+  const adaptive = nodes.length > ADAPTIVE_FILE_THRESHOLD;
+  const footprints = new Map(nodes.map(node => [node, adaptive
+    ? { width: Math.max(ADAPTIVE_MIN_TIP_WIDTH, 4 + node.name.length * WORLD_PER_CHARACTER), depth: ADAPTIVE_TIP_DEPTH }
+    : { width: TIP_FOOTPRINT, depth: TIP_FOOTPRINT }]));
   // Prefix order means reverse iteration completes every child before its parent.
   for (const folder of [...folders].reverse()) {
     const children = [...folder.children.map(path => byPath.get(path)), ...folder.directFiles.map(id => byId.get(id))];
     entries.set(folder, children);
     folder.count += folder.directFiles.length;
     if (folder.parent !== null) byPath.get(folder.parent).count += folder.count;
-    footprints.set(folder, packChildren(children, footprints));
+    footprints.set(folder, adaptive ? packAdaptiveChildren(children, footprints) : packChildren(children, footprints));
   }
   const root = byPath.get('');
   const rootFootprint = footprints.get(root);
-  const scaleX = Math.min(1, MAX_WIDTH / rootFootprint.width);
-  const scaleZ = Math.min(1, MAX_DEPTH / rootFootprint.depth);
+  // Preserve the established small-repository composition. Large repositories
+  // grow their ground footprint instead of compressing every local file slot.
+  const scaleX = adaptive ? 1 : Math.min(1, MAX_WIDTH / rootFootprint.width);
+  const scaleZ = adaptive ? 1 : Math.min(1, MAX_DEPTH / rootFootprint.depth);
   const rows = [], pending = [root];
   while (pending.length) {
     const item = pending.pop();
@@ -180,5 +269,12 @@ export function createRootLayout(model, { activeIds, paths, groundY = -40 } = {}
     visibleFileCount: nodes.length, visibleFolderCount: folders.length,
     groundY: ground, tierHeight: ROOT_TIER_HEIGHT,
     footprint: { width, depth, scaleX, scaleZ },
+    base: baseForFootprint(nodes.length, min, max),
+    readability: {
+      adaptive, minFileWidth: adaptive ? ADAPTIVE_MIN_TIP_WIDTH : TIP_FOOTPRINT * scaleX,
+      minFileDepth: adaptive ? ADAPTIVE_TIP_DEPTH : TIP_FOOTPRINT * scaleZ,
+      siblingGap: adaptive ? ADAPTIVE_GAP : SIBLING_GAP * Math.min(scaleX, scaleZ),
+      worldPerCharacter: adaptive ? WORLD_PER_CHARACTER : 0,
+    },
   };
 }

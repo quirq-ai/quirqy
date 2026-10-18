@@ -2,6 +2,10 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createRootLayout } from './root-layout.js';
 import { createRootWarpLayout } from './root-warp.js';
+import { createRepositoryFixture } from './test-fixtures/repository.js';
+import { buildModel, stateAt } from './model.js';
+import { buildRootActivityHistory, rootActivityAt, rootPathGrowth } from './root-activity.js';
+import { ROOT_VINE_RADIUS, rootRopeRadius } from './root-rope-geometry.js';
 
 const model = paths => ({ repository: { name: 'warp' }, nodes: paths.map((path, index) => ({ id: `f${index}`, path })) });
 const folderMap = layout => new Map(layout.folders.map(folder => [folder.path, folder]));
@@ -291,4 +295,124 @@ test('quiet rope descendants use the configured baseline while a thicker parent 
   }
   assert.deepEqual(createRootWarpLayout(base, { baseRadius, folderRadii }), implicit);
   exactParents(implicit);
+});
+
+test('compact growth preserves the exact untouched baseline and all historical identities', () => {
+  const source = model(['old/file.js', 'keep/file.js', 'removed/file.js']);
+  const base = createRootLayout(source, { activeIds: ['f0', 'f1'], paths: new Map([['f0', 'new/deep/file.js']]) });
+  const original = structuredClone(base);
+  const untouched = createRootWarpLayout(base, { baseRadius: ROOT_VINE_RADIUS, compact: true });
+  assert.deepEqual(geometry(untouched), geometry(base));
+  assert.deepEqual(untouched.bounds, base.bounds);
+  assert.equal(untouched.warp.active, false);
+  assert.equal(untouched.warp.compact, true);
+  const fileRadii = new Map([['f0', rootRopeRadius(12)]]);
+  const folderRadii = new Map([['new', rootRopeRadius(16)], ['new/deep', rootRopeRadius(12)]]);
+  const inputs = structuredClone({ fileRadii, folderRadii });
+  const options = { baseRadius: ROOT_VINE_RADIUS, compact: true, fileRadii, folderRadii };
+  const grown = createRootWarpLayout(base, options);
+  assert.deepEqual(grown.nodes.map(node => [node.id, node.path, node.folder]), base.nodes.map(node => [node.id, node.path, node.folder]));
+  assert.deepEqual(grown.folders.map(folder => [folder.path, folder.parent]), base.folders.map(folder => [folder.path, folder.parent]));
+  createRootWarpLayout(base, { ...options, fileRadii: { f0: 32 } });
+  assert.deepEqual(createRootWarpLayout(base, options), grown, 'unrelated growth or replay must not change a compact pose');
+  assert.deepEqual({ fileRadii, folderRadii }, inputs, 'physical radii remain untouched inputs');
+  assert.deepEqual(base, original);
+  exactParents(grown);
+});
+
+test('compact sample roots reduce visual expansion while retaining every file and physical rope size', () => {
+  const repository = buildModel(createRepositoryFixture());
+  const frame = stateAt(repository, repository.commits.length - 1);
+  const base = createRootLayout(repository, { activeIds: frame.activeIds, paths: new Map(frame.files.map(file => [file.id, file.path])) });
+  const touches = rootPathGrowth(base, rootActivityAt(buildRootActivityHistory(repository), frame.index));
+  const fileRadii = new Map([...touches.fileTouches].map(([id, count]) => [id, rootRopeRadius(count)]));
+  const folderRadii = new Map([...touches.folderTouches].map(([path, count]) => [path, rootRopeRadius(count)]));
+  const originalInputs = structuredClone({ touches, fileRadii, folderRadii });
+  const options = { baseRadius: ROOT_VINE_RADIUS, fileRadii, folderRadii };
+  const expanded = createRootWarpLayout(base, options);
+  const compact = createRootWarpLayout(base, { ...options, compact: true });
+  const width = layout => layout.bounds.max[0] - layout.bounds.min[0];
+  const displacement = layout => Math.max(...layout.nodes.map((node, index) =>
+    Math.hypot(...node.position.map((value, axis) => value - base.nodes[index].position[axis]))));
+  assert.ok(width(compact) < width(expanded) * .75, 'sample width should shed excessive visual strain');
+  assert.ok(compact.extent < expanded.extent * .75);
+  assert.ok(displacement(compact) < displacement(expanded) * .4, 'tip drift should shrink substantially');
+  assert.equal(compact.nodes.length, 53);
+  assert.deepEqual(compact.nodes.map(node => [node.id, node.path, node.folder]), expanded.nodes.map(node => [node.id, node.path, node.folder]));
+  assert.deepEqual({ touches, fileRadii, folderRadii }, originalInputs);
+  for (const row of compact.rows) {
+    const radius = row.kind === 'file' ? fileRadii.get(row.id) : row.path ? folderRadii.get(row.path) : 0;
+    for (const point of row.curve) for (let axis = 0; axis < 3; axis++) {
+      assert.ok(point[axis] - radius >= compact.bounds.min[axis]);
+      assert.ok(point[axis] + radius <= compact.bounds.max[axis]);
+    }
+  }
+  exactParents(compact);
+});
+
+test('compact activity grows every segment progressively with symmetric smooth folder joins', () => {
+  const base = createRootLayout(model(['left/a.js', 'left/b.js', 'right/a.js', 'right/b.js']));
+  let previous = base;
+  const unit = vector => { const length = Math.hypot(...vector); assert.ok(length > 0); return vector.map(value => value / length); };
+  for (const radius of [.141, .2, .35, .6, 1, 2]) {
+    const warped = createRootWarpLayout(base, {
+      baseRadius: ROOT_VINE_RADIUS, compact: true,
+      fileRadii: new Map(base.nodes.map(node => [node.id, radius])), folderRadii: { left: radius, right: radius },
+    });
+    const folders = folderMap(warped), oldFolders = folderMap(previous);
+    for (const row of warped.rows) {
+      if (row.kind === 'folder' && !row.path) continue;
+      const parentPath = row.kind === 'file' ? row.folder : row.parent;
+      const parent = folders.get(parentPath), oldParent = oldFolders.get(parentPath);
+      const old = row.kind === 'file' ? previous.nodes.find(node => node.id === row.id) : oldFolders.get(row.path);
+      assert.ok(parent.position[1] - row.position[1] > oldParent.position[1] - old.position[1], `${row.path}: each edge must keep growing`);
+      if (parent.path) {
+        const incoming = unit(parent.position.map((value, axis) => value - parent.curve[2][axis]));
+        const outgoing = unit(row.curve[1].map((value, axis) => value - row.curve[0][axis]));
+        incoming.forEach((value, axis) => assert.ok(near(value, outgoing[axis])));
+      }
+    }
+    const left = warped.nodes.filter(node => node.folder === 'left'), right = warped.nodes.filter(node => node.folder === 'right').reverse();
+    left.forEach((node, i) => node.curve.forEach((point, j) => {
+      assert.ok(near(point[0], -right[i].curve[j][0]));
+      assert.ok(near(point[1], right[i].curve[j][1]));
+      assert.ok(near(point[2], right[i].curve[j][2]));
+    }));
+    previous = warped;
+    exactParents(warped);
+  }
+});
+
+test('compact packing retains dense tips and does not cap necessary clearance for very thick parents', () => {
+  const base = createRootLayout(model(Array.from({ length: 2501 }, (_, index) => `src/file${index}.js`)));
+  const vineRadius = rootRopeRadius(22);
+  const fileRadii = new Map(base.nodes.map(node => [node.id, vineRadius]));
+  for (const parentRadius of [vineRadius, 32]) {
+    const warped = createRootWarpLayout(base, {
+      baseRadius: ROOT_VINE_RADIUS, compact: true, fileRadii, folderRadii: { src: parentRadius },
+    });
+    assert.equal(warped.nodes.length, 2501);
+    assert.equal(new Set(warped.nodes.map(node => node.position.join(','))).size, 2501);
+    const parent = folderMap(warped).get('src');
+    for (const node of warped.nodes) {
+      assert.ok(parent.position[1] - node.position[1] >= 16 + 2 * (parentRadius - ROOT_VINE_RADIUS), 'compactness must not bury tips inside a thick parent');
+    }
+    const rows = new Map();
+    for (const node of warped.nodes) {
+      const key = node.position[2];
+      if (!rows.has(key)) rows.set(key, []);
+      rows.get(key).push(node);
+    }
+    for (const row of rows.values()) {
+      row.sort((a, b) => a.position[0] - b.position[0]);
+      for (let index = 1; index < row.length; index++) assert.ok(row[index].position[0] - row[index - 1].position[0] > 2 * vineRadius, 'adjacent full-width ropes must retain physical clearance');
+    }
+    for (const row of warped.rows) for (let index = 0; index < row.curve.length; index++) {
+      const point = row.curve[index];
+      assert.ok(point.every(Number.isFinite));
+      if (index) assert.ok(point[1] <= row.curve[index - 1][1], 'compact roots must not bend upward');
+      for (let axis = 0; axis < 3; axis++) assert.ok(point[axis] >= warped.bounds.min[axis] && point[axis] <= warped.bounds.max[axis]);
+    }
+    exactParents(warped);
+  }
 });

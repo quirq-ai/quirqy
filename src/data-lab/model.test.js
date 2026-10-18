@@ -100,6 +100,31 @@ function apiCommit(sha, parents, files) {
   assert.deepEqual(pathsAt(model, 1), ['a', 'b']);
 });
 
+test('URL imports default to 20 commits and preserve smaller explicit windows', async t => {
+  const calls = [];
+  t.mock.method(globalThis, 'fetch', async url => {
+    calls.push(url);
+    if (url.endsWith('/repos/example/sample')) return mockResponse({ default_branch: 'main' });
+    if (url.includes('/git/trees/')) return mockResponse({ tree: [{ type: 'blob', path: 'a.js' }], truncated: false });
+    const ref = new URL(url).pathname.split('/').at(-1);
+    const index = ref === 'main' ? 50 : Number(ref.slice(1));
+    assert.ok(index > 0 && index <= 50, `Unexpected commit reference: ${ref}`);
+    return mockResponse(apiCommit(`c${index}`, [`c${index - 1}`], [
+      { filename: 'a.js', status: 'modified', additions: 1, deletions: 1 },
+    ]));
+  });
+  for (const [options, expected] of [[undefined, 20], [{ limit: 12 }, 12], [{ limit: 50 }, 20]]) {
+    calls.length = 0;
+    const data = await loadRepository('https://github.com/example/sample', options);
+    assert.equal(data.commits.length, expected);
+    assert.equal(calls.filter(url => url.includes('/commits/')).length, expected);
+    assert.equal(data.commits[0].sha, `c${51 - expected}`);
+    assert.equal(data.commits.at(-1).sha, 'c50');
+    assert.equal(data.repository.headSha, 'c50');
+    assert.equal(calls.length, expected + 2, 'only metadata, pinned tree and requested commits are fetched');
+  }
+});
+
  test('commit file pagination includes page two without falsely labelling a complete 200-file diff', async t => {
   const all = Array.from({ length: 200 }, (_, i) => ({ filename: `file-${i}`, status: 'added', additions: 1, deletions: 0 }));
   t.mock.method(globalThis, 'fetch', async url => {

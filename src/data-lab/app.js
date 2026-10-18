@@ -1,8 +1,8 @@
 // Data Lab uses quirq observatory's stage and HUD, with its own repository state.
 import './style.css';
 import { createStage } from '../scene/setup.js';
-import { DEFAULT_EXAMPLE_URL, getExampleDataset } from './examples.js';
-import { loadRepository } from './github.js';
+import { DEFAULT_EXAMPLE_URL, DEFAULT_EXAMPLE_COMMIT_LIMIT, getExampleDataset } from './examples.js';
+import { DEFAULT_REPOSITORY_COMMIT_LIMIT, loadRepository } from './github.js';
 import { buildModel, stateAt } from './model.js';
 import { MoleculeScene } from './molecule-scene.js';
 import { TreeScene } from './tree-scene.js';
@@ -31,6 +31,7 @@ export async function mountDataLab() {
 
   const panel = new DataPanel({
     onLoad: importRepository,
+    onExample: url => showExample(url),
     onFrame: () => { scene.resetView(); renderPanel(); },
     onFrameRoots: () => { options.roots = true; scene.setOptions({ roots: true }); scene.focusRoots?.(); renderPanel(); },
     onFocusFile: id => { selectFile(id); scene.focusNode(id); },
@@ -55,7 +56,7 @@ export async function mountDataLab() {
   stage.controls = new DataLabControls(stage.camera, stage.renderer.domElement);
   scene = new MoleculeScene(stage, { onSelect: selectFile });
   const guide = new DataGuide({
-    onOverview: () => { scene.resetView(); renderPanel(); },
+    onOverview: () => { if (scene.frameMode === 'roots') scene.focusRoots(); else scene.resetView(); renderPanel(); },
     onFocusFolder: focusDirectory,
   });
 
@@ -67,7 +68,7 @@ export async function mountDataLab() {
   help.innerHTML = `<div class="help-card" role="dialog" aria-modal="true" aria-labelledby="data-help-title">
     <button class="panel-close" type="button" aria-label="Close help">×</button>
     <h2 id="data-help-title">Data Lab</h2>
-    <p class="help-sub">Two views share one repository and commit timeline. Structure shows each folder as a small carbon marble when paused. During playback, non-root marbles expand into boundaries around their current contents; the root shines like a warm sun. Each file remains one typed atom. Each folder connects to its parent, and each file connects directly to its folder. File elements are nitrogen for code, oxygen for data, hydrogen for documents, and sulfur for media. Growth tree grows taller and thicker with each loaded commit; branches lengthen and droop as more leaves appear. The trunk itself is the repository root. Below ground, the complete folder hierarchy branches horizontally in a balanced, fully expanded 3D tree, following the exact paths at the selected commit.</p>
+    <p class="help-sub">Two views share one repository and commit timeline. Structure shows each folder as a small carbon marble when paused. During playback, non-root marbles expand into boundaries around their current contents; the root author portrait shines like a warm sun. Pausing opens its commit message bubble. Each file remains one typed atom. Each folder connects to its parent, and each file connects directly to its folder. File elements are nitrogen for code, oxygen for data, hydrogen for documents, and sulfur for media. Growth tree grows taller and thicker with each loaded commit; branches lengthen and droop as more leaves appear. The trunk itself is the repository root. Below ground, the visible folder hierarchy branches horizontally in a balanced, fully expanded 3D tree, following the exact paths at the selected commit.</p>
     <div class="help-grid"><span>Drag</span><span>Orbit upright; rotate freely in root focus</span>
     <span>Shift + drag</span><span>Roll sideways in root focus</span>
     <span>Right-drag / scroll</span><span>Pan / zoom the scene</span>
@@ -79,7 +80,7 @@ export async function mountDataLab() {
     <span>F / Frame view</span><span>Frame the repository and return upright</span>
     <span>S</span><span>Save a scene image</span>
     <span>H / Escape</span><span>Open / close help</span></div>
-    <p class="help-tip">In Structure, click a colored atom to inspect its file, or a folder marble or boundary to focus its direct contents. Use Frame view to return to the full repository and its upright orbit. One folder always means one carbon anchor, including the repository root. During playback, each non-root folder’s marble expands into a softly outlined boundary around its current contents. The small marble is hidden while this boundary is visible. The boundary resizes as files are added, removed, or moved. The repository root keeps its small sphere, glowing like a warm sun during playback and returning to a gray marble when paused. It has no boundary. Enclosure size follows occupied space, not bytes. The vertical gaps between hierarchy levels stay fixed. All files connect directly to their folder carbon; folders can have as many connections as their contents require. A moved file keeps its identity and reconnects to its current folder. Element assignments encode file types. Atoms and bonds begin translucent. Each loaded commit touching a file strengthens that file and its folder pathway; frequently touched parts become brighter. Travelling current marks the selected commit. During playback, only the moving current is visible between atoms; pathways are hidden. Pausing immediately returns folders to their small marbles, hides boundaries, freezes the current, and reveals all pathways enabled in this view. Rewinding restores the earlier brightness. This shows commit touches, not runtime calls. Counts cover present mapped files and their folders; historical ghosts are excluded. In Growth tree, leaves follow the growing limbs. Step forward to see additions grow, removals fall, and lighter branches lift; seeking restores the chosen state. Branch weight follows present mapped leaf counts. Leaf area uses known snapshot bytes, with size limits for readability. Use Frame roots to enlarge the roots and shrink the canopy around the same ground junction. Root focus alone enables free rotation and sideways roll. On portrait screens, roots initially frame sideways to use the taller space. Frame view restores a full canopy with smaller roots and upright orbit. These presentation sizes do not change file bytes or commit growth. Folder roots split into their actual subfolders and files, with sibling branches spread symmetrically across the scene. Every present loaded file and ancestor folder is expanded. Folder names sit beside junctions, and file basenames sit below naturally tapered ends. Each root begins with one thin initial strand. Every loaded commit touching a file adds one thin vine to its current attachment and each ancestor folder along the path to the trunk. The vines spiral in the same direction, forming a twisted rope that grows gradually. The new vine grows along its route during playback; rewinding removes later vines and restores the earlier shape. Shared folders gain one vine per commit touching any descendant, even when several files change. Existing folders retain earlier vines after a descendant moves or disappears. A cross-folder move starts a new file attachment with its own initial strand and touch count. The growing bundles bend and lengthen to keep neighboring roots and their tapered tips separate. On narrow screens or crowded viewing angles, the ground and connected roots curve downward away from the trunk, which remains the highest point. The surface flattens when a wider view, zoom, or folder focus provides enough room. This adjustment follows the current view without changing repository data or vine counts. Root focus shows horizontal file basenames close to their tips with compact spacing and no extended guide lines. The smaller roots in tree view show folder names and the hovered or selected file; Frame roots reveals every file name. Click a folder name to focus its subtree, or a file name to inspect the same file as its canopy leaf. Public history follows the sampled first-parent chain. The scene guide explains each view and its coverage.</p>
+    <p class="help-tip">In Structure, click a colored atom to inspect its file, or a folder marble or boundary to focus its direct contents. Use Frame view to return to the full repository and its upright orbit. One folder always means one carbon anchor, including the repository root. During playback, each non-root folder’s marble expands into a softly outlined boundary around its current contents. The small marble is hidden while this boundary is visible. The boundary resizes as files are added, removed, or moved. The repository root keeps the current commit author’s portrait and name, with a warm sun glow during playback. When paused, a message bubble shows the full commit message, ID, changed files, line additions and deletions, and a GitHub link. Expand the file count to select a changed file. Initials stand in when a profile picture is unavailable. It has no boundary. Enclosure size follows occupied space, not bytes. The vertical gaps between hierarchy levels stay fixed. All files connect directly to their folder carbon; folders can have as many connections as their contents require. A moved file keeps its identity and reconnects to its current folder. Element assignments encode file types. Atoms and bonds begin translucent. Each loaded commit touching a file strengthens that file and its folder pathway; frequently touched parts become brighter. Travelling current marks the selected commit. During playback, only the moving current is visible between atoms; pathways are hidden. Pausing immediately returns folders to their small marbles, hides boundaries, freezes the current, and reveals all pathways enabled in this view. Rewinding restores the earlier brightness. This shows commit touches, not runtime calls. Counts cover present mapped files and their folders; historical ghosts are excluded. In Growth tree, leaves follow the growing limbs. Step forward to see additions grow, removals fall, and lighter branches lift; seeking restores the chosen state. Branch weight follows present mapped leaf counts. Leaf area uses known snapshot bytes, with size limits for readability. Use Frame roots to enlarge the roots and shorten the canopy around the same ground junction, retaining a broader, sturdier trunk like a bonsai. Root focus alone enables free rotation and sideways roll. In tall, narrow viewing areas, roots initially frame sideways to use the longer space. Frame view restores a full canopy with smaller roots and upright orbit. These presentation sizes do not change file bytes or commit growth. Folder roots split into their actual subfolders and files, with sibling branches spread symmetrically across the scene. Dot-prefixed files and folders, including their contents, are hidden from roots. Every other present loaded file and ancestor folder is expanded. Folder names sit beside junctions, and file basenames sit below naturally tapered ends. Each root begins with one thin initial strand. Every loaded commit touching a file adds one thin vine to its current attachment and each ancestor folder along the path to the trunk. The vines spiral in the same direction, forming a twisted rope that grows gradually. The new vine grows along its route during playback; rewinding removes later vines and restores the earlier shape. Shared folders gain one vine per commit touching any descendant, even when several files change. Existing folders retain earlier vines after a descendant moves or disappears. A cross-folder move starts a new file attachment with its own initial strand and touch count. Growth is expressed mainly through thicker bundles. Paths expand only enough to keep neighboring ropes and their tapered tips separate. On narrow screens or crowded viewing angles, the ground and connected roots use a shallow downward curve away from the trunk, which remains the highest point. The surface flattens when a wider view, zoom, or folder focus provides enough room. This adjustment follows the current view without changing repository data or vine counts. Root focus organizes horizontal file basenames into nearby sibling rows, keeping names close to their tips with compact spacing and no extended guide lines. The smaller roots in tree view show folder names and the hovered or selected file; Frame roots exposes the full root hierarchy. Its base grows with the visible file count and the space its folders need. In large repositories, names appear only when they fit near their tips; zoom in or focus a folder to read more. Click a folder name to focus its subtree, or a file name to inspect the same file as its canopy leaf. Public history follows the sampled first-parent chain. The scene guide explains each view and its coverage.</p>
     </div>`;
   const helpButton = document.getElementById('btn-help');
   let previousFocus = null;
@@ -115,7 +116,7 @@ export async function mountDataLab() {
     const roots = view === 'tree' && scene.frameMode === 'roots';
     document.body.dataset.dataFocus = roots ? 'roots' : 'tree';
     attribution.textContent = roots
-      ? 'Root focus · Drag to rotate freely · Shift-drag / two-finger twist to roll · F for tree view'
+      ? 'Root focus · Scroll to reveal names · Drag to rotate · Shift-drag / two-finger twist to roll · F for tree view'
       : `${view === 'tree' ? 'Growth tree · Frame roots to inspect below ground' : 'Repository atoms'} · Drag to orbit · Scroll to zoom · H for help`;
   }
 
@@ -185,7 +186,7 @@ export async function mountDataLab() {
     setPlaying(!playing);
   }
   function focusDirectory(path) {
-    if (scene.focusRootFolder) {
+    if (scene.focusRootFolder && scene.roots?.folders.has(path)) {
       options.roots = true;
       scene.setOptions({ roots: true });
       renderPanel();
@@ -218,7 +219,7 @@ export async function mountDataLab() {
       : `Loaded ${model.commits.length} first-parent commits from ${model.repository.fullName}.`,
     'success');
   }
-  function showExample(url, limit, autoplay = false, publishConnection = true) {
+  function showExample(url, limit = DEFAULT_EXAMPLE_COMMIT_LIMIT, autoplay = false, publishConnection = true) {
     const dataset = getExampleDataset(url, limit);
     if (!dataset) return false;
     requestId++;
@@ -228,7 +229,7 @@ export async function mountDataLab() {
     useDataset(dataset, autoplay, null, publishConnection);
     return true;
   }
-  async function importRepository(url, limit) {
+  async function importRepository(url, limit = DEFAULT_REPOSITORY_COMMIT_LIMIT) {
     if (showExample(url, limit)) return;
     requestController?.abort();
     const controller = new AbortController();
@@ -286,6 +287,7 @@ export async function mountDataLab() {
       scene.update(dt);
       stage.controls.update();
       scene.afterCameraUpdate?.(dt);
+      guide.updateRootReadability();
       stage.composer.render();
       stage.labelRenderer.render(stage.scene, stage.camera);
     }
@@ -320,7 +322,7 @@ export async function mountDataLab() {
   if (requestId === startupRequest) {
     const connected = connectedRepository();
     if (savedSession) useDataset(savedSession.dataset, false, savedSession.selection, false);
-    else showExample(DEFAULT_EXAMPLE_URL, 12, true, false);
+    else showExample(DEFAULT_EXAMPLE_URL, DEFAULT_EXAMPLE_COMMIT_LIMIT, true, false);
     if (connected && connected !== model?.repository.url) await importRepository(connected);
     else if (model) connectRepository(model.repository.url);
   }

@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { createRootLayout, ROOT_TIER_HEIGHT } from './root-layout.js';
 import { buildModel, stateAt } from './model.js';
 
@@ -174,14 +175,19 @@ test('nine and ten siblings remain one horizontal fan with shallow mirrored dept
   }
 });
 
-test('all 2500 sibling files remain visible in a compact symmetric 3D grid', () => {
+test('all 2500 sibling files retain readable slots in an expanded symmetric 3D grid', () => {
   const layout = createRootLayout(make(Array.from({ length: 2500 }, (_, index) => `file${String(index).padStart(4, '0')}.js`)));
   assert.equal(layout.nodes.length, 2500);
   assert.equal(layout.rows.length, 2501);
   assert.ok(layout.nodes.every(node => node.visible));
   assert.equal(new Set(layout.nodes.map(node => node.position.join(','))).size, 2500);
-  assert.ok(layout.footprint.width <= 160);
-  assert.ok(layout.footprint.depth <= 100);
+  assert.ok(layout.footprint.width > 160);
+  assert.ok(layout.footprint.depth > 100);
+  assert.equal(layout.footprint.scaleX, 1);
+  assert.equal(layout.footprint.scaleZ, 1);
+  assert.ok(layout.readability.adaptive);
+  assert.ok(layout.readability.minFileWidth >= 8);
+  assert.ok(layout.readability.minFileDepth >= 6);
   const key = (x, z) => `${Math.round(x * 1e7)},${Math.round(z * 1e7)}`;
   const positions = new Set(layout.nodes.map(node => key(node.position[0], node.position[2])));
   for (const node of layout.nodes) assert.ok(positions.has(key(-node.position[0], node.position[2])));
@@ -219,4 +225,93 @@ test('empty, single-file and pinned-head default memberships produce finite boun
   const model = make(['head.js', 'removed.js']);
   model.nodes[1].existsAtHead = false;
   assert.deepEqual(createRootLayout(model).nodes.map(node => node.path), ['head.js']);
+});
+
+
+function assertBaseEncloses(layout) {
+  const { radiusX, radiusZ } = layout.base;
+  assert.ok(Number.isFinite(radiusX) && Number.isFinite(radiusZ));
+  const inBase = point => (point[0] / radiusX) ** 2 + (point[2] / radiusZ) ** 2 <= 1 + 1e-10;
+  for (const x of [layout.bounds.min[0], layout.bounds.max[0]]) {
+    for (const z of [layout.bounds.min[2], layout.bounds.max[2]]) assert.ok(inBase([x, 0, z]));
+  }
+  for (const row of layout.rows) for (const point of row.curve) assert.ok(inBase(point), `${row.path} lies outside the ground base`);
+}
+
+test('ground capacity starts at 64 files and grows its minimum area in proportion to visible file count', () => {
+  let previousArea = 0;
+  for (const count of [0, 1, 64, 160, 161, 754, 2501]) {
+    const layout = createRootLayout(make(Array.from({ length: count }, (_, index) => `file${String(index).padStart(4, '0')}.js`)));
+    const scale = Math.sqrt(Math.max(1, count / 64));
+    assert.equal(layout.base.fileCount, count);
+    assert.equal(layout.base.capacityScale, scale);
+    assert.equal(layout.base.countRadiusX, 50 * scale);
+    assert.equal(layout.base.countRadiusZ, 30 * scale);
+    const capacityArea = Math.PI * layout.base.countRadiusX * layout.base.countRadiusZ;
+    assert.ok(capacityArea >= previousArea);
+    previousArea = capacityArea;
+    assert.ok(layout.base.radiusX >= layout.base.countRadiusX);
+    assert.ok(layout.base.radiusZ >= layout.base.countRadiusZ);
+    assertBaseEncloses(layout);
+    assert.equal(layout.nodes.length, count);
+  }
+});
+
+test('large repository packing is deterministic and basename slots retain local space', () => {
+  const paths = Array.from({ length: 400 }, (_, index) => `group${index % 7}/child${index % 3}/${'long'.repeat(index % 5)}file${index}.js`);
+  const model = make(paths);
+  const forward = createRootLayout(model);
+  const reverse = createRootLayout({ ...model, nodes: [...model.nodes].reverse() });
+  assert.deepEqual(forward, reverse);
+  assertExactEdges(forward);
+  assertBaseEncloses(forward);
+  for (const folder of forward.folders) {
+    const children = forward.nodes.filter(node => node.folder === folder.path);
+    for (let i = 0; i < children.length; i++) for (let j = i + 1; j < children.length; j++) {
+      const a = children[i], b = children[j];
+      const dx = Math.abs(a.position[0] - b.position[0]);
+      const dz = Math.abs(a.position[2] - b.position[2]);
+      const widthA = Math.max(8, 4 + a.name.length * 0.8), widthB = Math.max(8, 4 + b.name.length * 0.8);
+      assert.ok(dx >= (widthA + widthB) / 2 + 3.2 - 1e-9 || dz >= 6 + 3.2 - 1e-9,
+        `${a.path} and ${b.path} share a reserved file slot`);
+    }
+  }
+});
+
+test('bundled xo-space keeps all 754 visible files at useful local spacing on a supporting ground base', () => {
+  const snapshot = JSON.parse(readFileSync(new URL('./examples/xo-space.json', import.meta.url), 'utf8'));
+  const model = buildModel(snapshot);
+  const frame = stateAt(model, model.commits.length - 1);
+  const layout = createRootLayout(model, { activeIds: frame.activeIds, paths: new Map(frame.files.map(file => [file.id, file.path])) });
+  assert.equal(layout.fileCount, 754);
+  assert.equal(layout.folderCount, 125);
+  assert.equal(layout.maxDepth, 8);
+  assert.equal(layout.footprint.scaleX, 1);
+  assert.equal(layout.footprint.scaleZ, 1);
+  assert.equal(layout.readability.adaptive, true);
+  assert.equal(new Set(layout.nodes.map(node => node.id)).size, 754);
+  assert.ok(layout.rows.every(row => row.visible && row.position.every(Number.isFinite)));
+  assert.ok(layout.base.radiusX * 2 < 1500 && layout.base.radiusZ * 2 < 1500, 'recursive packing should not form a long ribbon');
+  assertExactEdges(layout);
+  assertBaseEncloses(layout);
+  for (const folder of layout.folders) {
+    const files = layout.nodes.filter(node => node.folder === folder.path);
+    for (let i = 0; i < files.length; i++) for (let j = i + 1; j < files.length; j++) {
+      const a = files[i].position, b = files[j].position;
+      assert.ok(Math.hypot(a[0] - b[0], a[2] - b[2]) >= 9.2 - 1e-9);
+    }
+  }
+});
+
+test('ground counts and adaptive threshold use current non-dot membership only', () => {
+  const model = make(['visible.js', ...Array.from({ length: 300 }, (_, index) => `.agents/config${index}.json`)]);
+  const layout = createRootLayout(model);
+  assert.equal(layout.base.fileCount, 1);
+  assert.equal(layout.base.capacityScale, 1);
+  assert.equal(layout.readability.adaptive, false);
+  assert.deepEqual(layout.folders.map(folder => folder.path), ['']);
+  const renamed = createRootLayout(model, { activeIds: ['file:0'], paths: { 'file:0': '.hidden/visible.js' } });
+  assert.equal(renamed.base.fileCount, 0);
+  assert.deepEqual(renamed.nodes, []);
+  assertBaseEncloses(renamed);
 });

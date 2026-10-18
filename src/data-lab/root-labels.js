@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
-import { placeRootLabels } from './root-label-layout.js';
+import { placeRootLabels, placeReadableRootLabels } from './root-label-layout.js';
 
 const basename = path => String(path || '').split('/').filter(Boolean).pop() || '';
 const finite = value => Number.isFinite(value);
@@ -21,6 +21,7 @@ export class RootLabels {
     this.textMetrics = document.createElement('canvas').getContext('2d');
     this.enabled = false;
     this.focusMode = false;
+    this.compact = false;
     this.signature = null;
     this.obstacles = [];
     this.disposed = false;
@@ -78,7 +79,7 @@ export class RootLabels {
 
   _styleName(record) {
     const folder = record.kind === 'folder';
-    const fontSize = folder ? (this.focusMode ? 13 : 12) : (this.focusMode ? 12 : FILE_FONT);
+    const fontSize = folder ? (this.focusMode ? 13 : 12) : (this.focusMode && !this.compact ? 12 : FILE_FONT);
     record.lineHeight = folder ? 16 : FILE_LINE;
     record.boxHeight = record.lineHeight + 2;
     const style = record.element.style;
@@ -115,9 +116,15 @@ export class RootLabels {
     const canvas = this.stage.renderer.domElement;
     const width = canvas.clientWidth || window.innerWidth;
     const height = canvas.clientHeight || window.innerHeight;
+    const compact = width < 380;
+    if (compact !== this.compact) {
+      this.compact = compact;
+      for (const record of this.records) this._styleName(record);
+      this.signature = null;
+    }
     this.obstacles = this._screenObstacles(width, height);
     const obstacleSignature = this.obstacles.map(box => `${box.left},${box.top},${box.width},${box.height}`).join(';');
-    const signature = `${width}:${height}:${obstacleSignature}:${this.focusMode}:${this.focusMode ? 'all' : `${selectedId || ''}:${hovered?.kind || ''}:${hovered?.id || ''}`}:${this.camera.matrixWorld.elements.join(',')}:${this.camera.projectionMatrix.elements.join(',')}:${this.group.matrixWorld.elements.join(',')}`;
+    const signature = `${width}:${height}:${obstacleSignature}:${this.focusMode}:${selectedId || ''}:${hovered?.kind || ''}:${hovered?.id || hovered?.path || ''}:${this.camera.matrixWorld.elements.join(',')}:${this.camera.projectionMatrix.elements.join(',')}:${this.group.matrixWorld.elements.join(',')}`;
     if (signature !== this.signature) {
       this.signature = signature;
       for (const record of this.records) {
@@ -133,6 +140,7 @@ export class RootLabels {
         record.visible = contextual && !record.occludedByHud && finite(record.x) && finite(record.y) && this.projected.z >= -1 && this.projected.z <= 1
           && record.x >= -10 && record.x <= width + 10 && record.y >= -10 && record.y <= height;
         record.object.visible = record.visible;
+        record.priority = record.key === selectedId || (record.kind === hovered?.kind && record.key === (hovered.id || hovered.path)) ? 100 : 0;
       }
       this._placeNames(width, height);
     }
@@ -148,8 +156,9 @@ export class RootLabels {
   _screenObstacles(width, height) {
     const canvas = this.stage.renderer.domElement.getBoundingClientRect();
     const obstacles = [];
-    for (const id of ['data-timebar', 'data-guide', 'data-panel']) {
-      const element = document.getElementById(id);
+    const elements = ['topbar', 'data-timebar', 'data-guide', 'data-panel', 'data-guide-toggle', 'data-panel-toggle'].map(id => document.getElementById(id));
+    elements.push(...document.querySelectorAll('.data-sun-credit:not([hidden]) .data-commit-bubble:not([hidden]), .data-sun-credit:not([hidden]) .data-sun-portrait, .data-sun-credit:not([hidden]) .data-sun-caption'));
+    for (const element of elements) {
       if (!element || element.hidden) continue;
       const rect = element.getBoundingClientRect();
       const left = Math.max(0, rect.left - canvas.left), top = Math.max(0, rect.top - canvas.top);
@@ -165,12 +174,16 @@ export class RootLabels {
   _placeNames(width, height) {
     const visible = this.records.filter(record => record.visible);
     const obstacles = this.obstacles;
-    const placements = placeRootLabels(visible.map(record => ({
-      key: `${record.kind}:${record.key}`, kind: record.kind,
+    const placer = this.files.length > 160 ? placeReadableRootLabels : placeRootLabels;
+    const placements = placer(visible.map(record => ({
+      key: `${record.kind}:${record.key}`, kind: record.kind, priority: record.priority,
+      depth: record.path.split('/').length,
+      parentPath: record.kind === 'file' ? record.path.slice(0, Math.max(0, record.path.lastIndexOf('/'))) : undefined,
       x: record.x, y: record.y, width: record.textWidth + (record.kind === 'folder' ? 6 : 4), height: record.boxHeight,
     })), { width, height, focusMode: this.focusMode, obstacles });
     for (const record of visible) {
       const box = placements.get(`${record.kind}:${record.key}`);
+      if (!box) { record.visible = false; record.object.visible = false; record.labelBounds = null; continue; }
       record.labelTop = box.top - record.y;
       record.labelOffsetX = box.left - record.x;
       record.labelBounds = box;
@@ -180,6 +193,8 @@ export class RootLabels {
       record.element.style.height = `${box.height}px`;
     }
   }
+
+  get visibleFileCount() { return this.files.reduce((count, record) => count + Number(record.visible), 0); }
 
   hit(raycaster) {
     if (this.disposed || !this.enabled) return null;

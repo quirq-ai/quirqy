@@ -1,5 +1,6 @@
 import { makePanelDraggable } from '../ui/dragPanel.js';
 import { activityInsights } from './model.js';
+import { DEFAULT_REPOSITORY_COMMIT_LIMIT } from './github.js';
 import { FILE_ATOM_KINDS, fileAtomKind } from './molecule-layout.js';
 import { rootMembershipKey } from './root-activity.js';
 
@@ -30,11 +31,11 @@ export class DataPanel {
     this.el.innerHTML = `
       <div class="list-title">Data Lab <button class="data-sheet-close" id="data-panel-collapse" type="button" aria-label="Collapse Data Lab controls" aria-expanded="true" aria-controls="data-panel-body">−</button></div>
       <div id="data-panel-body">
-      <p class="lab-note" id="data-view-intro">Play turns each non-root folder marble into an enclosure around its files; the small root shines like a sun. Pause restores normal marbles and pathways.</p>
+      <p class="lab-note" id="data-view-intro">Play turns folder marbles into enclosures while the commit author lights the root. Pause restores pathways and opens the author’s commit bubble.</p>
       <div class="section-title">Repository <span class="lab-hint" id="data-source-kind"></span></div>
       <form id="data-source-form" aria-label="Load a public GitHub repository">
         <div class="data-source-row"><label class="data-sr-only" for="data-repository-url">Public GitHub repository URL</label><input id="data-repository-url" type="url" placeholder="https://github.com/owner/repo" autocomplete="off" spellcheck="false" required><button class="btn tiny primary" id="data-load" type="submit">Load</button></div>
-        <div class="data-source-tools"><label for="data-history-limit">History</label><select id="data-history-limit"><option value="8">8 commits</option><option value="12" selected>12 commits</option><option value="20">20 commits</option></select></div>
+        <div class="data-source-tools"><label for="data-history-limit">Import history</label><select id="data-history-limit"><option value="8">8 commits</option><option value="12">12 commits</option><option value="${DEFAULT_REPOSITORY_COMMIT_LIMIT}" selected>${DEFAULT_REPOSITORY_COMMIT_LIMIT} commits</option></select></div>
         <div class="data-source-tools data-example-choices" role="group" aria-labelledby="data-examples-label"><span id="data-examples-label">Examples</span><button class="btn tiny" type="button" data-example-url="https://github.com/quirq-ai/xo" aria-pressed="false" title="Open the preloaded quirq-ai/xo example">quirq-ai/xo</button><button class="btn tiny" type="button" data-example-url="https://github.com/quirq-ai/xo-space" aria-pressed="false" title="Open the preloaded quirq-ai/xo-space example">quirq-ai/xo-space</button></div>
       </form>
       <div class="data-repo-meta"><a id="data-repo-link" target="_blank" rel="noopener noreferrer"></a><span id="data-repo-name"></span><span id="data-branch"></span></div>
@@ -48,15 +49,6 @@ export class DataPanel {
         <p class="lab-note" id="data-structure-scope"><span id="data-structure-connections"></span></p>
         <details class="data-structure-details"><summary>File elements in the repository</summary><div id="data-structure-composition"></div><p class="lab-note">Counts cover present mapped files and their folder carbons, including the repository root. Historical wireframes are excluded.</p></details>
       </section>
-      <div class="section-title">Current commit</div>
-      <div class="data-commit">
-        <div id="data-commit-message"></div>
-        <div class="data-commit-meta"><a id="data-commit-link" target="_blank" rel="noopener noreferrer"></a><span id="data-commit-sha"></span><span id="data-commit-author"></span></div>
-        <div class="data-commit-date" id="data-commit-date"></div>
-        <p class="data-commit-notice" id="data-commit-notice" hidden></p>
-      </div>
-      <div class="state-block" id="data-summary"></div>
-      <div class="data-changes" id="data-changes" aria-label="Files changed by this commit"></div>
       <section id="data-selected-section" hidden>
         <div class="section-title">Selected file <button class="data-clear" type="button" id="data-clear-selection">Clear</button></div>
         <div class="light-detail" id="data-selected"></div>
@@ -119,7 +111,7 @@ export class DataPanel {
       on(button, 'click', () => {
         const url = button.dataset.exampleUrl;
         this.$('#data-repository-url').value = url;
-        invoke('onLoad', url, Number(this.$('#data-history-limit').value));
+        invoke('onExample', url);
       });
     }
     on(this.$('#data-frame'), 'click', () => invoke('onFrame'));
@@ -248,11 +240,11 @@ export class DataPanel {
     const selectionChanged = modelChanged || previous?.selectedId !== state.selectedId;
     const activityChanged = previous?.activity !== state.activity;
     if (modelChanged) { this.filePage = 0; this.folder = ''; this.renderRepository(); this.renderCoverage(); }
-    if (frameChanged) { this.renderCommit(); this.renderPatterns(); }
+    if (frameChanged) this.renderPatterns();
     if (viewChanged || !previous) this.renderView();
     if (frameChanged || viewChanged || previous?.structure !== state.structure) this.renderStructure();
     if (modelChanged || viewChanged || (frameChanged && state.view !== 'tree')) this.renderDirectories();
-    if (frameChanged || selectionChanged || viewChanged) { this.renderChanges(); this.renderSelected(); this.renderFiles(); }
+    if (frameChanged || selectionChanged || viewChanged) { this.renderSelected(); this.renderFiles(); }
     else if (activityChanged) this.renderSelected();
     for (const [id, mode] of [['data-frame', 'tree'], ['data-frame-roots', 'roots']]) {
       const button = this.$(`#${id}`);
@@ -280,7 +272,7 @@ export class DataPanel {
     this.$('#data-time-label').textContent = state.index < 0 ? `Baseline · ${state.model.commits.length} commits loaded` : `${state.index + 1} / ${state.model.commits.length} · ${shortSha}`;
     this.$('#data-time-date').textContent = state.frame.commit ? formatDate(state.frame.commit.date) : 'Before the first loaded commit';
     this.$('#data-rendered-count').textContent = state.view === 'tree' && state.rootLayout
-      ? `${fmt(state.renderedCount)} canopy leaves mapped. Roots display all ${fmt(state.rootLayout.nodes.length)} present loaded files and every ancestor folder. All loaded files remain searchable here.`
+      ? `${fmt(state.renderedCount)} canopy leaves mapped. Roots display ${fmt(state.rootLayout.nodes.length)} present files, excluding dot-prefixed files, folders, and their contents. All loaded files remain searchable here.`
       : `${fmt(state.renderedCount ?? state.model.nodes.length)} of ${fmt(state.model.nodes.length)} ${state.view === 'tree' ? 'leaves' : 'file atoms'} rendered. All loaded files remain searchable here.`;
   }
 
@@ -293,7 +285,7 @@ export class DataPanel {
     }
     this.$('#data-view-intro').textContent = tree
       ? 'Each root starts with one initial strand. Every commit touch adds a thin vine, spiraling in the same direction to form a twisted rope. Shared folders gain one vine per touching commit.'
-      : 'Play turns each non-root folder marble into an enclosure around its files; the small root shines like a sun. Pause restores normal marbles and pathways.';
+      : 'Play turns folder marbles into enclosures while the commit author lights the root. Pause restores pathways and opens the author’s commit bubble.';
     this.$('#data-links-label').textContent = tree ? 'File stems' : 'Bonds';
     this.$('#data-links-label').title = tree ? '' : 'Show or hide pathways and current. Playing shows current only; pause restores pathways.';
     this.$('#data-activity-label').textContent = 'Commit effects';
@@ -343,33 +335,6 @@ export class DataPanel {
     }
   }
 
-  renderCommit() {
-    const { frame, model } = this.state;
-    const commit = frame.commit;
-    this.$('#data-commit-message').textContent = commit?.message?.split('\n')[0] || 'Baseline before the loaded history';
-    this.$('#data-commit-message').title = commit?.message || '';
-    const link = this.$('#data-commit-link');
-    const url = githubUrl(commit?.url);
-    link.hidden = !url;
-    link.removeAttribute('href');
-    if (url) { link.href = url; link.textContent = this.shortSha(commit.sha); }
-    const sha = this.$('#data-commit-sha');
-    sha.hidden = !!url;
-    sha.textContent = this.shortSha(commit?.sha);
-    sha.title = commit?.sha || '';
-    this.$('#data-commit-author').textContent = commit?.author || '';
-    this.$('#data-commit-date').textContent = commit ? formatDate(commit.date) : `${fmt(frame.summary.activeFiles)} sampled files exist at this point.`;
-    const notices = [];
-    if (commit?.isMerge) notices.push('Merge: changes are relative to its first parent.');
-    if (commit?.partial) notices.push('Partial diff: counts cover returned files only.');
-    const notice = this.$('#data-commit-notice');
-    notice.textContent = notices.join(' ');
-    notice.hidden = !notices.length;
-    const summary = frame.summary;
-    this.$('#data-summary').innerHTML = `<div>Files present <b>${fmt(summary.activeFiles)}</b> · changed <b>${fmt(summary.changedFiles)}</b></div><div>Added <b>${fmt(summary.addedFiles)}</b> · removed <b>${fmt(summary.removedFiles)}</b> · renamed <b>${fmt(summary.renamedFiles)}</b></div><div>Lines <b>+${fmt(summary.additions)}</b> / <b>−${fmt(summary.deletions)}</b></div>`;
-    if (!model.commits.length) this.$('#data-commit-date').textContent = 'No commits are available in this dataset.';
-  }
-
   replaceContent(node, markup) {
     const active = document.activeElement;
     const focusKey = node.contains(active) ? ['fileId', 'focusId', 'commitIndex', 'directory', 'directoryFilter'].find(key => active?.dataset[key] !== undefined) : null;
@@ -385,15 +350,6 @@ export class DataPanel {
     const status = file.status || 'unchanged';
     const label = status === 'unchanged' ? (file.exists ? '' : 'historical') : status;
     return `<button class="data-file-row${selected ? ' selected' : ''}${file.exists === false ? ' historical' : ''}" type="button" data-file-id="${esc(file.id)}" aria-pressed="${selected}" title="${esc(file.path)}"><span class="data-file-path">${esc(file.path)}</span>${label ? `<span class="data-file-status" data-status="${esc(status)}">${esc(label)}</span>` : ''}${compact ? '' : `<span class="data-file-diff">+${fmt(file.additions)} −${fmt(file.deletions)}</span>`}</button>`;
-  }
-
-  renderChanges() {
-    const { frame } = this.state;
-    const changed = new Set(frame.changedIds);
-    const files = frame.files.filter(file => changed.has(file.id));
-    const box = this.$('#data-changes');
-    box.hidden = !files.length;
-    this.replaceContent(box, files.map(file => this.fileButton(file)).join(''));
   }
 
   renderSelected() {

@@ -184,3 +184,61 @@ test('2501 baseline files reserve their own histories rather than a global twent
   assert.ok(batch.geometry.attributes.normal.array.every(Number.isFinite));
   batch.geometry.dispose();
 });
+
+
+test('moving a baseline edge uploads only its live vine and dormant slots reactivate correctly', () => {
+  const curve = straight();
+  const batch = createRootRopeBatch([edge('root', curve, 12)]);
+  const range = batch.ranges.get('root');
+  const position = batch.geometry.attributes.position, normal = batch.geometry.attributes.normal;
+  const inactiveStart = range.vines[1].vertexStart * 3;
+  const dormantPositions = position.array.slice(inactiveStart), dormantNormals = normal.array.slice(inactiveStart);
+  // WebGL clears these after consuming the initial upload.
+  position.clearUpdateRanges(); normal.clearUpdateRanges();
+  mutate(curve, [[4, -3, 2], [8, -9, 6], [-2, -18, 9], [5, -25, 4]]);
+  setRootRopeShape(batch, range, curve, 0, 7); finishRootRopeUpdate(batch);
+  assert.deepEqual(position.updateRanges, [{ start: 0, count: range.vines[0].vertexCount * 3 }]);
+  assert.deepEqual(normal.updateRanges, position.updateRanges);
+  assert.deepEqual(position.array.slice(inactiveStart), dormantPositions);
+  assert.deepEqual(normal.array.slice(inactiveStart), dormantNormals);
+  setRootRopeColor(batch, range, new THREE.Color('#aaccee'));
+  setRootRopeShape(batch, range, curve, 6.5, 7); finishRootRopeUpdate(batch);
+  const grownPositions = position.array.slice(), grownNormals = normal.array.slice();
+  const grownColors = batch.geometry.attributes.color.array.slice();
+  assert.equal(range.vineCount, 8);
+  assert.equal(range.vines[7].growth, .5);
+  assertCaliber(batch, range); finite(batch);
+  setRootRopeShape(batch, range, curve, 0, 7); finishRootRopeUpdate(batch);
+  assert.deepEqual(position.array.slice(inactiveStart), dormantPositions);
+  assert.deepEqual(normal.array.slice(inactiveStart), dormantNormals);
+  setRootRopeShape(batch, range, curve, 6.5, 7); finishRootRopeUpdate(batch);
+  assert.deepEqual(position.array, grownPositions);
+  assert.deepEqual(normal.array, grownNormals);
+  assert.deepEqual(batch.geometry.attributes.color.array, grownColors);
+  batch.geometry.dispose();
+});
+
+test('partial uploads retain changes to separate edges until the renderer consumes them', () => {
+  const a = straight(), b = straight(16, -20), c = straight(16, -40);
+  const batch = createRootRopeBatch([edge('a', a, 4), edge('b', b, 4), edge('c', c, 4)]);
+  const position = batch.geometry.attributes.position, normal = batch.geometry.attributes.normal;
+  const color = batch.geometry.attributes.color;
+  for (const attribute of [position, normal, color]) attribute.clearUpdateRanges();
+  a.v1.x = 3; c.v2.z = -5;
+  const first = batch.ranges.get('a'), last = batch.ranges.get('c');
+  setRootRopeShape(batch, first, a, 1); finishRootRopeUpdate(batch);
+  setRootRopeShape(batch, last, c, 0); finishRootRopeUpdate(batch);
+  const expected = [
+    { start: first.vertexStart * 3, count: first.vines[0].vertexCount * 3 * 2 },
+    { start: last.vertexStart * 3, count: last.vines[0].vertexCount * 3 },
+  ];
+  assert.deepEqual(position.updateRanges, expected);
+  assert.deepEqual(normal.updateRanges, expected);
+  setRootRopeColor(batch, first, new THREE.Color('#ffeecc')); finishRootRopeUpdate(batch);
+  assert.deepEqual(color.updateRanges, [{ start: first.vertexStart * 3, count: first.vertexCount * 3 }]);
+  assert.deepEqual(position.updateRanges, expected, 'color changes must not discard pending shape uploads');
+  const version = position.version;
+  setRootRopeShape(batch, last, c, 0); finishRootRopeUpdate(batch);
+  assert.equal(position.version, version, 'unchanged frames must not trigger buffer uploads');
+  finite(batch); batch.geometry.dispose();
+});

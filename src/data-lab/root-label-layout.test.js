@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { placeRootLabels } from './root-label-layout.js';
+import { placeRootLabels, placeReadableRootLabels } from './root-label-layout.js';
 
 const overlaps = (a, b) => a.left < b.left + b.width && a.left + a.width > b.left
   && a.top < b.top + b.height && a.top + a.height > b.top;
@@ -40,7 +40,7 @@ test('folders reserve their junction space before file names', () => {
 });
 
 test('placement is deterministic regardless of input order and retains all dense names', () => {
-  const records = Array.from({ length: 2501 }, (_, i) => file(`f${i}`, 200, 180, 60 + i % 80));
+  const records = Array.from({ length: 2501 }, (_, i) => ({ ...file(`f${i}`, 200, 180, 60 + i % 80), parentPath: 'src' }));
   const options = { width: 430, height: 700, focusMode: true };
   const placed = placeRootLabels(records, options);
   assert.equal(placed.size, 2501);
@@ -94,4 +94,82 @@ test('side panels keep edge-tip names facing inward without moving their anchors
   assert.ok(placed.get('left').left >= 300);
   assert.ok(placed.get('right').left + placed.get('right').width <= 700);
   assert.deepEqual(records, before);
+});
+
+
+test('siblings with slightly uneven tips share one nearby horizontal baseline', () => {
+  const records = [200, 202, 197, 204].map((y, i) => ({
+    key: `file:${i}`, kind: 'file', parentPath: 'src/components',
+    x: 160 + i * 140, y, width: 80, height: 16,
+  }));
+  const options = { width: 800, height: 500, focusMode: true };
+  const placed = placeRootLabels(records, options);
+  assert.equal(new Set([...placed.values()].map(box => box.top)).size, 1);
+  for (const record of records) {
+    const box = placed.get(record.key);
+    assert.ok(box.top >= record.y + 4 && box.top <= record.y + 16);
+    assert.equal(box.left, record.x - record.width / 2);
+  }
+  assert.deepEqual(placeRootLabels([...records].reverse(), options), placed);
+});
+
+test('projected sibling rows follow a rotated branch without merging separate parents', () => {
+  const records = [
+    ...[0, 1, 2, 3, 4].map(i => ({ key: `a:${i}`, kind: 'file', parentPath: 'a', x: 180 + i * 8, y: 100 + i * 35, width: 74, height: 16 })),
+    ...[0, 1].map(i => ({ key: `b:${i}`, kind: 'file', parentPath: 'b', x: 520 + i * 100, y: 113 + i * 2, width: 70, height: 16 })),
+  ];
+  const placed = placeRootLabels(records, { width: 800, height: 500, focusMode: true });
+  assert.equal(placed.get('b:0').top, placed.get('b:1').top);
+  assert.notEqual(placed.get('a:0').baseline, placed.get('b:0').baseline);
+  for (const record of records) {
+    const box = placed.get(record.key);
+    const dx = Math.max(box.left - record.x, record.x - box.left - box.width, 0);
+    const dy = Math.max(box.top - record.y, record.y - box.top - box.height, 0);
+    assert.ok(Math.hypot(dx, dy) <= 52);
+  }
+  const boxes = [...placed.values()];
+  for (let i = 0; i < boxes.length; i++) for (let j = i + 1; j < boxes.length; j++) assert.equal(overlaps(boxes[i], boxes[j]), false);
+});
+
+test('a small clear gap between occupied areas is found between fixed nudge steps', () => {
+  const record = { key: 'file', kind: 'file', x: 200, y: 200, width: 80, height: 16 };
+  const obstacles = [
+    { left: 0, top: 0, width: 164.5, height: 500 },
+    { left: 247.5, top: 0, width: 252.5, height: 500 },
+    { left: 164.5, top: 0, width: 83, height: 212.5 },
+    { left: 164.5, top: 231.5, width: 83, height: 268.5 },
+  ];
+  const placed = placeRootLabels([record], { width: 500, height: 500, focusMode: true, obstacles });
+  const box = placed.get(record.key);
+  for (const obstacle of obstacles) assert.equal(overlaps(box, obstacle), false);
+  assert.ok(box.left >= 164.5 && box.left + box.width <= 247.5);
+  assert.ok(box.top >= 212.5 && box.top + box.height <= 231.5);
+  assert.ok(box.top - record.y < 16, 'the name remains directly beside its actual endpoint');
+});
+
+
+test('dense names reveal with space without overlapping names or covering the HUD', () => {
+  const records = Array.from({ length: 754 }, (_, i) => ({
+    key: `file:${i}`, kind: 'file', depth: 2, x: 250 + i % 28 * 22,
+    y: 120 + Math.floor(i / 28) * 12, width: 120, height: 16,
+  }));
+  const obstacles = [{ left: 0, top: 0, width: 220, height: 800 }, { left: 1000, top: 0, width: 300, height: 800 }];
+  const placed = placeReadableRootLabels(records, { width: 1300, height: 800, obstacles });
+  assert.ok(placed.size > 0 && placed.size < records.length);
+  const overlaps = (a, b) => a.left < b.left + b.width && a.left + a.width > b.left && a.top < b.top + b.height && a.top + a.height > b.top;
+  const boxes = [...placed.values()];
+  boxes.forEach((box, i) => {
+    assert.ok(!obstacles.some(other => overlaps(box, other)));
+    assert.ok(!boxes.slice(i + 1).some(other => overlaps(box, other)));
+  });
+  const close = records.slice(0, 16).map((record, i) => ({ ...record, x: 300 + i % 4 * 165, y: 200 + Math.floor(i / 4) * 40 }));
+  assert.equal(placeReadableRootLabels(close, { width: 1300, height: 800, obstacles }).size, close.length);
+});
+
+test('selected dense names take priority and every file can be read when focused', () => {
+  const records = Array.from({ length: 200 }, (_, i) => ({ key: `file:${i}`, kind: 'file', x: 200, y: 200, width: 140, height: 16 }));
+  records.at(-1).priority = 100;
+  assert.ok(placeReadableRootLabels(records, { width: 600, height: 400 }).has('file:199'));
+  for (const record of records) assert.ok(placeReadableRootLabels([record], { width: 600, height: 400 }).has(record.key));
+  assert.deepEqual([...placeReadableRootLabels(records, { width: 600, height: 400 })], [...placeReadableRootLabels([...records].reverse(), { width: 600, height: 400 })]);
 });

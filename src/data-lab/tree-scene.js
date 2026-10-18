@@ -157,7 +157,7 @@ export class TreeScene extends RepositoryScene {
     this.fallingLeaves = [];
     this.index = null;
     this.trunkRadius = trunkRadius(-1);
-    this.renderer.domElement.setAttribute('aria-label', 'Three-dimensional repository growth tree. Each leaf is a file. The trunk is the repository root. Below ground, every folder and file branches into a fully expanded, balanced three-dimensional hierarchy. Folder names sit beside junctions and file names below tapered root ends. Each root begins with one strand. Every commit touch adds one thin vine winding in the same direction around that path. The twisted ropes gradually grow, bend, and lengthen to make room. When root tips become crowded, including on small screens, the ground curves downward and their names stay at the tips. Click a folder name to focus its subtree, or a file name or leaf to inspect. Frame roots enlarges the roots, reduces the canopy, and enables free rotation and sideways roll with Shift-drag or a two-finger twist. Frame view emphasizes the canopy with smaller roots and upright orbit. Scroll to zoom, double-click a file to focus.');
+    this.renderer.domElement.setAttribute('aria-label', 'Three-dimensional repository growth tree. Each leaf is a file. The trunk is the repository root. Below ground, visible folders and files branch into a fully expanded, balanced three-dimensional hierarchy. Dot-prefixed files and folders and their contents are hidden from roots. Folder names sit beside junctions and file names below tapered root ends. Each root begins with one strand. Every commit touch adds one thin vine winding in the same direction around that path. The twisted ropes thicken with activity, using compact paths and gentle ground relief. The base grows with the visible file count and folder spacing. Horizontal filenames align near their tips. In large repositories, zoom or focus a folder to reveal more names without overlap. When root tips become crowded, the ground curves slightly downward and their names stay at the tips. Click a folder name to focus its subtree, or a file name or leaf to inspect. Frame roots enlarges the roots, shortens the canopy while preserving a sturdier trunk, and enables free rotation and sideways roll with Shift-drag or a two-finger twist. Frame view emphasizes the canopy with smaller roots and upright orbit. Scroll to zoom, double-click a file to focus.');
   }
 
   setModel(model) {
@@ -499,7 +499,9 @@ export class TreeScene extends RepositoryScene {
 
   _applyPresentation() {
     for (const [group, scale] of [[this.canopyGroup, this.presentation.canopy], [this.roots.group, this.presentation.roots], [this.groundGroup, this.presentation.roots]]) {
-      group.scale.setScalar(scale);
+      // A shorter, broader context canopy keeps a sturdy bonsai-like trunk.
+      const girth = group === this.canopyGroup ? Math.sqrt(scale) : scale;
+      group.scale.set(girth, scale, girth);
       group.position.set(0, GROUND_Y * (1 - scale), 0);
     }
     this.group.updateWorldMatrix(true, true);
@@ -517,7 +519,9 @@ export class TreeScene extends RepositoryScene {
 
   _presentationPoint(point, part, target = true) {
     const scale = (target ? this.presentationTarget : this.presentation)[part];
-    return point.clone().multiplyScalar(scale).add(new THREE.Vector3(0, GROUND_Y * (1 - scale), 0));
+    const girth = part === 'canopy' ? Math.sqrt(scale) : scale;
+    return point.clone().multiply(new THREE.Vector3(girth, scale, girth))
+      .add(new THREE.Vector3(0, GROUND_Y * (1 - scale), 0));
   }
 
   _clearWorld() {
@@ -532,7 +536,9 @@ export class TreeScene extends RepositoryScene {
     const surface = this.options.roots !== false
       ? this.roots?.surfaceDisplay || this.roots?.surface || FLAT_GROUND
       : FLAT_GROUND;
-    const signature = `${surface.height || 0}|${surface.radiusX || 50}|${surface.radiusZ || 30}|${surface.depthWeight ?? 0.2}|${surface.active !== false}`;
+    const baseSize = this.roots?.baseLayout?.base || FLAT_GROUND;
+    const radiusX = baseSize.radiusX, radiusZ = baseSize.radiusZ;
+    const signature = `${surface.height || 0}|${radiusX}|${radiusZ}|${surface.radiusX || 50}|${surface.radiusZ || 30}|${surface.depthWeight ?? 0.2}|${surface.active !== false}`;
     if (signature === this.groundSurfaceSignature) return;
     this.groundSurfaceSignature = signature;
     for (const [geometry, base] of [
@@ -541,7 +547,12 @@ export class TreeScene extends RepositoryScene {
     ]) {
       const position = geometry.attributes.position;
       for (let offset = 0; offset < base.length; offset += 3) {
-        position.array[offset + 1] = base[offset + 1] + rootSurfaceHeight(surface, base[offset], base[offset + 2]);
+        const x = base[offset] * radiusX / 50;
+        // The soft soil texture is square; its contour has the original 50:30 ellipse.
+        const z = base[offset + 2] * radiusZ / (geometry === this.ground.geometry ? 50 : 30);
+        position.array[offset] = x;
+        position.array[offset + 1] = base[offset + 1] + rootSurfaceHeight(surface, x, z);
+        position.array[offset + 2] = z;
       }
       position.needsUpdate = true;
       if (geometry === this.ground.geometry) geometry.computeVertexNormals();
@@ -683,20 +694,25 @@ export class TreeScene extends RepositoryScene {
   _frameRootsBounds(bounds, overview = false, path = '', fileId = null) {
     const width = this.renderer.domElement.clientWidth || window.innerWidth;
     const height = this.renderer.domElement.clientHeight || window.innerHeight;
-    const portrait = width <= 700 && height > width;
+    // Match the panel's CSS breakpoints: tablet sheets do not consume a
+    // permanent sidebar. Frame along the longer usable axis, not the viewport.
+    const rightPanel = width > 1100 ? 390 : width > 900 ? 360 : 16;
+    const leftGuide = width > 1200 ? 245 : 16;
+    const top = width > 900 ? 100 : 140, bottom = width > 900 ? 120 : 220;
+    const availableWidth = Math.max(220, width - rightPanel - leftGuide - 40);
+    const availableHeight = Math.max(220, height - top - bottom - 36);
+    // Portrait phones/tablets give horizontal names more room beside vertical
+    // tip rows, even when the remaining pane is only slightly taller.
+    const portrait = (width <= 900 && height > width) || availableHeight > availableWidth * 1.15;
     this.controls.stop?.();
-    // Portrait root views use the long edge of the screen; later focus keeps
+    // Tall root panes use their longer edge; later focus keeps
     // the user's orientation, including sideways roll.
     if (overview) this.camera.up.set(portrait ? 1 : 0, portrait ? 0 : 1, 0);
-    const ray = overview ? new THREE.Vector3(0, 0.32, 1) : this.camera.position.clone().sub(this.controls.target);
+    const denseRoots = this.roots.baseLayout.fileCount > 160;
+    const ray = overview ? new THREE.Vector3(0, denseRoots ? 1.15 : 0.32, 1) : this.camera.position.clone().sub(this.controls.target);
     if (ray.lengthSq() < 1e-8) ray.set(0, 0.32, 1);
     ray.normalize();
     const right = this._cameraRight(ray), up = new THREE.Vector3().crossVectors(ray, right).normalize();
-    const rightPanel = width > 900 ? 390 : width > 700 ? 330 : 16;
-    const leftGuide = width > 1200 ? 245 : 16;
-    const top = width > 700 ? 100 : 140, bottom = width > 700 ? 120 : 220;
-    const availableWidth = Math.max(220, width - rightPanel - leftGuide - 40);
-    const availableHeight = Math.max(220, height - top - bottom - 36);
     const tangent = Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2));
     const fit = layout => {
       const points = [];
@@ -719,6 +735,13 @@ export class TreeScene extends RepositoryScene {
           if (path && record.kind !== 'file' && record.path === path) continue;
           const source = record.kind === 'file' ? this.roots.files.get(record.id) : this.roots.folders.get(record.path);
           for (const point of record.curve) add(point, Math.max(0.5, source?.radiusTarget || source?.radius || 0.5));
+        }
+      }
+      if (overview && layout.base) {
+        for (let index = 0; index < 48; index++) {
+          const angle = index / 48 * Math.PI * 2;
+          const x = Math.cos(angle) * layout.base.radiusX, z = Math.sin(angle) * layout.base.radiusZ;
+          add([x, layout.groundY + rootSurfaceHeight(layout.surface, x, z), z]);
         }
       }
       if (!points.length) points.push(...this._boundsPoints(bounds).map(point => this._presentationPoint(point, 'roots')));

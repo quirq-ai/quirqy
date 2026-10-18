@@ -8,7 +8,8 @@ import { createRootLayout } from './root-layout.js';
 import { createRootWarpLayout } from './root-warp.js';
 import { buildRootActivityHistory, rootActivityAt, rootPathGrowth } from './root-activity.js';
 import { ROOT_VINE_RADIUS, rootRopeRadius } from './root-rope-geometry.js';
-import { createRootSurface, measureRootSurfaceCrowding, applyRootSurface } from './root-surface.js';
+import { MAX_ROOT_SURFACE_HEIGHT, createRootSurface, measureRootSurfaceCrowding, applyRootSurface } from './root-surface.js';
+import { createTreeLayout, createTreePose, trunkRadius } from './tree-layout.js';
 
 function fixture(width, height, reducedMotion) {
   const model = buildModel(createRepositoryFixture());
@@ -18,10 +19,10 @@ function fixture(width, height, reducedMotion) {
   const growth = rootPathGrowth(baseLayout, activity);
   const fileRadii = new Map([...growth.fileTouches].map(([id, touches]) => [id, rootRopeRadius(touches)]));
   const folderRadii = new Map([...growth.folderTouches].map(([path, touches]) => [path, rootRopeRadius(touches)]));
-  const growthLayout = createRootWarpLayout(baseLayout, { fileRadii, folderRadii, baseRadius: ROOT_VINE_RADIUS });
+  const growthLayout = createRootWarpLayout(baseLayout, { fileRadii, folderRadii, baseRadius: ROOT_VINE_RADIUS, compact: true });
   // Reproduce the failure: focus begins in a bent overview, but the tighter
   // camera will make the surface recompute from the unbent projected names.
-  const surfaceDisplay = createRootSurface(baseLayout, { height: 56 });
+  const surfaceDisplay = createRootSurface(baseLayout, { height: MAX_ROOT_SURFACE_HEIGHT });
   const layout = applyRootSurface(growthLayout, surfaceDisplay);
   const scene = Object.create(TreeScene.prototype);
   scene.camera = new THREE.PerspectiveCamera(42, width / height, .05, 8e6);
@@ -61,7 +62,7 @@ function settledRoots({ scene, width, height }) {
   return { layout: applyRootSurface(scene.roots.growthLayout, surface), surface };
 }
 
-function focusAndCheck(context, path, fileId = null) {
+function focusAndCheck(context, path, fileId = null, expectSurfaceRelief = true) {
   const { scene, model, growth, width, height } = context;
   const before = structuredClone({ model, growth, base: scene.roots.baseLayout, unbent: scene.roots.growthLayout });
   const originalUp = scene.camera.up.clone();
@@ -85,13 +86,14 @@ function focusAndCheck(context, path, fileId = null) {
     'folder/file focus must retain viewing direction');
   assert.ok(scene.camera.quaternion.angleTo(originalQuaternion) < 1e-6, 'focus must retain camera orientation');
   const settled = settledRoots(context);
-  assert.ok(settled.surface.height < 55, 'fixture must exercise surface flattening after focus');
+  assert.ok(settled.surface.height >= 0 && settled.surface.height <= MAX_ROOT_SURFACE_HEIGHT);
+  if (expectSurfaceRelief) assert.ok(settled.surface.height < MAX_ROOT_SURFACE_HEIGHT - .01, 'fixture must exercise surface flattening after focus');
   const targets = settled.layout.nodes.filter(node => fileId ? node.id === fileId : node.folder === path || node.folder.startsWith(`${path}/`));
   const region = {
     left: width > 1200 ? 245 : 16,
-    right: width - (width > 900 ? 390 : width > 700 ? 330 : 16),
-    top: width > 700 ? 100 : 140,
-    bottom: height - (width > 700 ? 120 : 220),
+    right: width - (width > 1100 ? 390 : width > 900 ? 360 : 16),
+    top: width > 900 ? 100 : 140,
+    bottom: height - (width > 900 ? 120 : 220),
   };
   assert.equal(targets.length, fileId ? 1 : path === 'app' ? 9 : 10);
   for (const node of targets) {
@@ -108,9 +110,9 @@ function focusAndCheck(context, path, fileId = null) {
     'focus must not alter repository data, touches, or the unbent hierarchy');
 }
 
-for (const [name, width, height] of [['desktop', 1600, 1000], ['mobile', 430, 932]]) {
+for (const [name, width, height, expectFolderRelief] of [['desktop', 1600, 1000, true], ['tablet', 768, 1024, false], ['mobile', 430, 932, true]]) {
   for (const path of ['app', 'tests']) test(`${name}: ${path} folder tips remain in the readable region after responsive roots settle`, () => {
-    for (const reducedMotion of [true, false]) focusAndCheck(fixture(width, height, reducedMotion), path);
+    for (const reducedMotion of [true, false]) focusAndCheck(fixture(width, height, reducedMotion), path, null, expectFolderRelief);
   });
   test(`${name}: a far-left root file remains visible after zoom flattens the ground`, () => {
     for (const reducedMotion of [true, false]) {
@@ -121,3 +123,119 @@ for (const [name, width, height] of [['desktop', 1600, 1000], ['mobile', 430, 93
     }
   });
 }
+
+test('tablet roots overview uses the full pane when the permanent side panels are hidden', () => {
+  const context = fixture(768, 1024, true);
+  const { scene, width, height } = context;
+  const bounds = new THREE.Box3(
+    new THREE.Vector3(...scene.roots.layout.bounds.min),
+    new THREE.Vector3(...scene.roots.layout.bounds.max),
+  );
+  scene._frameRootsBounds(bounds, true);
+  scene.camera.updateMatrixWorld(true);
+  // Portrait tablets arrange the tips in vertical rows so their horizontal
+  // filenames have room, while still using the full panel-free content area.
+  assert.deepEqual(scene.camera.up.toArray(), [1, 0, 0]);
+  const { layout } = settledRoots(context);
+  const points = layout.rows.flatMap(record => record.curve.map(point => project(point, scene.camera, width, height)));
+  const region = { left: 16, right: width - 16, top: 140, bottom: height - 220 };
+  for (const point of points) {
+    assert.ok(point.visible, 'the entire root hierarchy must remain in the tablet frustum');
+    assert.ok(point.x >= region.left && point.x <= region.right, `root X=${point.x} must fit the panel-free pane`);
+    assert.ok(point.y >= region.top && point.y <= region.bottom, `root Y=${point.y} must fit between tablet controls`);
+  }
+  const minX = Math.min(...points.map(point => point.x)), maxX = Math.max(...points.map(point => point.x));
+  const minY = Math.min(...points.map(point => point.y)), maxY = Math.max(...points.map(point => point.y));
+  assert.ok(maxY - minY > (region.bottom - region.top) * .75, 'portrait framing must use the available height between controls');
+  assert.ok(Math.abs((minX + maxX) / 2 - width / 2) < width * .08, 'hidden side panels must not push the repository off center');
+  assert.equal(scene.controls.stopCalls, 1);
+});
+
+function presentationFixture() {
+  const scene = Object.create(TreeScene.prototype);
+  scene.group = new THREE.Group();
+  scene.canopyGroup = new THREE.Group();
+  scene.roots = { group: new THREE.Group() };
+  scene.groundGroup = new THREE.Group();
+  scene.group.add(scene.canopyGroup, scene.roots.group, scene.groundGroup);
+  return scene;
+}
+
+const nearVector = (actual, expected, message) => assert.ok(actual.distanceTo(expected) < 1e-10, message);
+
+test('bonsai presentation and framing points agree through transitions and retain the shared ground anchor', () => {
+  const scene = presentationFixture();
+  const camera = new THREE.PerspectiveCamera(42, 1.6, .05, 8e6);
+  camera.position.set(60, 35, 240);
+  camera.lookAt(0, -40, 0);
+  camera.updateMatrixWorld(true);
+  const anchor = new THREE.Vector3(0, -40, 0);
+  const samplePoints = [anchor, new THREE.Vector3(12, 38, -9), new THREE.Vector3(-27, -95, 16)];
+  const modes = [{ canopy: 1, roots: .32 }, { canopy: .62, roots: .66 }, { canopy: .24, roots: 1 }];
+  for (const mode of modes) {
+    scene.presentation = { ...mode };
+    scene.presentationTarget = { ...mode };
+    scene._applyPresentation();
+    nearVector(scene.canopyGroup.scale, new THREE.Vector3(Math.sqrt(mode.canopy), mode.canopy, Math.sqrt(mode.canopy)), 'canopy must retain more radial size than height');
+    for (const group of [scene.roots.group, scene.groundGroup]) nearVector(group.scale, new THREE.Vector3().setScalar(mode.roots), 'roots and ground remain uniform');
+    for (const [part, group] of [['canopy', scene.canopyGroup], ['roots', scene.roots.group]]) {
+      nearVector(group.localToWorld(anchor.clone()), anchor, 'presentation must not detach either tree from the ground');
+      for (const point of samplePoints) {
+        const original = point.clone();
+        const rendered = group.localToWorld(point.clone());
+        const framing = scene._presentationPoint(point, part);
+        nearVector(framing, rendered, 'framing must match the actual anisotropic group transform');
+        nearVector(framing.clone().project(camera), rendered.clone().project(camera), 'projected framing points must match rendered positions');
+        nearVector(scene._presentationPoint(point, part, false), rendered, 'current-pose framing must match current group transform');
+        assert.deepEqual(point, original, 'point conversion must not mutate hierarchy coordinates');
+      }
+    }
+    nearVector(scene.groundGroup.localToWorld(anchor.clone()), anchor, 'soil must remain attached to the trunk');
+  }
+  // Framing can target the destination before the rendered transition arrives.
+  scene.presentation = { ...modes[0] };
+  scene.presentationTarget = { ...modes[2] };
+  scene._applyPresentation();
+  const point = samplePoints[1];
+  const destination = scene._presentationPoint(point, 'canopy');
+  assert.ok(destination.distanceTo(scene._presentationPoint(point, 'canopy', false)) > 1);
+  scene.presentation = { ...scene.presentationTarget };
+  scene._applyPresentation();
+  nearVector(destination, scene.canopyGroup.localToWorld(point.clone()), 'target framing must predict the final bonsai pose');
+});
+
+test('small canopy presentation retains trunk thickness and commit growth ratios without changing geometry', () => {
+  const repository = buildModel(createRepositoryFixture());
+  const layout = createTreeLayout(repository);
+  const earlyIndex = -1, lateIndex = repository.commits.length - 1;
+  const poses = [earlyIndex, lateIndex].map(index => createTreePose(layout, {
+    index, commitCount: repository.commits.length, activeIds: stateAt(repository, index).activeIds,
+  }));
+  const original = structuredClone({ repository, layout, poses });
+  const scene = presentationFixture();
+  const geometry = new THREE.BufferGeometry().setFromPoints(poses[1].trunk.map(point => new THREE.Vector3(...point)));
+  const mesh = new THREE.Line(geometry, new THREE.LineBasicMaterial());
+  scene.canopyGroup.add(mesh);
+  const vertices = geometry.attributes.position.array.slice(), geometryId = geometry.uuid;
+  const measurements = [];
+  for (const canopy of [1, .24, 1]) {
+    scene.presentation = scene.presentationTarget = { canopy, roots: canopy === 1 ? .32 : 1 };
+    scene._applyPresentation();
+    const heights = poses.map(pose => scene.canopyGroup.localToWorld(new THREE.Vector3(...pose.trunk.at(-1))).y + 40);
+    const radii = [earlyIndex, lateIndex].map(index => scene.canopyGroup.localToWorld(new THREE.Vector3(trunkRadius(index), -40, 0)).x);
+    assert.ok(heights[1] > heights[0] && radii[1] > radii[0], 'every mode must retain visible commit growth');
+    measurements.push({ heights, radii });
+    assert.equal(geometry.uuid, geometryId);
+    assert.deepEqual(geometry.attributes.position.array, vertices, 'presentation must leave geometry buffers unchanged');
+  }
+  const [full, bonsai, restored] = measurements;
+  assert.ok(Math.abs(bonsai.heights[1] / full.heights[1] - .24) < 1e-12);
+  assert.ok(Math.abs(bonsai.radii[1] / full.radii[1] - Math.sqrt(.24)) < 1e-12);
+  assert.ok(bonsai.radii[1] / bonsai.heights[1] > 2 * full.radii[1] / full.heights[1], 'compact canopy must look stockier rather than uniformly miniaturized');
+  assert.ok(Math.abs(bonsai.heights[1] / bonsai.heights[0] - full.heights[1] / full.heights[0]) < 1e-12);
+  assert.ok(Math.abs(bonsai.radii[1] / bonsai.radii[0] - full.radii[1] / full.radii[0]) < 1e-12);
+  assert.deepEqual(restored, full, 'returning to full tree must restore its exact presentation');
+  assert.deepEqual({ repository, layout, poses }, original, 'mode changes must not change repository history or growth poses');
+  geometry.dispose();
+  mesh.material.dispose();
+});

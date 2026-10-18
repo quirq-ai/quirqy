@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createRootLayout } from './root-layout.js';
+import { createRootLayout, ROOT_TIER_HEIGHT } from './root-layout.js';
 import { createRootWarpLayout } from './root-warp.js';
 import { MAX_ROOT_SURFACE_HEIGHT, createRootSurface, measureRootSurfaceCrowding, rootSurfaceHeight, rootSurfaceGradient, applyRootSurface } from './root-surface.js';
 
@@ -28,8 +28,8 @@ test('unmeasured layouts and spacious clear views stay flat, regardless of repos
   const layout = createRootLayout(model(Array.from({ length: 53 }, (_, i) => `group${i % 6}/file${i}.js`)));
   const surface = createRootSurface(layout, { height: 48 });
   assert.equal(surface.height, 48);
-  assert.equal(surface.radiusX, 50);
-  assert.equal(surface.radiusZ, 30);
+  assert.equal(surface.radiusX, layout.base?.radiusX || 50);
+  assert.equal(surface.radiusZ, layout.base?.radiusZ || 30);
   assert.equal(surface.depthWeight, .2);
   assert.equal(surface.fileCount, 53);
 });
@@ -200,7 +200,7 @@ test('responsive curvature activates on narrow screens only when enough names ar
   const layout = createRootLayout(model(Array.from({ length: 53 }, (_, i) => `src/file${i}.js`)));
   assert.equal(createRootSurface(layout, { viewportWidth: 1600, crowding: { score: 0, visibleFileCount: 53 } }).height, 0);
   const narrow = createRootSurface(layout, { viewportWidth: 430, crowding: { score: 0, visibleFileCount: 53 } });
-  assert.ok(narrow.height > 50 && narrow.height <= MAX_ROOT_SURFACE_HEIGHT);
+  assert.ok(narrow.height > MAX_ROOT_SURFACE_HEIGHT * .9 && narrow.height <= MAX_ROOT_SURFACE_HEIGHT);
   assert.ok(createRootSurface(layout, { viewportWidth: 430, crowding: { score: 0, visibleFileCount: 10 } }).height > 0);
   assert.equal(createRootSurface(layout, { viewportWidth: 430, crowding: { score: 0, visibleFileCount: 8 } }).height, 0);
   assert.equal(createRootSurface(layout, { viewportWidth: 430, crowding: { score: 0, visibleFileCount: 0 } }).height, 0);
@@ -220,7 +220,7 @@ test('projected compact filename overlap is detected independently of world layo
   assert.ok(compressed.maxColumnLoad >= 3);
   const layout = createRootLayout(model(clear.map(point => `src/${point.id}.js`)));
   assert.equal(createRootSurface(layout, { crowding: spacious }).height, 0);
-  assert.ok(createRootSurface(layout, { crowding: compressed }).height > 28);
+  assert.ok(createRootSurface(layout, { crowding: compressed }).height > MAX_ROOT_SURFACE_HEIGHT / 2);
 });
 
 test('sweep overlap counts match exact compact-label rectangle intersections', () => {
@@ -266,7 +266,7 @@ test('horizontal filenames detect the desktop overlaps missed by compact vertica
   assert.ok(horizontal.score > .5);
   const layout = createRootLayout(model(points.map((_, index) => `src/file${index}.js`)));
   assert.equal(createRootSurface(layout, { crowding: vertical }).height, 0);
-  assert.ok(createRootSurface(layout, { crowding: horizontal }).height > 28);
+  assert.ok(createRootSurface(layout, { crowding: horizontal }).height > MAX_ROOT_SURFACE_HEIGHT / 2);
   assert.deepEqual(measureRootSurfaceCrowding(points, { ...viewport, labelOrientation: 'vertical' }), vertical);
 });
 
@@ -322,4 +322,34 @@ test('horizontal widths expire independently and dense labels remain bounded', (
   assert.equal(hidden.measuredFileCount, 0);
   assert.equal(hidden.overlapCount, 0);
   assert.equal(hidden.score, 0);
+});
+
+
+test('responsive relief stays shallower than a directory tier even in dense mobile views', () => {
+  const base = createRootLayout(model(Array.from({ length: 2501 }, (_, i) => `src/file${i}.js`)));
+  for (const viewportWidth of [320, 430, 1600]) {
+    const surface = createRootSurface(base, { viewportWidth, crowding: { score: 1, visibleFileCount: 2501 } });
+    assert.ok(surface.height > 0 && surface.height < ROOT_TIER_HEIGHT,
+      'crowding should add gentle relief, not stretch the root hierarchy by another level');
+    const pose = applyRootSurface(base, surface);
+    connected(pose);
+    for (const [i, node] of pose.nodes.entries()) {
+      const drop = base.nodes[i].position[1] - node.position[1];
+      assert.ok(drop >= 0 && drop < ROOT_TIER_HEIGHT);
+      assert.equal(node.position[0], base.nodes[i].position[0]);
+      assert.equal(node.position[2], base.nodes[i].position[2]);
+    }
+    assert.equal(rootSurfaceHeight(surface, 0, 0), 0);
+  }
+});
+
+
+test('responsive ground bending uses the same count-based base as the hierarchy', () => {
+  const layout = createRootLayout(model(Array.from({ length: 754 }, (_, i) => `folder${i % 30}/file${i}.js`)));
+  const surface = createRootSurface(layout, { height: 12 });
+  assert.equal(surface.radiusX, layout.base.radiusX);
+  assert.equal(surface.radiusZ, layout.base.radiusZ);
+  assert.ok(surface.radiusX > 50 && surface.radiusZ > 30);
+  assert.equal(rootSurfaceHeight(surface, 0, 0), 0);
+  assert.ok(near(rootSurfaceHeight(surface, surface.radiusX, 0), -6));
 });

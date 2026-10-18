@@ -52,14 +52,7 @@ body[data-mode="data"] #app { background: var(--bg); }
 .data-element-symbol { display: inline-grid; place-items: center; flex: none; width: 20px; height: 20px; border-radius: 50%; background: var(--atom-color); color: #101727; font-size: 10px; font-weight: 700; box-shadow: inset 1px 1px 3px rgba(255,255,255,.45), inset -1px -1px 3px rgba(0,0,0,.35); }
 .data-structure-kind b { text-align: right; font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; }
 .data-folder-path { overflow-wrap: anywhere; }
-.data-commit { padding: 4px 18px 0; }
-#data-commit-message { color: var(--text); font-size: 12px; font-weight: 600; line-height: 1.45; overflow-wrap: anywhere; }
-.data-commit-meta { display: flex; align-items: baseline; flex-wrap: wrap; gap: 7px; color: var(--text-dim); font-size: 10px; margin-top: 5px; }
-#data-commit-link, #data-commit-sha { color: var(--accent-cool); font: 10px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace; }
-.data-commit-date { color: var(--text-dim); font-size: 9.5px; margin-top: 3px; font-variant-numeric: tabular-nums; }
-.data-commit-notice { color: var(--accent); font-size: 10px; line-height: 1.45; margin-top: 5px; }
-#data-summary { margin: 8px 16px 5px; font-size: 10.5px; }
-.data-changes, .data-file-list { max-height: 164px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(130,160,220,.22) transparent; padding: 3px 12px; }
+.data-file-list { max-height: 164px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(130,160,220,.22) transparent; padding: 3px 12px; }
 .data-file-row { display: flex; align-items: baseline; gap: 6px; width: 100%; padding: 6px 5px; background: none; border: 1px solid transparent; border-radius: 5px; color: var(--text-dim); cursor: pointer; text-align: left; font-size: 10px; }
 .data-file-row:hover { background: rgba(134,183,255,.06); color: var(--text); }
 .data-file-row.selected { background: rgba(255,202,122,.1); color: var(--accent); border-color: rgba(255,190,110,.2); }
@@ -101,6 +94,52 @@ body[data-mode="data"] #app { background: var(--bg); }
 .data-object-label, .data-node-label, .data-folder-label { pointer-events: none; white-space: nowrap; font-family: inherit; font-size: 10px; color: #cfd9ec; text-shadow: 0 1px 6px rgba(0,0,0,.95); }
 .data-folder-label { font-weight: 600; letter-spacing: .04em; }
 .data-node-label { font-size: 9px; opacity: .85; }
+
+/* Author credit follows the sun; it never intercepts orbit or atom picking. */
+.data-sun-credit { z-index: 10000 !important; --sun-portrait-size: 40px; width: 0; height: 0; pointer-events: none; user-select: none; color: #f2d5a8; }
+.data-sun-credit [hidden], .data-sun-credit[hidden] { display: none !important; }
+.data-sun-portrait { position: absolute; left: 0; top: 0; transform: translate(-50%, -50%); width: var(--sun-portrait-size); height: var(--sun-portrait-size); overflow: hidden; border-radius: 50%; border: 1.5px solid rgba(255,218,160,.9); background: #332719; box-shadow: 0 0 8px rgba(255,201,121,.6), 0 0 26px rgba(255,167,70,.28); }
+.data-sun-pulse { position: absolute; left: 0; top: 0; width: var(--sun-portrait-size); height: var(--sun-portrait-size); transform: translate(-50%, -50%); opacity: 0; border: 1px solid rgba(255,226,174,.9); border-radius: 50%; background: radial-gradient(circle, transparent 48%, rgba(255,187,95,.16) 75%, transparent); box-shadow: 0 0 12px rgba(255,195,109,.65), inset 0 0 8px rgba(255,195,109,.35); }
+.data-sun-portrait img, .data-sun-initials { position: absolute; inset: 0; width: 100%; height: 100%; }
+.data-sun-portrait img { object-fit: cover; }
+.data-sun-initials { display: grid; place-items: center; color: #ffdfad; font-size: 14px; font-weight: 600; letter-spacing: .03em; }
+.data-sun-caption { position: absolute; top: 28px; left: 0; transform: translateX(-50%); display: grid; gap: 2px; width: max-content; max-width: min(190px, 60vw); text-align: center; text-shadow: 0 1px 4px #000, 0 0 12px #000; }
+.data-sun-byline { font-size: 8px; font-weight: 500; letter-spacing: .13em; text-transform: uppercase; color: #bca783; white-space: nowrap; }
+.data-sun-name { font-size: 11px; line-height: 1.4; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.data-sun-credit[data-playing="false"] .data-sun-portrait { border-color: rgba(208,222,242,.8); box-shadow: 0 0 0 3px rgba(11,18,30,.7), 0 3px 16px rgba(0,0,0,.45); }
+.data-commit-bubble { position: absolute; display: flex; flex-direction: column; gap: 10px; width: 306px; box-sizing: border-box; padding: 15px 16px 9px; border: 1px solid rgba(157,204,255,.3); border-radius: 21px; background: linear-gradient(145deg, rgba(34,102,176,.97), rgba(24,70,119,.97)); color: #f5f9ff; box-shadow: 0 10px 36px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.07); backdrop-filter: blur(16px); pointer-events: auto; user-select: text; text-shadow: none; text-align: left; }
+.data-commit-bubble::before { content: ''; position: absolute; width: 11px; height: 11px; border-radius: 2px; background: #205b99; transform: rotate(45deg); }
+.data-commit-bubble[data-side="right"]::before { left: -6px; top: calc(var(--bubble-tail) - 5px); border-left: 1px solid rgba(157,204,255,.3); border-bottom: 1px solid rgba(157,204,255,.3); }
+.data-commit-bubble[data-side="left"]::before { right: -6px; top: calc(var(--bubble-tail) - 5px); border-right: 1px solid rgba(157,204,255,.3); border-top: 1px solid rgba(157,204,255,.3); }
+.data-commit-bubble[data-side="above"]::before { bottom: -6px; left: calc(var(--bubble-tail) - 5px); border-right: 1px solid rgba(157,204,255,.3); border-bottom: 1px solid rgba(157,204,255,.3); background: #194a7d; }
+.data-commit-bubble[data-side="below"]::before { top: -6px; left: calc(var(--bubble-tail) - 5px); border-top: 1px solid rgba(157,204,255,.3); border-left: 1px solid rgba(157,204,255,.3); }
+.data-bubble-scroll { min-height: 0; overflow: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgba(207,227,255,.4) transparent; }
+.data-bubble-message { margin: 0 0 12px; max-height: 156px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13px; font-weight: 500; line-height: 1.5; scrollbar-width: thin; }
+.data-bubble-files { color: #d2e6ff; font-size: 10.5px; }
+.data-bubble-files summary { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; padding: 3px 0; cursor: pointer; list-style: none; }
+.data-bubble-files summary::-webkit-details-marker { display: none; }
+.data-bubble-files summary::before { content: '›'; font-size: 16px; line-height: 1; margin-right: 3px; }
+.data-bubble-files[open] summary::before { transform: rotate(90deg); }
+.data-bubble-lines { display: inline-flex; gap: 6px; margin-left: auto; font-variant-numeric: tabular-nums; font-size: 10px; }
+.data-bubble-added { color: #b0f5d2; }
+.data-bubble-deleted { color: #ffd1c4; }
+.data-bubble-file-list { max-height: 136px; overflow-y: auto; margin-top: 6px; border-top: 1px solid rgba(213,232,255,.2); scrollbar-width: thin; }
+.data-bubble-file { display: flex; width: 100%; align-items: baseline; gap: 8px; padding: 7px 1px; border: 0; border-bottom: 1px solid rgba(213,232,255,.08); background: transparent; color: #eef6ff; font-family: inherit; font-size: 10px; line-height: 1.4; text-align: left; }
+button.data-bubble-file { cursor: pointer; }
+button.data-bubble-file:hover { color: #fff; background: rgba(189,218,255,.1); }
+.data-bubble-file > :first-child { flex: 1; min-width: 0; overflow-wrap: anywhere; font-size: 10px; }
+.data-bubble-status { flex: none; font-size: 8px; color: #bdd6f2; }
+.data-bubble-notice { margin: 9px 0 0; font-size: 9px; line-height: 1.45; color: #d3e5fc; }
+.data-bubble-footer { display: flex; flex: none; align-items: center; justify-content: space-between; gap: 12px; min-height: 28px; border-top: 1px solid rgba(213,232,255,.17); padding-top: 5px; }
+.data-bubble-sha { font: 10px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing: .02em; color: #bfd8f5; }
+.data-bubble-link { display: inline-flex; align-items: center; gap: 7px; min-height: 28px; color: #f5f9ff; font-size: 10px; font-weight: 500; text-decoration: none; }
+.data-bubble-link:hover { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+.data-commit-bubble :focus-visible { outline: 2px solid #c7e2ff; outline-offset: 3px; border-radius: 3px; }
+@media (max-width: 600px) {
+  .data-sun-credit { --sun-portrait-size: 34px; }
+  .data-sun-caption { top: 24px; }
+  .data-sun-name { font-size: 10px; }
+}
 
 @media (max-width: 1100px) and (min-width: 901px) {
   #data-panel { width: 330px; }

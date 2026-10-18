@@ -1,0 +1,262 @@
+import { Vector3 } from 'three';
+import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+import { normalizeAuthorProfile } from './author-profile.js';
+import { placeCommitBubble } from './commit-bubble-layout.js';
+
+/** A screen-facing credit anchored to the root, independent of scene picking. */
+export class SunCredit {
+  constructor(parent, { onSelect = () => {} } = {}) {
+    this.element = document.createElement('div');
+    this.element.className = 'data-sun-credit';
+    this.element.hidden = true;
+    this.element.setAttribute('role', 'group');
+    this.element.innerHTML = '<div class="data-sun-pulse" aria-hidden="true"></div><div class="data-sun-portrait" aria-hidden="true"><span class="data-sun-initials"></span></div><div class="data-sun-caption" aria-hidden="true"><span class="data-sun-byline">Commit by</span><span class="data-sun-name"></span></div>';
+    this.portrait = this.element.querySelector('.data-sun-portrait');
+    this.pulseRing = this.element.querySelector('.data-sun-pulse');
+    this.initials = this.element.querySelector('.data-sun-initials');
+    this.name = this.element.querySelector('.data-sun-name');
+    this.bubble = document.createElement('section');
+    this.bubble.className = 'data-commit-bubble';
+    this.bubble.hidden = true;
+    this.bubble.setAttribute('aria-label', 'Current commit');
+    this.bubble.innerHTML = '<div class="data-bubble-scroll"><p class="data-bubble-message" tabindex="0"></p><details class="data-bubble-files"><summary><span class="data-bubble-file-count"></span><span class="data-bubble-lines"><span class="data-bubble-added"></span><span class="data-bubble-deleted"></span><span>lines</span></span></summary><div class="data-bubble-file-list"></div></details><p class="data-bubble-notice" hidden></p></div><footer class="data-bubble-footer"><code class="data-bubble-sha"></code><a class="data-bubble-link" target="_blank" rel="noopener noreferrer">View on GitHub <span aria-hidden="true">↗</span></a></footer>';
+    this.element.append(this.bubble);
+    this.message = this.bubble.querySelector('.data-bubble-message');
+    this.bubbleScroll = this.bubble.querySelector('.data-bubble-scroll');
+    this.fileDetails = this.bubble.querySelector('.data-bubble-files');
+    this.fileList = this.bubble.querySelector('.data-bubble-file-list');
+    this.notice = this.bubble.querySelector('.data-bubble-notice');
+    this.commitLink = this.bubble.querySelector('.data-bubble-link');
+    this.commitId = this.bubble.querySelector('.data-bubble-sha');
+    this.listeners = new AbortController();
+    // Native text selection, scrolling and links belong to the bubble, not orbit controls.
+    for (const event of ['pointerdown', 'pointerup', 'dblclick', 'wheel', 'keydown']) {
+      this.bubble.addEventListener(event, event => event.stopPropagation(), { signal: this.listeners.signal });
+    }
+    this.fileList.addEventListener('click', event => {
+      const button = event.target.closest('button[data-file-id]');
+      if (button) onSelect(button.dataset.fileId);
+    }, { signal: this.listeners.signal });
+    this.playing = false;
+
+    this.object = new CSS2DObject(this.element);
+    this.object.name = 'Data Lab · Commit author';
+    this.object.visible = false;
+    this.projected = new Vector3();
+    this.anchor = new Vector3();
+    this.hasCommit = false;
+    this.requestedVisible = false;
+    parent.add(this.object);
+  }
+
+  setCommit(commit) {
+    const changed = this.commit !== commit;
+    this.commit = commit || null;
+    this.hasCommit = Boolean(commit);
+    if (!commit) {
+      this.setVisible(false);
+      this.element.removeAttribute('aria-label');
+      this.element.removeAttribute('data-commit');
+      this.name.textContent = '';
+      this.initials.textContent = '';
+      this._setAvatar(null);
+      this.bubble.hidden = true;
+      this.fileList.replaceChildren();
+      this.message.textContent = '';
+      this.commitLink.removeAttribute('href');
+      return;
+    }
+    const profile = normalizeAuthorProfile(commit.authorProfile);
+    const name = String(commit.author || profile?.login || 'Unknown author').trim() || 'Unknown author';
+    this.name.textContent = name;
+    const words = name.split(/[\s_-]+/u).filter(Boolean);
+    this.initials.textContent = name === 'Unknown author' ? '?' : [words[0], ...(words.length > 1 ? [words.at(-1)] : [])].map(word => Array.from(word)[0]).join('').toLocaleUpperCase();
+    this.element.setAttribute('aria-label', `Commit by ${name}${profile ? ` (@${profile.login})` : ''}`);
+    this.element.dataset.commit = commit.sha || '';
+    this._setAvatar(profile?.avatarUrl || null);
+    if (changed) this._renderBubble(commit);
+    this.bubble.hidden = this.playing;
+  }
+
+  _renderBubble(commit) {
+    this.message.textContent = commit.message || '(No commit message)';
+    this.message.scrollTop = 0;
+    this.bubbleScroll.scrollTop = 0;
+    this.fileList.scrollTop = 0;
+    const changes = commit.changes || commit.files || [];
+    const count = changes.length;
+    const number = value => Number.isFinite(Number(value)) ? Math.max(0, Number(value)) : 0;
+    const additions = changes.reduce((sum, file) => sum + number(file.additions), 0);
+    const deletions = changes.reduce((sum, file) => sum + number(file.deletions), 0);
+    const format = value => value.toLocaleString();
+    this.bubble.querySelector('.data-bubble-file-count').textContent = `${format(count)} ${count === 1 ? 'file' : 'files'} changed`;
+    this.bubble.querySelector('.data-bubble-added').textContent = `+${format(additions)}`;
+    this.bubble.querySelector('.data-bubble-deleted').textContent = `−${format(deletions)}`;
+    this.bubble.querySelector('.data-bubble-lines').setAttribute('aria-label', `${format(additions)} lines added, ${format(deletions)} lines deleted`);
+    this.fileDetails.open = false;
+    this.fileList.replaceChildren(...changes.map(file => {
+      const row = document.createElement(file.id ? 'button' : 'div');
+      row.className = 'data-bubble-file';
+      if (file.id) { row.type = 'button'; row.dataset.fileId = file.id; }
+      const path = document.createElement('span');
+      path.textContent = file.path;
+      const status = document.createElement('span');
+      status.className = 'data-bubble-status';
+      status.textContent = file.status || 'modified';
+      row.append(path, status);
+      return row;
+    }));
+    const notices = [];
+    if (commit.isMerge) notices.push('Merge · changes relative to the first parent.');
+    if (commit.partial) notices.push('Partial diff · counts cover loaded files only.');
+    if ((commit.files || []).some(file => file.binary)) notices.push('Binary files are included; line totals cover text changes.');
+    this.notice.textContent = notices.join(' ');
+    this.notice.hidden = notices.length === 0;
+    this.commitId.textContent = String(commit.sha || '').slice(0, 7);
+    this.commitId.title = commit.sha || '';
+    this.commitId.setAttribute('aria-label', `Commit ${commit.sha || 'ID unavailable'}`);
+    let url = null;
+    try {
+      const parsed = new URL(commit.url);
+      if (parsed.protocol === 'https:' && parsed.hostname === 'github.com' && !parsed.username && !parsed.password && !parsed.port
+        && /^\/[^/]+\/[^/]+\/commit\/[a-z\d]+\/?$/i.test(parsed.pathname)) url = parsed.href;
+    } catch { /* A local fixture or unavailable commit has no external link. */ }
+    this.commitLink.hidden = !url;
+    this.commitLink.removeAttribute('href');
+    if (url) this.commitLink.href = url;
+  }
+
+  setPlayback(playing) {
+    this.playing = Boolean(playing);
+    this.element.dataset.playing = String(this.playing);
+    this.bubble.hidden = this.playing || !this.hasCommit;
+    if (this.playing && this.bubble.contains(document.activeElement)) document.activeElement.blur();
+    if (!this.playing) this.stopPulse();
+  }
+
+  _setAvatar(url) {
+    if (this.avatarUrl === url) return;
+    this.avatarUrl = url;
+    if (this.image) {
+      this.image.onload = this.image.onerror = null;
+      this.image.removeAttribute('src');
+      this.image.remove();
+      this.image = null;
+    }
+    this.initials.hidden = false;
+    if (!url) return;
+    const image = document.createElement('img');
+    image.alt = '';
+    image.hidden = true;
+    image.decoding = 'async';
+    image.referrerPolicy = 'no-referrer';
+    image.draggable = false;
+    this.image = image;
+    image.onload = () => {
+      if (this.image !== image) return;
+      image.hidden = false;
+      this.initials.hidden = true;
+    };
+    image.onerror = () => {
+      if (this.image !== image) return;
+      image.hidden = true;
+      this.initials.hidden = false;
+    };
+    this.portrait.append(image);
+    image.src = url;
+  }
+
+  pulse(duration = 420) {
+    this.stopPulse();
+    if (!this.requestedVisible || !this.object.visible || !this.playing) return;
+    this.pulseAnimation = this.pulseRing.animate([
+      { opacity: 0, transform: 'translate(-50%, -50%) scale(.9)' },
+      { opacity: .9, offset: .18 },
+      { opacity: 0, transform: 'translate(-50%, -50%) scale(2.1)' },
+    ], { duration: Math.max(140, Math.min(420, duration)), easing: 'ease-out' });
+  }
+
+  stopPulse() {
+    this.pulseAnimation?.cancel();
+    this.pulseAnimation = null;
+  }
+
+  setVisible(visible, position, { detached = false } = {}) {
+    this.detached = detached;
+    this.requestedVisible = Boolean(visible && this.hasCommit);
+    if (!this.requestedVisible) this.stopPulse();
+    if (position) { this.anchor.fromArray(position); this.object.position.copy(this.anchor); }
+    this.object.visible = this.requestedVisible;
+    this.element.hidden = !this.requestedVisible;
+  }
+
+  update(camera, width, height) {
+    if (!this.requestedVisible) return null;
+    this.projected.copy(this.anchor);
+    this.object.parent?.localToWorld(this.projected);
+    this.projected.project(camera);
+    const { x, y, z } = this.projected;
+    const inView = z >= -1 && z <= 1 && Math.abs(x) <= 1 && Math.abs(y) <= 1;
+    let screenX = (x * .5 + .5) * width, screenY = (-y * .5 + .5) * height;
+    const bounds = this.playing ? null : this._bubbleBounds(width, height);
+    const docked = !this.playing && (this.detached || !inView || screenX < bounds.left + 22 || screenX > bounds.right - 22
+      || screenY < bounds.top + 24 || screenY > bounds.bottom - 60);
+    if (docked) {
+      // Keep paused details reachable while inspecting a subtree away from the root.
+      screenX = bounds.left + Math.min(80, (bounds.right - bounds.left) / 2);
+      screenY = bounds.top + 30;
+      this.object.position.set(screenX / width * 2 - 1, 1 - screenY / height * 2, 0).unproject(camera);
+      this.object.parent?.worldToLocal(this.object.position);
+    } else this.object.position.copy(this.anchor);
+    this.element.dataset.docked = String(docked);
+    const visible = inView || docked;
+    this.object.visible = visible;
+    this.element.hidden = !visible;
+    if (!visible) { this.stopPulse(); return null; }
+    if (!this.playing) {
+      const bubbleWidth = Math.min(306, bounds.right - bounds.left);
+      this.bubble.style.width = `${bubbleWidth}px`;
+      this.bubble.style.maxHeight = `${Math.max(120, bounds.bottom - bounds.top)}px`;
+      const bubbleHeight = this.bubble.offsetHeight;
+      const placement = placeCommitBubble({ x: screenX, y: screenY, width, height, bubbleWidth, bubbleHeight, bounds });
+      this.bubble.style.left = `${placement.left - screenX}px`;
+      this.bubble.style.top = `${placement.top - screenY}px`;
+      this.bubble.dataset.side = placement.side;
+      this.bubble.style.setProperty('--bubble-tail', `${placement.tail}px`);
+      const left = Math.min(screenX - 96, placement.left);
+      const right = Math.max(screenX + 96, placement.left + bubbleWidth);
+      const top = Math.min(screenY - 24, placement.top);
+      const bottom = Math.max(screenY + 60, placement.top + bubbleHeight);
+      return { x: (left + right) / 2, y: (top + bottom) / 2, half: (right - left) / 2, height: (bottom - top) / 2 + 12 };
+    }
+    return { x: screenX, y: screenY + 16, half: 96, height: 50 };
+  }
+
+  _bubbleBounds(width, height) {
+    const bounds = { left: 12, right: width - 12, top: width <= 900 ? 146 : 76, bottom: height - 18 };
+    const visibleRect = selector => {
+      const element = document.querySelector(selector);
+      if (!element || element.hidden) return null;
+      const rect = element.getBoundingClientRect();
+      return rect.width > 0 && rect.height > 0 ? rect : null;
+    };
+    const timebar = visibleRect('#data-timebar');
+    if (timebar) bounds.bottom = Math.min(bounds.bottom, timebar.top - 12);
+    if (width > 900) {
+      const guide = visibleRect('#data-guide'), panel = visibleRect('#data-panel');
+      if (guide && guide.left < width / 3) bounds.left = Math.max(bounds.left, guide.right + 14);
+      if (panel && panel.right > width * 2 / 3) bounds.right = Math.min(bounds.right, panel.left - 14);
+      // Narrow or freely dragged panels must not squeeze the message out of view.
+      if (bounds.right - bounds.left < 230) { bounds.left = 12; bounds.right = width - 12; }
+    }
+    bounds.top = Math.min(bounds.top, Math.max(12, bounds.bottom - 140));
+    return bounds;
+  }
+
+  dispose() {
+    this.setCommit(null);
+    this.listeners.abort();
+    this.object.removeFromParent();
+    this.element.remove();
+  }
+}

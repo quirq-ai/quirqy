@@ -1,6 +1,9 @@
+import { normalizeAuthorProfile } from './author-profile.js';
+
 // Public GitHub metadata only. No source execution, credentials or backend.
 const API = 'https://api.github.com';
 const MAX_COMMITS = 20;
+export const DEFAULT_REPOSITORY_COMMIT_LIMIT = 20;
 const MAX_DIFF_FILES = 200;
 const MAX_PATHS = 2500;
 const comparePath = (a, b) => a.path < b.path ? -1 : a.path > b.path ? 1 : 0;
@@ -59,9 +62,9 @@ function normalizeChange(file) {
 
 /** Commits are in first-parent order, oldest to newest. files is a fixed-layout
  * union: existsAtHead distinguishes the pinned tree from historical paths. */
-export async function loadRepository(input, { signal, onProgress = () => {}, limit = 12 } = {}) {
+export async function loadRepository(input, { signal, onProgress = () => {}, limit = DEFAULT_REPOSITORY_COMMIT_LIMIT } = {}) {
   const parsed = parseRepositoryUrl(input);
-  const count = Math.min(MAX_COMMITS, Math.max(1, Math.floor(Number(limit) || 12)));
+  const count = Math.min(MAX_COMMITS, Math.max(1, Math.floor(Number(limit) || DEFAULT_REPOSITORY_COMMIT_LIMIT)));
   const base = `/repos/${encodeURIComponent(parsed.owner)}/${encodeURIComponent(parsed.repo)}`;
   const limitations = [];
   const note = text => { if (!limitations.includes(text)) limitations.push(text); };
@@ -111,6 +114,7 @@ export async function loadRepository(input, { signal, onProgress = () => {}, lim
       sha: data.sha,
       message: data.commit?.message || '(No commit message)',
       author: data.commit?.author?.name || data.author?.login || 'Unknown author',
+      authorProfile: normalizeAuthorProfile(data.author),
       date: data.commit?.committer?.date || data.commit?.author?.date || '',
       url: `https://github.com/${parsed.fullName}/commit/${data.sha}`,
       isMerge,

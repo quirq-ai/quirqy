@@ -7,8 +7,12 @@ import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { devNull } from 'node:os';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { normalizeAuthorProfile } from '../src/data-lab/author-profile.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+// Account identities cannot be recovered from Git author names. This checked-in
+// map records GitHub's author for exact SHAs; unknown future commits stay null.
+const verifiedAuthors = JSON.parse(readFileSync(resolve(root, 'src/data-lab/examples/author-profiles.json'), 'utf8'));
 const definitions = [
   { name: 'xo', fullName: 'quirq-ai/xo' },
   { name: 'xo-space', fullName: 'quirq-ai/xo-space' },
@@ -16,7 +20,7 @@ const definitions = [
 const options = {
   cacheDir: resolve(root, '../.workspace-cache/observatory-examples'),
   outputDir: resolve(root, 'src/data-lab/examples'),
-  limit: 20,
+  limit: 50,
   capturedAt: new Date().toISOString(),
   refs: { xo: 'refs/heads/main', 'xo-space': 'refs/heads/main' },
 };
@@ -27,7 +31,7 @@ No network requests, checkout, source execution or credentials are used.
 
   --cache-dir PATH       Clone directory (default: ../.workspace-cache/observatory-examples)
   --output-dir PATH      JSON destination (default: src/data-lab/examples)
-  --limit NUMBER         First-parent commit count, 1–20 (default: 20)
+  --limit NUMBER         First-parent commit count, 1–50 (default: 50)
   --captured-at ISO       Recorded snapshot time; reuse for reproducible output
   --xo-ref REF           Pinned XO commit/ref (default: refs/heads/main)
   --xo-space-ref REF     Pinned XO Space commit/ref (default: refs/heads/main)
@@ -53,7 +57,7 @@ for (let index = 2; index < process.argv.length; index++) {
   else if (flag === '--xo-space-ref') options.refs['xo-space'] = value;
   else throw new Error(`Unknown option ${flag}.\n${usage}`);
 }
-assert(Number.isInteger(options.limit) && options.limit >= 1 && options.limit <= 20, 'Commit limit must be an integer between 1 and 20.');
+assert(Number.isInteger(options.limit) && options.limit >= 1 && options.limit <= 50, 'Commit limit must be an integer between 1 and 50.');
 assert(Number.isFinite(Date.parse(options.capturedAt)), 'The captured-at timestamp must be a valid ISO date.');
 options.capturedAt = new Date(options.capturedAt).toISOString();
 
@@ -142,8 +146,11 @@ function buildSnapshot(definition) {
     const fields = git(directory, 'show', '-s', '--format=%H%x00%P%x00%an%x00%cI%x00%B', sha).split('\0');
     assert.equal(fields[0], sha);
     const parents = fields[1].split(' ').filter(Boolean);
+    const authorLogin = verifiedAuthors.repositories[fullName]?.commits[sha];
+    const authorProfile = normalizeAuthorProfile(verifiedAuthors.profiles[authorLogin]);
     return {
       sha, message: fields.slice(4).join('\0').trimEnd(), author: fields[2], date: fields[3],
+      authorProfile,
       url: `${url}/commit/${sha}`, isMerge: parents.length > 1, partial: false,
       firstParent: parents[0] || null,
       files: readDiff(directory, sha, parents[0]),
@@ -173,7 +180,9 @@ function buildSnapshot(definition) {
   const binaryChanges = commits.reduce((sum, commit) => sum + commit.files.filter(file => file.binary).length, 0);
   const limitations = [
     'Bundled snapshot from a precloned public repository. It loads locally and does not update from GitHub automatically.',
-    'The snapshot follows recent first-parent history; earlier history and side-branch commits are not replayed separately.',
+    boundarySha
+      ? 'The snapshot follows recent first-parent history; earlier history and side-branch commits are not replayed separately.'
+      : 'The snapshot follows the repository’s complete first-parent history; side-branch commits are not replayed separately.',
   ];
   if (commits.some(commit => commit.isMerge)) limitations.push('Merge activity is the net change from its first parent.');
   if (binaryChanges) limitations.push('Binary changes are included with binary: true. Their additions and deletions are zero because Git does not provide line counts for binary data.');

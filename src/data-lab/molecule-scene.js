@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { RepositoryScene } from './scene.js';
+import { SunCredit } from './sun-credit.js';
 import { radialSpriteTexture } from '../textures/procedural.js';
 import { buildMolecularTree, molecularTreeState } from './molecule-layout.js';
 import { buildFolderEnclosures } from './molecule-enclosures.js';
@@ -24,6 +25,7 @@ export class MoleculeScene extends RepositoryScene {
     this.group.name = 'Data Lab · Repository molecule';
     this.enclosures = new FolderEnclosureScene(this.group);
     this._createRootGlow();
+    this.sunCredit = new SunCredit(this.group, { onSelect: id => this.onSelect(id) });
     for (const geometry of Object.values(this.geometries)) geometry.dispose();
     this.geometries = {
       atom: new THREE.SphereGeometry(1, 24, 16),
@@ -42,7 +44,7 @@ export class MoleculeScene extends RepositoryScene {
     this.birthIds = new Set();
     this.exitIds = new Set();
     this.moves = new Map();
-    this.renderer.domElement.setAttribute('aria-label', 'Three-dimensional repository molecule. Each folder appears as a gray carbon marble when paused and an enclosing boundary during playback. The repository root shines like a warm sun during playback and returns to a gray marble when paused. Folders connect to their actual parent folders. Each colored terminal atom is exactly one file: nitrogen for code, oxygen for data, hydrogen for documents, sulfur for assets. Drag to orbit, scroll to zoom, click a file atom to inspect it, or click a folder marble or boundary to focus its contents.');
+    this.renderer.domElement.setAttribute('aria-label', 'Three-dimensional repository molecule. Each folder appears as a gray carbon marble when paused and an enclosing boundary during playback. The repository root keeps the current commit author’s portrait and name. It shines like a warm sun during playback, and opens a message bubble with commit details when paused. Folders connect to their actual parent folders. Each colored terminal atom is exactly one file: nitrogen for code, oxygen for data, hydrogen for documents, sulfur for assets. Drag to orbit, scroll to zoom, click a file atom to inspect it, or click a folder marble or boundary to focus its contents.');
   }
 
   _createRootGlow() {
@@ -74,6 +76,9 @@ export class MoleculeScene extends RepositoryScene {
     const root = this.graph?.folderByPath.get('');
     const visible = Boolean(this.playbackRunning && root && this._folderInFocus(''));
     this.rootGlow.visible = visible;
+    this.sunCredit.setPlayback(this.playbackRunning);
+    this.sunCredit.setVisible(Boolean(root && (!this.playbackRunning || this._folderInFocus(''))), root?.position, { detached: !this._folderInFocus('') });
+    if (this.reducedMotion || !this.options.activity) this.sunCredit.stopPulse();
     this.rootLight.intensity = visible ? 35 : 0;
     if (!visible) return;
     const radius = this.graph.backboneById.get(root.anchorId).radius;
@@ -209,7 +214,9 @@ totalEmissiveRadiance += diffuseColor.rgb * vInstanceEmission;`);
 
   setFrame({ visibleIds, changedIds, selectedId, statuses = {}, paths = {}, frameKey, duration = DURATION, index } = {}) {
     if (!this.graph) return;
+    this.sunCredit.setCommit(Number.isInteger(index) ? this.model.commits[index] : null);
     const frameChanged = this.frameKey !== frameKey || this.frameIndex !== (Number.isInteger(index) ? index : null);
+    const commitTransition = frameChanged && Number.isInteger(this.frameIndex);
     if (!frameChanged && Number.isInteger(index)) {
       // Selection and speed updates must not restart or settle a paused phase.
       const nextDuration = Math.max(0.08, Number(duration) || DURATION);
@@ -254,6 +261,10 @@ totalEmissiveRadiance += diffuseColor.rgb * vInstanceEmission;`);
     if (selectedId !== undefined) this.select(selectedId);
     this._paintInstances();
     this._restorePlaybackFocus();
+    // Commit identity drives this cue, including consecutive commits by one author.
+    if (commitTransition && this.playbackRunning && !this.reducedMotion && this.options.activity) {
+      this.sunCredit.pulse(this.duration * 700);
+    }
   }
 
   _paintInstances() {
@@ -732,6 +743,8 @@ totalEmissiveRadiance += diffuseColor.rgb * vInstanceEmission;`);
 
   _updateLabels() {
     const occupied = [], width = this.renderer.domElement.clientWidth, height = this.renderer.domElement.clientHeight;
+    const credit = this.sunCredit.update(this.camera, width, height);
+    if (credit) occupied.push(credit);
     for (const record of this.labelRecords) record.object.visible = false;
     if (!this.structure || !this.options.labels) return;
     // Active directories claim label space first. Hidden historical folders
@@ -739,6 +752,7 @@ totalEmissiveRadiance += diffuseColor.rgb * vInstanceEmission;`);
     for (const active of [true, false]) {
       if (!active && (!this.options.ghosts || this.playbackRunning)) continue;
       for (const record of this.labelRecords) {
+        if (record.path === '' && credit) continue;
         if (!this._folderInFocus(record.path) || this.structure.folderIds.has(record.path) !== active) continue;
         const distance = this.camera.position.distanceTo(record.position);
         if (record.path && distance < 12) continue;
@@ -746,7 +760,7 @@ totalEmissiveRadiance += diffuseColor.rgb * vInstanceEmission;`);
         if (this.temp.z < -1 || this.temp.z > 1 || Math.abs(this.temp.x) > 1 || Math.abs(this.temp.y) > 1) continue;
         const x = (this.temp.x * 0.5 + 0.5) * width, y = (-this.temp.y * 0.5 + 0.5) * height;
         const half = Math.min(120, record.text.length * 3.2 + 5);
-        if (occupied.some(box => Math.abs(x - box.x) < half + box.half && Math.abs(y - box.y) < 22)) continue;
+        if (occupied.some(box => Math.abs(x - box.x) < half + box.half && Math.abs(y - box.y) < (box.height || 22))) continue;
         occupied.push({ x, y, half });
         record.element.style.opacity = active ? '.85' : '.3';
         record.object.visible = true;
@@ -755,6 +769,7 @@ totalEmissiveRadiance += diffuseColor.rgb * vInstanceEmission;`);
   }
 
   _clearWorld() {
+    this.sunCredit?.setCommit(null);
     if (this.rootGlow) this.rootGlow.visible = false;
     if (this.rootLight) this.rootLight.intensity = 0;
     this.enclosures?.setEnclosures([]);
@@ -776,6 +791,7 @@ totalEmissiveRadiance += diffuseColor.rgb * vInstanceEmission;`);
   dispose() {
     if (this.disposed) return;
     this.enclosures.dispose();
+    this.sunCredit.dispose();
     for (const sprite of this.rootGlowLayers) {
       sprite.material.map.dispose();
       sprite.material.dispose();

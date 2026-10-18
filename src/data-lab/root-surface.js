@@ -1,7 +1,8 @@
 const RADIUS_X = 50;
 const RADIUS_Z = 30;
 const DEPTH_WEIGHT = 0.2;
-export const MAX_ROOT_SURFACE_HEIGHT = 56;
+// Ground relief supplements label spacing without stretching the hierarchy.
+export const MAX_ROOT_SURFACE_HEIGHT = 12;
 const smoothstep = (start, end, value) => {
   const t = Math.max(0, Math.min(1, (value - start) / (end - start)));
   return t * t * (3 - 2 * t);
@@ -96,7 +97,8 @@ export function createRootSurface(layout, { height, viewportWidth, crowding } = 
   const responsivePressure = Math.max(projectedCrowding, narrowPressure);
   const resolvedHeight = height === undefined ? MAX_ROOT_SURFACE_HEIGHT * responsivePressure : positive(height);
   return {
-    height: resolvedHeight, radiusX: RADIUS_X, radiusZ: RADIUS_Z, depthWeight: DEPTH_WEIGHT,
+    height: resolvedHeight, radiusX: positive(layout.base?.radiusX, RADIUS_X),
+    radiusZ: positive(layout.base?.radiusZ, RADIUS_Z), depthWeight: DEPTH_WEIGHT,
     active: resolvedHeight > 0, groundY: layout.groundY ?? -40,
     fileCount: nodes.length, visibleFileCount, viewportWidth: width,
     projectedCrowding, narrowPressure, populationPressure, crowding: responsivePressure,

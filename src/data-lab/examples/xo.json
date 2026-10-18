@@ -233,9 +233,1538 @@
   ],
   "commits": [
     {
+      "sha": "ac76716aecd76f921d1b4d525c9b9adc713811de",
+      "message": "Apache-2.0 license\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy",
+      "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
+      "date": "2026-10-14T21:43:35+00:00",
+      "url": "https://github.com/quirq-ai/xo/commit/ac76716aecd76f921d1b4d525c9b9adc713811de",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": null,
+      "files": [
+        {
+          "path": "LICENSE",
+          "status": "added",
+          "additions": 202,
+          "deletions": 0
+        }
+      ]
+    },
+    {
+      "sha": "acbd42ce3fe51b34d0c2b5ebebb50ca6e36882dc",
+      "message": "Merge pull request #1 from quirq-ai/claude/xo-cli-5ynop4\n\nxo: a command line for the XO Cloud API",
+      "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
+      "date": "2026-10-15T16:29:50+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/acbd42ce3fe51b34d0c2b5ebebb50ca6e36882dc",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "ac76716aecd76f921d1b4d525c9b9adc713811de",
+      "files": [
+        {
+          "path": ".github/CODEOWNERS",
+          "status": "added",
+          "additions": 8,
+          "deletions": 0
+        },
+        {
+          "path": ".github/workflows/presubmit.yml",
+          "status": "added",
+          "additions": 27,
+          "deletions": 0
+        },
+        {
+          "path": ".gitignore",
+          "status": "added",
+          "additions": 7,
+          "deletions": 0
+        },
+        {
+          "path": "AGENTS.md",
+          "status": "added",
+          "additions": 15,
+          "deletions": 0
+        },
+        {
+          "path": "README.md",
+          "status": "added",
+          "additions": 147,
+          "deletions": 0
+        },
+        {
+          "path": "pyproject.toml",
+          "status": "added",
+          "additions": 34,
+          "deletions": 0
+        },
+        {
+          "path": "src/xo/__init__.py",
+          "status": "added",
+          "additions": 3,
+          "deletions": 0
+        },
+        {
+          "path": "src/xo/cli.py",
+          "status": "added",
+          "additions": 534,
+          "deletions": 0
+        },
+        {
+          "path": "src/xo/client.py",
+          "status": "added",
+          "additions": 199,
+          "deletions": 0
+        },
+        {
+          "path": "src/xo/commands.py",
+          "status": "added",
+          "additions": 179,
+          "deletions": 0
+        },
+        {
+          "path": "src/xo/openapi.json",
+          "status": "added",
+          "additions": 816,
+          "deletions": 0
+        },
+        {
+          "path": "src/xo/spec.py",
+          "status": "added",
+          "additions": 341,
+          "deletions": 0
+        },
+        {
+          "path": "tests/conftest.py",
+          "status": "added",
+          "additions": 62,
+          "deletions": 0
+        },
+        {
+          "path": "tests/fixtures/README.md",
+          "status": "added",
+          "additions": 2,
+          "deletions": 0
+        },
+        {
+          "path": "tests/fixtures/openapi.json",
+          "status": "added",
+          "additions": 158,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_cli.py",
+          "status": "added",
+          "additions": 908,
+          "deletions": 0
+        }
+      ]
+    },
+    {
+      "sha": "e4dee3e636fe67a090fb4b2079a7c58dc15a34c1",
+      "message": "Add a local setup quickstart (#3)\n\ndocs/quickstart.md walks any user through installing xo, giving it a key without echo, checking it with a read-only call and creating a first space. The README links to it, and the no-key error now says to get a key from the XO team.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy",
+      "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
+      "date": "2026-10-15T18:40:19+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/e4dee3e636fe67a090fb4b2079a7c58dc15a34c1",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "acbd42ce3fe51b34d0c2b5ebebb50ca6e36882dc",
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 0
+        },
+        {
+          "path": "docs/quickstart.md",
+          "status": "added",
+          "additions": 100,
+          "deletions": 0
+        },
+        {
+          "path": "src/xo/client.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        }
+      ]
+    },
+    {
+      "sha": "212c7b364763589d7678703416fbdb84ac987d01",
+      "message": "xo: pin the quickstart to the merged guide and fold audit nits (#4)\n\nThe guide's install now pins e4dee3e (#3), whose no-key error says a key\ncomes from the XO team. It also tells bash users which rc file to edit\nbefore they paste, gives Linux a route to Python 3.11, says the dry run\nprints the copy-key notice, and shows how to see the installed commit.\nThe README links the guide above the bare pip install, and the no-key\ntest pins the key-source hint.\n\n\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
+      "date": "2026-10-15T19:53:31+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/212c7b364763589d7678703416fbdb84ac987d01",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "e4dee3e636fe67a090fb4b2079a7c58dc15a34c1",
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 2
+        },
+        {
+          "path": "docs/quickstart.md",
+          "status": "modified",
+          "additions": 8,
+          "deletions": 5
+        },
+        {
+          "path": "tests/test_cli.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 0
+        }
+      ]
+    },
+    {
+      "sha": "21260a4c5237c2ae872542086798f240b854fed8",
+      "message": "xo serve: server mode for Clerk account and metadata commands (#5)\n\nAdds `xo serve` and a root app.py for Vercel (xo.quirq.dev), so `xo me` and `xo user-metadata` reach Clerk through one deployment that holds CLERK_SECRET_KEY. Admin-only metadata routes (none issued), allow-listed edits, audit log, Clerk budget and per-key limits, deploy guide and test script. Follow-ups: #6.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy",
+      "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
+      "date": "2026-10-16T00:39:05+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/21260a4c5237c2ae872542086798f240b854fed8",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "212c7b364763589d7678703416fbdb84ac987d01",
+      "files": [
+        {
+          "path": ".dockerignore",
+          "status": "added",
+          "additions": 6,
+          "deletions": 0
+        },
+        {
+          "path": ".python-version",
+          "status": "added",
+          "additions": 1,
+          "deletions": 0
+        },
+        {
+          "path": ".vercelignore",
+          "status": "added",
+          "additions": 8,
+          "deletions": 0
+        },
+        {
+          "path": "AGENTS.md",
+          "status": "modified",
+          "additions": 12,
+          "deletions": 3
+        },
+        {
+          "path": "Dockerfile",
+          "status": "added",
+          "additions": 20,
+          "deletions": 0
+        },
+        {
+          "path": "README.md",
+          "status": "modified",
+          "additions": 13,
+          "deletions": 2
+        },
+        {
+          "path": "app.py",
+          "status": "added",
+          "additions": 12,
+          "deletions": 0
+        },
+        {
+          "path": "docs/deploy-vercel.md",
+          "status": "added",
+          "additions": 173,
+          "deletions": 0
+        },
+        {
+          "path": "docs/server.md",
+          "status": "added",
+          "additions": 142,
+          "deletions": 0
+        },
+        {
+          "path": "docs/test-xo-server.sh",
+          "status": "added",
+          "additions": 133,
+          "deletions": 0
+        },
+        {
+          "path": "src/xo/cli.py",
+          "status": "modified",
+          "additions": 44,
+          "deletions": 8
+        },
+        {
+          "path": "src/xo/client.py",
+          "status": "modified",
+          "additions": 28,
+          "deletions": 5
+        },
+        {
+          "path": "src/xo/commands.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "src/xo/openapi.json",
+          "status": "modified",
+          "additions": 129,
+          "deletions": 0
+        },
+        {
+          "path": "src/xo/server.py",
+          "status": "added",
+          "additions": 537,
+          "deletions": 0
+        },
+        {
+          "path": "src/xo/spec.py",
+          "status": "modified",
+          "additions": 5,
+          "deletions": 0
+        },
+        {
+          "path": "tests/conftest.py",
+          "status": "modified",
+          "additions": 9,
+          "deletions": 6
+        },
+        {
+          "path": "tests/test_cli.py",
+          "status": "modified",
+          "additions": 103,
+          "deletions": 3
+        },
+        {
+          "path": "tests/test_server.py",
+          "status": "added",
+          "additions": 553,
+          "deletions": 0
+        }
+      ]
+    },
+    {
+      "sha": "9bb91329d9412d3285592884e169a51790d3b0cf",
+      "message": "xo serve: a public status page with health, counts and recent requests (#7)\n\nGET / serves a self-contained status page (CSP-pinned script and style, text-only rendering) that polls GET /status: health (Operational, Degraded or Unreachable), request and ping counts, and the last 100 requests as time, method, route template, status and duration only. Neither route calls Clerk; /, /status and /healthz also answer HEAD.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy",
+      "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
+      "date": "2026-10-16T01:56:40+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/9bb91329d9412d3285592884e169a51790d3b0cf",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "21260a4c5237c2ae872542086798f240b854fed8",
+      "files": [
+        {
+          "path": "AGENTS.md",
+          "status": "modified",
+          "additions": 3,
+          "deletions": 0
+        },
+        {
+          "path": "docs/deploy-vercel.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 0
+        },
+        {
+          "path": "docs/server.md",
+          "status": "modified",
+          "additions": 18,
+          "deletions": 0
+        },
+        {
+          "path": "src/xo/server.py",
+          "status": "modified",
+          "additions": 91,
+          "deletions": 7
+        },
+        {
+          "path": "src/xo/status_page.py",
+          "status": "added",
+          "additions": 148,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_server.py",
+          "status": "modified",
+          "additions": 113,
+          "deletions": 0
+        }
+      ]
+    },
+    {
+      "sha": "d96ec7c034e6a70d7b920c194f62cdd3237dafdc",
+      "message": "Server and status page follow-ups: Firewall check, key format stop, Degraded by time (#8)\n\n- test-xo-server.sh: the Firewall check counts only 429 or 403 as limited, stops on any other answer and sends up to 130 requests; a key in the wrong format stops the script before it is sent; one trailing CR is stripped.\n- Redaction matches each key character in URL, JSON and HTML escaped forms, in any mix.\n- Log lines escape backslashes; the metadata audit line records the caller's status, with Clerk's as clerk.\n- Degraded counts only 5xx on /me and /user-metadata in the last 5 minutes; HEAD tests over raw sockets; route wrapping, AbortSignal fallback, muted stale data.\n- deploy-vercel.md: auto-deploy on main, rollback and promote, deployed-sha test checkout, /status rule.\n\nRefs #6\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy",
+      "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
+      "date": "2026-10-16T03:01:23+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/d96ec7c034e6a70d7b920c194f62cdd3237dafdc",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "9bb91329d9412d3285592884e169a51790d3b0cf",
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "additions": 3,
+          "deletions": 1
+        },
+        {
+          "path": "docs/deploy-vercel.md",
+          "status": "modified",
+          "additions": 30,
+          "deletions": 36
+        },
+        {
+          "path": "docs/server.md",
+          "status": "modified",
+          "additions": 10,
+          "deletions": 3
+        },
+        {
+          "path": "docs/test-xo-server.sh",
+          "status": "modified",
+          "additions": 32,
+          "deletions": 16
+        },
+        {
+          "path": "src/xo/client.py",
+          "status": "modified",
+          "additions": 35,
+          "deletions": 8
+        },
+        {
+          "path": "src/xo/server.py",
+          "status": "modified",
+          "additions": 25,
+          "deletions": 9
+        },
+        {
+          "path": "src/xo/status_page.py",
+          "status": "modified",
+          "additions": 17,
+          "deletions": 5
+        },
+        {
+          "path": "tests/test_cli.py",
+          "status": "modified",
+          "additions": 7,
+          "deletions": 2
+        },
+        {
+          "path": "tests/test_server.py",
+          "status": "modified",
+          "additions": 105,
+          "deletions": 11
+        }
+      ]
+    },
+    {
+      "sha": "15da2c536d41524d1f1e831394c32e164db47385",
+      "message": "Rollback wording, audit clerk field on key checks, space redaction (#8 delta) (#9)\n\n- deploy-vercel.md: after a rollback, Promote the fixed deployment, never Undo Rollback (which\n  puts back the broken one); the test commands run only if the deployed sha checked out.\n- The metadata audit line carries clerk when Clerk fails during the key check too, and says\n  unreachable, redirect, not an object or xo budget when Clerk gave no status of its own.\n- Redaction matches a space in a secret as + again (a form encoder's space).\n\n\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
+      "date": "2026-10-16T03:30:36+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/15da2c536d41524d1f1e831394c32e164db47385",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "d96ec7c034e6a70d7b920c194f62cdd3237dafdc",
+      "files": [
+        {
+          "path": "docs/deploy-vercel.md",
+          "status": "modified",
+          "additions": 8,
+          "deletions": 5
+        },
+        {
+          "path": "docs/server.md",
+          "status": "modified",
+          "additions": 4,
+          "deletions": 3
+        },
+        {
+          "path": "src/xo/client.py",
+          "status": "modified",
+          "additions": 3,
+          "deletions": 1
+        },
+        {
+          "path": "src/xo/server.py",
+          "status": "modified",
+          "additions": 16,
+          "deletions": 11
+        },
+        {
+          "path": "tests/test_cli.py",
+          "status": "modified",
+          "additions": 8,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_server.py",
+          "status": "modified",
+          "additions": 19,
+          "deletions": 0
+        }
+      ]
+    },
+    {
+      "sha": "ebc2ae89f462018dd1f606b392bde9ad6e41489b",
+      "message": "xo login, one address for every command, and the server passes creates on to XO (#10)\n\n* Add xo login and xo logout\n\nxo login asks for the API key without echo, checks it with the xo server's\n/me, and saves it to $XDG_CONFIG_HOME/xo/credentials (~/.config/xo/credentials)\nwith the folder 0700 and the file 0600, written whole and renamed into place.\nA key that fails the check is not saved; --no-check saves without checking.\nLater commands use --api-key, then XO_API_KEY, then the saved key. A saved\nfile other users could read, or a symlink, is refused. xo logout deletes it.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* One address for every command; the server passes creates on to XO\n\nEvery command now goes to one address: XO_URL, --url, or the one\nxo login saved, else https://xo.quirq.dev. XO_BASE_URL, XO_SERVER_URL,\n--base-url and --server-url are gone. The xo server passes the creates\nand space reads on to XO's core API under its /api/core/v1, allow-listed\nby method and path, with only the bearer key and a few headers, no\nredirects, a 25 s timeout and a per-key limit.\n\nxo login prints the address before it reads the key, refuses anything\nbut an ak_ key, checks the key with XO (a space that does not exist\nmust answer XO's own 404), and saves the key with that address. The\nsaved key is only sent to the address it was saved with. The saved\nfile must be a regular file owned by you that no one else can read.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n---------\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
+      "date": "2026-10-16T05:40:05+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/ebc2ae89f462018dd1f606b392bde9ad6e41489b",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "15da2c536d41524d1f1e831394c32e164db47385",
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "additions": 17,
+          "deletions": 11
+        },
+        {
+          "path": "docs/deploy-vercel.md",
+          "status": "modified",
+          "additions": 21,
+          "deletions": 10
+        },
+        {
+          "path": "docs/quickstart.md",
+          "status": "modified",
+          "additions": 11,
+          "deletions": 4
+        },
+        {
+          "path": "docs/server.md",
+          "status": "modified",
+          "additions": 37,
+          "deletions": 8
+        },
+        {
+          "path": "docs/test-xo-server.sh",
+          "status": "modified",
+          "additions": 21,
+          "deletions": 8
+        },
+        {
+          "path": "src/xo/cli.py",
+          "status": "modified",
+          "additions": 118,
+          "deletions": 27
+        },
+        {
+          "path": "src/xo/client.py",
+          "status": "modified",
+          "additions": 145,
+          "deletions": 29
+        },
+        {
+          "path": "src/xo/server.py",
+          "status": "modified",
+          "additions": 104,
+          "deletions": 4
+        },
+        {
+          "path": "src/xo/spec.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "tests/conftest.py",
+          "status": "modified",
+          "additions": 13,
+          "deletions": 1
+        },
+        {
+          "path": "tests/test_cli.py",
+          "status": "modified",
+          "additions": 374,
+          "deletions": 31
+        },
+        {
+          "path": "tests/test_server.py",
+          "status": "modified",
+          "additions": 142,
+          "deletions": 1
+        }
+      ]
+    },
+    {
+      "sha": "81ec71c779d7a28b4e565856e139e23f3b4ece66",
+      "message": "Bound what the server passes on to XO, and fix what the #10 audit flagged (#12)\n\n* Bound what the server passes on to XO, and fix the docs the #10 audit flagged\n\n- A budget for forwards per process, XO_CORE_PER_SECOND (default 10), then 503.\n- XO gets 25 seconds for the whole forward, however slowly it sends: the\n  forward now uses http.client with a timer that cuts the connection.\n- An answer over 1 MiB says \"too large to pass on\" instead of \"not JSON\".\n- XO_BASE_URL and XO_SERVER_URL are refused, not silently ignored, unless\n  XO_URL is set; the URL error no longer repeats a user or password.\n- xo login names a server that does not pass the core API on.\n- Docs: /api/core reaches XO's production Clerk whatever the server's\n  credentials; xo api through the server passes only the eight routes, and\n  --url https://app.xo.builders reaches the rest; the spec names $XO_URL.\n- The test script checks that the Firewall rule covers /api/core.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* Docs: the Firewall rule is recommended where the plan has it; the server's limits apply either way\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* Quickstart: install the commit that has xo login\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* Free --url for spec fields named url, and fold the #12 audit's nits\n\nA spec field or parameter named `url` clashed with the global --url flag and broke every\ngenerated command; the reserved names still listed #10's removed --base-url. Also:\n- the server refuses to start on a bad XO_CORE_API_URL port or host instead of failing requests;\n- a test for the check after connect, which bounds a slow connect followed by a trickle;\n- the URL error hides a password that holds \"?\" or \"#\";\n- naming both old address variables when both are set;\n- docs: forwards to XO ignore HTTP(S)_PROXY; the README address row mentions --url; the Firewall\n  step and the production gate agree that the rule is recommended where the plan has it.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n---------\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
+      "date": "2026-10-16T06:39:18+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/81ec71c779d7a28b4e565856e139e23f3b4ece66",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "ebc2ae89f462018dd1f606b392bde9ad6e41489b",
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "additions": 6,
+          "deletions": 1
+        },
+        {
+          "path": "docs/deploy-vercel.md",
+          "status": "modified",
+          "additions": 25,
+          "deletions": 14
+        },
+        {
+          "path": "docs/quickstart.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "docs/server.md",
+          "status": "modified",
+          "additions": 17,
+          "deletions": 3
+        },
+        {
+          "path": "docs/test-xo-server.sh",
+          "status": "modified",
+          "additions": 13,
+          "deletions": 2
+        },
+        {
+          "path": "src/xo/cli.py",
+          "status": "modified",
+          "additions": 11,
+          "deletions": 3
+        },
+        {
+          "path": "src/xo/client.py",
+          "status": "modified",
+          "additions": 10,
+          "deletions": 2
+        },
+        {
+          "path": "src/xo/commands.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "src/xo/openapi.json",
+          "status": "modified",
+          "additions": 3,
+          "deletions": 3
+        },
+        {
+          "path": "src/xo/server.py",
+          "status": "modified",
+          "additions": 69,
+          "deletions": 26
+        },
+        {
+          "path": "tests/test_cli.py",
+          "status": "modified",
+          "additions": 38,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_server.py",
+          "status": "modified",
+          "additions": 88,
+          "deletions": 5
+        }
+      ]
+    },
+    {
+      "sha": "8da4ef975691005b9d151544cb00e2ce6cb99761",
+      "message": "xo coder: GitHub previews, login, and Coder commands, with a deployment check (#13)\n\nTakes over #11 (suraj's commits carried). Before any Coder command xo asks Coder, without naming a deployment, where it is logged in, and stops with nothing sent unless it is xo's deployment. Pass-through arguments may not carry Coder's root options; CODER_SESSION_TOKEN needs a matching CODER_URL. No delete.\n\nCo-Authored-By: sharmasuraj0123 <sharmasuraj0123@gmail.com>\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy",
+      "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
+      "date": "2026-10-16T07:31:00+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/8da4ef975691005b9d151544cb00e2ce6cb99761",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "81ec71c779d7a28b4e565856e139e23f3b4ece66",
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "additions": 74,
+          "deletions": 6
+        },
+        {
+          "path": "docs/coder.md",
+          "status": "added",
+          "additions": 71,
+          "deletions": 0
+        },
+        {
+          "path": "docs/quickstart.md",
+          "status": "modified",
+          "additions": 7,
+          "deletions": 2
+        },
+        {
+          "path": "src/xo/cli.py",
+          "status": "modified",
+          "additions": 166,
+          "deletions": 13
+        },
+        {
+          "path": "src/xo/client.py",
+          "status": "modified",
+          "additions": 259,
+          "deletions": 6
+        },
+        {
+          "path": "src/xo/coder.py",
+          "status": "added",
+          "additions": 39,
+          "deletions": 0
+        },
+        {
+          "path": "src/xo/commands.py",
+          "status": "modified",
+          "additions": 3,
+          "deletions": 2
+        },
+        {
+          "path": "tests/test_cli.py",
+          "status": "modified",
+          "additions": 29,
+          "deletions": 5
+        },
+        {
+          "path": "tests/test_coder.py",
+          "status": "added",
+          "additions": 597,
+          "deletions": 0
+        }
+      ]
+    },
+    {
+      "sha": "0a294da169ef9b78014c62f0e323ac0bf53bd8a1",
+      "message": "Changes production: one xo login for every service, xo status, and the platform at dev.xo.builders (#14)\n\nEvery create, carrying the caller's XO API key, now goes to dev.xo.builders instead of app.xo.builders from the first deploy of this commit, unless XO_CORE_API_URL is set in Vercel (which overrides it). The xo server serves its services list at /config; xo login covers xo-server, xo-platform and coder; xo status shows them.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy",
+      "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
+      "date": "2026-10-16T07:34:36+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/0a294da169ef9b78014c62f0e323ac0bf53bd8a1",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "8da4ef975691005b9d151544cb00e2ce6cb99761",
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "additions": 35,
+          "deletions": 7
+        },
+        {
+          "path": "docs/deploy-vercel.md",
+          "status": "modified",
+          "additions": 9,
+          "deletions": 7
+        },
+        {
+          "path": "docs/quickstart.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "docs/server.md",
+          "status": "modified",
+          "additions": 14,
+          "deletions": 8
+        },
+        {
+          "path": "pyproject.toml",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "src/xo/cli.py",
+          "status": "modified",
+          "additions": 165,
+          "deletions": 26
+        },
+        {
+          "path": "src/xo/client.py",
+          "status": "modified",
+          "additions": 11,
+          "deletions": 6
+        },
+        {
+          "path": "src/xo/commands.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "src/xo/openapi.json",
+          "status": "modified",
+          "additions": 5,
+          "deletions": 5
+        },
+        {
+          "path": "src/xo/server.py",
+          "status": "modified",
+          "additions": 30,
+          "deletions": 4
+        },
+        {
+          "path": "src/xo/services.json",
+          "status": "added",
+          "additions": 13,
+          "deletions": 0
+        },
+        {
+          "path": "src/xo/services.py",
+          "status": "added",
+          "additions": 197,
+          "deletions": 0
+        },
+        {
+          "path": "tests/conftest.py",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_cli.py",
+          "status": "modified",
+          "additions": 195,
+          "deletions": 39
+        },
+        {
+          "path": "tests/test_server.py",
+          "status": "modified",
+          "additions": 27,
+          "deletions": 1
+        },
+        {
+          "path": "tests/test_services.py",
+          "status": "added",
+          "additions": 123,
+          "deletions": 0
+        }
+      ]
+    },
+    {
+      "sha": "c38a6dd2b8cd0916bd766e29a661cc3e498e0154",
+      "message": "User guide: every command for the three services, and how to test them (#15)\n\ndocs/guide.md lists every command for xo-server, xo-platform and coder with an 8-step test; the quickstart links it and installs 0a294da (#14's merge). `xo coder logs` is dropped from the pass-through for now.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy",
+      "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
+      "date": "2026-10-16T07:40:40+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/c38a6dd2b8cd0916bd766e29a661cc3e498e0154",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "0a294da169ef9b78014c62f0e323ac0bf53bd8a1",
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 2
+        },
+        {
+          "path": "docs/guide.md",
+          "status": "added",
+          "additions": 114,
+          "deletions": 0
+        },
+        {
+          "path": "docs/quickstart.md",
+          "status": "modified",
+          "additions": 5,
+          "deletions": 6
+        },
+        {
+          "path": "src/xo/cli.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 2
+        }
+      ]
+    },
+    {
+      "sha": "ff22f8922701c6e5e5d240457684ee7a31eb6d80",
+      "message": "services.json uses the command names: xo, coder inside it, and me (#16)\n\nsuraj's format (2026-10-16): \"xo-platform\" becomes \"xo\" (https://dev.xo.builders), coder nests\ninside it because xo coder is a subcommand, and \"me\" sits outside with its own address, the xo\nserver (https://xo.quirq.dev). Schema xo-services/2. Creates still go through the xo server, so the\nkey is sent to one address (his pick); a served list's me address never changes where xo sends it.\n\n- /config sets xo.url to where the server passes the core API on to, or null when that is not a\n  plain https address, keeping coder.\n- xo login and xo status label the rows me, xo and coder; xo login takes xo, me and coder (and the\n  old xo-server and xo-platform). The saved addresses file reads the old names once.\n- An xo older than this falls back to its own copy of the list, with one note line.\n\n\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
+      "date": "2026-10-16T12:24:00+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/ff22f8922701c6e5e5d240457684ee7a31eb6d80",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "c38a6dd2b8cd0916bd766e29a661cc3e498e0154",
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "additions": 22,
+          "deletions": 6
+        },
+        {
+          "path": "docs/guide.md",
+          "status": "modified",
+          "additions": 9,
+          "deletions": 10
+        },
+        {
+          "path": "docs/server.md",
+          "status": "modified",
+          "additions": 3,
+          "deletions": 3
+        },
+        {
+          "path": "src/xo/cli.py",
+          "status": "modified",
+          "additions": 26,
+          "deletions": 20
+        },
+        {
+          "path": "src/xo/openapi.json",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "src/xo/server.py",
+          "status": "modified",
+          "additions": 5,
+          "deletions": 5
+        },
+        {
+          "path": "src/xo/services.json",
+          "status": "modified",
+          "additions": 8,
+          "deletions": 6
+        },
+        {
+          "path": "src/xo/services.py",
+          "status": "modified",
+          "additions": 47,
+          "deletions": 16
+        },
+        {
+          "path": "tests/test_cli.py",
+          "status": "modified",
+          "additions": 31,
+          "deletions": 28
+        },
+        {
+          "path": "tests/test_server.py",
+          "status": "modified",
+          "additions": 4,
+          "deletions": 3
+        },
+        {
+          "path": "tests/test_services.py",
+          "status": "modified",
+          "additions": 46,
+          "deletions": 20
+        }
+      ]
+    },
+    {
+      "sha": "5efb7aca3353475128383e40900b9aa32554c4ef",
+      "message": "docs: pin the quickstart install to ff22f89 (services list v2) (#17)\n\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
+      "date": "2026-10-16T12:28:31+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/5efb7aca3353475128383e40900b9aa32554c4ef",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "ff22f8922701c6e5e5d240457684ee7a31eb6d80",
+      "files": [
+        {
+          "path": "docs/quickstart.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        }
+      ]
+    },
+    {
+      "sha": "9fad4c59b0f84e2c2ec1174643aa2593efa21005",
+      "message": "Services v2 follow-ups: the key's row is me, tests reach loopback only, a bad me is skipped (#18)\n\n- README: say plainly that xo sends the key to one address and the server passes it on with\n  each create; a served me address is not used (SF1). me.about says the same.\n- xo login and xo logout name the key's result row me (xo: me: ...), matching xo status (SF4).\n- Tests: an autouse guard refuses every host but loopback; the served fixture's me is\n  me.invalid; a new test pins that a served or saved me never changes where the key goes (SF2).\n- A served me that is not plain https is skipped with a note instead of sinking the list (N5).\n- Docs and comments: guide result lines, the xo --help synopsis, the old-names comment,\n  /config's me.url, and the quickstart's row names (N1, N2, N3, N7); a test that the new name\n  wins over the old one in the addresses file (N8).\n\n\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
+      "date": "2026-10-16T12:45:52+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/9fad4c59b0f84e2c2ec1174643aa2593efa21005",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "5efb7aca3353475128383e40900b9aa32554c4ef",
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "additions": 4,
+          "deletions": 3
+        },
+        {
+          "path": "docs/guide.md",
+          "status": "modified",
+          "additions": 3,
+          "deletions": 3
+        },
+        {
+          "path": "docs/quickstart.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "docs/server.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "src/xo/cli.py",
+          "status": "modified",
+          "additions": 4,
+          "deletions": 4
+        },
+        {
+          "path": "src/xo/services.json",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "src/xo/services.py",
+          "status": "modified",
+          "additions": 9,
+          "deletions": 1
+        },
+        {
+          "path": "tests/conftest.py",
+          "status": "modified",
+          "additions": 13,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_cli.py",
+          "status": "modified",
+          "additions": 30,
+          "deletions": 14
+        },
+        {
+          "path": "tests/test_services.py",
+          "status": "modified",
+          "additions": 15,
+          "deletions": 0
+        }
+      ]
+    },
+    {
+      "sha": "41e908b1c2ff3075997069dbfd28e12066b115e1",
+      "message": "docs: pin the quickstart install to 9fad4c5 (services v2 follow-ups) (#19)\n\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
+      "date": "2026-10-16T12:49:35+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/41e908b1c2ff3075997069dbfd28e12066b115e1",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "9fad4c59b0f84e2c2ec1174643aa2593efa21005",
+      "files": [
+        {
+          "path": "docs/quickstart.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        }
+      ]
+    },
+    {
+      "sha": "7912a5424a599dcebc81a352591748a275df804b",
+      "message": "Tests: the loopback guard survives undo() and proxies; pin that a bad xo address sinks the list (#20)\n\n- conftest's loopback_only has its own MonkeyPatch, so a test's monkeypatch.undo() cannot remove\n  it, and turns proxies off, since a loopback proxy would carry the request out (D-SF1, D-SF2).\n- A canary test checks the guard still holds after undo() and no proxy is used.\n- test_xo_unreachable_or_slow restores core_url instead of undoing every patch, so the config\n  folder override stays in force (D-SF2).\n- A bad served xo address still makes xo use its own list (D-N1); blank lines (D-N2).\n\n\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
+      "date": "2026-10-16T13:02:55+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/7912a5424a599dcebc81a352591748a275df804b",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "41e908b1c2ff3075997069dbfd28e12066b115e1",
+      "files": [
+        {
+          "path": "tests/conftest.py",
+          "status": "modified",
+          "additions": 9,
+          "deletions": 3
+        },
+        {
+          "path": "tests/test_cli.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "tests/test_server.py",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 1
+        },
+        {
+          "path": "tests/test_services.py",
+          "status": "modified",
+          "additions": 14,
+          "deletions": 2
+        }
+      ]
+    },
+    {
+      "sha": "af19dd78090d9a6c14c11559051e27bf570ba51c",
+      "message": "xo login says what it is waiting for, names the XO host that timed out, and logs in to GitHub through gh (#21)\n\n* xo login says what it is waiting for, and the server names the XO host that timed out\n\n- The key prompt says it is hidden: \"XO API key (hidden: paste it, then press Enter): \".\n- After the key, xo prints \"checking the key with XO through URL ...\" before the check, which can\n  take up to a minute when XO is slow; before, the wait looked frozen.\n- Each login result prints as its step ends, so the key's result shows before Coder's sign-in.\n- The server's 502/504 for a request passed on to XO names the host (\"XO (dev.xo.builders) did not\n  answer in time\"), so the failure says which upstream is down.\n- The quickstart says to run xo login on its own (the hidden prompt drops anything typed before it).\n- tests/conftest.py: a pytest_runtest_call hook fails any test whose module overrides the loopback\n  guard (issue #6, T-N1).\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* xo login github: log the GitHub CLI in to github.com and check it works\n\n- xo login (and xo login github) runs a github step after coder: xo asks GitHub who gh is logged\n  in as (gh api --hostname github.com user --jq .login); if that works it says \"already\n  connected\", else it runs gh auth login --hostname github.com --git-protocol https --web in the\n  terminal and checks again. Skipped when gh is not installed.\n- xo status shows a github row; xo logout asks before gh auth logout --hostname github.com.\n- xo never asks gh for its token and never prints gh's output; GH_HOST and xo's secrets are not\n  passed to gh; GH_TOKEN or GITHUB_TOKEN in the terminal is named, and login refuses to replace it.\n- Works on gh 2.27 (no --json on gh auth status). Tests use a fake gh; conftest keeps the real gh\n  and any GitHub token on the machine out of every test.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n---------\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
+      "date": "2026-10-16T16:46:55+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/af19dd78090d9a6c14c11559051e27bf570ba51c",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "7912a5424a599dcebc81a352591748a275df804b",
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 1
+        },
+        {
+          "path": "docs/guide.md",
+          "status": "modified",
+          "additions": 18,
+          "deletions": 9
+        },
+        {
+          "path": "docs/quickstart.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "docs/server.md",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 2
+        },
+        {
+          "path": "src/xo/cli.py",
+          "status": "modified",
+          "additions": 43,
+          "deletions": 16
+        },
+        {
+          "path": "src/xo/client.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "src/xo/github.py",
+          "status": "added",
+          "additions": 143,
+          "deletions": 0
+        },
+        {
+          "path": "src/xo/server.py",
+          "status": "modified",
+          "additions": 4,
+          "deletions": 3
+        },
+        {
+          "path": "tests/conftest.py",
+          "status": "modified",
+          "additions": 27,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_cli.py",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 1
+        },
+        {
+          "path": "tests/test_github.py",
+          "status": "added",
+          "additions": 154,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_server.py",
+          "status": "modified",
+          "additions": 5,
+          "deletions": 5
+        }
+      ]
+    },
+    {
+      "sha": "f2bcd00d516b94ab3585f44fce23bf14ecd39e67",
+      "message": "xo login github: read gh 2.27's wording, warn about git's login, keep tests off the real gh (#22)\n\n- github.py: a refused login is \"authentication failed\", \"no longer valid\" or \"failed to log in\"\n  (gh 2.27 and later); no login is \"not logged in\" or \"not found among authenticated\" (gh logged\n  in only to another host). Before gh auth login, say that gh will offer to become git's login.\n  No XO_* variable reaches gh.\n- cli.py: a failed Coder logout no longer skips the gh step; _status docstring names gh's calls.\n- tests: no_real_gh has its own MonkeyPatch, and every test body asserts the fake is in place;\n  the gh fake speaks gh 2.27's and newer gh's wording.\n- docs: quickstart names the github row and step, and the ak_ refusal comes before the check;\n  guide warns about gh's git question and step 8's N answer; server.md rewrapped.\n\n\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
+      "date": "2026-10-16T16:58:52+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/f2bcd00d516b94ab3585f44fce23bf14ecd39e67",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "af19dd78090d9a6c14c11559051e27bf570ba51c",
+      "files": [
+        {
+          "path": "docs/guide.md",
+          "status": "modified",
+          "additions": 6,
+          "deletions": 1
+        },
+        {
+          "path": "docs/quickstart.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "docs/server.md",
+          "status": "modified",
+          "additions": 3,
+          "deletions": 3
+        },
+        {
+          "path": "src/xo/cli.py",
+          "status": "modified",
+          "additions": 7,
+          "deletions": 5
+        },
+        {
+          "path": "src/xo/github.py",
+          "status": "modified",
+          "additions": 11,
+          "deletions": 5
+        },
+        {
+          "path": "tests/conftest.py",
+          "status": "modified",
+          "additions": 14,
+          "deletions": 8
+        },
+        {
+          "path": "tests/test_github.py",
+          "status": "modified",
+          "additions": 71,
+          "deletions": 9
+        }
+      ]
+    },
+    {
+      "sha": "45eb62386a5af69eba1cc804c988291dba1a0e21",
+      "message": "Quickstart: pin the install to f2bcd00 (#22's merge) (#23)\n\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
+      "date": "2026-10-16T17:01:51+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/45eb62386a5af69eba1cc804c988291dba1a0e21",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "f2bcd00d516b94ab3585f44fce23bf14ecd39e67",
+      "files": [
+        {
+          "path": "docs/quickstart.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        }
+      ]
+    },
+    {
+      "sha": "45961d3402ddd8c467cdbf8acce62e03fa717abf",
+      "message": "Tests never run a real coder; gh wording and the saved-key check line (#24)\n\n* Tests never run a real coder; gh wording and the saved-key check line\n\n- conftest: autouse no_real_coder (its own MonkeyPatch) drops every PATH directory holding a coder\n  outside the temp folder and unsets CODER_SESSION_TOKEN; pytest_runtest_call asserts none is left.\n- github.py: gh \"may\" ask the git question (not when it already is git's login); logout names a\n  login GitHub did not accept or could not check, instead of claiming it was refused.\n- cli.py: a saved key is checked as \"the saved key\", so a key that stopped working no longer\n  prints two identical checking lines.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* Coder guard: exempt only pytest's temp root, and read an empty PATH entry as the current folder\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n---------\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
+      "date": "2026-10-16T17:29:27+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/45961d3402ddd8c467cdbf8acce62e03fa717abf",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "45eb62386a5af69eba1cc804c988291dba1a0e21",
+      "files": [
+        {
+          "path": "docs/guide.md",
+          "status": "modified",
+          "additions": 4,
+          "deletions": 4
+        },
+        {
+          "path": "src/xo/cli.py",
+          "status": "modified",
+          "additions": 3,
+          "deletions": 3
+        },
+        {
+          "path": "src/xo/github.py",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 2
+        },
+        {
+          "path": "tests/conftest.py",
+          "status": "modified",
+          "additions": 29,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_cli.py",
+          "status": "modified",
+          "additions": 4,
+          "deletions": 1
+        },
+        {
+          "path": "tests/test_coder.py",
+          "status": "modified",
+          "additions": 16,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_github.py",
+          "status": "modified",
+          "additions": 5,
+          "deletions": 2
+        }
+      ]
+    },
+    {
+      "sha": "ecc4405fd4f881875958be9dfba4abaf4789924d",
+      "message": "Issue #6 leftovers: clean refusals for malformed addresses, a 504 that stays a 504, Clerk's non-JSON answer named (#25)\n\n* Issue #6 leftovers: clean refusals for malformed addresses, a 504 that stays a 504, Clerk's non-JSON answer named\n\n- client: a malformed bracketed host in --url/XO_URL (https://[::1]@evil.example) is refused with\n  a clear message instead of \"unexpected ValueError\"; nothing is sent.\n- server: XO_CORE_API_URL and CLERK_API_URL are checked once at startup by one helper; a malformed\n  IPv6 host, whitespace or a control character stops the server with a clear message.\n- server: the socket timeout is one second past XO's deadline, so a cut reply is always the 504.\n- server: a Clerk answer that is not JSON is audited as \"not JSON\", not \"unreachable\".\n- docs: a --data @FILE example (the flags are added to it; keep the file private and delete it),\n  a second failure sign for guide step 4, and the full outcome codes in the audit-log section.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* Server addresses: ignore whitespace at either end; /config survives a malformed core address\n\n- _upstream strips the value first, as urllib did before: a pasted trailing newline in the deploy\n  settings must not answer 503 everywhere. Whitespace inside an address is still refused.\n- /config names no platform (instead of crashing) for a malformed bracketed core address.\n- guide: the --data @FILE example carries \"enabled\": true; step 4 no longer blames the platform\n  for the xo server's own 404.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n---------\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
+      "date": "2026-10-16T17:45:49+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/ecc4405fd4f881875958be9dfba4abaf4789924d",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "45961d3402ddd8c467cdbf8acce62e03fa717abf",
+      "files": [
+        {
+          "path": "docs/guide.md",
+          "status": "modified",
+          "additions": 6,
+          "deletions": 3
+        },
+        {
+          "path": "docs/server.md",
+          "status": "modified",
+          "additions": 4,
+          "deletions": 3
+        },
+        {
+          "path": "src/xo/client.py",
+          "status": "modified",
+          "additions": 6,
+          "deletions": 1
+        },
+        {
+          "path": "src/xo/server.py",
+          "status": "modified",
+          "additions": 32,
+          "deletions": 19
+        },
+        {
+          "path": "tests/test_cli.py",
+          "status": "modified",
+          "additions": 7,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_server.py",
+          "status": "modified",
+          "additions": 33,
+          "deletions": 0
+        }
+      ]
+    },
+    {
+      "sha": "c7131061632cd8ade5b1afb778fd1e1febc14d30",
+      "message": "xo me: one profile with email and both metadata buckets (#26)\n\n* xo me: one profile with email and both metadata buckets\n\n/me now also returns the key's own primary email, publicMetadata and\nprivateMetadata. Values under credential-like names (token, secret,\npassword, key, ...) are masked at any depth to their last 4 characters.\n`xo me` prints {\"xo\": {username, imageUrl, ..., \"public_data\", \"private_data\"}}.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* xo me: review fixes (deploy check, value masking, XO_ME_PRIVATE_KEYS)\n\n- docs/test-xo-server.sh step 4 checks the new {\"xo\": ...} profile; a test\n  runs that parser on real `xo me` output so it cannot drift again.\n- Masking also covers more credential names and credential-looking values\n  under any name (sk-, ghp_, ak_, AKIA, JWTs, PEM keys, URL passwords, ...);\n  password-like names show nothing at all.\n- XO_ME_PRIVATE_KEYS narrows the private metadata /me shows (unset: all).\n- Non-list email_addresses no longer 500s; the /me cache drops expired\n  entries; docs say users read their own private metadata.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n---------\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
+      "date": "2026-10-16T18:51:02+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/c7131061632cd8ade5b1afb778fd1e1febc14d30",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "ecc4405fd4f881875958be9dfba4abaf4789924d",
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "docs/deploy-vercel.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "docs/guide.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "docs/server.md",
+          "status": "modified",
+          "additions": 18,
+          "deletions": 4
+        },
+        {
+          "path": "docs/test-xo-server.sh",
+          "status": "modified",
+          "additions": 7,
+          "deletions": 5
+        },
+        {
+          "path": "src/xo/cli.py",
+          "status": "modified",
+          "additions": 21,
+          "deletions": 1
+        },
+        {
+          "path": "src/xo/openapi.json",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 2
+        },
+        {
+          "path": "src/xo/server.py",
+          "status": "modified",
+          "additions": 86,
+          "deletions": 2
+        },
+        {
+          "path": "tests/test_cli.py",
+          "status": "modified",
+          "additions": 23,
+          "deletions": 3
+        },
+        {
+          "path": "tests/test_server.py",
+          "status": "modified",
+          "additions": 122,
+          "deletions": 8
+        }
+      ]
+    },
+    {
       "sha": "27f05790090fdc2d01d0ce51177c21adf610731e",
       "message": "quickstart: pin the install to c713106 (xo me profile) (#27)\n\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
       "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
       "date": "2026-10-16T18:54:05+05:30",
       "url": "https://github.com/quirq-ai/xo/commit/27f05790090fdc2d01d0ce51177c21adf610731e",
       "isMerge": false,
@@ -254,6 +1783,11 @@
       "sha": "d121180cbb39f625207dd6f0894a29e9b38fa78d",
       "message": "xo projects: a projects list in private metadata, written only by the server (#28)\n\n* xo projects: a projects list in private metadata, written only by the server\n\nGET /me/projects shows the key's own private metadata `projects`; POST\n/me/projects {\"name\": ...} adds one. The client sends only the name. The\nserver validates it, reads the list, appends, and sends Clerk a metadata\nmerge naming only `projects`, so no other key changes. Adds are\nserialized per user per instance, the written list is read back and the\nadd retried if another write replaced it; a non-list `projects`, a\nduplicate or a full list is refused without a write. Audited without\nnames. `xo projects` and `xo projects add NAME` call it.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* xo projects: review fixes (parallel adds, credential-like names, 429)\n\n- After each write, wait briefly and read the list again; answer 200 only\n  when the new name and every name read before are there, else write the\n  list again with dropped names put back (3 writes, then 503). Parallel\n  adds on different instances no longer lose a name while reporting 200.\n- Refuse names that look like credentials, which /me would show masked.\n- Clerk's own per-user limit on this route is a 429, not a 503 that marks\n  the server degraded.\n- Docs: the stale-read assumption, the 30/min limit, XO_ME_PRIVATE_KEYS\n  not applying to /me/projects.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n---------\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
       "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
       "date": "2026-10-16T19:50:31+05:30",
       "url": "https://github.com/quirq-ai/xo/commit/d121180cbb39f625207dd6f0894a29e9b38fa78d",
       "isMerge": false,
@@ -314,6 +1848,11 @@
       "sha": "22c64998ed7cf097dbb2d588dc56c5a082245e62",
       "message": "xo projects: stop retry writes once Clerk has been slow; pin d121180 (#29)\n\n* xo projects: stop retry writes once Clerk has been slow; pin d121180\n\nAn add no longer writes again after CLERK_TIMEOUT seconds; it answers 503\ninstead, so a slow Clerk cannot keep it past the client's or the\nplatform's deadline. Quickstart installs d121180 (#28), which has\n`xo projects`.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* docs: say a slow Clerk can still make an add take about 40 seconds\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n---------\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
       "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
       "date": "2026-10-16T20:07:38+05:30",
       "url": "https://github.com/quirq-ai/xo/commit/22c64998ed7cf097dbb2d588dc56c5a082245e62",
       "isMerge": false,
@@ -350,6 +1889,11 @@
       "sha": "bdceb6d5c522f870c1439699cb8e54c6e4bc313f",
       "message": "xo create, connect and list: projects and spaces recorded by the server (#30)\n\n* xo create, connect and list: projects and spaces recorded by the server\n\nxo create project NAME|URL adds the project and makes its folder (a GitHub\nowner/repo is cloned, any other name gets git init). xo create space KIND NAME\ncreates the space through XO as xo KIND does and the server records it in the\ncaller's own private metadata spaces list. xo connect sets a project's ref in a\nspace, or records a space the key can read. xo list shows projects or spaces.\n\nThe server builds every change and writes only the one list, with the same\nsettle, re-read and put-back as xo projects; other spaces are put back at their\nhighest rev, and a space changed meanwhile is a 409. Writes stop at 6KB of\nprivate metadata. Names and refs are checked on both sides, and git runs with\nplain https only, no submodules, --end-of-options and no xo tokens.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* xo connect space:NAME makes a new space entry in metadata\n\nsuraj (16 Oct, 15:59): connect space means create a new entry in Clerk\nmetadata. xo connect space:NAME now records {name, rev 1, projects []} with no\nXO call; --id ID ties the entry to an XO space the key can read, checked with\nXO first as before.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* xo spaces: check before XO creates, show refs as stored, keep git to https\n\n- create space checks shape and 6KB before XO creates anything; the\n  connect hint only for a race or a busy Clerk\n- space answers, GET /me/spaces and /me show project refs unmasked;\n  credential-looking refs and ids are refused when written\n- git runs with GIT_ALLOW_PROTOCOL=https and without GIT_DIR and the\n  other variables that point it at another repository\n- connect space:NAME --id ID gives an entry made without an id its id\n- case-duplicate spaces and multi-key project entries are never rewritten\n- space ids at most 64 characters, as the core route forwards\n- docs: --dry-run scope, masking, admin put-back, the 30-project cap\n- test git helper ignores the user's global config\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n---------\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
       "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
       "date": "2026-10-16T22:17:26+05:30",
       "url": "https://github.com/quirq-ai/xo/commit/bdceb6d5c522f870c1439699cb8e54c6e4bc313f",
       "isMerge": false,
@@ -428,6 +1972,11 @@
       "sha": "71b043cdf8cebe5e239a2f4a9f42adb7ef9c55d1",
       "message": "xo spaces: connect hint after a Clerk failure, token-like branch names, pin #30 (#31)\n\n* xo spaces: hint at connect after a Clerk failure, allow token-like branch names, pin bdceb6d\n\n- create space names xo connect --id also when recording fails with 502\n  (Clerk failing or unreachable), as it can pass once Clerk is back\n- a ref is refused as a credential only with a token prefix and a run of\n  16+ letters and digits, so npm_bump or sk-rewrite are refs; shown as such\n- quickstart pins the #30 merge\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* xo spaces: refuse token-shaped refs however cut, keep masking stored values\n\n- only prefixes a branch can start with are relaxed; glpat-, AIza, ya29.,\n  eyJ and Bearer are refused on the prefix, and a relaxed ref is refused\n  with a token's body, split by separators or not\n- on read the ref rule applies only to valid refs; anything else stored\n  under a space's projects is masked as /me masks it\n- the connect hint says to check xo list spaces first\n- quickstart: xo list spaces lists only what xo recorded\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n---------\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
       "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
       "date": "2026-10-16T22:48:09+05:30",
       "url": "https://github.com/quirq-ai/xo/commit/71b043cdf8cebe5e239a2f4a9f42adb7ef9c55d1",
       "isMerge": false,
@@ -464,6 +2013,11 @@
       "sha": "f0ed8aeb73bf939dda75244baa7aa1efb6940ae8",
       "message": "xo install, update and sync for projects and spaces (#32)\n\n* xo install, update and sync for projects and spaces\n\nxo install space:S clones or fetches each GitHub project of a space into\n./S/OWNER/REPO at its ref and remembers the rev; xo update records the refs\nchecked out there with PUT /me/spaces/S, refused unless the space's rev is still\nthe one installed; xo sync merges the space's changes with yours and stops on a\nproject both changed. For a project, update is git push and sync is pull\n--rebase then push: never forced, current branch to its upstream only, refused\non a dirty tree or detached HEAD. Names and refs from metadata are checked again\nbefore git sees them, and a ref its remote lacks is never recorded.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* xo install/update/sync: own checkouts only, race-safe records, push per project\n\n- git refuses a folder that is not a checkout of its own, so xo never\n  fetches or pushes an enclosing repository\n- PUT /me/spaces/{name} also takes base, the projects the change starts\n  from, and refuses unless the space still holds them; nothing changed\n  means no new rev; a space named connect can be updated\n- sync keeps your refs when the space's rev went back, saves the state\n  right after moving checkouts, and stops when the space dropped a\n  project you changed\n- update space pushes each branch first and records nothing when refs are\n  unchanged; sync space rebases each branch on its upstream and pushes it\n- install project fast-forwards an existing checkout\n- a conflicting rebase is undone and said so; clearer git errors\n- a JSON number too long to read is a 422, not a 500\n- tests run xo's own git without user or system config\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* xo sync: stop when the space's rev went back, and audit nits\n\nWhen the space's rev is older than the one installed, sync now names the\nprojects whose refs differ and stops without recording, instead of keeping\nyours (which could undo a newer write). Clashes say what was left as it was.\nClearer diverged-branch message; server docstring mentions base.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n---------\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
       "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
       "date": "2026-10-17T00:13:00+05:30",
       "url": "https://github.com/quirq-ai/xo/commit/f0ed8aeb73bf939dda75244baa7aa1efb6940ae8",
       "isMerge": false,
@@ -542,6 +2096,11 @@
       "sha": "4027932e95ad68ab891afdc643b0dc852fd157c5",
       "message": "xo sync: say only what was pushed; pin the quickstart to the #32 merge (#33)\n\nA sync that stops now names the checkouts it rebased and pushed, and says\nnothing about pushing when none was on a branch with an upstream. The\nquickstart installs f0ed8ae, which has install, update and sync.\n\n\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
       "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
       "date": "2026-10-17T00:34:56+05:30",
       "url": "https://github.com/quirq-ai/xo/commit/4027932e95ad68ab891afdc643b0dc852fd157c5",
       "isMerge": false,
@@ -572,6 +2131,11 @@
       "sha": "1413dc8dd43b267eb7df1209381b69815a2be9d7",
       "message": "xo share, accept and reject: invites in the recipient's shared list (#34)\n\n* xo share, accept and reject: invites in the recipient's shared list\n\nxo share space:S|project:OWNER/REPO USERNAME puts an invite in that user's\nprivate metadata, in a new shared list: the space's name and projects, never\nits id. The recipient runs xo list shared, then xo accept (a copy goes into\ntheir own spaces and projects) or xo reject (it comes off the list).\n\nThe server writes only the recipient's shared key, only the sharer's own\ninvite, with the usual lock, settle, re-read and 6KB check. Everything about\nthe recipient is the same 404, every share takes 1.5s at least, and the limits\nare 20 invites waiting, 5 per sender and 10 shares a minute.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* xo share: own room for invites, one-write accept by id, 7-day block\n\n- invites never stop a user's own writes: shared has its own 1.5KB (1KB an\n  invite), and own writes do not count it\n- accept checks every refusal first, then writes spaces, projects and shared\n  in one Clerk merge; a refused accept leaves nothing behind\n- accept and reject take the id xo list shared shows (a hash of the sender id\n  and the exact invite); the list shows each sender's username now; xo accept\n  shows what it adds and asks y/N (--yes)\n- reject blocks that sender and item for 7 days\n- an identical re-share writes nothing; a changed one waits a minute\n- a space invite leaves local projects out\n- the 1.5s floor starts once the key is verified\n- docs: who can write what, rate limits, audit values, Clerk calls per share\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* xo share: no re-invite block, a shared project goes into the space you pick\n\nsuraj's answers: a sender can share again after a reject, and accepting a\nshared project puts it in a space the recipient names (--space, --ref,\ndefault main), still adding it to projects, in one write. Old reject marks\nare passed over and dropped on the next write.\n\nRe-check folds: invites count toward the 6KB again, ids are 16 hex\ncharacters and a reject takes off every invite with its id, the accept\nprompt says (shared as X) or (account gone), /me/shared falls back to the\nnames shared as when the lookup fails, and deploy-vercel lists the call\ncounts.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n---------\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
       "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
       "date": "2026-10-17T02:39:23+05:30",
       "url": "https://github.com/quirq-ai/xo/commit/1413dc8dd43b267eb7df1209381b69815a2be9d7",
       "isMerge": false,
@@ -638,6 +2202,11 @@
       "sha": "dd727fef44802baa23e328cc6820263dc7bae333",
       "message": "xo accept: put back a space part lost to a racing write; name invites in the 6KB answer (#37)\n\nAn accept whose PATCH landed and was then overwritten by a write of\nspaces from another instance used to answer 409 with the invite already\nspent. It now treats the write as its own and writes spaces again,\nrefusing only when the name was taken or the space is gone or full.\n\nThe 6KB 422 says how many bytes waiting invites take and that xo reject\nfrees them. server.md says /me/shared is the one to trust about senders,\nwrites down the cross-instance 6KB overshoot, and lists the two Clerk\nlist answers to confirm on a development instance.\n\n\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
       "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
       "date": "2026-10-17T02:57:16+05:30",
       "url": "https://github.com/quirq-ai/xo/commit/dd727fef44802baa23e328cc6820263dc7bae333",
       "isMerge": false,
@@ -668,6 +2237,11 @@
       "sha": "2cc240503dc64919409c7a7a400a108aa70f0f11",
       "message": "Unified create and the architecture doc, replacing #35 and #36 (#38)\n\n* docs: architecture with a diagram for every command\n\ndocs/architecture.md maps the CLI and the xo server: system context, how\nargv becomes a request, one Mermaid sequence diagram per command (24),\nthe server's routes, the projects and spaces lists, install/update/sync,\nthe access model, where state lives and the folder map. It describes\nmain at 4027932 (through #33).\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* docs: the architecture page itself, with its drawn diagrams\n\ndocs/architecture.html is the full page that docs/architecture.md\nmirrors: the same sections and the same 24 command swimlanes, drawn as\ninline SVG instead of Mermaid. It is standalone (no build, no scripts);\nGitHub shows it as source, so open it locally or from a static host.\narchitecture.md now links to it.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* docs: command table rows are full invocations that pass --dry-run\n\nBare rows like `xo claude-code` and `xo spaces` fail without their\nrequired flags. Each row now shows the required flags (--name,\n--volume-size, --space-id, --user-id, the nebius keys), checked with\n--dry-run against main at 4027932.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* xo create: one command for every space and project\n\nSpaces: `xo create space NAME KIND [flags]` is the only create. NAME is\nthe space's name on XO and in your spaces, so --name is gone (and a\n--data name is refused). The old `xo claude-code`, `xo codex`, ...\ncommands are gone; each says what replaced it, before anything is\nparsed or sent. The kinds are one list in names.py, shared by the CLI\nand the server.\n\nProjects: `xo create project NAME [URL]` takes a name, a GitHub URL, or\nboth when they name the same repository (a project is named after its\nrepo). `xo connect project:P --repo URL` gives a project made with a\nname only its repo: the server's new POST /me/projects/connect renames\nP to OWNER/REPO in place through the same write engine, writing only\n`projects`, and refuses while P is in a space. The CLI then points\n./P's origin at GitHub and moves it to ./OWNER/REPO.\n\nTests: the synthetic fixture op /claude-code is now /agent-run, the\ncreate tests run through `xo create space`, and new tests cover the\nmoved commands, names, the new route and connect --repo. The README,\nguide, quickstart, server docs and docs/architecture.{html,md} follow,\nwith a diagram for each new flow.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* xo create and architecture: audit fixes on top of #35 and #36\n\nArchitecture docs (#35): every diagram arrow is now a real call or reply\n(CLI to server, git, gh or coder; server to Clerk or XO; answers back the\nsame way), the Google Fonts links are gone, and the doc describes main\nincluding share, list shared, accept and reject and their routes, who\ncan write what, the 6KB count with invites, the --dry-run claim and the\nopenclaw row.\n\nUnified create (#36): POST /me/projects/connect checks spaces on every\nread and puts the rename back when a racing connect puts the project in\na space, lists the repo once whatever a racing add wrote, and reads\nspaces through _readable_spaces (no 500 on a malformed list). connect\n--repo leaves a folder whose origin is another repository where it is,\nand exits 0 when only the move fails. create space records the\nlowercase name XO keeps. The --field refusal names --field. CORE_ROUTES\nis built from names.SPACE_KINDS. Tests cover the races, the folder\ncases and the origin forms; docs/server.md documents the rename race.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n---------\n\nCo-authored-by: sharmasuraj0123 <sharmasuraj0123@gmail.com>\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
       "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
       "date": "2026-10-17T03:38:17+05:30",
       "url": "https://github.com/quirq-ai/xo/commit/2cc240503dc64919409c7a7a400a108aa70f0f11",
       "isMerge": false,
@@ -764,6 +2338,11 @@
       "sha": "516638cb5f966320d93be7add8ac6b465752d275",
       "message": "Bump the quickstart pin to #38 and fold its review nits (#39)\n\n- docs/quickstart.md installs 2cc2405 (the #38 merge), so steps 3-5 work.\n- connect --repo: the put-back keeps OWNER/REPO when another space names it,\n  is one audit line (409), names the space in its 503, and says\n  \"nothing was changed\" only on the first read.\n- set_origin checks every fetch and push URL of origin; a refusal says xo\n  cannot confirm the origin, never echoing it.\n- Tests for the lost put-back retry, the 503, both-names case, push URLs and\n  a credentialed origin; server.md says when the rename stays.\n\n\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
       "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
       "date": "2026-10-17T03:52:13+05:30",
       "url": "https://github.com/quirq-ai/xo/commit/516638cb5f966320d93be7add8ac6b465752d275",
       "isMerge": false,
@@ -836,6 +2415,11 @@
       "sha": "5573ff9ff1c0b5bb927385cd99a878baea1530cc",
       "message": "Remove Coder from xo for this version (#40)\n\n* Remove Coder from xo for this version\n\nsuraj: too many things at once confuses new users, so Coder leaves this\nversion and comes back later. Removed: xo coder (github, login, logout and\nthe pass-through verbs), --coder-url / XO_CODER_URL, the coder step in xo\nlogin, logout and status, CoderClient and coder_url, src/xo/coder.py, the\ncoder entry in services.json (so /config no longer lists it; schema stays\nxo-services/2), tests/test_coder.py, docs/coder.md, and every Coder\nmention in README, guide, quickstart and the architecture docs.\n\nA served list that still names xo.coder is skipped with the usual\n\"skipped the xo coder service\" note. git and gh still never get CODER_*\nvariables (kept as environment hygiene). To bring Coder back, restore\nfrom 516638c.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* Fold the #40 review nits: baseline line, wrapping, trailing blank line\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n---------\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
       "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
       "date": "2026-10-17T18:59:26+05:30",
       "url": "https://github.com/quirq-ai/xo/commit/5573ff9ff1c0b5bb927385cd99a878baea1530cc",
       "isMerge": false,
@@ -962,6 +2546,11 @@
       "sha": "42b25e90f668d539707a61ab09713cb7a19373a7",
       "message": "Pin the quickstart install to the Coder removal (#41)\n\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
       "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
       "date": "2026-10-17T19:04:42+05:30",
       "url": "https://github.com/quirq-ai/xo/commit/42b25e90f668d539707a61ab09713cb7a19373a7",
       "isMerge": false,
@@ -980,6 +2569,11 @@
       "sha": "7f7f8884586476e146b35d14ccbe8f15d4cdac11",
       "message": "Short project names and local spaces (#42)\n\n* Call GitHub projects by their repo name; xo create space with no kind makes a local space\n\nA project from https://github.com/juanfont/headscale is still recorded as\njuanfont/headscale, but is cloned into ./headscale, called headscale in\nevery command, and listed with its repo beside it. Two projects with one\nrepo name are called by OWNER/REPO, never share a folder, and a checkout\nwhose origin is another repo is never fetched. Checkouts an older xo put\nin ./OWNER/REPO are still used.\n\nxo create space NAME with no KIND records the space with no projects\n(POST /me/spaces/connect, nothing on XO) and makes ./NAME here, marked\ninstalled.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* Keep both of two repos with one name, and fix the review findings\n\n- A GitHub project's folder is ./REPO, or ./OWNER/REPO (the layout before\n  short names) when another project in the same place is called the same\n  or the repo is .xo. A fork and its upstream in one space both install,\n  update and sync again; a space main installed keeps working.\n- An existing checkout is looked for in ./REPO and ./OWNER/REPO and used\n  only when its origin is that repo. xo update and xo sync project:P look\n  P up in your projects and never push another repo's checkout.\n- An exact name wins: a plain project keeps its name beside a GitHub\n  project called the same.\n- The space state file is never written through a link, and a ./S/.xo\n  that is a link or a checkout is refused.\n- xo create space NAME with no KIND lowercases NAME, refuses kind words,\n  and says how to finish after a 409; a case-only rename on connect --repo\n  works. Docs, help and tests follow.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* Never put one project's folder inside another's; a plain name never pushes a GitHub checkout\n\nA repo named like another project's OWNER folder now goes in ./OWNER/REPO too, so suraj/suraj,\nsuraj/react and facebook/react install side by side, and nothing is cloned inside a checkout. A plain\nproject's folder is refused when its origin is one of your GitHub projects. A case-only rename checks\nthe target first and moves back if the second step fails.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* Find main's ./OWNER/REPO checkouts again, and install a space whose folder is a repository\n\nThe skip for an OWNER folder applies only to a ./REPO candidate, so a checkout main put in\n./suraj/tool is still found beside suraj/headscale and juanfont/headscale. The check for an enclosing\ncheckout looks only below the space's own folder.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n---------\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
       "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
       "date": "2026-10-18T02:52:58+05:30",
       "url": "https://github.com/quirq-ai/xo/commit/7f7f8884586476e146b35d14ccbe8f15d4cdac11",
       "isMerge": false,
@@ -1064,6 +2658,11 @@
       "sha": "8e89be0aa93a2936a38c29324a5976a9e6d11f37",
       "message": "Pin the quickstart install to the short-names change (#43)\n\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
       "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
       "date": "2026-10-18T02:56:09+05:30",
       "url": "https://github.com/quirq-ai/xo/commit/8e89be0aa93a2936a38c29324a5976a9e6d11f37",
       "isMerge": false,
@@ -1082,6 +2681,11 @@
       "sha": "027dec8b22da96799e5f9c89a7f67ac8e2c7a37d",
       "message": "xo spaces lists your spaces; projects show their owner, not a repo URL (#44)\n\n`xo spaces` with no --space-id shows the spaces linked to your account, as xo list spaces does\n(XO's API has no list of spaces); with --space-id it is GET /spaces/{spaceId} as before. Project\nlists show a GitHub project as {\"name\": \"headscale\", \"owner\": \"juanfont\"}. Nothing stored changes:\nmetadata still records OWNER/REPO.\n\n\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
       "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
       "date": "2026-10-18T05:38:03+05:30",
       "url": "https://github.com/quirq-ai/xo/commit/027dec8b22da96799e5f9c89a7f67ac8e2c7a37d",
       "isMerge": false,
@@ -1130,6 +2734,11 @@
       "sha": "3699cdc08c08da7ad8387837346fb18fea0d39a2",
       "message": "Drop xo user-metadata; xo list alone shows projects and spaces (#45)\n\n* Drop xo user-metadata; xo list alone shows your projects and spaces\n\nxo me covers your own profile, so the user-metadata command goes: its path leaves the bundled spec.\nThe server's admin-only /user-metadata route is unchanged, and docs/test-xo-server.sh checks its 403\nwith curl (the key on stdin, never on a command line). `xo list` with nothing after it prints\n{\"projects\": [...], \"spaces\": [...]}.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* Say what bare xo spaces does in its help and dry run; point xo user-metadata at xo me\n\nFolds the review of #44 and its follow-up: xo spaces --help and --dry-run cover the form with no\n--space-id, docs and the login line name xo spaces --space-id for XO's view of a space, and\nxo user-metadata says xo me replaced it.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n---------\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
       "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
       "date": "2026-10-18T05:56:15+05:30",
       "url": "https://github.com/quirq-ai/xo/commit/3699cdc08c08da7ad8387837346fb18fea0d39a2",
       "isMerge": false,
@@ -1232,6 +2841,11 @@
       "sha": "05d910bf51506ef86c0ed4625f9dd5d34091b8db",
       "message": "Pin the quickstart to #45 and mention bare xo spaces in the help list (#46)\n\nThe quickstart still installed #42, where bare `xo spaces` errors and\n`xo user-metadata` still exists. Pin it to 3699cdc (#45). The `spaces`\nrow in the `xo --help` command list now says it lists your spaces with\nnothing after it, and the quickstart says the xo server answers bare\n`xo spaces` itself.\n\n\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
       "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
       "date": "2026-10-18T06:09:46+05:30",
       "url": "https://github.com/quirq-ai/xo/commit/05d910bf51506ef86c0ed4625f9dd5d34091b8db",
       "isMerge": false,
@@ -1262,6 +2876,11 @@
       "sha": "ab7d88637ecfbd8a69e2e458938ded0518bca41c",
       "message": "xo connect takes plain names: xo connect headscale test2 (#47)\n\n* xo connect takes plain names: xo connect headscale test2\n\nsuraj asked that `xo connect` drop the project:/space: prefixes and work\nout from the names what to do. A bare name is read against your projects:\n- two names: a project and the space it goes in, in either order;\n- one name with --repo: a project getting its repo;\n- one name alone: a new space entry, refused when it is one of your\n  projects (space:NAME still makes it).\nproject: and space: in front keep working as before. The CLI only;\nthe server is unchanged.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* xo connect: when both names are projects, your spaces decide the order\n\nReview fixes for #47.\n- Both names your projects: read GET /me/spaces once and take the one\n  order whose space exists; refuse when both or neither are spaces, so\n  xo connect dev headscale never puts dev into a space named headscale.\n- A projects list that is not a list of names stops the command.\n- A missing space's 404 says how to make it; a project-shaped name alone\n  says to give a space; bare S project:P works like space:S P.\n- Tests pin the failed-read rule, the swap rule, same-name repos and\n  case; the architecture diagrams show the new reads.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n---------\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
       "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
       "date": "2026-10-18T18:33:22+05:30",
       "url": "https://github.com/quirq-ai/xo/commit/ab7d88637ecfbd8a69e2e458938ded0518bca41c",
       "isMerge": false,
@@ -1310,6 +2929,11 @@
       "sha": "b61bc4cac605679c2a97def9b64ef56456cb0827",
       "message": "Pin the quickstart to #47; tighten xo connect's hints and tests (#48)\n\n* Pin the quickstart to #47; tighten xo connect's hints and tests\n\n- The quickstart installs ab7d886 (#47, bare-name xo connect).\n- The missing-space hint leaves out xo create space for a name it\n  would refuse (a kind word, new, create, or ./S already here).\n- \"Neither is a space\" says to make the space first.\n- Hints quote a project name with a space in it.\n- Tests pin the spaces-read failure rule and the any-case space match.\n- architecture: the route row says which bare forms read your projects.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* Review fixes for #48: route row, hint names, test assertions\n\n- architecture route row: a plain P reads your projects in xo connect\n  with or without project:, and so does a bare name alone or beside\n  another bare name; only NAME --repo and a project-shaped name alone\n  send none.\n- The missing-space hint offers [KIND] only for a name XO takes.\n- The create-project hint quotes the project name.\n- Tests assert the spaces-list shape error, the hint's lowercasing and\n  the [KIND] rule.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n---------\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
       "author": "quirq-gates",
+      "authorProfile": {
+        "login": "quirq-gates",
+        "avatarUrl": "/data-lab/authors/quirq-gates.png",
+        "url": "https://github.com/quirq-gates"
+      },
       "date": "2026-10-18T19:53:00+05:30",
       "url": "https://github.com/quirq-ai/xo/commit/b61bc4cac605679c2a97def9b64ef56456cb0827",
       "isMerge": false,
@@ -1350,10 +2974,10 @@
     }
   ],
   "coverage": {
-    "label": "20 first-parent commits · bundled snapshot · pinned b61bc4c",
+    "label": "44 first-parent commits · bundled snapshot · pinned b61bc4c",
     "limitations": [
       "Bundled snapshot from a precloned public repository. It loads locally and does not update from GitHub automatically.",
-      "The snapshot follows recent first-parent history; earlier history and side-branch commits are not replayed separately.",
+      "The snapshot follows the repository’s complete first-parent history; side-branch commits are not replayed separately.",
       "Line additions and deletions describe Git diffs; they do not measure runtime behavior, code quality or individual productivity."
     ]
   },
@@ -1366,11 +2990,11 @@
     "headSha": "b61bc4cac605679c2a97def9b64ef56456cb0827",
     "treeSha": "bd58bd1b613bc79a083fdafb6fbb9f1c2305de77",
     "capturedAt": "2026-10-18T19:56:47.367Z",
-    "firstParentBoundarySha": "c7131061632cd8ade5b1afb778fd1e1febc14d30",
-    "commitCount": 20,
+    "firstParentBoundarySha": null,
+    "commitCount": 44,
     "headFileCount": 41,
     "historicalPathCount": 3,
-    "changedFileCount": 146,
+    "changedFileCount": 332,
     "binaryChangeCount": 0,
     "completeHeadTree": true,
     "completeCommitDiffs": true,

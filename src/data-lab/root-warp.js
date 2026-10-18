@@ -4,8 +4,11 @@ const readRadius = (values, key, baseRadius) => {
   const value = values instanceof Map ? values.get(key) : values?.[key];
   return Number.isFinite(Number(value)) ? Math.max(0, Number(value)) : baseRadius;
 };
-const strainFor = (radius, baseRadius) => {
+const strainFor = (radius, baseRadius, compact) => {
   const growth = Math.max(0, radius - baseRadius);
+  // Compact roots reserve their real added thickness, with only a small,
+  // bounded visual expansion. Physical growth itself remains uncapped.
+  if (compact) return growth + 0.28 * growth / (baseRadius + growth);
   return growth * 1.1 + Math.sqrt(growth) * 1.3 + Math.max(0, Math.log2(radius / baseRadius)) * 0.38;
 };
 const growthAboveBaseline = (radius, baseRadius) => Math.max(0, radius - baseRadius);
@@ -108,12 +111,15 @@ function extraPacking(children, spaces) {
  * log strain term makes early growth legible before a strand becomes very wide.
  * Set baseRadius to the physical radius of one untouched vine so the strain is
  * relative to that rope baseline, independent of the chosen world-unit scale.
+ * compact reduces decorative bending and logarithmic expansion for a shorter,
+ * bonsai-like pose, while retaining physical clearance and every exact path.
  *
  * The base layout is never mutated. Missing/baseline radii reproduce its curves
  * and positions exactly. No time, previous pose or future commits are inputs.
  */
-export function createRootWarpLayout(baseLayout, { fileRadii, folderRadii, baseRadius = BASE_RADIUS } = {}) {
+export function createRootWarpLayout(baseLayout, { fileRadii, folderRadii, baseRadius = BASE_RADIUS, compact = false } = {}) {
   baseRadius = Number.isFinite(Number(baseRadius)) && Number(baseRadius) > 0 ? Number(baseRadius) : BASE_RADIUS;
+  const visualScale = compact ? 0.35 : 1;
   const clone = record => {
     const copy = {
       ...record, position: [...record.position],
@@ -135,7 +141,7 @@ export function createRootWarpLayout(baseLayout, { fileRadii, folderRadii, baseR
   const radii = new Map(), pressures = new Map(), spaces = new Map();
   let maxPressure = 0;
   for (const node of nodes) {
-    const radius = readRadius(fileRadii, node.id, baseRadius), pressure = strainFor(radius, baseRadius);
+    const radius = readRadius(fileRadii, node.id, baseRadius), pressure = strainFor(radius, baseRadius, compact);
     radii.set(node, radius); pressures.set(node, pressure);
     spaces.set(node, { width: pressure * 2.5, depth: pressure * 4 });
     maxPressure = Math.max(maxPressure, pressure);
@@ -147,7 +153,7 @@ export function createRootWarpLayout(baseLayout, { fileRadii, folderRadii, baseR
     ].filter(Boolean);
     entries.set(folder, children);
     const radius = folder.path ? readRadius(folderRadii, folder.path, baseRadius) : 0;
-    const pressure = strainFor(radius, baseRadius);
+    const pressure = strainFor(radius, baseRadius, compact);
     radii.set(folder, radius); pressures.set(folder, pressure);
     const packing = extraPacking(children, spaces);
     spaces.set(folder, {
@@ -173,11 +179,13 @@ export function createRootWarpLayout(baseLayout, { fileRadii, folderRadii, baseR
         // A quiet offshoot still needs enough free length to escape its thick
         // parent. Width is never capped or rescaled: both incident radii reserve
         // additional axial space, with a small parent-strain term for early growth.
-        const axialClearance = 2 * (growthAboveBaseline(parentRadius, baseRadius) + growthAboveBaseline(childRadius, baseRadius)) + growthSteps(parentRadius, baseRadius) * 0.42;
+        const parentGrowth = growthAboveBaseline(parentRadius, baseRadius);
+        const visualClearance = compact ? 0.12 * parentGrowth / (baseRadius + parentGrowth) : growthSteps(parentRadius, baseRadius) * 0.42;
+        const axialClearance = 2 * (parentGrowth + growthAboveBaseline(childRadius, baseRadius)) + visualClearance;
         child.position = [
-          original.position[0] + parentShift[0] + pushX + side * pressure * (file ? 0.25 : 0.1),
-          original.position[1] + parentShift[1] - pressure * (file ? 0.55 : 0.22) - axialClearance,
-          original.position[2] + parentShift[2] + pushZ + pressure * (file ? 0.8 : 0.28),
+          original.position[0] + parentShift[0] + pushX + side * pressure * (file ? 0.25 : 0.1) * visualScale,
+          original.position[1] + parentShift[1] - pressure * (file ? 0.55 : 0.22) * visualScale - axialClearance,
+          original.position[2] + parentShift[2] + pushZ + pressure * (file ? 0.8 : 0.28) * visualScale,
         ];
       }
     }
@@ -190,14 +198,14 @@ export function createRootWarpLayout(baseLayout, { fileRadii, folderRadii, baseR
       const endShift = delta(item.position, original.position);
       const localShift = delta(endShift, startShift);
       const pressure = pressures.get(item);
-      const bow = pressure * 0.55 + Math.hypot(localShift[0], localShift[2]) * 0.12;
+      const bow = (pressure * 0.55 + Math.hypot(localShift[0], localShift[2]) * 0.12) * visualScale;
       item.curve = original.curve.map((point, index) => {
         if (!index) return [...parent.position];
         if (index === 3) return [...item.position];
         const t = index === 1 ? 0.18 : 0.82;
         const warped = point.map((value, axis) => value + startShift[axis] * (1 - t) + endShift[axis] * t);
-        warped[0] += localShift[0] * (index === 1 ? 0.12 : 0.24);
-        warped[1] -= pressure * (index === 1 ? 0.08 : 0.1);
+        warped[0] += localShift[0] * (index === 1 ? 0.12 : 0.24) * visualScale;
+        warped[1] -= pressure * (index === 1 ? 0.08 : 0.1) * visualScale;
         warped[2] += bow * (index === 1 ? 0.8 : 1.2);
         return warped;
       });
@@ -219,6 +227,6 @@ export function createRootWarpLayout(baseLayout, { fileRadii, folderRadii, baseR
   return {
     ...baseLayout, folders, nodes, rows, bounds: { min, max }, center, extent,
     footprint: maxPressure > 0 ? { ...baseLayout.footprint, width: max[0] - min[0], depth: max[2] - min[2] } : { ...baseLayout.footprint },
-    warp: { active: maxPressure > 0, maxPressure },
+    warp: { active: maxPressure > 0, maxPressure, ...(compact ? { compact: true } : {}) },
   };
 }

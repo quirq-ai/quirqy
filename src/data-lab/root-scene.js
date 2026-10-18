@@ -80,7 +80,7 @@ export class RepositoryRoots {
       this.pathGrowth = rootPathGrowth(this.baseLayout, this.activityState);
       const fileRadii = new Map([...this.pathGrowth.fileTouches].map(([key, touches]) => [key, rootRopeRadius(touches)]));
       const folderRadii = new Map([...this.pathGrowth.folderTouches].map(([key, touches]) => [key, rootRopeRadius(touches)]));
-      this.growthLayout = createRootWarpLayout(this.baseLayout, { fileRadii, folderRadii, baseRadius: ROOT_VINE_RADIUS });
+      this.growthLayout = createRootWarpLayout(this.baseLayout, { fileRadii, folderRadii, baseRadius: ROOT_VINE_RADIUS, compact: true });
       this._refreshSurface(true, !canAnimate);
       this._updateSurfaceLayout();
       // Commit targets remain unbent. Responsive presentation is applied only
@@ -133,7 +133,7 @@ export class RepositoryRoots {
     const capacityGrowthLayout = createRootWarpLayout(layout, {
       fileRadii: new Map([...maximumGrowth.fileTouches].map(([id, touches]) => [id, rootRopeRadius(touches)])),
       folderRadii: new Map([...maximumGrowth.folderTouches].map(([path, touches]) => [path, rootRopeRadius(touches)])),
-      baseRadius: ROOT_VINE_RADIUS,
+      baseRadius: ROOT_VINE_RADIUS, compact: true,
     });
     const maximumSurface = createRootSurface(layout, { height: MAX_ROOT_SURFACE_HEIGHT });
     const capacityLayout = applyRootSurface(capacityGrowthLayout, maximumSurface);
@@ -392,9 +392,11 @@ export class RepositoryRoots {
     const canvas = this.stage.renderer.domElement;
     const width = canvas.clientWidth || window.innerWidth;
     const height = canvas.clientHeight || window.innerHeight;
-    const signature = `${width}:${height}:${this.camera.matrixWorld.elements.join(',')}:${this.camera.projectionMatrix.elements.join(',')}:${this.group.matrixWorld.elements.join(',')}`;
+    const signature = `${width}:${height}:${this.labels.compact}:${this.camera.matrixWorld.elements.join(',')}:${this.camera.projectionMatrix.elements.join(',')}:${this.group.matrixWorld.elements.join(',')}`;
     if (!force && signature === this.surfaceSignature) return false;
     this.surfaceSignature = signature;
+    // Responsive labels can change their measured width after a resize.
+    this.labelWidths = new Map(this.labels.files.map(record => [record.key, record.textWidth]));
     this.surfaceProjection ||= new THREE.Vector3();
     // Always probe the unbent data pose. Measuring the already bent roots would
     // make curvature feed back into its own crowding estimate while orbiting.
