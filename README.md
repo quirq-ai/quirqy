@@ -66,6 +66,8 @@ npm run preview   # serve the production build
 
 Click the navbar logo to upload a PNG, JPG, WebP, or SVG (up to 5 MB), or reset to the default. Custom logos are saved in this browser for this site and used in the navbar, loading screen, favicon, and recording overlay. This preference does not require login and does not sync across browsers, devices, or accounts.
 
+Side panels and playback bars share a liquid-glass appearance. Choose **Opacity** beside the playback controls (or beside Time speed in Equation Lab) to adjust the surface from 20–100%, keeping text and controls fully visible. The setting is shared across labs, saved in this browser, and can be reset to the default.
+
 Open the app, then switch instruments with the tabs in the top-left (or open a
 section URL directly). Press **H** at any
 time for a context-aware help card, **S** for a PNG snapshot, and **V** to record up to

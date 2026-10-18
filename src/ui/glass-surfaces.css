@@ -1,0 +1,271 @@
+/*
+ * Observatory glass surfaces.
+ * Opacity changes the material's fill, never the content. Keeping reflection in
+ * background layers avoids overlays that could catch pointer events or scroll.
+ * The popover ID also keeps this shared treatment above lazily loaded lab CSS.
+ */
+:root {
+  --glass-opacity: .62;
+  --glass-blur: 22px;
+  --glass-radius: 20px;
+  --glass-edge: rgba(221, 236, 255, .19);
+  --glass-edge-bright: rgba(235, 246, 255, .32);
+  --glass-control-edge: rgba(211, 230, 252, .13);
+  --glass-control-fill: rgba(187, 213, 240, .065);
+  --glass-control-hover: rgba(202, 226, 250, .115);
+  --glass-divider: rgba(209, 228, 248, .10);
+}
+
+html body :is(.panel, #glass-appearance-popover) {
+  --text: #e2eaf4;
+  --text-dim: #a0aec1;
+  --panel-border: var(--glass-divider);
+  color: var(--text);
+  background:
+    radial-gradient(ellipse at 0 0, rgba(196, 222, 250, calc(var(--glass-opacity) * .10)), transparent 55%),
+    linear-gradient(155deg, rgba(222, 239, 255, calc(var(--glass-opacity) * .08)), transparent 35%, rgba(113, 154, 192, calc(var(--glass-opacity) * .035)) 100%),
+    rgba(10, 17, 28, var(--glass-fill-alpha, var(--glass-opacity)));
+  border: 1px solid var(--glass-edge);
+  border-top-color: var(--glass-edge-bright);
+  border-radius: var(--glass-radius);
+  background-clip: padding-box;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.35);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.35);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .075),
+    inset 1px 0 0 rgba(225, 240, 255, .035),
+    inset 0 -1px 0 rgba(181, 214, 245, .035),
+    0 8px 24px rgba(0, 4, 12, .18),
+    0 24px 64px -24px rgba(0, 4, 12, .42);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(192, 212, 236, .24) transparent;
+}
+
+/* Preserve crisp text while dragging, as well as while changing transparency. */
+html body .panel.panel-float.is-dragging {
+  opacity: 1;
+  border-color: rgba(222, 238, 255, .34);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .09), 0 28px 70px -20px rgba(0, 4, 12, .58);
+}
+
+html body :is(.panel, #glass-appearance-popover) .list-title {
+  color: #e2eaf4;
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: .15em;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, .24);
+}
+
+html body :is(.panel, #glass-appearance-popover) .section-title {
+  color: #acb9cb;
+  letter-spacing: .12em;
+  opacity: 1;
+}
+
+html body :is(.panel, #glass-appearance-popover) :is(.lab-note, .setting-note, .mt-hint) {
+  color: var(--text-dim);
+  opacity: 1;
+}
+
+html body :is(.panel, #glass-appearance-popover) .panel-drag-hint {
+  font-size: 9px;
+  color: #95a5b9;
+  opacity: .8;
+}
+
+/* A shared family of tactile controls; existing sizing and layout stay intact. */
+html body :is(.panel, #glass-appearance-popover) :is(.btn, .tbtn, .seg button, .seg a) {
+  color: var(--text);
+  border-color: var(--glass-control-edge);
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgba(235, 246, 255, .045), transparent),
+    var(--glass-control-fill);
+  box-shadow: inset 0 1px 0 rgba(245, 251, 255, .035), 0 2px 5px rgba(0, 0, 0, .06);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+
+html body :is(.panel, #glass-appearance-popover) :is(.btn, .tbtn, .seg button, .seg a):hover:not(:disabled) {
+  background-color: var(--glass-control-hover);
+  border-color: rgba(225, 239, 255, .26);
+  box-shadow: inset 0 1px 0 rgba(245, 251, 255, .065), 0 2px 8px rgba(0, 0, 0, .10);
+}
+
+html body :is(.panel, #glass-appearance-popover) :is(.btn, .tbtn, .seg button, .seg a):active:not(:disabled) {
+  background-color: rgba(214, 233, 255, .15);
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, .12);
+}
+
+html body :is(.panel, #glass-appearance-popover) :is(.btn.active, .tbtn.active, .seg .active, .seg [aria-pressed='true']) {
+  color: #ffdaa6;
+  border-color: rgba(245, 205, 152, .34);
+  background: linear-gradient(160deg, rgba(247, 213, 168, .16), rgba(221, 169, 99, .075));
+  box-shadow: inset 0 1px 0 rgba(255, 232, 201, .10), 0 2px 8px rgba(0, 0, 0, .07);
+}
+
+html body :is(.panel, #glass-appearance-popover) .btn.primary {
+  color: #221b12;
+  border-color: rgba(255, 224, 184, .58);
+  background: linear-gradient(160deg, #e8c594, #c99a60);
+  box-shadow: inset 0 1px 0 rgba(255, 245, 224, .45), 0 3px 10px rgba(0, 0, 0, .12);
+}
+
+html body :is(.panel, #glass-appearance-popover) .tbtn.recording {
+  color: #ffaaaa;
+  border-color: rgba(255, 139, 139, .45);
+  background: rgba(110, 35, 43, .38);
+}
+
+html body :is(.panel, #glass-appearance-popover) :is(button, a, input, select, textarea, summary):focus-visible {
+  outline: 2px solid #b8d8f4;
+  outline-offset: 2px;
+}
+
+/* Recessed fields sit one layer below the surface, instead of opaque boxes. */
+html body :is(.panel, #glass-appearance-popover) :is(
+  input:not([type='range']):not([type='checkbox']):not([type='radio']):not([type='color']):not([type='file']),
+  textarea,
+  select
+) {
+  color: var(--text);
+  color-scheme: dark;
+  border-color: rgba(195, 216, 240, .16);
+  border-radius: 9px;
+  background: rgba(3, 9, 17, calc(.12 + var(--glass-opacity) * .20));
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, .10), 0 1px 0 rgba(235, 246, 255, .025);
+  transition: border-color 160ms ease, background-color 160ms ease;
+}
+
+html body :is(.panel, #glass-appearance-popover) :is(input, textarea)::placeholder {
+  color: #8b9bae;
+  opacity: 1;
+}
+
+html body :is(.panel, #glass-appearance-popover) :is(input, textarea, select):focus {
+  border-color: rgba(191, 219, 244, .46);
+}
+
+html body :is(.panel, #glass-appearance-popover) :is(input[type='checkbox'], input[type='radio']) {
+  accent-color: #e6c18d;
+}
+
+html body :is(.panel, #glass-appearance-popover) input[type='range'] {
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(172, 205, 234, .35), rgba(237, 210, 170, .58));
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .13), 0 1px 0 rgba(242, 249, 255, .04);
+}
+
+html body :is(.panel, #glass-appearance-popover) input[type='range']::-webkit-slider-thumb {
+  background: linear-gradient(145deg, #fff2da, #d8b47e);
+  border: 1px solid rgba(255, 241, 218, .65);
+  box-shadow: 0 1px 5px rgba(0, 0, 0, .35), 0 0 0 3px rgba(226, 196, 148, .08);
+}
+
+html body :is(.panel, #glass-appearance-popover) input[type='range']::-moz-range-thumb {
+  background: linear-gradient(145deg, #fff2da, #d8b47e);
+  border: 1px solid rgba(255, 241, 218, .65);
+  box-shadow: 0 1px 5px rgba(0, 0, 0, .35), 0 0 0 3px rgba(226, 196, 148, .08);
+}
+
+html body :is(.panel, #glass-appearance-popover) :is(.live-tile, .commit-card, .state-block, .light-detail) {
+  border-color: var(--glass-divider);
+  border-radius: 11px;
+  background: rgba(189, 213, 238, .035);
+  box-shadow: inset 0 1px 0 rgba(241, 249, 255, .025);
+}
+
+html body :is(.panel, #glass-appearance-popover) :is(.lab-block, .eq-data, .eq-history, .eq-desc, .data-structure, .guide-index-children) {
+  border-color: var(--glass-divider);
+}
+
+html body :is(.panel, #glass-appearance-popover) :is(.body-row, .data-file-row, .data-directory-name, .guide-index-focus, .data-file-history button):hover {
+  background: rgba(201, 225, 248, .07);
+}
+
+html body :is(.panel, #glass-appearance-popover) :is(.body-row.selected, .data-file-row.selected) {
+  color: #ffdaa6;
+  background: rgba(239, 202, 150, .09);
+  border-color: rgba(239, 202, 150, .19);
+}
+
+html body :is(.panel, #glass-appearance-popover) :is(.data-changes, .data-file-list, .data-directory-list, .eq-history-list, #data-guide-body, #guide-index) {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(192, 212, 236, .24) transparent;
+}
+
+html body :is(.panel, #glass-appearance-popover)::-webkit-scrollbar,
+html body :is(.panel, #glass-appearance-popover) ::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+html body :is(.panel, #glass-appearance-popover)::-webkit-scrollbar-thumb,
+html body :is(.panel, #glass-appearance-popover) ::-webkit-scrollbar-thumb {
+  background: rgba(192, 212, 236, .24);
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
+}
+
+html body :is(.panel, #glass-appearance-popover)::-webkit-scrollbar-track,
+html body :is(.panel, #glass-appearance-popover) ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@media (max-width: 900px) {
+  /* The sticky sheet title needs its own material when content moves beneath. */
+  html body #data-panel.panel > .list-title {
+    background: rgba(16, 25, 38, .90);
+    border-radius: calc(var(--glass-radius) - 1px) calc(var(--glass-radius) - 1px) 0 0;
+    border-bottom: 1px solid var(--glass-divider);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  html body :is(.panel, #glass-appearance-popover) {
+    --glass-fill-alpha: .96;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  html body :is(.panel, #glass-appearance-popover) {
+    --glass-fill-alpha: .97;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  html body #data-panel.panel > .list-title {
+    background: #101926;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  html body :is(.panel, #glass-appearance-popover) {
+    --text: #fff;
+    --text-dim: #d4deea;
+    --glass-control-edge: rgba(230, 241, 255, .5);
+    --glass-divider: rgba(225, 240, 255, .35);
+    --glass-fill-alpha: 1;
+    background: #101926;
+    border-color: #aec0d4;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  html body :is(.panel, #glass-appearance-popover) :is(.list-title, .section-title, .panel-drag-hint) {
+    color: #e9f1fb;
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html body :is(.panel, #glass-appearance-popover),
+  html body :is(.panel, #glass-appearance-popover) * {
+    transition: none;
+    scroll-behavior: auto;
+  }
+}

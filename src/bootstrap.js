@@ -1,9 +1,14 @@
 // Data Lab is a separate entry point: existing instruments retain their runtime.
 import { modeFromLocation } from './nav/routes.js';
 import { mountLogoEditor } from './branding/logo-editor.js';
+import { mountPanelAppearance } from './ui/panel-appearance.js';
 
 const disposeLogoEditor = mountLogoEditor();
-if (import.meta.hot) import.meta.hot.dispose(disposeLogoEditor);
+const disposePanelAppearance = mountPanelAppearance();
+if (import.meta.hot) import.meta.hot.dispose(() => {
+  disposeLogoEditor();
+  disposePanelAppearance();
+});
 
 if (modeFromLocation() === 'data') {
   import('./data-lab/app.js')

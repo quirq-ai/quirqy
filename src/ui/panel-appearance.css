@@ -1,0 +1,126 @@
+/* Shared appearance control, kept beside each instrument's playback controls. */
+html body .glass-opacity-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: none;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid rgba(221, 235, 255, .16);
+  border-radius: 11px;
+  background: linear-gradient(165deg, rgba(239, 248, 255, .09), rgba(190, 218, 255, .025));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .07);
+  color: #c5d3e7;
+  font-size: 10px; font-weight: 500; line-height: 1.2;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 160ms, border-color 160ms;
+}
+html body .glass-opacity-trigger:hover,
+html body .glass-opacity-trigger[aria-expanded="true"] {
+  border-color: rgba(207, 231, 255, .4);
+  background: rgba(194, 220, 255, .13);
+  color: #f3f8ff;
+}
+.glass-opacity-trigger svg, .glass-popover-icon svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 1.2; flex: none; }
+.glass-opacity-value { color: #ebf4ff; font-size: 10px; font-variant-numeric: tabular-nums; }
+html body .glass-opacity-trigger:focus-visible,
+html body #glass-appearance-popover button:focus-visible { outline: 2px solid #a8ceff; outline-offset: 3px; }
+html body #glass-appearance-popover {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  width: min(292px, calc(100vw - 24px));
+  max-height: calc(100dvh - 24px);
+  overflow-y: auto;
+  padding: 20px;
+  z-index: 100;
+  color: var(--text);
+  font-family: inherit;
+}
+html body #glass-appearance-popover[hidden] { display: none; }
+#glass-appearance-popover::backdrop { background: transparent; }
+.glass-popover-heading { display: flex; align-items: center; gap: 11px; margin-bottom: 25px; }
+.glass-popover-icon { display: grid; place-items: center; width: 34px; height: 34px; flex: none; border: 1px solid rgba(219, 235, 255, .18); border-radius: 11px; background: rgba(208, 231, 255, .07); color: #c4e0ff; }
+#glass-appearance-title { font-size: 14px; line-height: 1.3; font-weight: 600; letter-spacing: -.02em; }
+.glass-popover-heading p { margin-top: 4px; font-size: 10px; color: #a4b3c9; }
+.glass-popover-close { display: grid; place-items: center; margin-left: auto; align-self: flex-start; width: 28px; height: 28px; border: 0; border-radius: 8px; background: transparent; color: #a8b7cc; font-size: 20px; cursor: pointer; }
+.glass-popover-close:hover { background: rgba(222, 237, 255, .1); color: white; }
+.glass-opacity-label { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 15px; font-size: 11px; font-weight: 500; color: #d7e4f5; }
+#glass-opacity-output { font-size: 18px; font-weight: 500; letter-spacing: -.04em; font-variant-numeric: tabular-nums; color: #edf6ff; }
+html body #glass-appearance-popover #glass-opacity-range {
+  display: block;
+  width: 100%;
+  height: 28px;
+  margin: -4px 0;
+  background: linear-gradient(to right, #c4dfff 0%, #c4dfff var(--glass-opacity-percent), rgba(196, 223, 255, .16) var(--glass-opacity-percent), rgba(196, 223, 255, .16) 100%) center / 100% 5px no-repeat;
+  box-shadow: none;
+}
+html body #glass-appearance-popover #glass-opacity-range::-webkit-slider-runnable-track { height: 5px; background: transparent; }
+html body #glass-appearance-popover #glass-opacity-range::-webkit-slider-thumb { width: 18px; height: 18px; margin-top: -6.5px; }
+html body #glass-appearance-popover #glass-opacity-range::-moz-range-track { height: 5px; background: transparent; }
+html body #glass-appearance-popover #glass-opacity-range::-moz-range-thumb { width: 18px; height: 18px; }
+html body #glass-appearance-popover #glass-opacity-range:focus-visible { outline: 2px solid #a8ceff; outline-offset: 7px; }
+.glass-opacity-scale { display: flex; justify-content: space-between; margin-top: 12px; color: #a7b7cd; font-size: 9px; }
+#glass-opacity-description { margin-top: 19px; color: #a7b7cd; font-size: 10px; line-height: 1.5; }
+.glass-popover-footer { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(220, 235, 255, .1); }
+#glass-opacity-status { font-size: 9px; color: #93a7c0; }
+.glass-opacity-reset { min-height: 30px; padding: 0 10px; border: 1px solid rgba(220, 235, 255, .16); border-radius: 8px; background: rgba(210, 231, 255, .05); color: #d6e6fa; font-size: 10px; font-weight: 500; line-height: 1.2; font-family: inherit; cursor: pointer; }
+.glass-opacity-reset:hover { background: rgba(210, 231, 255, .12); }
+html body #equation-panel .glass-speed-heading { display: flex; align-items: center; gap: 8px; }
+html body #equation-panel .glass-speed-heading #eq-speed-val { margin-left: auto; }
+html body #equation-panel .glass-speed-heading .glass-opacity-trigger { min-height: 28px; padding: 0 7px; }
+html body #equation-panel .glass-speed-heading .glass-opacity-text { display: none; }
+html body :is(#timebar, #math-timebar, #data-timebar) .t-mid { min-width: 0; }
+html body #data-timebar { width: min(680px, calc(100vw - 412px)); }
+html body #data-timebar .data-speed { flex: none; }
+html body #data-timebar #data-speed { min-height: 36px; border-radius: 10px; padding: 0 6px; }
+@media (min-width: 901px) and (max-width: 1100px) {
+  html body #data-timebar { width: calc(100vw - 382px); }
+}
+@media (max-width: 900px) {
+  html body .glass-opacity-trigger { min-height: 38px; padding: 0 8px; }
+  html body :is(#timebar, #math-timebar, #data-timebar) {
+    left: 10px;
+    right: 10px;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    width: auto;
+    max-width: none;
+    transform: none;
+    padding: 12px;
+    gap: 10px;
+  }
+  html body #data-timebar {
+    display: grid;
+    grid-template-columns: 34px 42px 34px 1fr auto;
+  }
+  html body #data-timebar .t-mid { grid-column: 1 / -1; grid-row: 1; gap: 7px; }
+  html body #data-timebar #data-prev { grid-column: 1; }
+  html body #data-timebar #data-play { grid-column: 2; }
+  html body #data-timebar #data-next { grid-column: 3; }
+  html body #data-timebar .data-speed { justify-self: end; }
+  html body #data-timebar .glass-opacity-trigger { padding: 0 8px; }
+  html body #data-timebar .glass-opacity-text { display: none; }
+  html body #data-panel,
+  html body #data-guide { bottom: calc(144px + env(safe-area-inset-bottom, 0px)) !important; max-height: calc(100dvh - 290px); }
+  html body #data-guide-body { max-height: calc(100dvh - 330px); }
+  html body.is-mobile[data-mode="math"] #math-timebar:not(.hidden) {
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    display: grid !important;
+    grid-template-columns: 34px 42px 1fr 34px;
+  }
+  html body #math-timebar .t-mid { grid-column: 1 / -1; grid-row: 1; gap: 7px; }
+  html body #math-timebar .glass-opacity-trigger { justify-self: end; }
+  html body.is-mobile[data-mode="math"] #equation-panel.panel {
+    bottom: calc(156px + env(safe-area-inset-bottom, 0px));
+    max-height: min(52vh, calc(100dvh - 260px));
+  }
+  html body #math-timebar .glass-opacity-text,
+  html body #timebar .glass-opacity-text { display: none; }
+  html body #timebar .t-mid { flex: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html body .glass-opacity-trigger { transition: none; }
+}
