@@ -1,15 +1,17 @@
 /*
  * Observatory glass surfaces.
- * Opacity changes the material's fill, never the content. Keeping reflection in
- * background layers avoids overlays that could catch pointer events or scroll.
+ * Opacity changes the material's fill and optical treatment, never its content.
+ * Thin edge reflections remain visible when the glass is completely clear.
  * The popover ID also keeps this shared treatment above lazily loaded lab CSS.
  */
 :root {
   --glass-opacity: .62;
-  --glass-blur: 22px;
+  --glass-blur: 4.61px;
+  --glass-saturation: 1.114;
+  --glass-reflection: .1532;
   --glass-radius: 20px;
-  --glass-edge: rgba(221, 236, 255, .19);
-  --glass-edge-bright: rgba(235, 246, 255, .32);
+  --glass-edge: rgba(221, 236, 255, calc(var(--glass-reflection) * .95));
+  --glass-edge-bright: rgba(235, 246, 255, calc(var(--glass-reflection) * 1.65));
   --glass-control-edge: rgba(211, 230, 252, .13);
   --glass-control-fill: rgba(187, 213, 240, .065);
   --glass-control-hover: rgba(202, 226, 250, .115);
@@ -21,6 +23,7 @@ html body :is(.panel, #glass-appearance-popover) {
   --text-dim: #a0aec1;
   --panel-border: var(--glass-divider);
   color: var(--text);
+  text-shadow: 0 1px 2px rgba(0, 4, 12, .44);
   background:
     radial-gradient(ellipse at 0 0, rgba(196, 222, 250, calc(var(--glass-opacity) * .10)), transparent 55%),
     linear-gradient(155deg, rgba(222, 239, 255, calc(var(--glass-opacity) * .08)), transparent 35%, rgba(113, 154, 192, calc(var(--glass-opacity) * .035)) 100%),
@@ -29,14 +32,14 @@ html body :is(.panel, #glass-appearance-popover) {
   border-top-color: var(--glass-edge-bright);
   border-radius: var(--glass-radius);
   background-clip: padding-box;
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.35);
-  backdrop-filter: blur(var(--glass-blur)) saturate(1.35);
+  -webkit-backdrop-filter: var(--glass-backdrop-filter, blur(var(--glass-blur)) saturate(var(--glass-saturation)));
+  backdrop-filter: var(--glass-backdrop-filter, blur(var(--glass-blur)) saturate(var(--glass-saturation)));
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, .075),
-    inset 1px 0 0 rgba(225, 240, 255, .035),
-    inset 0 -1px 0 rgba(181, 214, 245, .035),
-    0 8px 24px rgba(0, 4, 12, .18),
-    0 24px 64px -24px rgba(0, 4, 12, .42);
+    inset 0 1px 0 rgba(255, 255, 255, calc(var(--glass-reflection) * .50)),
+    inset 1px 0 0 rgba(225, 240, 255, calc(var(--glass-reflection) * .24)),
+    inset 0 -1px 0 rgba(181, 214, 245, calc(var(--glass-reflection) * .18)),
+    0 8px 24px rgba(0, 4, 12, calc(.06 + var(--glass-opacity) * .12)),
+    0 24px 64px -24px rgba(0, 4, 12, calc(.18 + var(--glass-opacity) * .24));
   scrollbar-width: thin;
   scrollbar-color: rgba(192, 212, 236, .24) transparent;
 }
@@ -53,7 +56,7 @@ html body :is(.panel, #glass-appearance-popover) .list-title {
   font-size: 10px;
   font-weight: 650;
   letter-spacing: .15em;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, .24);
+  text-shadow: 0 1px 2px rgba(0, 4, 12, .58);
 }
 
 html body :is(.panel, #glass-appearance-popover) .section-title {
@@ -107,6 +110,7 @@ html body :is(.panel, #glass-appearance-popover) :is(.btn.active, .tbtn.active, 
 
 html body :is(.panel, #glass-appearance-popover) .btn.primary {
   color: #221b12;
+  text-shadow: none;
   border-color: rgba(255, 224, 184, .58);
   background: linear-gradient(160deg, #e8c594, #c99a60);
   box-shadow: inset 0 1px 0 rgba(255, 245, 224, .45), 0 3px 10px rgba(0, 0, 0, .12);
@@ -217,17 +221,21 @@ html body :is(.panel, #glass-appearance-popover) ::-webkit-scrollbar-track {
 @media (max-width: 900px) {
   /* The sticky sheet title needs its own material when content moves beneath. */
   html body #data-panel.panel > .list-title {
-    background: rgba(16, 25, 38, .90);
+    background:
+      linear-gradient(160deg, rgba(222, 239, 255, calc(var(--glass-opacity) * .065)), transparent 70%),
+      rgba(16, 25, 38, var(--glass-fill-alpha, var(--glass-opacity)));
     border-radius: calc(var(--glass-radius) - 1px) calc(var(--glass-radius) - 1px) 0 0;
     border-bottom: 1px solid var(--glass-divider);
-    -webkit-backdrop-filter: blur(16px);
-    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
   }
 }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  /* Respect the selected tint even where backdrop optics are unavailable. */
   html body :is(.panel, #glass-appearance-popover) {
-    --glass-fill-alpha: .96;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 }
 
@@ -259,6 +267,24 @@ html body :is(.panel, #glass-appearance-popover) ::-webkit-scrollbar-track {
   html body :is(.panel, #glass-appearance-popover) :is(.list-title, .section-title, .panel-drag-hint) {
     color: #e9f1fb;
     opacity: 1;
+  }
+  html body #data-panel.panel > .list-title {
+    background: #101926;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+@media (forced-colors: active) {
+  html body :is(.panel, #glass-appearance-popover),
+  html body #data-panel.panel > .list-title {
+    color: CanvasText;
+    background: Canvas;
+    border-color: ButtonText;
+    text-shadow: none;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 }
 

@@ -1,5 +1,6 @@
 import './glass-surfaces.css';
 import './panel-appearance.css';
+import { mountGlassRefraction } from './glass-refraction.js';
 
 const STORAGE_KEY = 'quirq-observatory.panel-opacity.v1';
 const DEFAULT_OPACITY = 62;
@@ -10,13 +11,14 @@ const ICON = '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m
 function readOpacity(raw) {
   try {
     const value = JSON.parse(raw);
-    return Number.isInteger(value) && value >= 20 && value <= 100 ? value : DEFAULT_OPACITY;
+    return Number.isInteger(value) && value >= 0 && value <= 100 ? value : DEFAULT_OPACITY;
   } catch { return DEFAULT_OPACITY; }
 }
 
 /** One appearance preference and popover shared by all instrument controls. */
 export function mountPanelAppearance() {
   const lifetime = new AbortController();
+  const refraction = mountGlassRefraction();
   const on = (target, event, handler, options = {}) => target.addEventListener(event, handler, { ...options, signal: lifetime.signal });
   let opacity = DEFAULT_OPACITY;
   try { opacity = readOpacity(localStorage.getItem(STORAGE_KEY)); } catch { /* Session controls remain available. */ }
@@ -37,9 +39,9 @@ export function mountPanelAppearance() {
     <summary class="glass-opacity-summary"><span class="glass-view-icon">${ICON}</span><span>Opacity</span><span class="glass-opacity-summary-value"></span><span class="glass-opacity-chevron" aria-hidden="true">⌄</span></summary>
     <div class="glass-opacity-content">
     <label class="glass-opacity-label" for="glass-opacity-range"><span>Panel opacity</span><output id="glass-opacity-output" for="glass-opacity-range"></output></label>
-    <input id="glass-opacity-range" type="range" min="20" max="100" step="1" aria-describedby="glass-opacity-description" />
-    <div class="glass-opacity-scale" aria-hidden="true"><span>Airy</span><span>Solid</span></div>
-    <p id="glass-opacity-description">Applies to side panels and playback bars.</p>
+    <input id="glass-opacity-range" type="range" min="0" max="100" step="1" aria-describedby="glass-opacity-description" />
+    <div class="glass-opacity-scale" aria-hidden="true"><span>Clear</span><span>Solid</span></div>
+    <p id="glass-opacity-description">Clearer glass bends the scene behind panels and playback bars.</p>
     <div class="glass-popover-footer"><span id="glass-opacity-status" role="status">Browser preference</span><button class="glass-opacity-reset" type="button">Reset</button></div></div></details>`;
   document.body.append(popover);
   const range = popover.querySelector('input');
@@ -53,7 +55,8 @@ export function mountPanelAppearance() {
 
   function render() {
     document.documentElement.style.setProperty('--glass-opacity', String(opacity / 100));
-    document.documentElement.style.setProperty('--glass-opacity-percent', `${(opacity - 20) / 80 * 100}%`);
+    document.documentElement.style.setProperty('--glass-opacity-percent', `${opacity}%`);
+    refraction.update(opacity);
     range.value = String(opacity);
     range.setAttribute('aria-valuetext', `${opacity} percent`);
     output.value = `${opacity}%`;
@@ -228,6 +231,7 @@ export function mountPanelAppearance() {
     for (const observer of panelObservers) observer.disconnect();
     for (const trigger of triggers) trigger.remove();
     releaseDataViews();
+    refraction.dispose();
     popover.remove();
   };
 }
