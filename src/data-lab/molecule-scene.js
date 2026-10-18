@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { RepositoryScene } from './scene.js';
 import { buildMolecularTree, molecularTreeState } from './molecule-layout.js';
-import { CHANGE_COLORS } from './encoding.js';
+import { buildActivityHistory, activityAt, activityLevel, membershipActivityKey } from './molecule-activity.js';
 
 const DURATION = 1.6;
 const UP = new THREE.Vector3(0, 1, 0);
@@ -38,20 +38,51 @@ export class MoleculeScene extends RepositoryScene {
   }
 
   _pool(name, geometry, capacity, group, { ghost = false, fading = false, opacity = 1 } = {}) {
-    const material = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3, metalness: 0.23, transparent: ghost || fading || opacity < 1, opacity: ghost ? 0.12 : opacity, depthWrite: !ghost && !fading && opacity === 1, wireframe: ghost });
-    const mesh = new THREE.InstancedMesh(geometry, material, Math.max(1, capacity));
+    const count = Math.max(1, capacity);
+    // Instance attributes belong to each pool: sharing them would overwrite
+    // another mesh's opacity when its visible records are compacted for focus.
+    const instanceGeometry = geometry.clone();
+    const opacityAttribute = new THREE.InstancedBufferAttribute(new Float32Array(count), 1).setUsage(THREE.DynamicDrawUsage);
+    const emissionAttribute = new THREE.InstancedBufferAttribute(new Float32Array(count), 1).setUsage(THREE.DynamicDrawUsage);
+    instanceGeometry.setAttribute('instanceOpacity', opacityAttribute);
+    instanceGeometry.setAttribute('instanceEmission', emissionAttribute);
+    const material = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3, metalness: 0.23, transparent: true, opacity, depthWrite: false, wireframe: ghost });
+    material.onBeforeCompile = shader => {
+      shader.vertexShader = `attribute float instanceOpacity;
+attribute float instanceEmission;
+varying float vInstanceOpacity;
+varying float vInstanceEmission;
+${shader.vertexShader}`.replace('#include <begin_vertex>', `#include <begin_vertex>
+vInstanceOpacity = instanceOpacity;
+vInstanceEmission = instanceEmission;`);
+      shader.fragmentShader = `varying float vInstanceOpacity;
+varying float vInstanceEmission;
+${shader.fragmentShader}`.replace('#include <color_fragment>', `#include <color_fragment>
+diffuseColor.a *= vInstanceOpacity;`).replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
+totalEmissiveRadiance += diffuseColor.rgb * vInstanceEmission;`);
+    };
+    material.customProgramCacheKey = () => 'repository-instance-activity-v1';
+    const mesh = new THREE.InstancedMesh(instanceGeometry, material, count);
     mesh.name = name;
     mesh.count = 0;
     mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     mesh.userData.pool = name;
     group.add(mesh);
-    return this.pools[name] = { mesh, records: [], ghost, fading };
+    return this.pools[name] = { mesh, records: [], ghost, fading, opacityAttribute, emissionAttribute };
   }
 
   setModel(model) {
     this._clearWorld();
     this.model = model;
     this.graph = buildMolecularTree(model);
+    this.activityHistory = buildActivityHistory(model, this.graph);
+    this.activityState = activityAt(this.activityHistory, -1);
+    this.activitySegments = [];
+    this.currentSegmentKeys = new Set();
+    this.currentExitIds = new Set();
+    this.currentDistance = 1;
+    this.activityElapsed = this.activityDuration = DURATION;
+    this.activityPlaying = false;
     this.center = vector(this.graph.center || [0, 0, 0]);
     this.extent = this.graph.extent;
     this.renderedCount = this.graph.nodes.length;
@@ -86,6 +117,11 @@ export class MoleculeScene extends RepositoryScene {
     this._pool('membershipBonds', this.geometries.bond, fileCapacity, this.linkGroup);
     this._pool('ghostBackboneBonds', this.geometries.bond, backboneCapacity, this.linkGroup, { ghost: true });
     this._pool('exitBonds', this.geometries.bond, fileCapacity * 2, this.linkGroup, { fading: true });
+    const routeCapacity = backboneCapacity + [...this.graph.folderSlots.values()].reduce((sum, slots) => sum + slots.size, 0);
+    this.currentMesh = this._pool('current', this.geometries.bond, routeCapacity, this.linkGroup).mesh;
+    this.currentMesh.renderOrder = 2;
+    this._pool('routeBonds', this.geometries.bond, routeCapacity, this.linkGroup);
+    this._pool('currentExits', this.geometries.atom, fileCapacity, this.world, { fading: true });
     this.structure = molecularTreeState(this.graph, this.activeIds);
     this._prepareInstances();
     this._paintInstances();
@@ -118,6 +154,7 @@ export class MoleculeScene extends RepositoryScene {
 
   setFrame({ visibleIds, changedIds, selectedId, statuses = {}, paths = {}, frameKey, duration = DURATION, index } = {}) {
     if (!this.graph) return;
+    const frameChanged = this.frameKey !== frameKey || this.frameIndex !== (Number.isInteger(index) ? index : null);
     const next = visibleIds === undefined ? this.activeIds : asSet(visibleIds);
     const animate = this.frameKey !== frameKey && Number.isInteger(index) && this.frameIndex !== null && index === this.frameIndex + 1 && !this.reducedMotion && this.options.activity;
     const previous = this.structure;
@@ -138,6 +175,13 @@ export class MoleculeScene extends RepositoryScene {
       const from = previousPositions.get(node.id);
       if (from && !this.birthIds.has(node.id) && from.distanceToSquared(vector(node.position)) > 0.001) this.moves.set(node.id, from);
     }
+    this.activityState = activityAt(this.activityHistory, this.frameIndex ?? -1);
+    this._prepareCurrent();
+    if (frameChanged) {
+      this.activityDuration = Math.max(0.4, this.duration);
+      this.activityPlaying = !this.reducedMotion && this.options.activity && this.activitySegments.length > 0;
+      this.activityElapsed = this.activityPlaying ? 0 : this.activityDuration;
+    }
     this._prepareInstances(animate ? previous : null, previousPositions);
     if (selectedId !== undefined) this.select(selectedId);
     this._paintInstances();
@@ -149,11 +193,11 @@ export class MoleculeScene extends RepositoryScene {
     const highlight = this.hoveredId || this.selectedId;
     for (const name of ['atoms', 'ghostAtoms', 'exitAtoms']) {
       const pool = this.pools[name], { mesh } = pool;
-      const records = pool.records.filter(atom => this._fileInFocus(atom) && !(pool.ghost && progress < 1 && this.exitIds.has(atom.id)));
+      const records = pool.records.filter(atom => this._fileInFocus(atom) && !(pool.ghost && ((progress < 1 && this.exitIds.has(atom.id)) || (this.activityPlaying && this.options.activity && this.currentExitIds.has(atom.id)))));
       pool.visibleRecords = records;
       mesh.count = records.length;
       mesh.visible = (!pool.ghost || this.options.ghosts) && (!pool.fading || progress < 1);
-      if (pool.fading) mesh.material.opacity = 1 - growth;
+      if (pool.fading) mesh.material.opacity = 1 - ease(Math.max(0, (progress - 0.72) / 0.28));
       records.forEach((atom, instance) => {
         const entering = !pool.ghost && !pool.fading && this.birthIds.has(atom.id) && progress < 1;
         const radius = atom.record.size * (entering ? Math.max(0.04, growth) : pool.fading ? 1 - growth * 0.7 : 1);
@@ -166,8 +210,8 @@ export class MoleculeScene extends RepositoryScene {
         this.paint.copy(atom.record.color);
         if (pool.ghost) this.paint.lerp(FOLDER_COLOR, 0.5);
         else if (highlight && atom.id === highlight) this.paint.lerp(GOLD, 0.3);
-        else if (this.options.activity && this.changedIds.has(atom.id)) this.paint.lerp(this.activityColor.setHex(CHANGE_COLORS[this.statuses[atom.id]] || CHANGE_COLORS.modified), 0.28);
         mesh.setColorAt(instance, this.paint);
+        this._instanceLight(pool, instance, this.activityState.fileTouches.get(atom.id), this.options.activity && this.activityState.touchedFiles.has(atom.id), highlight === atom.id);
       });
       this._finishPool(pool);
     }
@@ -185,16 +229,17 @@ export class MoleculeScene extends RepositoryScene {
         if (pool.ghost) this.paint.setHex(0x8293ac);
         else if (this.focusedFolder !== null && atom.folder === this.focusedFolder) this.paint.lerp(GOLD, 0.35);
         mesh.setColorAt(instance, this.paint);
+        this._instanceLight(pool, instance, this.activityState.folderTouches.get(atom.folder), this.options.activity && this.activityState.touchedFolders.has(atom.folder), this.focusedFolder === atom.folder);
       });
       this._finishPool(pool);
     }
     for (const name of ['backboneBonds', 'folderBonds', 'membershipBonds', 'ghostBackboneBonds', 'exitBonds']) {
       const pool = this.pools[name], { mesh } = pool;
-      const records = pool.records.filter(bond => this.focusedFolder == null || (bond.kind === 'folder' ? bond.parent === this.focusedFolder : bond.folder === this.focusedFolder));
+      const records = pool.records.filter(bond => this._bondInFocus(bond));
       pool.visibleRecords = records;
       mesh.count = records.length;
       mesh.visible = this.options.links && (!pool.ghost || this.options.ghosts) && (!pool.fading || progress < 1);
-      if (pool.fading) mesh.material.opacity = (1 - growth) * 0.72;
+      if (pool.fading) mesh.material.opacity = (1 - ease(Math.max(0, (progress - 0.72) / 0.28))) * 0.72;
       records.forEach((bond, instance) => {
         const start = !pool.fading && bond.aFileId ? this.nodes.get(bond.aFileId)?.position || bond.start : bond.start;
         const end = !pool.fading && bond.bFileId ? this.nodes.get(bond.bFileId)?.position || bond.end : bond.end;
@@ -209,12 +254,122 @@ export class MoleculeScene extends RepositoryScene {
         this.paint.copy(BOND_COLOR);
         if (highlight && (bond.aFileId === highlight || bond.bFileId === highlight)) this.paint.lerp(GOLD, 0.6);
         mesh.setColorAt(instance, this.paint);
+        const key = this._bondActivityKey(bond);
+        const touches = bond.kind === 'folder' ? this.activityState.folderBondTouches.get(bond.folder) : this.activityState.membershipTouches.get(membershipActivityKey(bond.folder, bond.bFileId || bond.aFileId));
+        this._instanceLight(pool, instance, touches, this.options.activity && this.currentSegmentKeys.has(key), Boolean(highlight && (bond.aFileId === highlight || bond.bFileId === highlight)));
       });
       this._finishPool(pool);
     }
+    this._paintCurrent();
     this.dirty = false;
     this.lastHighlight = highlight;
     this.lastProgress = progress;
+  }
+
+  _instanceLight(pool, instance, count = 0, current = false, selected = false) {
+    const level = activityLevel(count || 0);
+    const opacity = pool.ghost ? 0.08 + level * 0.12 : 0.27 + level * 0.68;
+    pool.opacityAttribute.setX(instance, selected ? 1 : opacity);
+    pool.emissionAttribute.setX(instance, pool.ghost ? 0.02 : 0.035 + level * 0.55 + (current ? 0.2 : 0) + (selected ? 0.35 : 0));
+  }
+
+  _bondActivityKey(bond) {
+    return bond.kind === 'folder' ? `folder:${bond.folder}` : `membership:${membershipActivityKey(bond.folder, bond.bFileId || bond.aFileId)}`;
+  }
+
+  _bondInFocus(bond) {
+    return this.focusedFolder == null || (bond.kind === 'folder' ? bond.parent === this.focusedFolder : bond.folder === this.focusedFolder);
+  }
+
+  _prepareCurrent() {
+    const segments = new Map();
+    this.currentDistance = 1;
+    for (const route of this.activityState.routes) {
+      let distance = 0;
+      for (const segment of route.segments) {
+        const start = vector(segment.a), end = vector(segment.b), length = start.distanceTo(end);
+        const key = `${segment.kind}:${segment.key}`;
+        if (!segments.has(key)) segments.set(key, { ...segment, activityKey: key, start, end, length, distance });
+        distance += length;
+      }
+      this.currentDistance = Math.max(this.currentDistance, distance);
+    }
+    this.activitySegments = [...segments.values()];
+    this.currentSegmentKeys = new Set(segments.keys());
+    this.pools.current.records = this.activitySegments;
+    const present = new Set(this.structure.bonds.map(bond => this._bondActivityKey(bond)));
+    this.pools.routeBonds.records = this.activitySegments.filter(segment => !present.has(segment.activityKey));
+    const removed = new Map();
+    for (const route of this.activityState.routes) {
+      if (route.status !== 'removed' || this.activeIds.has(route.fileId) || removed.has(route.fileId)) continue;
+      const node = this.graph.nodeById.get(route.fileId);
+      if (node) removed.set(route.fileId, { ...node, folder: route.folder, position: route.points.at(-1), activityKey: `membership:${membershipActivityKey(route.folder, route.fileId)}` });
+    }
+    this.pools.currentExits.records = [...removed.values()];
+    this.currentExitIds = new Set(removed.keys());
+  }
+
+  _paintCurrent() {
+    const pulse = this.pools.current, context = this.pools.routeBonds, exits = this.pools.currentExits;
+    const progress = Math.min(1, this.activityElapsed / this.activityDuration);
+    const tail = Math.max(2, this.currentDistance * 0.12);
+    const headDistance = progress * (this.currentDistance + tail);
+    const pulseRecords = [];
+    for (const segment of pulse.records) {
+      if (!this.activityPlaying || !this._bondInFocus(segment)) continue;
+      const head = Math.min(segment.length, headDistance - segment.distance);
+      const back = Math.max(0, headDistance - tail - segment.distance);
+      if (head <= back || head < 0 || back >= segment.length) continue;
+      const index = pulseRecords.length;
+      this.direction.subVectors(segment.end, segment.start).normalize();
+      this.midpoint.copy(segment.start).addScaledVector(this.direction, (head + back) / 2);
+      this.quaternion.setFromUnitVectors(UP, this.direction);
+      this.matrix.compose(this.midpoint, this.quaternion, this.scale.set(0.29, Math.max(0.001, head - back), 0.29));
+      pulse.mesh.setMatrixAt(index, this.matrix);
+      pulse.mesh.setColorAt(index, GOLD);
+      pulse.opacityAttribute.setX(index, 0.92);
+      pulse.emissionAttribute.setX(index, 2.4);
+      pulseRecords.push(segment);
+    }
+    pulse.visibleRecords = pulseRecords;
+    pulse.mesh.count = pulseRecords.length;
+    pulse.mesh.visible = this.options.activity && this.options.links && this.activityPlaying;
+    this._finishPool(pulse);
+
+    // Only a selected commit may briefly reveal an old rename/deletion route.
+    // These lines never become part of the active containment structure.
+    const exitKeys = new Set(this.elapsed < this.duration ? this.pools.exitBonds.records.map(bond => this._bondActivityKey(bond)) : []);
+    const contextRecords = context.records.filter(segment => this._bondInFocus(segment) && !exitKeys.has(segment.activityKey));
+    context.visibleRecords = contextRecords;
+    context.mesh.count = contextRecords.length;
+    context.mesh.visible = this.options.activity && this.options.links && (this.activityPlaying || this.reducedMotion);
+    for (let index = 0; index < contextRecords.length; index++) {
+      const segment = contextRecords[index];
+      this.direction.subVectors(segment.end, segment.start).normalize();
+      this.midpoint.copy(segment.start).add(segment.end).multiplyScalar(0.5);
+      this.quaternion.setFromUnitVectors(UP, this.direction);
+      this.matrix.compose(this.midpoint, this.quaternion, this.scale.set(0.14, Math.max(0.001, segment.length), 0.14));
+      context.mesh.setMatrixAt(index, this.matrix);
+      context.mesh.setColorAt(index, BOND_COLOR);
+      context.opacityAttribute.setX(index, this.reducedMotion ? 0.35 : 0.3 * (1 - ease(Math.max(0, (progress - 0.75) / 0.25))));
+      context.emissionAttribute.setX(index, 0.22);
+    }
+    this._finishPool(context);
+
+    const exitRecords = exits.records.filter(atom => this._fileInFocus(atom) && !this.exitIds.has(atom.id));
+    exits.visibleRecords = exitRecords;
+    exits.mesh.count = exitRecords.length;
+    exits.mesh.visible = this.options.activity && this.activityPlaying;
+    const fade = 1 - ease(Math.max(0, (progress - 0.72) / 0.28));
+    exitRecords.forEach((atom, index) => {
+      this.matrix.makeScale(atom.radius, atom.radius, atom.radius).setPosition(vector(atom.position));
+      exits.mesh.setMatrixAt(index, this.matrix);
+      this.paint.setHex(atom.kind.color);
+      exits.mesh.setColorAt(index, this.paint);
+      exits.opacityAttribute.setX(index, fade * 0.7);
+      exits.emissionAttribute.setX(index, 0.35);
+    });
+    this._finishPool(exits);
   }
 
   _fileInFocus(atom) { return this.focusedFolder == null || atom.folder === this.focusedFolder; }
@@ -223,7 +378,9 @@ export class MoleculeScene extends RepositoryScene {
     return this.focusedFolder == null || path === this.focusedFolder || this.graph.folderByPath.get(path)?.parent === this.focusedFolder;
   }
 
-  _finishPool({ mesh }) {
+  _finishPool({ mesh, opacityAttribute, emissionAttribute }) {
+    opacityAttribute.needsUpdate = true;
+    emissionAttribute.needsUpdate = true;
     mesh.instanceMatrix.needsUpdate = true;
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
     mesh.computeBoundingSphere();
@@ -231,7 +388,7 @@ export class MoleculeScene extends RepositoryScene {
 
   setOptions(options = {}) {
     super.setOptions(options);
-    if (!this.options.activity) { this.elapsed = this.duration; this.birthIds?.clear(); this.exitIds?.clear(); this.moves?.clear(); }
+    if (!this.options.activity) { this.elapsed = this.duration; this.activityElapsed = this.activityDuration; this.activityPlaying = false; this.birthIds?.clear(); this.exitIds?.clear(); this.moves?.clear(); }
     if (this.graph) { this.dirty = true; this._paintInstances(); }
   }
 
@@ -392,6 +549,12 @@ export class MoleculeScene extends RepositoryScene {
   update(dt) {
     if (this.disposed) return;
     const delta = Math.min(Math.max(Number(dt) || 0, 0), 0.1), wasTransitioning = this.elapsed < this.duration;
+    const currentWasPlaying = this.activityPlaying;
+    if (this.reducedMotion || !this.options.activity) { this.activityPlaying = false; this.activityElapsed = this.activityDuration; }
+    else if (this.activityPlaying) {
+      this.activityElapsed = Math.min(this.activityDuration, this.activityElapsed + delta);
+      if (this.activityElapsed >= this.activityDuration) this.activityPlaying = false;
+    }
     this.time += delta;
     this.elapsed = this.reducedMotion ? this.duration : Math.min(this.duration, this.elapsed + delta);
     if (this.tween) {
@@ -403,7 +566,7 @@ export class MoleculeScene extends RepositoryScene {
       if (tween.elapsed >= 0.9) this.tween = null;
     }
     const highlight = this.hoveredId || this.selectedId;
-    if (wasTransitioning || this.dirty || highlight !== this.lastHighlight || this.elapsed / this.duration !== this.lastProgress) this._paintInstances();
+    if (wasTransitioning || currentWasPlaying || this.dirty || highlight !== this.lastHighlight || this.elapsed / this.duration !== this.lastProgress) this._paintInstances();
     const candidate = this.nodes.get(highlight);
     const record = candidate && this._fileInFocus(candidate.node) && (this.activeIds.has(highlight) || this.options.ghosts) ? candidate : null;
     this.focusHalo.visible = Boolean(record);
@@ -449,5 +612,9 @@ export class MoleculeScene extends RepositoryScene {
     this.graph = null;
     this.structure = null;
     this.overviewAtoms = [];
+    this.activityHistory = null;
+    this.activityState = null;
+    this.activitySegments = [];
+    this.activityPlaying = false;
   }
 }

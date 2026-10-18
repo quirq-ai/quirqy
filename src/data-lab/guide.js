@@ -5,7 +5,7 @@ const hex = value => `#${value.toString(16).padStart(6, '0')}`;
 const icons = {
   trunk: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 22 3-7V3h4v12l3 7ZM11 11 5 5l-1 2 7 8m2-7 6-5 1 2-7 7" fill="#ad8a61"/><path d="M12 5v16" stroke="#e2c39a" stroke-width=".7"/></svg>',
   branch: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21 13 10l8-7M8 15 5 8m8 2-1-8M9 14l12-3" fill="none" stroke="#ad8a61" stroke-width="2" stroke-linecap="round"/><path d="m5 8-3-2m10-2 2-2m6 10 3 2" fill="none" stroke="#c5ad82" stroke-width="1"/></svg>',
-  roots: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7v12h4M3 12h4" fill="none" stroke="#9fabc0" stroke-width="1"/><path d="M2 2h5l2 2h5v5H2Z" fill="#c6a575"/><path d="M8 10h4l2 1.5h7V16H8Z" fill="#c6a575"/><path d="M9 18h8l3 3v2H9Z" fill="#91afc4"/><path d="M17 18v3h3" fill="none" stroke="#cbdbe7" stroke-width=".7"/></svg>',
+  roots: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 5h20" stroke="#9aab8d" stroke-width=".8"/><path d="M12 2v7m0 0-6 5-3 5m9-10 6 5 3 5M6 14l4 6m8-6-4 6" fill="none" stroke="#b79a77" stroke-width="1.7" stroke-linecap="round"/><circle cx="3" cy="19" r="1.2" fill="#ddc19b"/><circle cx="10" cy="20" r="1.2" fill="#ddc19b"/><circle cx="14" cy="20" r="1.2" fill="#ddc19b"/><circle cx="21" cy="19" r="1.2" fill="#ddc19b"/></svg>',
   leaf: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21C2 10 8 3 21 3 21 15 14 22 4 21Z" fill="#7ea27a"/><path d="M4 21 19 5M9 16l-1-6m5 2 6 1" fill="none" stroke="#c9ddab" stroke-width=".8"/></svg>',
   atom: '<span class="guide-atom" aria-hidden="true"></span>',
   carbon: '<span class="guide-atom guide-carbon" aria-hidden="true">C</span>',
@@ -36,7 +36,8 @@ export class DataGuide {
         <div class="guide-changes">
           ${[['added', 'Added / copied'], ['modified', 'Modified'], ['renamed', 'Renamed'], ['removed', 'Removed']].map(([key, label]) => `<span><i style="--change-color:${hex(CHANGE_COLORS[key])}"></i>${label}</span>`).join('')}
         </div>
-        <p class="lab-note guide-motion">Commit colors highlight changed atoms. Faint wireframes mark absent files; a halo marks hover or selection.</p>
+        <div id="guide-activity-key" class="guide-activity-key" aria-label="Brightness and pulses in loaded commit history"><span title="Translucent: no commit touches yet"><i class="guide-activity-sample untouched" aria-hidden="true"></i>Untouched</span><span title="Brighter: more commit touches so far"><i class="guide-activity-sample frequent" aria-hidden="true"></i>More touches</span><span class="guide-activity-pulse" title="A brief travelling light marks the current commit"><i class="guide-activity-sample pulse" aria-hidden="true"></i>Pulse · current commit</span></div>
+        <p class="lab-note guide-motion">Commit touches brighten atoms and paths through the selected point in the loaded history. A brief pulse travels root → folder → file. Wireframes mark absent files; a halo marks hover or selection.</p>
         <div class="section-title" id="guide-index-title">Repository index</div>
         <p class="lab-note guide-count-note" id="guide-index-caption"></p>
         <nav id="guide-index" aria-label="Focus a repository folder"></nav>
@@ -46,7 +47,7 @@ export class DataGuide {
             <li><strong>Read GitHub.</strong> Fetch the default branch, pin its latest commit, and read that commit’s file tree.</li>
             <li><strong>Read changes.</strong> Load recent commits and their file changes, following the first parent through merges.</li>
             <li id="guide-map-step"><strong>Build the structure.</strong> Make one atom per folder and file. Connect folders to their parents, and files to their folders.</li>
-            <li id="guide-replay-step"><strong>Replay.</strong> Add or remove file atoms. Renames keep the same identity and update the folder and file-type color.</li>
+            <li id="guide-replay-step"><strong>Replay.</strong> Add or remove file atoms; renames retain their identity. Each loaded commit touch adds brightness to that file and its folder path. Rewinding restores the touch counts at that commit.</li>
           </ol>
           <p class="lab-note" id="guide-encoding-note">Connections encode repository containment; a folder can have any number of files. Color and sphere size identify the assigned file element; byte size is shown in the inspector. Historical wireframes are excluded from current counts.</p>
           <p class="lab-note" id="guide-coverage-note">Up to 500 files are mapped. All their ancestor folders remain visible; the inspector lists every loaded file and change.</p>
@@ -185,20 +186,21 @@ export class DataGuide {
       ? 'One repository, growing through the same commit history.'
       : 'Each folder is one carbon atom; each file is one attached N, O, H or S atom.';
     $('#guide-atom-types').hidden = tree;
+    $('#guide-activity-key').hidden = tree;
     $('#guide-index-title').textContent = tree ? 'Root directory index' : 'Repository index';
     $('#guide-count-explanation').textContent = tree
-      ? 'Click a name here to focus its directory row. Counts include present files inside collapsed folders; amber dots mark changes.'
+      ? 'Click a folder to focus its root subtree. Counts include present files in all child folders; amber dots mark changes.'
       : 'Click a name to focus. Counts show present / mapped files; amber dots mark changes.';
     this.el.querySelector('.guide-intro + .section-title').textContent = tree ? 'Reading the shapes' : 'Reading the structure';
     $('#guide-shape-key').innerHTML = tree
-      ? `<div><dt><span class="guide-icon">${icons.trunk}</span>Repository trunk</dt><dd>Grows taller and thicker with each loaded commit</dd></div>
+      ? `<div><dt><span class="guide-icon">${icons.trunk}</span>Repository trunk</dt><dd>The repository root, growing taller and thicker with each commit</dd></div>
          <div><dt><span class="guide-icon">${icons.branch}</span>Folder branches</dt><dd>More present leaves lengthen and bend a limb</dd></div>
          <div><dt><span class="guide-icon">${icons.leaf}</span>File leaves</dt><dd>One leaf for each mapped file</dd></div>
-         <div><dt><span class="guide-icon">${icons.roots}</span>Directory outline</dt><dd>Folder and file rows connected to their actual parents</dd></div>`
+         <div><dt><span class="guide-icon">${icons.roots}</span>Directory roots</dt><dd>Folder forks, subfolder branches and file tips follow their actual parents</dd></div>`
       : `<div><dt><span class="guide-icon">${icons.carbon}</span>Folder carbon · C</dt><dd>Exactly one graphite carbon atom for each folder</dd></div>
          <div><dt><span class="guide-icon">${icons.atom}</span>File atom</dt><dd>Exactly one N, O, H or S atom for each mapped file</dd></div>`;
     $('#guide-relations').innerHTML = tree
-      ? 'Below the ground line, an indented directory outline shows the loaded paths at this commit, like a shell tree in 3D. Click folders in the scene to expand or collapse them; click file rows to inspect them.'
+      ? 'The trunk is the repository root. Below ground, the full hierarchy spreads into balanced horizontal branches, with depth in 3D. Click a folder to focus its subtree or a file tip to inspect it.'
       : '<span class="guide-connection" aria-hidden="true"></span>Folder carbons bond to their actual parent. Every file atom bonds directly to its folder’s carbon.';
     const sizeNote = $('#guide-size-note');
     sizeNote.hidden = !tree;
@@ -208,16 +210,16 @@ export class DataGuide {
       sizeNote.textContent = `Leaf area follows snapshot bytes, with limits for readability. Empty files use the minimum size; unknown sizes use a muted fallback. ${known.toLocaleString()} known · ${(nodes.length - known).toLocaleString()} unknown.`;
     }
     $('.guide-motion').textContent = tree
-      ? 'Commit effects adds change colors and motion: step forward to grow new leaves and let removed leaves fall. Jumps and backward steps settle immediately. Above ground, faint wireframes mark absent files; a bright halo marks hover or selection. The directory outline includes only present files.'
-      : 'Additions add one atom; removals take it away. Renames move the same atom into its current folder. Faint wireframes and dim index rows are historical; a halo marks hover or selection.';
+      ? 'Commit effects adds change colors and motion: step forward to grow new leaves and let removed leaves fall. Jumps and backward steps settle immediately. Above ground, faint wireframes mark absent files; a bright halo marks hover or selection. Roots include only present files.'
+      : 'Commit touches brighten atoms and paths through the selected point in the loaded history. A brief pulse travels root → folder → file. Wireframes mark absent files; a halo marks hover or selection.';
     $('#guide-map-step').innerHTML = tree
-      ? '<strong>Build both hierarchies.</strong> The directory outline places each present file inside its actual folder and connects each folder to its parent. Above ground, mapped files become leaves on growing limbs.'
+      ? '<strong>Build both hierarchies.</strong> The trunk begins the root hierarchy. Every present file connects to its actual folder, and every folder connects to its parent. Above ground, mapped files become leaves on growing limbs.'
       : '<strong>Build the structure.</strong> Make one atom per folder and file. Connect folders to their parents, and files to their folders.';
     $('#guide-replay-step').innerHTML = tree
       ? '<strong>Replay growth.</strong> Each loaded commit adds height and thickness. Additions grow, removals fall, and lighter branches lift back up.'
-      : '<strong>Replay.</strong> Add or remove file atoms. Renames keep the same identity and update the folder and file-type color.';
+      : '<strong>Replay.</strong> Add or remove file atoms; renames retain their identity. Each loaded commit touch adds brightness to that file and its folder path. Rewinding restores the touch counts at that commit.';
     $('#guide-coverage-note').textContent = tree
-      ? 'The directory outline contains every present loaded file and ancestor folder, including collapsed entries. Large folders show their children in pages. The canopy maps up to 500 leaves and may group deep folders. GitHub loading limits are listed under Data coverage.'
+      ? 'Roots display every present loaded file and ancestor folder in one fully expanded hierarchy. The canopy maps up to 500 leaves and may group deep folders. GitHub loading limits are listed under Data coverage.'
       : 'Up to 500 files are mapped. All their ancestor folders remain visible; the inspector lists every loaded file and change.';
     $('#guide-encoding-note').textContent = tree
       ? 'Trunk height and thickness show progress through the loaded history. Branch weight is a visual metaphor for present mapped leaf counts, not bytes or code quality. File identities survive renames; their positions follow the growing limbs. Leaf areas use known file sizes at the loaded snapshot, held constant during replay. Historical byte sizes are not inferred from lines added or deleted. Areas are relative to the median known positive file size, limited to 0.16–6.25 times that area. Empty files use the minimum; unknown sizes use a muted 0.65 fallback.'

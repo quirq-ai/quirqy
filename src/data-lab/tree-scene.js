@@ -130,18 +130,6 @@ export class TreeScene extends RepositoryScene {
     this.group.add(this.roots.group);
     this.selectionInRoots = false;
     this.lastHit = null;
-    // A folder is toggled on a single click. The shared double-click handler
-    // would toggle it a third time; use double-click only to focus the outline.
-    this.renderer.domElement.removeEventListener('dblclick', this._doubleClick);
-    this._doubleClick = event => {
-      const hit = this._hit(event);
-      if (hit?.kind === 'file') this.focusNode(hit.id);
-      else if (hit?.kind === 'folder') {
-        if (hit.root) this.focusRootFolder(hit.path);
-        else super.focusFolder(hit.path);
-      }
-    };
-    this.renderer.domElement.addEventListener('dblclick', this._doubleClick);
     for (const [name, geometry] of Object.entries(this.geometries)) if (name !== 'pick') { geometry.dispose(); delete this.geometries[name]; }
     this.geometries.leaf = createLeafGeometry();
     const veinPoints = Array.from({ length: 19 }, (_, index) => {
@@ -153,7 +141,7 @@ export class TreeScene extends RepositoryScene {
     this.fallingLeaves = [];
     this.index = null;
     this.trunkRadius = trunkRadius(-1);
-    this.renderer.domElement.setAttribute('aria-label', 'Three-dimensional repository growth tree. Each leaf is a file. Below ground, an indented directory outline shows actual folders and files. Click folders to expand or collapse, click files or leaves to inspect. Drag to orbit, scroll to zoom, double-click a file to focus.');
+    this.renderer.domElement.setAttribute('aria-label', 'Three-dimensional repository growth tree. Each leaf is a file. The trunk is the repository root. Below ground, every folder and file branches into a fully expanded, balanced three-dimensional hierarchy. Click a folder root to focus its subtree, or a file tip or leaf to inspect. Drag to orbit, scroll to zoom, double-click a file to focus.');
   }
 
   setModel(model) {
@@ -474,7 +462,7 @@ export class TreeScene extends RepositoryScene {
     const height = this.renderer.domElement.clientHeight || window.innerHeight;
     const availableWidth = Math.max(270, width - (width > 1100 ? 660 : width > 900 ? 610 : width > 700 ? 555 : 36));
     const availableHeight = Math.max(250, height - (width > 700 ? 210 : 290));
-    const ray = new THREE.Vector3(0.16, 0.095, 1).normalize();
+    const ray = new THREE.Vector3(0, 0.12, 1).normalize();
     const right = new THREE.Vector3().crossVectors(UP, ray).normalize();
     const up = new THREE.Vector3().crossVectors(ray, right);
     const canopy = this.cameraPoints || [...this.layout.nodes.map(node => asVector(node.position)), ...this.layout.trunk.map(asVector)];
@@ -529,13 +517,10 @@ export class TreeScene extends RepositoryScene {
 
   focusNode(id) {
     if (this.options.roots && this.roots?.files.has(id) && (this.selectionInRoots || !this.nodes.has(id))) {
-      this.roots.revealFile(id);
       const rootPosition = this.roots.getNodePosition(id);
       if (rootPosition) {
         this.select(id);
-        const node = this.roots.files.get(id).node;
-        const bounds = this.roots.getFolderBounds(node.parentPath);
-        if (bounds && !bounds.isEmpty()) this._frameRootsBounds(bounds);
+        this._flyTo(rootPosition, 22);
         return;
       }
     }
@@ -543,17 +528,13 @@ export class TreeScene extends RepositoryScene {
   }
 
   focusFolder(path) {
-    if (this.lastHit?.root && this.lastHit.path === path) {
-      if (this.lastHit.pagerDelta) this.roots.changePage(path, this.lastHit.pagerDelta);
-      else if (this.lastHit.toggle) this.roots.toggleFolder(path);
-      else { this.focusRootFolder(path); return; }
-      this.focusRoots();
-    } else super.focusFolder(path);
+    if (this.lastHit?.root && this.lastHit.path === path) this.focusRootFolder(path);
+    else super.focusFolder(path);
   }
 
   focusRootFolder(path) {
     if (!this.options.roots) { super.focusFolder(path); return; }
-    this.roots?.revealFolder(path);
+    this.selectionInRoots = true;
     const bounds = path ? this.roots?.getFolderBounds(path) : this.roots?.getBounds();
     if (!bounds || bounds.isEmpty()) return;
     this._frameRootsBounds(bounds);
@@ -561,6 +542,7 @@ export class TreeScene extends RepositoryScene {
 
   focusRoots() {
     if (!this.options.roots) return;
+    this.selectionInRoots = true;
     const bounds = this.roots?.getBounds();
     if (bounds && !bounds.isEmpty()) this._frameRootsBounds(bounds);
   }
@@ -576,7 +558,7 @@ export class TreeScene extends RepositoryScene {
     const height = this.renderer.domElement.clientHeight || window.innerHeight;
     const availableWidth = Math.max(270, width - (width > 1100 ? 660 : width > 900 ? 610 : width > 700 ? 555 : 36));
     const availableHeight = Math.max(250, height - (width > 700 ? 210 : 290));
-    const ray = new THREE.Vector3(0.10, 0.025, 1).normalize();
+    const ray = new THREE.Vector3(0, 0.2, 1).normalize();
     const right = new THREE.Vector3().crossVectors(UP, ray).normalize();
     const up = new THREE.Vector3().crossVectors(ray, right);
     const center = bounds.getCenter(new THREE.Vector3());

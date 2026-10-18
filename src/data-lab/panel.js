@@ -38,7 +38,7 @@ export class DataPanel {
       <p class="lab-note" id="data-status" role="status" aria-live="polite"></p>
       <div class="section-title">View</div>
       <div class="seg data-view-switch" role="group" aria-label="Repository visualization"><button type="button" data-view="structure" class="active" aria-pressed="true">Structure</button><button type="button" data-view="tree" aria-pressed="false">Growth tree</button></div>
-      <div class="kick-row eq-actions data-view-actions"><button class="btn tiny" id="data-frame" type="button">Frame view</button><button class="btn tiny" id="data-frame-roots" type="button" title="Frame the 3D directory outline beneath the tree" hidden>Frame roots</button><button class="btn tiny" id="data-focus" type="button" disabled>Focus file</button></div>
+      <div class="kick-row eq-actions data-view-actions"><button class="btn tiny" id="data-frame" type="button">Frame view</button><button class="btn tiny" id="data-frame-roots" type="button" title="Frame the complete 3D root hierarchy beneath the tree" hidden>Frame roots</button><button class="btn tiny" id="data-focus" type="button" disabled>Focus file</button></div>
       <div class="data-view-toggles"><label class="setting"><input type="checkbox" data-option="links" checked> <span id="data-links-label">Bonds</span></label><label class="setting"><input type="checkbox" data-option="labels" checked> Folder labels</label><label class="setting"><input type="checkbox" data-option="ghosts" checked> Historical files</label><label class="setting"><input type="checkbox" data-option="activity" checked> <span id="data-activity-label">Commit effects</span></label><label class="setting" id="data-roots-option" hidden><input type="checkbox" data-option="roots" checked> Show roots</label></div>
       <section id="data-structure" class="data-structure" aria-label="Current repository structure">
         <div class="data-structure-summary"><span><b id="data-structure-folders"></b> folder carbons</span><span><b id="data-structure-atoms"></b> file atoms</span></div>
@@ -207,12 +207,14 @@ export class DataPanel {
     const viewChanged = previous?.view !== state.view || previous?.mappedIds !== state.mappedIds;
     const frameChanged = modelChanged || previous?.index !== state.index;
     const selectionChanged = modelChanged || previous?.selectedId !== state.selectedId;
+    const activityChanged = previous?.activity !== state.activity;
     if (modelChanged) { this.filePage = 0; this.folder = ''; this.renderRepository(); this.renderCoverage(); }
     if (frameChanged) { this.renderCommit(); this.renderPatterns(); }
     if (viewChanged || !previous) this.renderView();
     if (frameChanged || viewChanged || previous?.structure !== state.structure) this.renderStructure();
     if (modelChanged || viewChanged || (frameChanged && state.view !== 'tree')) this.renderDirectories();
     if (frameChanged || selectionChanged || viewChanged) { this.renderChanges(); this.renderSelected(); this.renderFiles(); }
+    else if (activityChanged) this.renderSelected();
     this.$('#data-focus').disabled = !this.isRendered(state.selectedId);
     this.$('[data-option="roots"]').checked = state.rootsVisible !== false;
     if (selectionChanged && this.pendingSelectionScroll) this.showSelectedInPanel();
@@ -234,7 +236,7 @@ export class DataPanel {
     this.$('#data-time-label').textContent = state.index < 0 ? `Baseline · ${state.model.commits.length} commits loaded` : `${state.index + 1} / ${state.model.commits.length} · ${shortSha}`;
     this.$('#data-time-date').textContent = state.frame.commit ? formatDate(state.frame.commit.date) : 'Before the first loaded commit';
     this.$('#data-rendered-count').textContent = state.view === 'tree' && state.rootLayout
-      ? `${fmt(state.renderedCount)} canopy leaves mapped. The directory outline contains all ${fmt(state.rootLayout.nodes.length)} present loaded files; expand folders to browse their paths. All loaded files remain searchable here.`
+      ? `${fmt(state.renderedCount)} canopy leaves mapped. Roots display all ${fmt(state.rootLayout.nodes.length)} present loaded files and every ancestor folder. All loaded files remain searchable here.`
       : `${fmt(state.renderedCount ?? state.model.nodes.length)} of ${fmt(state.model.nodes.length)} ${state.view === 'tree' ? 'leaves' : 'file atoms'} rendered. All loaded files remain searchable here.`;
   }
 
@@ -246,10 +248,13 @@ export class DataPanel {
       button.setAttribute('aria-pressed', String(active));
     }
     this.$('#data-view-intro').textContent = tree
-      ? 'Each loaded commit grows the tree taller and thicker. Below ground, a 3D directory outline shows the exact folders and files at this point in history.'
+      ? 'The trunk is the repository root, growing with each commit. Below ground, the complete folder and file hierarchy spreads into balanced 3D branches.'
       : 'One folder, one carbon atom. Each file is one element atom bonded directly to its folder.';
     this.$('#data-links-label').textContent = tree ? 'File stems' : 'Bonds';
     this.$('#data-activity-label').textContent = 'Commit effects';
+    this.$('[data-option="activity"]').title = tree
+      ? 'Show commit change colors and motion.'
+      : 'Show current-commit pulses and highlights. Cumulative touch brightness stays visible.';
     this.$('#data-roots-option').hidden = !tree;
     this.$('#data-frame-roots').hidden = !tree;
     this.$('#data-structure').hidden = tree;
@@ -352,10 +357,12 @@ export class DataPanel {
     const changes = model.commits.map((commit, index) => ({ ...commit, index })).filter(commit => commit.changes.some(change => change.id === file.id));
     const historyWasOpen = this.$('#data-selected .data-file-history')?.open;
     const kind = this.state.view !== 'tree' ? fileAtomKind(file.path) : null;
+    const touchesSoFar = this.state.activity?.fileTouches?.get(file.id) ?? changes.filter(commit => commit.index <= this.state.index).length;
+    const touchRows = kind ? `<div class="stat-k" title="Commit touches through the selected point in the loaded history">Touches so far</div><div class="stat-v data-file-touches">${fmt(touchesSoFar)}</div>` : '';
     const currentFolder = file.path.includes('/') ? file.path.slice(0, file.path.lastIndexOf('/')) : '(root)';
     const atomRows = kind ? `<div class="stat-k">File category</div><div class="stat-v">${esc(kind.label)}</div><div class="stat-k">File element</div><div class="stat-v data-file-element">${esc(kind.element)} · ${esc(kind.elementName)}</div><div class="stat-k">Current folder</div><div class="stat-v data-folder-path">${esc(currentFolder)}</div>` : '';
     const history = changes.length ? `<details class="data-file-history" ${historyWasOpen ? 'open' : ''}><summary>File activity · ${changes.length} commits</summary>${changes.map(commit => `<button type="button" data-commit-index="${commit.index}" aria-current="${commit.index === this.state.index}" title="${esc(commit.message)}"><code>${esc(this.shortSha(commit.sha))}</code><span>${esc(commit.message.split('\n')[0])}</span></button>`).join('')}</details>` : '';
-    this.replaceContent(this.$('#data-selected'), `<div class="data-selected-path">${esc(file.path)}</div><div class="stat-grid"><div class="stat-k">At this point</div><div class="stat-v">${file.exists ? 'Present' : 'Not present'}</div><div class="stat-k">Current change</div><div class="stat-v">${esc(file.status)}</div><div class="stat-k">Commits touching file</div><div class="stat-v">${fmt(changes.length)}</div>${atomRows}<div class="stat-k">Snapshot size</div><div class="stat-v">${file.size != null ? `${fmt(file.size)} bytes` : 'Unknown'}</div></div>${historical.length ? `<div class="data-history-paths"><span>Other paths for this file</span>${historical.map(path => `<code>${esc(path)}</code>`).join('')}</div>` : ''}${rendered ? '' : '<p class="lab-note" style="padding:0 0 8px">Outside the displayed subset; data remains available here.</p>'}<button class="btn tiny" type="button" data-focus-id="${esc(file.id)}" ${rendered ? '' : 'disabled'}>Focus in scene</button>${history}`);
+    this.replaceContent(this.$('#data-selected'), `<div class="data-selected-path">${esc(file.path)}</div><div class="stat-grid"><div class="stat-k">At this point</div><div class="stat-v">${file.exists ? 'Present' : 'Not present'}</div><div class="stat-k">Current change</div><div class="stat-v">${esc(file.status)}</div>${touchRows}<div class="stat-k">${kind ? 'Touches in loaded history' : 'Commits touching file'}</div><div class="stat-v">${fmt(changes.length)}</div>${atomRows}<div class="stat-k">Snapshot size</div><div class="stat-v">${file.size != null ? `${fmt(file.size)} bytes` : 'Unknown'}</div></div>${historical.length ? `<div class="data-history-paths"><span>Other paths for this file</span>${historical.map(path => `<code>${esc(path)}</code>`).join('')}</div>` : ''}${rendered ? '' : '<p class="lab-note" style="padding:0 0 8px">Outside the displayed subset; data remains available here.</p>'}<button class="btn tiny" type="button" data-focus-id="${esc(file.id)}" ${rendered ? '' : 'disabled'}>Focus in scene</button>${history}`);
   }
 
   renderFiles() {

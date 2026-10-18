@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createRootLayout, ROOT_ROW_HEIGHT, ROOT_INDENT, ROOT_DEPTH_OFFSET } from './root-layout.js';
+import { createRootLayout, ROOT_TIER_HEIGHT } from './root-layout.js';
 import { buildModel, stateAt } from './model.js';
 
 const make = paths => ({ repository: { name: 'roots' }, nodes: paths.map((path, index) => ({ id: `file:${index}`, path, size: index * 17 })) });
@@ -9,7 +9,7 @@ const parentOf = path => path.includes('/') ? path.slice(0, path.lastIndexOf('/'
 
 function assertExactEdges(layout) {
   const folders = mapFolders(layout);
-  assert.deepEqual(folders.get('').position, [0, layout.groundY - 3, 0]);
+  assert.deepEqual(folders.get('').position, [0, layout.groundY, 0]);
   for (const folder of layout.folders) {
     if (folder.parent === null) continue;
     assert.equal(folder.parent, parentOf(folder.path));
@@ -41,7 +41,7 @@ test('roots preserve each exact immediate parent and count actual descendants', 
 test('roots retain more than three directory levels without collapsing a deep chain', () => {
   const path = `${Array.from({ length: 18 }, (_, index) => `level${index}`).join('/')}/file.js`;
   const model = make([path]);
-  const layout = createRootLayout(model, { expandedPaths: new Set(createRootLayout(model).folders.map(folder => folder.path)) });
+  const layout = createRootLayout(model);
   assert.equal(layout.folders.length, 19);
   assert.equal(layout.nodes[0].depth, 19);
   assert.equal(layout.maxDepth, 19);
@@ -104,67 +104,103 @@ test('root geometry is deterministic across input ordering, active ID order and 
   assert.deepEqual(a, b);
 });
 
-test('outline rows align by depth with equal spacing and axis-aligned connectors', () => {
+test('every actual entry is fully expanded and depth sets a consistent vertical tier', () => {
   const model = make(['README.md', 'src/index.js', 'src/ui/button.js', 'src/ui/menu.js', 'docs/start.md']);
-  const layout = createRootLayout(model, { expandedPaths: new Set(['', 'src', 'src/ui', 'docs']) });
-  assert.deepEqual(layout.rows.map(row => row.path), ['', 'docs', 'docs/start.md', 'src', 'src/ui', 'src/ui/button.js', 'src/ui/menu.js', 'src/index.js', 'README.md']);
-  for (const [index, row] of layout.rows.entries()) {
-    assert.equal(row.position[0], row.depth * ROOT_INDENT);
-    assert.equal(row.position[2], row.depth * ROOT_DEPTH_OFFSET);
-    assert.equal(row.position[1], -43 - index * ROOT_ROW_HEIGHT);
-    for (let part = 1; part < row.points.length; part++) {
-      const changedAxes = row.points[part].filter((value, axis) => value !== row.points[part - 1][axis]).length;
-      assert.ok(changedAxes <= 1, `${row.path}: connector segment must turn at right angles`);
-    }
+  const layout = createRootLayout(model);
+  assert.equal(layout.rows.length, layout.nodes.length + layout.folders.length);
+  assert.ok(layout.rows.every(row => row.visible && row.kind !== 'pager'));
+  assert.equal(layout.visibleFileCount, 5);
+  assert.equal(layout.visibleFolderCount, 4);
+  for (const row of layout.rows) {
+    assert.equal(row.position[1], layout.groundY - row.depth * ROOT_TIER_HEIGHT);
+    assert.equal(row.curve.length, 4);
   }
   assertExactEdges(layout);
 });
 
-test('collapsed folders retain exact hidden paths at the nearest visible ancestor', () => {
-  const model = make(['README.md', 'src/index.js', 'src/ui/button.js', 'docs/start.md']);
-  const closed = createRootLayout(model);
-  assert.deepEqual(closed.rows.map(row => row.path), ['', 'docs', 'src', 'README.md']);
-  const src = mapFolders(closed).get('src');
-  assert.equal(src.expanded, false);
-  for (const node of closed.nodes.filter(node => node.path.startsWith('src/'))) {
-    assert.equal(node.visible, false);
-    assert.deepEqual(node.position, src.position);
+test('repository root is the canopy trunk anchor without an additional underground root', () => {
+  const layout = createRootLayout(make(['a.js', 'b.js']), { groundY: -12 });
+  const root = layout.folders[0];
+  assert.equal(root.path, '');
+  assert.equal(root.depth, 0);
+  assert.equal(root.parent, null);
+  assert.deepEqual(root.position, [0, -12, 0]);
+  assert.ok(root.curve.every(point => point.every((value, axis) => value === root.position[axis])));
+  assert.equal(layout.rows.filter(row => row.kind === 'folder' && row.depth === 0).length, 1);
+});
+
+test('equivalent sibling subtrees have symmetric spacing and real shallow depth', () => {
+  const layout = createRootLayout(make(['left/a.js', 'left/b.js', 'right/a.js', 'right/b.js']));
+  const folders = mapFolders(layout);
+  const left = folders.get('left'), right = folders.get('right');
+  assert.equal(left.position[0], -right.position[0]);
+  assert.equal(left.position[1], right.position[1]);
+  assert.equal(left.position[2], right.position[2]);
+  assert.ok(left.position[2] > 0);
+  const leftFiles = layout.nodes.filter(node => node.folder === 'left');
+  const rightFiles = layout.nodes.filter(node => node.folder === 'right').reverse();
+  leftFiles.forEach((node, index) => {
+    assert.ok(Math.abs(node.position[0] + rightFiles[index].position[0]) < 1e-10);
+    assert.ok(Math.abs(node.position[2] - rightFiles[index].position[2]) < 1e-10);
+  });
+  assert.ok(layout.bounds.min[0] === -layout.bounds.max[0]);
+});
+
+test('small sibling groups form a horizontal balanced arch instead of a vertical or radial outline', () => {
+  const layout = createRootLayout(make(['a.js', 'b.js', 'c.js', 'd.js', 'e.js']));
+  const positions = layout.nodes.map(node => node.position);
+  for (let index = 0; index < positions.length; index++) {
+    const mirror = positions[positions.length - index - 1];
+    assert.ok(Math.abs(positions[index][0] + mirror[0]) < 1e-10);
+    assert.ok(Math.abs(positions[index][2] - mirror[2]) < 1e-10);
+    assert.equal(positions[index][1], -40 - ROOT_TIER_HEIGHT);
   }
-  assert.equal(mapFolders(closed).get('src/ui').visible, false);
-  const opened = createRootLayout(model, { expandedPaths: new Set(['', 'src']) });
-  assert.deepEqual(opened.rows.map(row => row.path), ['', 'docs', 'src', 'src/ui', 'src/index.js', 'README.md']);
-  assert.equal(opened.nodes.find(node => node.path === 'src/ui/button.js').visible, false);
-  assert.equal(opened.fileCount, closed.fileCount);
-  assert.equal(opened.folderCount, closed.folderCount);
+  assert.ok(positions[2][2] > positions[0][2]);
+  assert.ok(positions[4][0] > positions[3][0]);
 });
 
-test('large folders page immediate entries without dropping files from the full hierarchy', () => {
-  const model = make(Array.from({ length: 2500 }, (_, index) => `file${String(index).padStart(4, '0')}.js`));
-  const first = createRootLayout(model);
-  assert.equal(first.nodes.length, 2500);
-  assert.equal(first.rows.filter(row => row.kind === 'file').length, 32);
-  const pager = first.rows.at(-1);
-  assert.equal(pager.kind, 'pager');
-  assert.deepEqual([pager.start, pager.end, pager.total, pager.pageCount], [0, 32, 2500, 79]);
-  assert.equal(pager.hasPrevious, false);
-  assert.equal(pager.hasNext, true);
-  const last = createRootLayout(model, { pageByPath: new Map([['', 1000]]) });
-  assert.deepEqual(last.rows.filter(row => row.kind === 'file').map(row => row.path), ['file2496.js', 'file2497.js', 'file2498.js', 'file2499.js']);
-  assert.equal(last.rows.at(-1).hasPrevious, true);
-  assert.equal(last.rows.at(-1).hasNext, false);
-  assert.ok(last.extent < first.extent);
-  assertExactEdges(last);
+test('nine and ten siblings remain one horizontal fan with shallow mirrored depth', () => {
+  for (const count of [9, 10]) {
+    const layout = createRootLayout(make(Array.from({ length: count }, (_, index) => `file${String(index).padStart(2, '0')}.js`)));
+    assert.ok(layout.nodes.every(node => node.visible));
+    assert.equal(new Set(layout.nodes.map(node => node.position[0])).size, count);
+    assert.ok(Math.max(...layout.nodes.map(node => node.position[2])) - Math.min(...layout.nodes.map(node => node.position[2])) <= 3 + 1e-10);
+    layout.nodes.forEach((node, index) => {
+      const mirror = layout.nodes[count - index - 1];
+      assert.ok(Math.abs(node.position[0] + mirror.position[0]) < 1e-10);
+      assert.ok(Math.abs(node.position[2] - mirror.position[2]) < 1e-10);
+      if (index) assert.ok(node.position[0] > layout.nodes[index - 1].position[0]);
+    });
+  }
 });
 
-test('paging is local to each expanded folder and folders sort before files', () => {
-  const model = make(['z/a.js', 'z/b.js', 'z/c.js', 'a.js', 'b.js', 'c.js', 'z/deep/index.js']);
-  const layout = createRootLayout(model, { expandedPaths: new Set(['', 'z']), pageSize: 2, pageByPath: { z: 1 } });
-  assert.deepEqual(layout.rows.map(row => [row.kind, row.path]), [
-    ['folder', ''], ['folder', 'z'], ['file', 'z/b.js'], ['file', 'z/c.js'], ['pager', 'z'], ['file', 'a.js'], ['pager', ''],
-  ]);
-  const collapsedRoot = createRootLayout(model, { expandedPaths: new Set() });
-  assert.equal(collapsedRoot.rows.length, 1);
-  assert.equal(collapsedRoot.folders[0].expanded, false);
+test('all 2500 sibling files remain visible in a compact symmetric 3D grid', () => {
+  const layout = createRootLayout(make(Array.from({ length: 2500 }, (_, index) => `file${String(index).padStart(4, '0')}.js`)));
+  assert.equal(layout.nodes.length, 2500);
+  assert.equal(layout.rows.length, 2501);
+  assert.ok(layout.nodes.every(node => node.visible));
+  assert.equal(new Set(layout.nodes.map(node => node.position.join(','))).size, 2500);
+  assert.ok(layout.footprint.width <= 160);
+  assert.ok(layout.footprint.depth <= 100);
+  const key = (x, z) => `${Math.round(x * 1e7)},${Math.round(z * 1e7)}`;
+  const positions = new Set(layout.nodes.map(node => key(node.position[0], node.position[2])));
+  for (const node of layout.nodes) assert.ok(positions.has(key(-node.position[0], node.position[2])));
+  assert.ok(new Set(layout.nodes.map(node => node.position[2])).size > 1);
+  assertExactEdges(layout);
+});
+
+test('dense mixed subtrees retain distinct positions and non-overlapping sibling envelopes', () => {
+  const model = make(Array.from({ length: 2500 }, (_, index) => `packages/p${index % 83}/src/file${index}.js`));
+  const layout = createRootLayout(model);
+  const byDepth = new Map();
+  for (const item of [...layout.folders, ...layout.nodes]) {
+    if (!byDepth.has(item.depth)) byDepth.set(item.depth, new Set());
+    const points = byDepth.get(item.depth);
+    const key = item.position.map(value => value.toFixed(8)).join(',');
+    assert.ok(!points.has(key), `${item.path} overlaps another entry at its hierarchy level`);
+    points.add(key);
+  }
+  assertExactEdges(layout);
 });
 
 test('empty, single-file and pinned-head default memberships produce finite bounded geometry', () => {
