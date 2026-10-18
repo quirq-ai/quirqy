@@ -27,7 +27,8 @@ export class DataPanel {
     this.el.className = 'panel';
     this.el.setAttribute('aria-label', 'Data Lab controls');
     this.el.innerHTML = `
-      <div class="list-title">Data Lab <button class="data-sheet-close" type="button" aria-label="Close Data Lab controls">×</button></div>
+      <div class="list-title">Data Lab <button class="data-sheet-close" id="data-panel-collapse" type="button" aria-label="Collapse Data Lab controls" aria-expanded="true" aria-controls="data-panel-body">−</button></div>
+      <div id="data-panel-body">
       <p class="lab-note" id="data-view-intro">One folder, one carbon atom. Each file is one element atom bonded directly to its folder.</p>
       <div class="section-title">Repository <span class="lab-hint" id="data-source-kind"></span></div>
       <form id="data-source-form" aria-label="Load a public GitHub repository">
@@ -78,7 +79,8 @@ export class DataPanel {
         <summary class="section-title">Data coverage</summary>
         <div id="data-coverage"></div>
         <div class="kick-row eq-actions"><button class="btn tiny" type="button" id="data-export">Export loaded data</button></div>
-      </details>`;
+      </details>
+      </div>`;
     this.timebar = document.createElement('footer');
     this.timebar.id = 'data-timebar';
     this.timebar.className = 'panel';
@@ -102,6 +104,7 @@ export class DataPanel {
     this.viewSwitch = this.el.querySelector('.data-view-switch');
     this.removeDrag = makePanelDraggable(this.el, { handleSelector: '.list-title', storageKey: 'observatory-data-panel-pos' });
     this.bind();
+    this.syncCollapseControl();
     this.clampFrame = requestAnimationFrame(() => this.clampPosition());
     this.setStatus('Choose a public GitHub repository or explore the synthetic sample.');
   }
@@ -148,8 +151,15 @@ export class DataPanel {
     on(this.$('#data-files-prev'), 'click', () => { this.filePage = Math.max(0, this.filePage - 1); this.renderFiles(); });
     on(this.$('#data-files-next'), 'click', () => { this.filePage++; this.renderFiles(); });
     on(this.toggle, 'click', () => this.setSheetOpen(!this.el.classList.contains('data-sheet-open')));
-    on(this.$('.data-sheet-close'), 'click', () => this.setSheetOpen(false));
-    on(window, 'resize', () => this.clampPosition());
+    on(this.$('#data-panel-collapse'), 'click', () => {
+      if (window.innerWidth <= 900) {
+        this.setSheetOpen(false);
+        this.toggle.focus();
+        return;
+      }
+      this.setCollapsed(!this.el.classList.contains('data-panel-collapsed'));
+    });
+    on(window, 'resize', () => { this.clampPosition(); this.syncCollapseControl(); });
     on(this.el, 'keydown', event => {
       if (event.key === 'Escape' && this.el.classList.contains('data-sheet-open')) { this.setSheetOpen(false); this.toggle.focus(); }
     });
@@ -183,7 +193,24 @@ export class DataPanel {
     else if (bounds.top < top) this.el.scrollTop += bounds.top - top;
   }
 
+  syncCollapseControl() {
+    const collapsed = this.el.classList.contains('data-panel-collapsed');
+    const button = this.$('#data-panel-collapse');
+    button.textContent = collapsed ? '+' : '−';
+    button.setAttribute('aria-expanded', String(!collapsed));
+    button.setAttribute('aria-label', `${collapsed ? 'Expand' : window.innerWidth <= 900 ? 'Close' : 'Collapse'} Data Lab controls`);
+  }
+
+  setCollapsed(collapsed) {
+    this.el.classList.toggle('data-panel-collapsed', collapsed);
+    this.$('#data-panel-body').hidden = collapsed;
+    this.syncCollapseControl();
+    this.el.scrollTop = 0;
+    this.clampPosition();
+  }
+
   setSheetOpen(open) {
+    if (open) this.setCollapsed(false);
     this.el.classList.toggle('data-sheet-open', open);
     this.toggle.setAttribute('aria-expanded', String(open));
   }
