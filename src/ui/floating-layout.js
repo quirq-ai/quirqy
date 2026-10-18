@@ -1,17 +1,18 @@
 import { makePanelDraggable } from './dragPanel.js';
 import './floating-layout.css';
+import { REPOSITORY_LABS } from './repository-labs.js';
 
 /** Attach shared floating behavior without tying it to a lab's scene lifecycle. */
 export function mountFloatingLayout() {
   const panels = new Map();
   const watched = new Map();
-  const dockIds = ['data-timebar', 'timebar', 'math-timebar'];
-  let dataControls = null;
+  const dockIds = [...REPOSITORY_LABS.map(lab => lab.dockId), 'timebar', 'math-timebar'];
+  let repositoryControls = null;
 
-  function restoreDataControls() {
-    if (!dataControls) return;
-    const { moves, header, dock, group } = dataControls;
-    dataControls = null;
+  function restoreRepositoryControls() {
+    if (!repositoryControls) return;
+    const { moves, header, dock, group } = repositoryControls;
+    repositoryControls = null;
     // Restore the actual controls so their listeners and focus behavior survive.
     for (const { node, placeholder, label } of moves) {
       placeholder.replaceWith(node);
@@ -19,17 +20,18 @@ export function mountFloatingLayout() {
       else node.setAttribute('aria-label', label);
     }
     group.remove();
-    header.classList.remove('data-status-header');
-    dock.classList.remove('data-actions-dock');
-    document.body.classList.remove('data-dock-layout');
+    header.classList.remove('repository-status-header');
+    dock.classList.remove('repository-actions-dock');
+    document.body.classList.remove('repository-dock-layout');
   }
 
-  function attachDataControls() {
-    const header = document.querySelector('#data-panel > .list-title');
-    const dock = document.getElementById('data-timebar');
-    if (dataControls) {
-      if (dataControls.header === header && dataControls.dock === dock && dataControls.group.isConnected) return;
-      restoreDataControls();
+  function attachRepositoryControls() {
+    const lab = REPOSITORY_LABS.find(lab => document.getElementById(lab.panelId));
+    const header = lab && document.querySelector(`#${lab.panelId} > .list-title`);
+    const dock = lab && document.getElementById(lab.dockId);
+    if (repositoryControls) {
+      if (repositoryControls.header === header && repositoryControls.dock === dock && repositoryControls.group.isConnected) return;
+      restoreRepositoryControls();
     }
     const view = dock?.querySelector(':scope > .glass-opacity-trigger');
     const help = document.getElementById('btn-help');
@@ -37,7 +39,7 @@ export function mountFloatingLayout() {
     if (!header || !view || !help || !status) return;
 
     const group = document.createElement('div');
-    group.className = 'data-dock-actions';
+    group.className = 'repository-dock-actions';
     group.setAttribute('role', 'group');
     group.setAttribute('aria-label', 'Dock actions');
     const moves = [help, status].map(node => {
@@ -49,10 +51,10 @@ export function mountFloatingLayout() {
     group.append(help);
     view.after(group);
     header.insertBefore(status, header.querySelector('button'));
-    header.classList.add('data-status-header');
-    dock.classList.add('data-actions-dock');
-    document.body.classList.add('data-dock-layout');
-    dataControls = { moves, header, dock, group };
+    header.classList.add('repository-status-header');
+    dock.classList.add('repository-actions-dock');
+    document.body.classList.add('repository-dock-layout');
+    repositoryControls = { moves, header, dock, group };
   }
 
   function release(element, entry) {
@@ -71,12 +73,14 @@ export function mountFloatingLayout() {
       if (!element.isConnected) { observer.disconnect(); watched.delete(element); }
     }
 
-    const guide = document.getElementById('data-guide');
-    if (guide && !panels.has(guide)) {
-      const dispose = makePanelDraggable(guide, {
-        handleSelector: '.list-title', storageKey: 'observatory-data-guide-pos',
-      });
-      panels.set(guide, { dispose });
+    for (const lab of REPOSITORY_LABS) {
+      const guide = document.getElementById(lab.guideId);
+      if (guide && !panels.has(guide)) {
+        const dispose = makePanelDraggable(guide, {
+          handleSelector: '.list-title', storageKey: `observatory-${lab.guideId}-pos`,
+        });
+        panels.set(guide, { dispose });
+      }
     }
 
     for (const id of dockIds) {
@@ -102,14 +106,17 @@ export function mountFloatingLayout() {
       // Reserve enough room above the dock for nearby side panels.
       const updateHeight = () => {
         const height = dock.getBoundingClientRect().height;
-        if (height) document.documentElement.style.setProperty(`--${id}-height`, `${Math.ceil(height)}px`);
+        if (height) {
+          document.documentElement.style.setProperty(`--${id}-height`, `${Math.ceil(height)}px`);
+          if (REPOSITORY_LABS.some(lab => lab.dockId === id)) document.documentElement.style.setProperty('--repository-timebar-height', `${Math.ceil(height)}px`);
+        }
       };
       const resize = new ResizeObserver(updateHeight);
       resize.observe(dock);
       updateHeight();
       panels.set(dock, { dispose, resize, grip });
     }
-    attachDataControls();
+    attachRepositoryControls();
   }
 
   // Panels mount asynchronously. Observe only direct children, never scene updates.
@@ -120,8 +127,9 @@ export function mountFloatingLayout() {
     bodyObserver.disconnect();
     for (const observer of watched.values()) observer.disconnect();
     watched.clear();
-    restoreDataControls();
+    restoreRepositoryControls();
     for (const [element, entry] of panels) release(element, entry);
     for (const id of dockIds) document.documentElement.style.removeProperty(`--${id}-height`);
+    document.documentElement.style.removeProperty('--repository-timebar-height');
   };
 }

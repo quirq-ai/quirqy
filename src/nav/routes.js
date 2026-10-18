@@ -3,6 +3,7 @@
 
 export const ROUTES = [
   { mode: 'data', path: '/data', title: 'quirq observatory · Data Lab', aliases: ['/data-lab'] },
+  { mode: 'activity', path: '/activity', title: 'quirq observatory · Activity Lab', aliases: ['/activity-lab'] },
   { mode: 'spm', path: '/spm', title: 'quirq observatory · SPM Mooring', aliases: ['/mooring'] },
   { mode: 'solar', path: '/', title: 'quirq observatory · Solar System', aliases: ['/solar'] },
   { mode: 'math', path: '/equation', title: 'quirq observatory · Equation Lab', aliases: ['/math', '/equations'] },

@@ -73,16 +73,16 @@ html body #equation-panel .glass-speed-heading { display: flex; align-items: cen
 html body #equation-panel .glass-speed-heading #eq-speed-val { margin-left: auto; }
 html body #equation-panel .glass-speed-heading .glass-opacity-trigger { min-height: 28px; padding: 0 7px; }
 html body #equation-panel .glass-speed-heading .glass-opacity-text { display: none; }
-html body :is(#timebar, #math-timebar, #data-timebar) .t-mid { min-width: 0; }
-html body #data-timebar { width: min(680px, calc(100vw - 412px)); }
-html body #data-timebar .data-speed { flex: none; }
-html body #data-timebar #data-speed { min-height: 36px; border-radius: 10px; padding: 0 6px; }
+html body :is(#timebar, #math-timebar, #data-timebar, #activity-timebar) .t-mid { min-width: 0; }
+html body :is(#data-timebar, #activity-timebar) { width: min(680px, calc(100vw - 412px)); }
+html body :is(#data-timebar, #activity-timebar) :is(.data-speed, .activity-speed) { flex: none; }
+html body :is(#data-timebar, #activity-timebar) :is(#data-speed, #activity-speed) { min-height: 36px; border-radius: 10px; padding: 0 6px; }
 @media (min-width: 901px) and (max-width: 1100px) {
-  html body #data-timebar { width: calc(100vw - 382px); }
+  html body :is(#data-timebar, #activity-timebar) { width: calc(100vw - 382px); }
 }
 @media (max-width: 900px) {
   html body .glass-opacity-trigger { min-height: 38px; padding: 0 8px; }
-  html body :is(#timebar, #math-timebar, #data-timebar) {
+  html body :is(#timebar, #math-timebar, #data-timebar, #activity-timebar) {
     left: 10px;
     right: 10px;
     bottom: calc(12px + env(safe-area-inset-bottom, 0px));
@@ -92,20 +92,20 @@ html body #data-timebar #data-speed { min-height: 36px; border-radius: 10px; pad
     padding: 12px;
     gap: 10px;
   }
-  html body #data-timebar {
+  html body :is(#data-timebar, #activity-timebar) {
     display: grid;
     grid-template-columns: 34px 42px 34px 1fr auto;
   }
-  html body #data-timebar .t-mid { grid-column: 1 / -1; grid-row: 1; gap: 7px; }
-  html body #data-timebar #data-prev { grid-column: 1; }
-  html body #data-timebar #data-play { grid-column: 2; }
-  html body #data-timebar #data-next { grid-column: 3; }
-  html body #data-timebar .data-speed { justify-self: end; }
-  html body #data-timebar .glass-opacity-trigger { padding: 0 8px; }
-  html body #data-timebar .glass-opacity-text { display: none; }
-  html body #data-panel,
-  html body #data-guide { bottom: calc(144px + env(safe-area-inset-bottom, 0px)) !important; max-height: calc(100dvh - 290px); }
-  html body #data-guide-body { max-height: calc(100dvh - 330px); }
+  html body :is(#data-timebar, #activity-timebar) .t-mid { grid-column: 1 / -1; grid-row: 1; gap: 7px; }
+  html body :is(#data-timebar, #activity-timebar) :is(#data-prev, #activity-prev) { grid-column: 1; }
+  html body :is(#data-timebar, #activity-timebar) :is(#data-play, #activity-play) { grid-column: 2; }
+  html body :is(#data-timebar, #activity-timebar) :is(#data-next, #activity-next) { grid-column: 3; }
+  html body :is(#data-timebar, #activity-timebar) :is(.data-speed, .activity-speed) { justify-self: end; }
+  html body :is(#data-timebar, #activity-timebar) .glass-opacity-trigger { padding: 0 8px; }
+  html body :is(#data-timebar, #activity-timebar) .glass-opacity-text { display: none; }
+  html body :is(#data-panel, #activity-panel),
+  html body :is(#data-guide, #activity-guide) { bottom: calc(144px + env(safe-area-inset-bottom, 0px)) !important; max-height: calc(100dvh - 290px); }
+  html body :is(#data-guide-body, #activity-guide-body) { max-height: calc(100dvh - 330px); }
   html body.is-mobile[data-mode="math"] #math-timebar:not(.hidden) {
     bottom: calc(12px + env(safe-area-inset-bottom, 0px));
     display: grid !important;
@@ -125,13 +125,13 @@ html body #data-timebar #data-speed { min-height: 36px; border-radius: 10px; pad
   html body .glass-opacity-trigger { transition: none; }
 }
 
-/* Data Lab keeps scene selection and glass appearance together in the dock. */
-html body #data-timebar .glass-view-trigger .glass-opacity-text { display: inline; }
+/* Repository labs keep scene selection and glass appearance together in the dock. */
+html body :is(#data-timebar, #activity-timebar) .glass-view-trigger .glass-opacity-text { display: inline; }
 html body .glass-view-trigger .glass-opacity-value { display: none; }
 html body #glass-appearance-popover .glass-opacity-section { border: 0; margin: 0; padding: 0; }
 html body #glass-appearance-popover .glass-opacity-summary { display: none; }
 html body #glass-appearance-popover.glass-view-popover .glass-popover-heading { margin-bottom: 16px; }
-html body #glass-appearance-popover .glass-view-options .data-view-switch {
+html body #glass-appearance-popover .glass-view-options :is(.data-view-switch, .activity-view-switch) {
   display: flex;
   flex-direction: column;
   gap: 6px;

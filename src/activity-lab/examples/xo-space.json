@@ -1,0 +1,3663 @@
+{
+  "repository": {
+    "fullName": "quirq-ai/xo-space",
+    "url": "https://github.com/quirq-ai/xo-space",
+    "description": "",
+    "stars": 26,
+    "forks": 4,
+    "openIssues": 58,
+    "openIssuesIncludesPullRequests": true
+  },
+  "fetchedAt": "2026-10-18T21:48:38.644Z",
+  "source": "snapshot",
+  "items": [
+    {
+      "id": "quirq-ai/xo-space:pull_request:250",
+      "kind": "pull_request",
+      "number": 250,
+      "title": "feat(claude_code): storm's claude runtime, oneshot and model list (B2 PR 6)",
+      "url": "https://github.com/quirq-ai/xo-space/pull/250",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "createdAt": "2026-10-16T16:39:35.000Z",
+      "updatedAt": "2026-10-16T17:41:16.000Z",
+      "state": "open",
+      "closedAt": null,
+      "mergedAt": null
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:253",
+      "kind": "pull_request",
+      "number": 253,
+      "title": "feat(storm): the review queue, decisions, rules, the loop breaker, paid usage (B2 PR 9)",
+      "url": "https://github.com/quirq-ai/xo-space/pull/253",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "createdAt": "2026-10-16T16:39:51.000Z",
+      "updatedAt": "2026-10-16T17:40:03.000Z",
+      "state": "open",
+      "closedAt": null,
+      "mergedAt": null
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:251",
+      "kind": "pull_request",
+      "number": 251,
+      "title": "feat(storm): the session engine, and /api/chat/status, sessions and runtimes (B2 PR 7)",
+      "url": "https://github.com/quirq-ai/xo-space/pull/251",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "createdAt": "2026-10-16T16:39:40.000Z",
+      "updatedAt": "2026-10-16T17:38:43.000Z",
+      "state": "open",
+      "closedAt": null,
+      "mergedAt": null
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:252",
+      "kind": "pull_request",
+      "number": 252,
+      "title": "feat(storm): events and the turn presenter, and the stream routes (B2 PR 8)",
+      "url": "https://github.com/quirq-ai/xo-space/pull/252",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "createdAt": "2026-10-16T16:39:46.000Z",
+      "updatedAt": "2026-10-16T17:29:42.000Z",
+      "state": "open",
+      "closedAt": null,
+      "mergedAt": null
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:249",
+      "kind": "pull_request",
+      "number": 249,
+      "title": "Stop bundling the xo-projects skill; default the projects root to ~",
+      "url": "https://github.com/quirq-ai/xo-space/pull/249",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "createdAt": "2026-10-16T11:07:09.000Z",
+      "updatedAt": "2026-10-16T11:37:44.000Z",
+      "state": "merged",
+      "closedAt": "2026-10-16T11:37:44.000Z",
+      "mergedAt": "2026-10-16T11:37:44.000Z"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:248",
+      "kind": "pull_request",
+      "number": 248,
+      "title": "fix(storm): close the policy holes the security review of #247 found",
+      "url": "https://github.com/quirq-ai/xo-space/pull/248",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "createdAt": "2026-10-15T17:24:45.000Z",
+      "updatedAt": "2026-10-15T20:38:48.000Z",
+      "state": "merged",
+      "closedAt": "2026-10-15T20:33:05.000Z",
+      "mergedAt": "2026-10-15T20:33:05.000Z"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:247",
+      "kind": "pull_request",
+      "number": 247,
+      "title": "feat(storm): policy engine, shell parser, tiers, rules, corpus (storm PR 5)",
+      "url": "https://github.com/quirq-ai/xo-space/pull/247",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "createdAt": "2026-10-15T16:32:25.000Z",
+      "updatedAt": "2026-10-15T20:38:48.000Z",
+      "state": "merged",
+      "closedAt": "2026-10-15T20:32:57.000Z",
+      "mergedAt": "2026-10-15T20:32:57.000Z"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:246",
+      "kind": "pull_request",
+      "number": 246,
+      "title": "feat(storm): store, engine lock, boot recovery (storm PR 4)",
+      "url": "https://github.com/quirq-ai/xo-space/pull/246",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "createdAt": "2026-10-15T16:16:00.000Z",
+      "updatedAt": "2026-10-15T20:38:48.000Z",
+      "state": "merged",
+      "closedAt": "2026-10-15T20:25:09.000Z",
+      "mergedAt": "2026-10-15T20:25:09.000Z"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:245",
+      "kind": "pull_request",
+      "number": 245,
+      "title": "feat(storm): runtime contract, fake-CLI kit, frozen-surface tests (storm PR 3)",
+      "url": "https://github.com/quirq-ai/xo-space/pull/245",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "createdAt": "2026-10-15T16:03:24.000Z",
+      "updatedAt": "2026-10-15T20:38:47.000Z",
+      "state": "merged",
+      "closedAt": "2026-10-15T20:25:01.000Z",
+      "mergedAt": "2026-10-15T20:25:01.000Z"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:244",
+      "kind": "pull_request",
+      "number": 244,
+      "title": "feat(commands): kill on cancel, spawn_stream, process registry (storm PR 2)",
+      "url": "https://github.com/quirq-ai/xo-space/pull/244",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "createdAt": "2026-10-15T15:46:19.000Z",
+      "updatedAt": "2026-10-15T20:38:47.000Z",
+      "state": "merged",
+      "closedAt": "2026-10-15T20:24:47.000Z",
+      "mergedAt": "2026-10-15T20:24:47.000Z"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:243",
+      "kind": "pull_request",
+      "number": 243,
+      "title": "refactor: remove Plane A (storm PR 1)",
+      "url": "https://github.com/quirq-ai/xo-space/pull/243",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "createdAt": "2026-10-15T15:34:26.000Z",
+      "updatedAt": "2026-10-15T20:38:47.000Z",
+      "state": "merged",
+      "closedAt": "2026-10-15T20:24:43.000Z",
+      "mergedAt": "2026-10-15T20:24:43.000Z"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:242",
+      "kind": "pull_request",
+      "number": 242,
+      "title": "fix(claude_code): encode transcript folders the way Claude Code does (storm PR 0)",
+      "url": "https://github.com/quirq-ai/xo-space/pull/242",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "createdAt": "2026-10-15T15:28:35.000Z",
+      "updatedAt": "2026-10-15T20:38:47.000Z",
+      "state": "merged",
+      "closedAt": "2026-10-15T20:24:38.000Z",
+      "mergedAt": "2026-10-15T20:24:38.000Z"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:240",
+      "kind": "pull_request",
+      "number": 240,
+      "title": "DO NOT MERGE: proof of concept, projects chat (router, two coordinator levels, threads in worktrees)",
+      "url": "https://github.com/quirq-ai/xo-space/pull/240",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "createdAt": "2026-10-13T14:51:55.000Z",
+      "updatedAt": "2026-10-14T11:49:39.000Z",
+      "state": "draft",
+      "closedAt": null,
+      "mergedAt": null
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:235",
+      "kind": "pull_request",
+      "number": 235,
+      "title": "[DO NOT MERGE] Experiment: record OpenAudr (AUDR) usage and cost per project",
+      "url": "https://github.com/quirq-ai/xo-space/pull/235",
+      "actor": {
+        "login": "SAGARRAMBADE21",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/241298048?v=4",
+        "url": "https://github.com/SAGARRAMBADE21"
+      },
+      "createdAt": "2026-10-08T15:33:07.000Z",
+      "updatedAt": "2026-10-13T16:49:33.000Z",
+      "state": "closed",
+      "closedAt": "2026-10-13T16:49:33.000Z",
+      "mergedAt": null
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:239",
+      "kind": "pull_request",
+      "number": 239,
+      "title": "test(inbox): pin retention's clock to the fixtures' date",
+      "url": "https://github.com/quirq-ai/xo-space/pull/239",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "createdAt": "2026-10-13T11:25:49.000Z",
+      "updatedAt": "2026-10-13T13:14:26.000Z",
+      "state": "merged",
+      "closedAt": "2026-10-13T13:14:26.000Z",
+      "mergedAt": "2026-10-13T13:14:26.000Z"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:237",
+      "kind": "pull_request",
+      "number": 237,
+      "title": "feat(doctor): record failures as they happen, and report them",
+      "url": "https://github.com/quirq-ai/xo-space/pull/237",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "createdAt": "2026-10-08T16:31:05.000Z",
+      "updatedAt": "2026-10-12T16:57:32.000Z",
+      "state": "open",
+      "closedAt": null,
+      "mergedAt": null
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:194",
+      "kind": "pull_request",
+      "number": 194,
+      "title": "Add GitHub PAT credential helper",
+      "url": "https://github.com/quirq-ai/xo-space/pull/194",
+      "actor": {
+        "login": "SAGARRAMBADE21",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/241298048?v=4",
+        "url": "https://github.com/SAGARRAMBADE21"
+      },
+      "createdAt": "2026-09-28T13:40:24.000Z",
+      "updatedAt": "2026-10-12T12:03:21.000Z",
+      "state": "closed",
+      "closedAt": "2026-09-29T08:57:32.000Z",
+      "mergedAt": null
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:196",
+      "kind": "pull_request",
+      "number": 196,
+      "title": "Feat/GitHub gh credential store",
+      "url": "https://github.com/quirq-ai/xo-space/pull/196",
+      "actor": {
+        "login": "SAGARRAMBADE21",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/241298048?v=4",
+        "url": "https://github.com/SAGARRAMBADE21"
+      },
+      "createdAt": "2026-09-29T08:56:45.000Z",
+      "updatedAt": "2026-10-12T12:03:18.000Z",
+      "state": "closed",
+      "closedAt": "2026-09-30T17:17:28.000Z",
+      "mergedAt": null
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:198",
+      "kind": "pull_request",
+      "number": 198,
+      "title": "[DO NOT MERGE] Experiment: knowledge brain for cross-project memory",
+      "url": "https://github.com/quirq-ai/xo-space/pull/198",
+      "actor": {
+        "login": "SAGARRAMBADE21",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/241298048?v=4",
+        "url": "https://github.com/SAGARRAMBADE21"
+      },
+      "createdAt": "2026-10-01T10:54:34.000Z",
+      "updatedAt": "2026-10-12T12:03:10.000Z",
+      "state": "closed",
+      "closedAt": "2026-10-01T10:57:20.000Z",
+      "mergedAt": null
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:189",
+      "kind": "pull_request",
+      "number": 189,
+      "title": "Flag composio",
+      "url": "https://github.com/quirq-ai/xo-space/pull/189",
+      "actor": {
+        "login": "SAGARRAMBADE21",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/241298048?v=4",
+        "url": "https://github.com/SAGARRAMBADE21"
+      },
+      "createdAt": "2026-09-24T11:06:01.000Z",
+      "updatedAt": "2026-10-12T12:02:28.000Z",
+      "state": "closed",
+      "closedAt": "2026-09-28T11:07:40.000Z",
+      "mergedAt": null
+    },
+    {
+      "id": "quirq-ai/xo-space:issue:241",
+      "kind": "issue",
+      "number": 241,
+      "title": "Reconsider xo-projects scaffolding: reduce it to its minimum",
+      "url": "https://github.com/quirq-ai/xo-space/issues/241",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "createdAt": "2026-10-14T13:46:03.000Z",
+      "updatedAt": "2026-10-14T13:46:03.000Z",
+      "state": "open",
+      "closedAt": null,
+      "mergedAt": null
+    },
+    {
+      "id": "quirq-ai/xo-space:issue:226",
+      "kind": "issue",
+      "number": 226,
+      "title": "Plugin's generated Space view makes every space_ui/ change fail CI",
+      "url": "https://github.com/quirq-ai/xo-space/issues/226",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "createdAt": "2026-10-07T08:14:00.000Z",
+      "updatedAt": "2026-10-07T08:14:00.000Z",
+      "state": "open",
+      "closedAt": null,
+      "mergedAt": null
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:6201748563",
+      "kind": "comment",
+      "title": "All five reproduce on `3ce10cb`. Two let something run with nobody asked, and both are fixed in `7a35314` before merging: - **Wrappers and programs named by path** (`./timeout 10 c",
+      "url": "https://github.com/quirq-ai/xo-space/pull/248#issuecomment-6201748563",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "createdAt": "2026-10-15T20:35:58.000Z",
+      "updatedAt": "2026-10-15T20:35:58.000Z",
+      "state": null,
+      "number": 248,
+      "parentId": "quirq-ai/xo-space:pull_request:248",
+      "commentType": "conversation"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:6201279883",
+      "kind": "comment",
+      "title": "Re-checked these four findings on the current head `3ce10cb` (the review ran on `61ace40`): - **Coordinators allowing commands with unknown flags** (`sort -o`, `rg --pre`, `fd -x`,",
+      "url": "https://github.com/quirq-ai/xo-space/pull/248#issuecomment-6201279883",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "createdAt": "2026-10-15T20:09:58.000Z",
+      "updatedAt": "2026-10-15T20:09:58.000Z",
+      "state": null,
+      "number": 248,
+      "parentId": "quirq-ai/xo-space:pull_request:248",
+      "commentType": "conversation"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:6201279396",
+      "kind": "comment",
+      "title": "Re-checked both findings on the current stack (the review ran on `b3fb06e`): - **git path operands** (`git add ~/.ssh/id_rsa`, `git diff --no-index … /etc/passwd`, `--pathspec-from",
+      "url": "https://github.com/quirq-ai/xo-space/pull/247#issuecomment-6201279396",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "createdAt": "2026-10-15T20:09:56.000Z",
+      "updatedAt": "2026-10-15T20:09:56.000Z",
+      "state": null,
+      "number": 247,
+      "parentId": "quirq-ai/xo-space:pull_request:247",
+      "commentType": "conversation"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:6198847367",
+      "kind": "comment",
+      "title": "Thanks. All seven findings reproduced on `3101bfa8` and are fixed in #248, with each reproduction added to the policy corpus. - **Fixed in `5bdc837`:** - a write is now permanent i",
+      "url": "https://github.com/quirq-ai/xo-space/pull/247#issuecomment-6198847367",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "createdAt": "2026-10-15T18:03:13.000Z",
+      "updatedAt": "2026-10-15T18:03:13.000Z",
+      "state": null,
+      "number": 247,
+      "parentId": "quirq-ai/xo-space:pull_request:247",
+      "commentType": "conversation"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:6198846883",
+      "kind": "comment",
+      "title": "Thanks. Every finding here reproduces on `bce577e`, with one correction: - **Finding 4's example doesn't run:** git rejects `git checkout -b feat -- <path>` (\"… is not a commit and",
+      "url": "https://github.com/quirq-ai/xo-space/pull/248#issuecomment-6198846883",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "createdAt": "2026-10-15T18:03:12.000Z",
+      "updatedAt": "2026-10-15T18:03:12.000Z",
+      "state": null,
+      "number": 248,
+      "parentId": "quirq-ai/xo-space:pull_request:248",
+      "commentType": "conversation"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:224",
+      "kind": "pull_request",
+      "number": 224,
+      "title": "fix(doctor): report documents that parse but their store can't use",
+      "url": "https://github.com/quirq-ai/xo-space/pull/224",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "createdAt": "2026-10-06T15:50:38.000Z",
+      "updatedAt": "2026-10-07T14:02:54.000Z",
+      "state": "closed",
+      "closedAt": "2026-10-07T14:02:51.000Z",
+      "mergedAt": null
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:6039623271",
+      "kind": "comment",
+      "title": "Closing unmerged: these two commits (content check + Inbox refusal) now live on `fix/doctor-accurate-reports`, rebased onto current `main` with conventional titles, and will land t",
+      "url": "https://github.com/quirq-ai/xo-space/pull/224#issuecomment-6039623271",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "createdAt": "2026-10-07T14:02:50.000Z",
+      "updatedAt": "2026-10-07T14:02:50.000Z",
+      "state": null,
+      "number": 224,
+      "parentId": "quirq-ai/xo-space:pull_request:224",
+      "commentType": "conversation"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5888848303",
+      "kind": "comment",
+      "title": "Fixed on the sharing server; no xo-space change was needed. The poll response no longer lists a repo whose only active member is its owner (e.g. every member revoked). The client a",
+      "url": "https://github.com/quirq-ai/xo-space/issues/190#issuecomment-5888848303",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "createdAt": "2026-09-29T10:59:07.000Z",
+      "updatedAt": "2026-09-29T10:59:07.000Z",
+      "state": null,
+      "number": 190,
+      "parentId": "quirq-ai/xo-space:issue:190",
+      "commentType": "conversation"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5834286177",
+      "kind": "comment",
+      "title": "@KrishBhimani Fixed the Setup issue in [af05044](https://github.com/quirq-ai/xo-space/commit/af0504466eeb9e20357612af35195d6a576b10a5) on the existing branch. - Empty manifest bina",
+      "url": "https://github.com/quirq-ai/xo-space/pull/186#issuecomment-5834286177",
+      "actor": {
+        "login": "quirq-dev",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/256758572?v=4",
+        "url": "https://github.com/quirq-dev"
+      },
+      "createdAt": "2026-09-25T14:42:48.000Z",
+      "updatedAt": "2026-09-25T14:42:48.000Z",
+      "state": null,
+      "number": 186,
+      "parentId": "quirq-ai/xo-space:pull_request:186",
+      "commentType": "conversation"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5834165101",
+      "kind": "comment",
+      "title": "Re-reviewed `d57c2dc`. Both fixes look right, and the 75 grokbot/session tests and route parity pass. ### ✅ End-to-end test on a live Grok Bot computer: pass I installed Space from",
+      "url": "https://github.com/quirq-ai/xo-space/pull/186#issuecomment-5834165101",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "createdAt": "2026-09-25T14:34:28.000Z",
+      "updatedAt": "2026-09-25T14:34:28.000Z",
+      "state": null,
+      "number": 186,
+      "parentId": "quirq-ai/xo-space:pull_request:186",
+      "commentType": "conversation"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5833572992",
+      "kind": "comment",
+      "title": "@KrishBhimani Fixed both issues in [d57c2dc](https://github.com/quirq-ai/xo-space/commit/d57c2dc4000ee54a5b3043959fb03ee2a410706a) on the existing branch. - `get_messages` catches ",
+      "url": "https://github.com/quirq-ai/xo-space/pull/186#issuecomment-5833572992",
+      "actor": {
+        "login": "quirq-dev",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/256758572?v=4",
+        "url": "https://github.com/quirq-dev"
+      },
+      "createdAt": "2026-09-25T13:54:08.000Z",
+      "updatedAt": "2026-09-25T13:54:08.000Z",
+      "state": null,
+      "number": 186,
+      "parentId": "quirq-ai/xo-space:pull_request:186",
+      "commentType": "conversation"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5833532623",
+      "kind": "comment",
+      "title": "Re-reviewed `48c9e5f`. The earlier points are addressed: completion no longer blocks on `not-found`, replies are matched by `clientNonce` → `requestId`, and history is read through",
+      "url": "https://github.com/quirq-ai/xo-space/pull/186#issuecomment-5833532623",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "createdAt": "2026-09-25T13:51:20.000Z",
+      "updatedAt": "2026-09-25T13:51:20.000Z",
+      "state": null,
+      "number": 186,
+      "parentId": "quirq-ai/xo-space:pull_request:186",
+      "commentType": "conversation"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5833193530",
+      "kind": "comment",
+      "title": "@KrishBhimani Addressed in [48c9e5f](https://github.com/quirq-ai/xo-space/commit/48c9e5fb76fed36a9505a2c3b2b637761256f38e) on the existing branch. - **Completion:** `not-found` and",
+      "url": "https://github.com/quirq-ai/xo-space/pull/186#issuecomment-5833193530",
+      "actor": {
+        "login": "quirq-dev",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/256758572?v=4",
+        "url": "https://github.com/quirq-dev"
+      },
+      "createdAt": "2026-09-25T13:27:43.000Z",
+      "updatedAt": "2026-09-25T13:27:43.000Z",
+      "state": null,
+      "number": 186,
+      "parentId": "quirq-ai/xo-space:pull_request:186",
+      "commentType": "conversation"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5833074646",
+      "kind": "comment",
+      "title": "## Review: validated against a live Grok Bot host. Chat never completes, and history can't be found Reviewed at `11b6e22`. I ran two probe scripts from the terminal on a real Grok ",
+      "url": "https://github.com/quirq-ai/xo-space/pull/186#issuecomment-5833074646",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "createdAt": "2026-09-25T13:19:54.000Z",
+      "updatedAt": "2026-09-25T13:19:54.000Z",
+      "state": null,
+      "number": 186,
+      "parentId": "quirq-ai/xo-space:pull_request:186",
+      "commentType": "conversation"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5831109577",
+      "kind": "comment",
+      "title": "@KrishBhimani @dwivedi-ai Updated the existing branch in [11b6e22](https://github.com/quirq-ai/xo-space/commit/11b6e22b3a904bb29151735b54bd8264f390b7fa). The three blockers are fix",
+      "url": "https://github.com/quirq-ai/xo-space/pull/186#issuecomment-5831109577",
+      "actor": {
+        "login": "quirq-dev",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/256758572?v=4",
+        "url": "https://github.com/quirq-dev"
+      },
+      "createdAt": "2026-09-25T10:45:12.000Z",
+      "updatedAt": "2026-09-25T10:45:12.000Z",
+      "state": null,
+      "number": 186,
+      "parentId": "quirq-ai/xo-space:pull_request:186",
+      "commentType": "conversation"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5831004339",
+      "kind": "comment",
+      "title": "Please address the changes requested in @dwivedi-ai's review above.",
+      "url": "https://github.com/quirq-ai/xo-space/pull/186#issuecomment-5831004339",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "createdAt": "2026-09-25T10:36:46.000Z",
+      "updatedAt": "2026-09-25T10:36:46.000Z",
+      "state": null,
+      "number": 186,
+      "parentId": "quirq-ai/xo-space:pull_request:186",
+      "commentType": "conversation"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5819018251",
+      "kind": "comment",
+      "title": "Sorry — I could not start on this: Coder preflight failed: Coder GET /api/v2/users/me -> 401 {\"message\":\"You are signed out or your session has expired. Please sign in again to con",
+      "url": "https://github.com/quirq-ai/xo-space/pull/186#issuecomment-5819018251",
+      "actor": {
+        "login": "quirq-dev",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/256758572?v=4",
+        "url": "https://github.com/quirq-dev"
+      },
+      "createdAt": "2026-09-24T17:34:25.000Z",
+      "updatedAt": "2026-09-24T17:34:25.000Z",
+      "state": null,
+      "number": 186,
+      "parentId": "quirq-ai/xo-space:pull_request:186",
+      "commentType": "conversation"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5816454984",
+      "kind": "comment",
+      "title": "@KrishBhimani can we store the relative path inside quirq folder, the same as how we will see on space-ui. for instance if we show this inside INbox section -> activity. then path ",
+      "url": "https://github.com/quirq-ai/xo-space/pull/141#issuecomment-5816454984",
+      "actor": {
+        "login": "sharmasuraj0123",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/36091186?v=4",
+        "url": "https://github.com/sharmasuraj0123"
+      },
+      "createdAt": "2026-09-24T14:50:21.000Z",
+      "updatedAt": "2026-09-24T14:50:21.000Z",
+      "state": null,
+      "number": 141,
+      "parentId": "quirq-ai/xo-space:pull_request:141",
+      "commentType": "conversation"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5814824770",
+      "kind": "comment",
+      "title": "Known leftover, not tracked separately: repeated `clone_failed` attempts (mostly `no_access`) each add a new Inbox item, about hourly, because the sharing feeder keys items by even",
+      "url": "https://github.com/quirq-ai/xo-space/issues/88#issuecomment-5814824770",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "createdAt": "2026-09-24T13:14:12.000Z",
+      "updatedAt": "2026-09-24T13:14:12.000Z",
+      "state": null,
+      "number": 88,
+      "parentId": "quirq-ai/xo-space:issue:88",
+      "commentType": "conversation"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5814533568",
+      "kind": "comment",
+      "title": "Closing item 1 (`workspace` hint outside the projects root) as working as intended. `POST /api/chat/prompt` is only called by our own clients. The xo-coworker frontend takes `works",
+      "url": "https://github.com/quirq-ai/xo-space/issues/88#issuecomment-5814533568",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "createdAt": "2026-09-24T12:55:44.000Z",
+      "updatedAt": "2026-09-24T12:55:44.000Z",
+      "state": null,
+      "number": 88,
+      "parentId": "quirq-ai/xo-space:issue:88",
+      "commentType": "conversation"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5785561788",
+      "kind": "comment",
+      "title": "Ready for review — please take a look when you can. cc @KrishBhimani @dwivedi-ai",
+      "url": "https://github.com/quirq-ai/xo-space/pull/186#issuecomment-5785561788",
+      "actor": {
+        "login": "quirq-dev",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/256758572?v=4",
+        "url": "https://github.com/quirq-dev"
+      },
+      "createdAt": "2026-09-22T22:51:18.000Z",
+      "updatedAt": "2026-09-22T22:51:18.000Z",
+      "state": null,
+      "number": 186,
+      "parentId": "quirq-ai/xo-space:pull_request:186",
+      "commentType": "conversation"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5777202189",
+      "kind": "comment",
+      "title": "Two notes from reviewing the branch after merging `development` in. **The MCP lifespan makes the SDK a hard boot dependency.** `services/mcp_server/service.py` builds the transport",
+      "url": "https://github.com/quirq-ai/xo-space/pull/175#issuecomment-5777202189",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "createdAt": "2026-09-22T13:15:36.000Z",
+      "updatedAt": "2026-09-22T13:15:36.000Z",
+      "state": null,
+      "number": 175,
+      "parentId": "quirq-ai/xo-space:pull_request:175",
+      "commentType": "conversation"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5765560395",
+      "kind": "comment",
+      "title": "@cursorbot review",
+      "url": "https://github.com/quirq-ai/xo-space/pull/175#issuecomment-5765560395",
+      "actor": {
+        "login": "sharmasuraj0123",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/36091186?v=4",
+        "url": "https://github.com/sharmasuraj0123"
+      },
+      "createdAt": "2026-09-21T18:34:23.000Z",
+      "updatedAt": "2026-09-21T18:34:23.000Z",
+      "state": null,
+      "number": 175,
+      "parentId": "quirq-ai/xo-space:pull_request:175",
+      "commentType": "conversation"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5761418692",
+      "kind": "comment",
+      "title": "Added `c22e24b` — without it this PR's chips die on the first big tool result. Reproduced server-side with curl, no browser involved: ``` event: tool-call {\"tool\": \"shell\", \"call_i",
+      "url": "https://github.com/quirq-ai/xo-space/pull/167#issuecomment-5761418692",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "createdAt": "2026-09-21T13:38:54.000Z",
+      "updatedAt": "2026-09-21T13:38:54.000Z",
+      "state": null,
+      "number": 167,
+      "parentId": "quirq-ai/xo-space:pull_request:167",
+      "commentType": "conversation"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5759440686",
+      "kind": "comment",
+      "title": "@vilka-9999 Thank you for the contribution, looking forward to playing around with it and testing it, have changed the target branch to development as per our contribution guidelin",
+      "url": "https://github.com/quirq-ai/xo-space/pull/161#issuecomment-5759440686",
+      "actor": {
+        "login": "sharmasuraj0123",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/36091186?v=4",
+        "url": "https://github.com/sharmasuraj0123"
+      },
+      "createdAt": "2026-09-21T11:02:44.000Z",
+      "updatedAt": "2026-09-21T11:02:44.000Z",
+      "state": null,
+      "number": 161,
+      "parentId": "quirq-ai/xo-space:pull_request:161",
+      "commentType": "conversation"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5670212778",
+      "kind": "comment",
+      "title": "This is option1 for refactoring the PR",
+      "url": "https://github.com/quirq-ai/xo-space/pull/125#issuecomment-5670212778",
+      "actor": {
+        "login": "sharmasuraj0123",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/36091186?v=4",
+        "url": "https://github.com/sharmasuraj0123"
+      },
+      "createdAt": "2026-09-14T20:16:44.000Z",
+      "updatedAt": "2026-09-14T20:16:44.000Z",
+      "state": null,
+      "number": 125,
+      "parentId": "quirq-ai/xo-space:pull_request:125",
+      "commentType": "conversation"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5667282116",
+      "kind": "comment",
+      "title": "Closed at the author's request: the guard still refused the Setup page's requests on the workspace after this change, and the branch is withdrawn. Findings that stay valid for whoe",
+      "url": "https://github.com/quirq-ai/xo-space/pull/122#issuecomment-5667282116",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "createdAt": "2026-09-14T16:31:28.000Z",
+      "updatedAt": "2026-09-14T16:31:28.000Z",
+      "state": null,
+      "number": 122,
+      "parentId": "quirq-ai/xo-space:pull_request:122",
+      "commentType": "conversation"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5666647883",
+      "kind": "comment",
+      "title": "Confirmed the peer side: Coder's agent connects to 127.0.0.1:5002 inside the workspace, so the loopback-peer check passes. Only the 'Origin host must be loopback' rule fails. Fix i",
+      "url": "https://github.com/quirq-ai/xo-space/issues/121#issuecomment-5666647883",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "createdAt": "2026-09-14T15:44:56.000Z",
+      "updatedAt": "2026-09-14T15:44:56.000Z",
+      "state": null,
+      "number": 121,
+      "parentId": "quirq-ai/xo-space:issue:121",
+      "commentType": "conversation"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5664995493",
+      "kind": "comment",
+      "title": "Re-based on development: #96 is merged there. Replacement PR follows.",
+      "url": "https://github.com/quirq-ai/xo-space/pull/119#issuecomment-5664995493",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "createdAt": "2026-09-14T13:47:02.000Z",
+      "updatedAt": "2026-09-14T13:47:02.000Z",
+      "state": null,
+      "number": 119,
+      "parentId": "quirq-ai/xo-space:pull_request:119",
+      "commentType": "conversation"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5657244730",
+      "kind": "comment",
+      "title": "#106",
+      "url": "https://github.com/quirq-ai/xo-space/issues/105#issuecomment-5657244730",
+      "actor": {
+        "login": "sharmasuraj0123",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/36091186?v=4",
+        "url": "https://github.com/sharmasuraj0123"
+      },
+      "createdAt": "2026-09-14T00:07:31.000Z",
+      "updatedAt": "2026-09-14T00:07:31.000Z",
+      "state": null,
+      "number": 105,
+      "parentId": "quirq-ai/xo-space:issue:105",
+      "commentType": "conversation"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5654381902",
+      "kind": "comment",
+      "title": "#97 merged into this one",
+      "url": "https://github.com/quirq-ai/xo-space/pull/78#issuecomment-5654381902",
+      "actor": {
+        "login": "sharmasuraj0123",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/36091186?v=4",
+        "url": "https://github.com/sharmasuraj0123"
+      },
+      "createdAt": "2026-09-13T16:01:43.000Z",
+      "updatedAt": "2026-09-13T16:01:43.000Z",
+      "state": null,
+      "number": 78,
+      "parentId": "quirq-ai/xo-space:pull_request:78",
+      "commentType": "conversation"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4297529835",
+      "kind": "comment",
+      "title": "<!-- CURSOR_AUTOMATION_ID: 413f84d0-b5d0-11f1-bb68-864e54d14197 | RUN_ID: bc-6ba711a4-a792-475b-8364-44d9c73eaa67 --> 🔒 **Agentic Security Review** Severity: MEDIUM `OS_NAMES` new",
+      "url": "https://github.com/quirq-ai/xo-space/pull/250#discussion_r4297529835",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-16T17:41:16.000Z",
+      "updatedAt": "2026-10-16T17:41:16.000Z",
+      "state": null,
+      "number": 250,
+      "parentId": "quirq-ai/xo-space:pull_request:250",
+      "commentType": "inline_review"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4297529813",
+      "kind": "comment",
+      "title": "<!-- CURSOR_AUTOMATION_ID: 413f84d0-b5d0-11f1-bb68-864e54d14197 | RUN_ID: bc-6ba711a4-a792-475b-8364-44d9c73eaa67 --> 🔒 **Agentic Security Review** Severity: HIGH `session_env()` ",
+      "url": "https://github.com/quirq-ai/xo-space/pull/250#discussion_r4297529813",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-16T17:41:16.000Z",
+      "updatedAt": "2026-10-16T17:41:16.000Z",
+      "state": null,
+      "number": 250,
+      "parentId": "quirq-ai/xo-space:pull_request:250",
+      "commentType": "inline_review"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4297517272",
+      "kind": "comment",
+      "title": "<!-- CURSOR_AUTOMATION_ID: 413f84d0-b5d0-11f1-bb68-864e54d14197 | RUN_ID: bc-62f09357-f726-4ff5-8cde-df7881f5ab54 --> 🔒 **Agentic Security Review** Severity: MEDIUM This PR newly ",
+      "url": "https://github.com/quirq-ai/xo-space/pull/253#discussion_r4297517272",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-16T17:40:03.000Z",
+      "updatedAt": "2026-10-16T17:40:03.000Z",
+      "state": null,
+      "number": 253,
+      "parentId": "quirq-ai/xo-space:pull_request:253",
+      "commentType": "inline_review"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4297424377",
+      "kind": "comment",
+      "title": "Thanks, confirmed and fixed. An update now builds the changed spec and runs the runtime's `check()` and the preset's required features before anything is stored. A coordinator ther",
+      "url": "https://github.com/quirq-ai/xo-space/pull/251#discussion_r4297424377",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "createdAt": "2026-10-16T17:29:52.000Z",
+      "updatedAt": "2026-10-16T17:29:52.000Z",
+      "state": null,
+      "number": 251,
+      "parentId": "quirq-ai/xo-space:pull_request:251",
+      "commentType": "inline_review"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4297424099",
+      "kind": "comment",
+      "title": "Thanks. This works as designed, so there's no change. The session-scoped allow is filled only when the person chooses \"Allow for this thread\". That scope is deliberately the whole ",
+      "url": "https://github.com/quirq-ai/xo-space/pull/250#discussion_r4297424099",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "createdAt": "2026-10-16T17:29:50.000Z",
+      "updatedAt": "2026-10-16T17:29:51.000Z",
+      "state": null,
+      "number": 250,
+      "parentId": "quirq-ai/xo-space:pull_request:250",
+      "commentType": "inline_review"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4297423851",
+      "kind": "comment",
+      "title": "Thanks. Taking the three parts separately: 1. **Write / MultiEdit / NotebookEdit:** no change needed. Claude Code applies `Edit(path)` rules to every built-in tool that edits files",
+      "url": "https://github.com/quirq-ai/xo-space/pull/250#discussion_r4297423851",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "createdAt": "2026-10-16T17:29:49.000Z",
+      "updatedAt": "2026-10-16T17:29:49.000Z",
+      "state": null,
+      "number": 250,
+      "parentId": "quirq-ai/xo-space:pull_request:250",
+      "commentType": "inline_review"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4297079222",
+      "kind": "comment",
+      "title": "<!-- CURSOR_AUTOMATION_ID: 413f84d0-b5d0-11f1-bb68-864e54d14197 | RUN_ID: bc-923fa1c4-3aa8-46b9-af0b-ead37fc1c922 --> 🔒 **Agentic Security Review** Severity: MEDIUM `_validate` (u",
+      "url": "https://github.com/quirq-ai/xo-space/pull/251#discussion_r4297079222",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-16T16:50:25.000Z",
+      "updatedAt": "2026-10-16T16:50:25.000Z",
+      "state": null,
+      "number": 251,
+      "parentId": "quirq-ai/xo-space:pull_request:251",
+      "commentType": "inline_review"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4297071418",
+      "kind": "comment",
+      "title": "<!-- CURSOR_AUTOMATION_ID: 413f84d0-b5d0-11f1-bb68-864e54d14197 | RUN_ID: bc-1c47ac73-b1e9-4154-a5ad-7892ee4375a4 --> 🔒 **Agentic Security Review** Severity: MEDIUM Session-scoped",
+      "url": "https://github.com/quirq-ai/xo-space/pull/250#discussion_r4297071418",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-16T16:49:28.000Z",
+      "updatedAt": "2026-10-16T16:49:28.000Z",
+      "state": null,
+      "number": 250,
+      "parentId": "quirq-ai/xo-space:pull_request:250",
+      "commentType": "inline_review"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4297071408",
+      "kind": "comment",
+      "title": "<!-- CURSOR_AUTOMATION_ID: 413f84d0-b5d0-11f1-bb68-864e54d14197 | RUN_ID: bc-1c47ac73-b1e9-4154-a5ad-7892ee4375a4 --> 🔒 **Agentic Security Review** Severity: HIGH `credential_ask_",
+      "url": "https://github.com/quirq-ai/xo-space/pull/250#discussion_r4297071408",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-16T16:49:28.000Z",
+      "updatedAt": "2026-10-16T16:49:28.000Z",
+      "state": null,
+      "number": 250,
+      "parentId": "quirq-ai/xo-space:pull_request:250",
+      "commentType": "inline_review"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4287939403",
+      "kind": "comment",
+      "title": "<!-- CURSOR_AUTOMATION_ID: 413f84d0-b5d0-11f1-bb68-864e54d14197 | RUN_ID: bc-68293433-4336-4293-bc53-a73bbd2f3404 --> 🔒 **Agentic Security Review** Severity: HIGH The new copier l",
+      "url": "https://github.com/quirq-ai/xo-space/pull/248#discussion_r4287939403",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-15T20:27:52.000Z",
+      "updatedAt": "2026-10-15T20:27:52.000Z",
+      "state": null,
+      "number": 248,
+      "parentId": "quirq-ai/xo-space:pull_request:248",
+      "commentType": "inline_review"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4287939386",
+      "kind": "comment",
+      "title": "<!-- CURSOR_AUTOMATION_ID: 413f84d0-b5d0-11f1-bb68-864e54d14197 | RUN_ID: bc-68293433-4336-4293-bc53-a73bbd2f3404 --> 🔒 **Agentic Security Review** Severity: HIGH `python3 -m pip`",
+      "url": "https://github.com/quirq-ai/xo-space/pull/248#discussion_r4287939386",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-15T20:27:52.000Z",
+      "updatedAt": "2026-10-15T20:27:52.000Z",
+      "state": null,
+      "number": 248,
+      "parentId": "quirq-ai/xo-space:pull_request:248",
+      "commentType": "inline_review"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4287939373",
+      "kind": "comment",
+      "title": "<!-- CURSOR_AUTOMATION_ID: 413f84d0-b5d0-11f1-bb68-864e54d14197 | RUN_ID: bc-68293433-4336-4293-bc53-a73bbd2f3404 --> 🔒 **Agentic Security Review** Severity: HIGH Residual of the ",
+      "url": "https://github.com/quirq-ai/xo-space/pull/248#discussion_r4287939373",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-15T20:27:52.000Z",
+      "updatedAt": "2026-10-15T20:27:52.000Z",
+      "state": null,
+      "number": 248,
+      "parentId": "quirq-ai/xo-space:pull_request:248",
+      "commentType": "inline_review"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4287939364",
+      "kind": "comment",
+      "title": "<!-- CURSOR_AUTOMATION_ID: 413f84d0-b5d0-11f1-bb68-864e54d14197 | RUN_ID: bc-68293433-4336-4293-bc53-a73bbd2f3404 --> 🔒 **Agentic Security Review** Severity: HIGH A leading `NAME=",
+      "url": "https://github.com/quirq-ai/xo-space/pull/248#discussion_r4287939364",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-15T20:27:52.000Z",
+      "updatedAt": "2026-10-15T20:27:52.000Z",
+      "state": null,
+      "number": 248,
+      "parentId": "quirq-ai/xo-space:pull_request:248",
+      "commentType": "inline_review"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4287939353",
+      "kind": "comment",
+      "title": "<!-- CURSOR_AUTOMATION_ID: 413f84d0-b5d0-11f1-bb68-864e54d14197 | RUN_ID: bc-68293433-4336-4293-bc53-a73bbd2f3404 --> 🔒 **Agentic Security Review** Severity: HIGH `_unwrap` keys `",
+      "url": "https://github.com/quirq-ai/xo-space/pull/248#discussion_r4287939353",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-15T20:27:51.000Z",
+      "updatedAt": "2026-10-15T20:27:52.000Z",
+      "state": null,
+      "number": 248,
+      "parentId": "quirq-ai/xo-space:pull_request:248",
+      "commentType": "inline_review"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4286691949",
+      "kind": "comment",
+      "title": "<!-- CURSOR_AUTOMATION_ID: 413f84d0-b5d0-11f1-bb68-864e54d14197 | RUN_ID: bc-7ea7de70-7769-47b8-801b-c9b76b958e72 --> 🔒 **Agentic Security Review** Severity: HIGH Several new clas",
+      "url": "https://github.com/quirq-ai/xo-space/pull/248#discussion_r4286691949",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-15T18:19:16.000Z",
+      "updatedAt": "2026-10-15T18:19:16.000Z",
+      "state": null,
+      "number": 248,
+      "parentId": "quirq-ai/xo-space:pull_request:248",
+      "commentType": "inline_review"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4286691938",
+      "kind": "comment",
+      "title": "<!-- CURSOR_AUTOMATION_ID: 413f84d0-b5d0-11f1-bb68-864e54d14197 | RUN_ID: bc-7ea7de70-7769-47b8-801b-c9b76b958e72 --> 🔒 **Agentic Security Review** Severity: HIGH GNU getopt now c",
+      "url": "https://github.com/quirq-ai/xo-space/pull/248#discussion_r4286691938",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-15T18:19:16.000Z",
+      "updatedAt": "2026-10-15T18:19:16.000Z",
+      "state": null,
+      "number": 248,
+      "parentId": "quirq-ai/xo-space:pull_request:248",
+      "commentType": "inline_review"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4286691914",
+      "kind": "comment",
+      "title": "<!-- CURSOR_AUTOMATION_ID: 413f84d0-b5d0-11f1-bb68-864e54d14197 | RUN_ID: bc-7ea7de70-7769-47b8-801b-c9b76b958e72 --> 🔒 **Agentic Security Review** Severity: HIGH The new allowlis",
+      "url": "https://github.com/quirq-ai/xo-space/pull/248#discussion_r4286691914",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-15T18:19:15.000Z",
+      "updatedAt": "2026-10-15T18:19:16.000Z",
+      "state": null,
+      "number": 248,
+      "parentId": "quirq-ai/xo-space:pull_request:248",
+      "commentType": "inline_review"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4286658368",
+      "kind": "comment",
+      "title": "<!-- CURSOR_AUTOMATION_ID: 413f84d0-b5d0-11f1-bb68-864e54d14197 | RUN_ID: bc-3c8ace62-292e-47f1-86d9-8749ea5254a3 --> 🔒 **Agentic Security Review** Severity: MEDIUM `_download` cl",
+      "url": "https://github.com/quirq-ai/xo-space/pull/247#discussion_r4286658368",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-15T18:15:40.000Z",
+      "updatedAt": "2026-10-15T18:15:40.000Z",
+      "state": null,
+      "number": 247,
+      "parentId": "quirq-ai/xo-space:pull_request:247",
+      "commentType": "inline_review"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4286658354",
+      "kind": "comment",
+      "title": "<!-- CURSOR_AUTOMATION_ID: 413f84d0-b5d0-11f1-bb68-864e54d14197 | RUN_ID: bc-3c8ace62-292e-47f1-86d9-8749ea5254a3 --> 🔒 **Agentic Security Review** Severity: HIGH `_git` only clas",
+      "url": "https://github.com/quirq-ai/xo-space/pull/247#discussion_r4286658354",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-15T18:15:40.000Z",
+      "updatedAt": "2026-10-15T18:15:40.000Z",
+      "state": null,
+      "number": 247,
+      "parentId": "quirq-ai/xo-space:pull_request:247",
+      "commentType": "inline_review"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4286308629",
+      "kind": "comment",
+      "title": "<!-- CURSOR_AUTOMATION_ID: 413f84d0-b5d0-11f1-bb68-864e54d14197 | RUN_ID: bc-51aa1f56-cb48-495d-b099-58c222ea4dea --> 🔒 **Agentic Security Review** Severity: MEDIUM Allow-rule mat",
+      "url": "https://github.com/quirq-ai/xo-space/pull/248#discussion_r4286308629",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-15T17:40:31.000Z",
+      "updatedAt": "2026-10-15T17:40:31.000Z",
+      "state": null,
+      "number": 248,
+      "parentId": "quirq-ai/xo-space:pull_request:248",
+      "commentType": "inline_review"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4286308615",
+      "kind": "comment",
+      "title": "<!-- CURSOR_AUTOMATION_ID: 413f84d0-b5d0-11f1-bb68-864e54d14197 | RUN_ID: bc-51aa1f56-cb48-495d-b099-58c222ea4dea --> 🔒 **Agentic Security Review** Severity: HIGH The new git path",
+      "url": "https://github.com/quirq-ai/xo-space/pull/248#discussion_r4286308615",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-15T17:40:31.000Z",
+      "updatedAt": "2026-10-15T17:40:31.000Z",
+      "state": null,
+      "number": 248,
+      "parentId": "quirq-ai/xo-space:pull_request:248",
+      "commentType": "inline_review"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4286308601",
+      "kind": "comment",
+      "title": "<!-- CURSOR_AUTOMATION_ID: 413f84d0-b5d0-11f1-bb68-864e54d14197 | RUN_ID: bc-51aa1f56-cb48-495d-b099-58c222ea4dea --> 🔒 **Agentic Security Review** Severity: HIGH The new XO-route",
+      "url": "https://github.com/quirq-ai/xo-space/pull/248#discussion_r4286308601",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-15T17:40:31.000Z",
+      "updatedAt": "2026-10-15T17:40:31.000Z",
+      "state": null,
+      "number": 248,
+      "parentId": "quirq-ai/xo-space:pull_request:248",
+      "commentType": "inline_review"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4286308578",
+      "kind": "comment",
+      "title": "<!-- CURSOR_AUTOMATION_ID: 413f84d0-b5d0-11f1-bb68-864e54d14197 | RUN_ID: bc-51aa1f56-cb48-495d-b099-58c222ea4dea --> 🔒 **Agentic Security Review** Severity: HIGH Dropping generic",
+      "url": "https://github.com/quirq-ai/xo-space/pull/248#discussion_r4286308578",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-15T17:40:31.000Z",
+      "updatedAt": "2026-10-15T17:40:31.000Z",
+      "state": null,
+      "number": 248,
+      "parentId": "quirq-ai/xo-space:pull_request:248",
+      "commentType": "inline_review"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4286308550",
+      "kind": "comment",
+      "title": "<!-- CURSOR_AUTOMATION_ID: 413f84d0-b5d0-11f1-bb68-864e54d14197 | RUN_ID: bc-51aa1f56-cb48-495d-b099-58c222ea4dea --> 🔒 **Agentic Security Review** Severity: HIGH The new download",
+      "url": "https://github.com/quirq-ai/xo-space/pull/248#discussion_r4286308550",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-15T17:40:31.000Z",
+      "updatedAt": "2026-10-15T17:40:31.000Z",
+      "state": null,
+      "number": 248,
+      "parentId": "quirq-ai/xo-space:pull_request:248",
+      "commentType": "inline_review"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4285778467",
+      "kind": "comment",
+      "title": "<!-- CURSOR_AUTOMATION_ID: 413f84d0-b5d0-11f1-bb68-864e54d14197 | RUN_ID: bc-bb040e66-57c9-48dc-90a2-e133fc706e34 --> 🔒 **Agentic Security Review** Severity: MEDIUM `canonical_wor",
+      "url": "https://github.com/quirq-ai/xo-space/pull/247#discussion_r4285778467",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-15T16:46:21.000Z",
+      "updatedAt": "2026-10-15T16:46:22.000Z",
+      "state": null,
+      "number": 247,
+      "parentId": "quirq-ai/xo-space:pull_request:247",
+      "commentType": "inline_review"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4285778454",
+      "kind": "comment",
+      "title": "<!-- CURSOR_AUTOMATION_ID: 413f84d0-b5d0-11f1-bb68-864e54d14197 | RUN_ID: bc-bb040e66-57c9-48dc-90a2-e133fc706e34 --> 🔒 **Agentic Security Review** Severity: MEDIUM `_download` do",
+      "url": "https://github.com/quirq-ai/xo-space/pull/247#discussion_r4285778454",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-15T16:46:21.000Z",
+      "updatedAt": "2026-10-15T16:46:22.000Z",
+      "state": null,
+      "number": 247,
+      "parentId": "quirq-ai/xo-space:pull_request:247",
+      "commentType": "inline_review"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4285778435",
+      "kind": "comment",
+      "title": "<!-- CURSOR_AUTOMATION_ID: 413f84d0-b5d0-11f1-bb68-864e54d14197 | RUN_ID: bc-bb040e66-57c9-48dc-90a2-e133fc706e34 --> 🔒 **Agentic Security Review** Severity: HIGH `_file_write` al",
+      "url": "https://github.com/quirq-ai/xo-space/pull/247#discussion_r4285778435",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-15T16:46:21.000Z",
+      "updatedAt": "2026-10-15T16:46:22.000Z",
+      "state": null,
+      "number": 247,
+      "parentId": "quirq-ai/xo-space:pull_request:247",
+      "commentType": "inline_review"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4285778423",
+      "kind": "comment",
+      "title": "<!-- CURSOR_AUTOMATION_ID: 413f84d0-b5d0-11f1-bb68-864e54d14197 | RUN_ID: bc-bb040e66-57c9-48dc-90a2-e133fc706e34 --> 🔒 **Agentic Security Review** Severity: HIGH Protected-path w",
+      "url": "https://github.com/quirq-ai/xo-space/pull/247#discussion_r4285778423",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-15T16:46:21.000Z",
+      "updatedAt": "2026-10-15T16:46:22.000Z",
+      "state": null,
+      "number": 247,
+      "parentId": "quirq-ai/xo-space:pull_request:247",
+      "commentType": "inline_review"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4285778406",
+      "kind": "comment",
+      "title": "<!-- CURSOR_AUTOMATION_ID: 413f84d0-b5d0-11f1-bb68-864e54d14197 | RUN_ID: bc-bb040e66-57c9-48dc-90a2-e133fc706e34 --> 🔒 **Agentic Security Review** Severity: HIGH `resolve()` retu",
+      "url": "https://github.com/quirq-ai/xo-space/pull/247#discussion_r4285778406",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-15T16:46:21.000Z",
+      "updatedAt": "2026-10-15T16:46:22.000Z",
+      "state": null,
+      "number": 247,
+      "parentId": "quirq-ai/xo-space:pull_request:247",
+      "commentType": "inline_review"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4285778388",
+      "kind": "comment",
+      "title": "<!-- CURSOR_AUTOMATION_ID: 413f84d0-b5d0-11f1-bb68-864e54d14197 | RUN_ID: bc-bb040e66-57c9-48dc-90a2-e133fc706e34 --> 🔒 **Agentic Security Review** Severity: CRITICAL Loopback XO ",
+      "url": "https://github.com/quirq-ai/xo-space/pull/247#discussion_r4285778388",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-15T16:46:21.000Z",
+      "updatedAt": "2026-10-15T16:46:22.000Z",
+      "state": null,
+      "number": 247,
+      "parentId": "quirq-ai/xo-space:pull_request:247",
+      "commentType": "inline_review"
+    },
+    {
+      "id": "quirq-ai/xo-space:review:5550923242",
+      "kind": "review",
+      "number": 250,
+      "title": "commented · PR #250 · <details> <summary>Stale comment</summary> <blockquote> Agentic security review of the Claude runtime, env whitelist, and `/api/models` prob",
+      "url": "https://github.com/quirq-ai/xo-space/pull/250#pullrequestreview-5550923242",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-16T16:49:28.000Z",
+      "updatedAt": "2026-10-16T16:49:28.000Z",
+      "state": "commented",
+      "parentId": "quirq-ai/xo-space:pull_request:250"
+    },
+    {
+      "id": "quirq-ai/xo-space:review:5551349223",
+      "kind": "review",
+      "number": 250,
+      "title": "commented · PR #250",
+      "url": "https://github.com/quirq-ai/xo-space/pull/250#pullrequestreview-5551349223",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?u=fb0d3bb735ac5b98dba0c8b3b17d432c83bd20dd&v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "createdAt": "2026-10-16T17:29:49.000Z",
+      "updatedAt": "2026-10-16T17:29:49.000Z",
+      "state": "commented",
+      "parentId": "quirq-ai/xo-space:pull_request:250"
+    },
+    {
+      "id": "quirq-ai/xo-space:review:5551349517",
+      "kind": "review",
+      "number": 250,
+      "title": "commented · PR #250",
+      "url": "https://github.com/quirq-ai/xo-space/pull/250#pullrequestreview-5551349517",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?u=fb0d3bb735ac5b98dba0c8b3b17d432c83bd20dd&v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "createdAt": "2026-10-16T17:29:50.000Z",
+      "updatedAt": "2026-10-16T17:29:50.000Z",
+      "state": "commented",
+      "parentId": "quirq-ai/xo-space:pull_request:250"
+    },
+    {
+      "id": "quirq-ai/xo-space:review:5551478493",
+      "kind": "review",
+      "number": 250,
+      "title": "commented · PR #250 · <!-- CURSOR_AUTOMATION_ID: 413f84d0-b5d0-11f1-bb68-864e54d14197 | RUN_ID: bc-6ba711a4-a792-475b-8364-44d9c73eaa67 --> Agentic security revie",
+      "url": "https://github.com/quirq-ai/xo-space/pull/250#pullrequestreview-5551478493",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-16T17:41:16.000Z",
+      "updatedAt": "2026-10-16T17:41:16.000Z",
+      "state": "commented",
+      "parentId": "quirq-ai/xo-space:pull_request:250"
+    },
+    {
+      "id": "quirq-ai/xo-space:review:5551465165",
+      "kind": "review",
+      "number": 253,
+      "title": "commented · PR #253 · <!-- CURSOR_AUTOMATION_ID: 413f84d0-b5d0-11f1-bb68-864e54d14197 | RUN_ID: bc-62f09357-f726-4ff5-8cde-df7881f5ab54 --> Agentic security revie",
+      "url": "https://github.com/quirq-ai/xo-space/pull/253#pullrequestreview-5551465165",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-16T17:40:03.000Z",
+      "updatedAt": "2026-10-16T17:40:03.000Z",
+      "state": "commented",
+      "parentId": "quirq-ai/xo-space:pull_request:253"
+    },
+    {
+      "id": "quirq-ai/xo-space:review:5550932489",
+      "kind": "review",
+      "number": 251,
+      "title": "commented · PR #251 · <details> <summary>Stale comment</summary> <blockquote> Agentic security review of the session engine and new `/api/chat/sessions*` routes. ",
+      "url": "https://github.com/quirq-ai/xo-space/pull/251#pullrequestreview-5550932489",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-16T16:50:25.000Z",
+      "updatedAt": "2026-10-16T16:50:25.000Z",
+      "state": "commented",
+      "parentId": "quirq-ai/xo-space:pull_request:251"
+    },
+    {
+      "id": "quirq-ai/xo-space:review:5551349869",
+      "kind": "review",
+      "number": 251,
+      "title": "commented · PR #251",
+      "url": "https://github.com/quirq-ai/xo-space/pull/251#pullrequestreview-5551349869",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?u=fb0d3bb735ac5b98dba0c8b3b17d432c83bd20dd&v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "createdAt": "2026-10-16T17:29:52.000Z",
+      "updatedAt": "2026-10-16T17:29:52.000Z",
+      "state": "commented",
+      "parentId": "quirq-ai/xo-space:pull_request:251"
+    },
+    {
+      "id": "quirq-ai/xo-space:review:5547182435",
+      "kind": "review",
+      "number": 249,
+      "title": "approved · PR #249",
+      "url": "https://github.com/quirq-ai/xo-space/pull/249#pullrequestreview-5547182435",
+      "actor": {
+        "login": "sharmasuraj0123",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/36091186?u=7bf14a22ecbfbd7c6ca1e338ae6398b4e3837edb&v=4",
+        "url": "https://github.com/sharmasuraj0123"
+      },
+      "createdAt": "2026-10-16T11:31:00.000Z",
+      "updatedAt": "2026-10-16T11:31:00.000Z",
+      "state": "approved",
+      "parentId": "quirq-ai/xo-space:pull_request:249"
+    },
+    {
+      "id": "quirq-ai/xo-space:review:5537449185",
+      "kind": "review",
+      "number": 248,
+      "title": "commented · PR #248 · <details> <summary>Stale comment</summary> <blockquote> 🔒 **Agentic Security Review** The policy-hole fixes in this PR hold for the spellin",
+      "url": "https://github.com/quirq-ai/xo-space/pull/248#pullrequestreview-5537449185",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-15T17:40:30.000Z",
+      "updatedAt": "2026-10-15T17:40:30.000Z",
+      "state": "commented",
+      "parentId": "quirq-ai/xo-space:pull_request:248"
+    },
+    {
+      "id": "quirq-ai/xo-space:review:5537916971",
+      "kind": "review",
+      "number": 248,
+      "title": "commented · PR #248 · <details> <summary>Stale comment</summary> <blockquote> Agentic security review of the policy-engine follow-up. Prior comments on glued curl",
+      "url": "https://github.com/quirq-ai/xo-space/pull/248#pullrequestreview-5537916971",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-15T18:19:15.000Z",
+      "updatedAt": "2026-10-15T18:19:15.000Z",
+      "state": "commented",
+      "parentId": "quirq-ai/xo-space:pull_request:248"
+    },
+    {
+      "id": "quirq-ai/xo-space:review:5539452007",
+      "kind": "review",
+      "number": 248,
+      "title": "commented · PR #248 · <!-- CURSOR_AUTOMATION_ID: 413f84d0-b5d0-11f1-bb68-864e54d14197 | RUN_ID: bc-68293433-4336-4293-bc53-a73bbd2f3404 --> Agentic security revie",
+      "url": "https://github.com/quirq-ai/xo-space/pull/248#pullrequestreview-5539452007",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-15T20:27:51.000Z",
+      "updatedAt": "2026-10-15T20:27:51.000Z",
+      "state": "commented",
+      "parentId": "quirq-ai/xo-space:pull_request:248"
+    },
+    {
+      "id": "quirq-ai/xo-space:review:5536743724",
+      "kind": "review",
+      "number": 247,
+      "title": "commented · PR #247 · <details> <summary>Stale comment</summary> <blockquote> Agentic security review of the Storm policy engine found several fail-open holes: wr",
+      "url": "https://github.com/quirq-ai/xo-space/pull/247#pullrequestreview-5536743724",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-15T16:46:21.000Z",
+      "updatedAt": "2026-10-15T16:46:21.000Z",
+      "state": "commented",
+      "parentId": "quirq-ai/xo-space:pull_request:247"
+    },
+    {
+      "id": "quirq-ai/xo-space:review:5537876337",
+      "kind": "review",
+      "number": 247,
+      "title": "commented · PR #247 · <!-- CURSOR_AUTOMATION_ID: 413f84d0-b5d0-11f1-bb68-864e54d14197 | RUN_ID: bc-3c8ace62-292e-47f1-86d9-8749ea5254a3 -->",
+      "url": "https://github.com/quirq-ai/xo-space/pull/247#pullrequestreview-5537876337",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "createdAt": "2026-10-15T18:15:40.000Z",
+      "updatedAt": "2026-10-15T18:15:40.000Z",
+      "state": "commented",
+      "parentId": "quirq-ai/xo-space:pull_request:247"
+    },
+    {
+      "id": "quirq-ai/xo-space:fork:1378788393",
+      "kind": "fork",
+      "number": null,
+      "title": "vilka-9999/xo-space",
+      "url": "https://github.com/vilka-9999/xo-space",
+      "actor": {
+        "login": "vilka-9999",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/154283403?v=4",
+        "url": "https://github.com/vilka-9999"
+      },
+      "createdAt": "2026-09-20T21:23:39.000Z",
+      "updatedAt": "2026-09-20T21:23:39.000Z",
+      "state": null
+    },
+    {
+      "id": "quirq-ai/xo-space:fork:1351964685",
+      "kind": "fork",
+      "number": null,
+      "title": "harishkotra/xo-space",
+      "url": "https://github.com/harishkotra/xo-space",
+      "actor": {
+        "login": "harishkotra",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/4999463?v=4",
+        "url": "https://github.com/harishkotra"
+      },
+      "createdAt": "2026-08-31T03:54:01.000Z",
+      "updatedAt": "2026-09-11T11:45:04.000Z",
+      "state": null
+    },
+    {
+      "id": "quirq-ai/xo-space:fork:1349722310",
+      "kind": "fork",
+      "number": null,
+      "title": "andreolf/xo-space",
+      "url": "https://github.com/andreolf/xo-space",
+      "actor": {
+        "login": "andreolf",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/15174764?v=4",
+        "url": "https://github.com/andreolf"
+      },
+      "createdAt": "2026-08-28T14:56:24.000Z",
+      "updatedAt": "2026-09-11T11:45:04.000Z",
+      "state": null
+    },
+    {
+      "id": "quirq-ai/xo-space:fork:1345039370",
+      "kind": "fork",
+      "number": null,
+      "title": "argus-runtime/xo-space",
+      "url": "https://github.com/argus-runtime/xo-space",
+      "actor": {
+        "login": "argus-runtime",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/298680943?v=4",
+        "url": "https://github.com/argus-runtime"
+      },
+      "createdAt": "2026-08-24T14:18:45.000Z",
+      "updatedAt": "2026-09-11T11:45:04.000Z",
+      "state": null
+    },
+    {
+      "id": "quirq-ai/xo-space:contributor:krishbhimani",
+      "kind": "contributor",
+      "number": null,
+      "title": "KrishBhimani",
+      "url": "https://github.com/KrishBhimani",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "createdAt": null,
+      "updatedAt": null,
+      "state": null,
+      "contributions": 117
+    },
+    {
+      "id": "quirq-ai/xo-space:contributor:seemanttripathi",
+      "kind": "contributor",
+      "number": null,
+      "title": "seemanttripathi",
+      "url": "https://github.com/seemanttripathi",
+      "actor": {
+        "login": "seemanttripathi",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/47049137?v=4",
+        "url": "https://github.com/seemanttripathi"
+      },
+      "createdAt": null,
+      "updatedAt": null,
+      "state": null,
+      "contributions": 49
+    },
+    {
+      "id": "quirq-ai/xo-space:contributor:sharmasuraj0123",
+      "kind": "contributor",
+      "number": null,
+      "title": "sharmasuraj0123",
+      "url": "https://github.com/sharmasuraj0123",
+      "actor": {
+        "login": "sharmasuraj0123",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/36091186?v=4",
+        "url": "https://github.com/sharmasuraj0123"
+      },
+      "createdAt": null,
+      "updatedAt": null,
+      "state": null,
+      "contributions": 46
+    },
+    {
+      "id": "quirq-ai/xo-space:contributor:dwivedi-ai",
+      "kind": "contributor",
+      "number": null,
+      "title": "dwivedi-ai",
+      "url": "https://github.com/dwivedi-ai",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "createdAt": null,
+      "updatedAt": null,
+      "state": null,
+      "contributions": 34
+    },
+    {
+      "id": "quirq-ai/xo-space:contributor:mukesh804",
+      "kind": "contributor",
+      "number": null,
+      "title": "mukesh804",
+      "url": "https://github.com/mukesh804",
+      "actor": {
+        "login": "mukesh804",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/73191137?v=4",
+        "url": "https://github.com/mukesh804"
+      },
+      "createdAt": null,
+      "updatedAt": null,
+      "state": null,
+      "contributions": 31
+    },
+    {
+      "id": "quirq-ai/xo-space:contributor:quirq-gates",
+      "kind": "contributor",
+      "number": null,
+      "title": "quirq-gates",
+      "url": "https://github.com/quirq-gates",
+      "actor": {
+        "login": "quirq-gates",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/333820652?v=4",
+        "url": "https://github.com/quirq-gates"
+      },
+      "createdAt": null,
+      "updatedAt": null,
+      "state": null,
+      "contributions": 13
+    },
+    {
+      "id": "quirq-ai/xo-space:contributor:rohini-sp",
+      "kind": "contributor",
+      "number": null,
+      "title": "rohini-sp",
+      "url": "https://github.com/rohini-sp",
+      "actor": {
+        "login": "rohini-sp",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/138889836?v=4",
+        "url": "https://github.com/rohini-sp"
+      },
+      "createdAt": null,
+      "updatedAt": null,
+      "state": null,
+      "contributions": 13
+    },
+    {
+      "id": "quirq-ai/xo-space:contributor:sagarrambade21",
+      "kind": "contributor",
+      "number": null,
+      "title": "SAGARRAMBADE21",
+      "url": "https://github.com/SAGARRAMBADE21",
+      "actor": {
+        "login": "SAGARRAMBADE21",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/241298048?v=4",
+        "url": "https://github.com/SAGARRAMBADE21"
+      },
+      "createdAt": null,
+      "updatedAt": null,
+      "state": null,
+      "contributions": 11
+    },
+    {
+      "id": "quirq-ai/xo-space:contributor:quirq-dev",
+      "kind": "contributor",
+      "number": null,
+      "title": "quirq-dev",
+      "url": "https://github.com/quirq-dev",
+      "actor": {
+        "login": "quirq-dev",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/256758572?v=4",
+        "url": "https://github.com/quirq-dev"
+      },
+      "createdAt": null,
+      "updatedAt": null,
+      "state": null,
+      "contributions": 10
+    },
+    {
+      "id": "quirq-ai/xo-space:contributor:andreolf",
+      "kind": "contributor",
+      "number": null,
+      "title": "andreolf",
+      "url": "https://github.com/andreolf",
+      "actor": {
+        "login": "andreolf",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/15174764?v=4",
+        "url": "https://github.com/andreolf"
+      },
+      "createdAt": null,
+      "updatedAt": null,
+      "state": null,
+      "contributions": 6
+    },
+    {
+      "id": "quirq-ai/xo-space:contributor:copilot",
+      "kind": "contributor",
+      "number": null,
+      "title": "Copilot",
+      "url": "https://github.com/Copilot",
+      "actor": {
+        "login": "Copilot",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1143301?v=4",
+        "url": "https://github.com/Copilot"
+      },
+      "createdAt": null,
+      "updatedAt": null,
+      "state": null,
+      "contributions": 3
+    },
+    {
+      "id": "quirq-ai/xo-space:contributor:harishkotra",
+      "kind": "contributor",
+      "number": null,
+      "title": "harishkotra",
+      "url": "https://github.com/harishkotra",
+      "actor": {
+        "login": "harishkotra",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/4999463?v=4",
+        "url": "https://github.com/harishkotra"
+      },
+      "createdAt": null,
+      "updatedAt": null,
+      "state": null,
+      "contributions": 2
+    },
+    {
+      "id": "quirq-ai/xo-space:contributor:argus-runtime",
+      "kind": "contributor",
+      "number": null,
+      "title": "argus-runtime",
+      "url": "https://github.com/argus-runtime",
+      "actor": {
+        "login": "argus-runtime",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/298680943?v=4",
+        "url": "https://github.com/argus-runtime"
+      },
+      "createdAt": null,
+      "updatedAt": null,
+      "state": null,
+      "contributions": 1
+    }
+  ],
+  "events": [
+    {
+      "id": "quirq-ai/xo-space:fork:1345039370:forked:2026-08-24T14:18:45.000Z",
+      "itemId": "quirq-ai/xo-space:fork:1345039370",
+      "kind": "fork",
+      "action": "forked",
+      "date": "2026-08-24T14:18:45.000Z",
+      "actor": {
+        "login": null,
+        "avatarUrl": null,
+        "url": null
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:fork:1349722310:forked:2026-08-28T14:56:24.000Z",
+      "itemId": "quirq-ai/xo-space:fork:1349722310",
+      "kind": "fork",
+      "action": "forked",
+      "date": "2026-08-28T14:56:24.000Z",
+      "actor": {
+        "login": null,
+        "avatarUrl": null,
+        "url": null
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:fork:1351964685:forked:2026-08-31T03:54:01.000Z",
+      "itemId": "quirq-ai/xo-space:fork:1351964685",
+      "kind": "fork",
+      "action": "forked",
+      "date": "2026-08-31T03:54:01.000Z",
+      "actor": {
+        "login": null,
+        "avatarUrl": null,
+        "url": null
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5654381902:commented:2026-09-13T16:01:43.000Z",
+      "itemId": "quirq-ai/xo-space:issue_comment:5654381902",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-09-13T16:01:43.000Z",
+      "actor": {
+        "login": "sharmasuraj0123",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/36091186?v=4",
+        "url": "https://github.com/sharmasuraj0123"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5657244730:commented:2026-09-14T00:07:31.000Z",
+      "itemId": "quirq-ai/xo-space:issue_comment:5657244730",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-09-14T00:07:31.000Z",
+      "actor": {
+        "login": "sharmasuraj0123",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/36091186?v=4",
+        "url": "https://github.com/sharmasuraj0123"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5664995493:commented:2026-09-14T13:47:02.000Z",
+      "itemId": "quirq-ai/xo-space:issue_comment:5664995493",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-09-14T13:47:02.000Z",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5666647883:commented:2026-09-14T15:44:56.000Z",
+      "itemId": "quirq-ai/xo-space:issue_comment:5666647883",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-09-14T15:44:56.000Z",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5667282116:commented:2026-09-14T16:31:28.000Z",
+      "itemId": "quirq-ai/xo-space:issue_comment:5667282116",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-09-14T16:31:28.000Z",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5670212778:commented:2026-09-14T20:16:44.000Z",
+      "itemId": "quirq-ai/xo-space:issue_comment:5670212778",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-09-14T20:16:44.000Z",
+      "actor": {
+        "login": "sharmasuraj0123",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/36091186?v=4",
+        "url": "https://github.com/sharmasuraj0123"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:fork:1378788393:forked:2026-09-20T21:23:39.000Z",
+      "itemId": "quirq-ai/xo-space:fork:1378788393",
+      "kind": "fork",
+      "action": "forked",
+      "date": "2026-09-20T21:23:39.000Z",
+      "actor": {
+        "login": null,
+        "avatarUrl": null,
+        "url": null
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5759440686:commented:2026-09-21T11:02:44.000Z",
+      "itemId": "quirq-ai/xo-space:issue_comment:5759440686",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-09-21T11:02:44.000Z",
+      "actor": {
+        "login": "sharmasuraj0123",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/36091186?v=4",
+        "url": "https://github.com/sharmasuraj0123"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5761418692:commented:2026-09-21T13:38:54.000Z",
+      "itemId": "quirq-ai/xo-space:issue_comment:5761418692",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-09-21T13:38:54.000Z",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5765560395:commented:2026-09-21T18:34:23.000Z",
+      "itemId": "quirq-ai/xo-space:issue_comment:5765560395",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-09-21T18:34:23.000Z",
+      "actor": {
+        "login": "sharmasuraj0123",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/36091186?v=4",
+        "url": "https://github.com/sharmasuraj0123"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5777202189:commented:2026-09-22T13:15:36.000Z",
+      "itemId": "quirq-ai/xo-space:issue_comment:5777202189",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-09-22T13:15:36.000Z",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5785561788:commented:2026-09-22T22:51:18.000Z",
+      "itemId": "quirq-ai/xo-space:issue_comment:5785561788",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-09-22T22:51:18.000Z",
+      "actor": {
+        "login": "quirq-dev",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/256758572?v=4",
+        "url": "https://github.com/quirq-dev"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:189:opened:2026-09-24T11:06:01.000Z",
+      "itemId": "quirq-ai/xo-space:pull_request:189",
+      "kind": "pull_request",
+      "action": "opened",
+      "date": "2026-09-24T11:06:01.000Z",
+      "actor": {
+        "login": "SAGARRAMBADE21",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/241298048?v=4",
+        "url": "https://github.com/SAGARRAMBADE21"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5814533568:commented:2026-09-24T12:55:44.000Z",
+      "itemId": "quirq-ai/xo-space:issue_comment:5814533568",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-09-24T12:55:44.000Z",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5814824770:commented:2026-09-24T13:14:12.000Z",
+      "itemId": "quirq-ai/xo-space:issue_comment:5814824770",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-09-24T13:14:12.000Z",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5816454984:commented:2026-09-24T14:50:21.000Z",
+      "itemId": "quirq-ai/xo-space:issue_comment:5816454984",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-09-24T14:50:21.000Z",
+      "actor": {
+        "login": "sharmasuraj0123",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/36091186?v=4",
+        "url": "https://github.com/sharmasuraj0123"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5819018251:commented:2026-09-24T17:34:25.000Z",
+      "itemId": "quirq-ai/xo-space:issue_comment:5819018251",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-09-24T17:34:25.000Z",
+      "actor": {
+        "login": "quirq-dev",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/256758572?v=4",
+        "url": "https://github.com/quirq-dev"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5831004339:commented:2026-09-25T10:36:46.000Z",
+      "itemId": "quirq-ai/xo-space:issue_comment:5831004339",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-09-25T10:36:46.000Z",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5831109577:commented:2026-09-25T10:45:12.000Z",
+      "itemId": "quirq-ai/xo-space:issue_comment:5831109577",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-09-25T10:45:12.000Z",
+      "actor": {
+        "login": "quirq-dev",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/256758572?v=4",
+        "url": "https://github.com/quirq-dev"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5833074646:commented:2026-09-25T13:19:54.000Z",
+      "itemId": "quirq-ai/xo-space:issue_comment:5833074646",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-09-25T13:19:54.000Z",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5833193530:commented:2026-09-25T13:27:43.000Z",
+      "itemId": "quirq-ai/xo-space:issue_comment:5833193530",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-09-25T13:27:43.000Z",
+      "actor": {
+        "login": "quirq-dev",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/256758572?v=4",
+        "url": "https://github.com/quirq-dev"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5833532623:commented:2026-09-25T13:51:20.000Z",
+      "itemId": "quirq-ai/xo-space:issue_comment:5833532623",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-09-25T13:51:20.000Z",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5833572992:commented:2026-09-25T13:54:08.000Z",
+      "itemId": "quirq-ai/xo-space:issue_comment:5833572992",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-09-25T13:54:08.000Z",
+      "actor": {
+        "login": "quirq-dev",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/256758572?v=4",
+        "url": "https://github.com/quirq-dev"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5834165101:commented:2026-09-25T14:34:28.000Z",
+      "itemId": "quirq-ai/xo-space:issue_comment:5834165101",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-09-25T14:34:28.000Z",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5834286177:commented:2026-09-25T14:42:48.000Z",
+      "itemId": "quirq-ai/xo-space:issue_comment:5834286177",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-09-25T14:42:48.000Z",
+      "actor": {
+        "login": "quirq-dev",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/256758572?v=4",
+        "url": "https://github.com/quirq-dev"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:189:closed:2026-09-28T11:07:40.000Z",
+      "itemId": "quirq-ai/xo-space:pull_request:189",
+      "kind": "pull_request",
+      "action": "closed",
+      "date": "2026-09-28T11:07:40.000Z",
+      "actor": {
+        "login": null,
+        "avatarUrl": null,
+        "url": null
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:194:opened:2026-09-28T13:40:24.000Z",
+      "itemId": "quirq-ai/xo-space:pull_request:194",
+      "kind": "pull_request",
+      "action": "opened",
+      "date": "2026-09-28T13:40:24.000Z",
+      "actor": {
+        "login": "SAGARRAMBADE21",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/241298048?v=4",
+        "url": "https://github.com/SAGARRAMBADE21"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:196:opened:2026-09-29T08:56:45.000Z",
+      "itemId": "quirq-ai/xo-space:pull_request:196",
+      "kind": "pull_request",
+      "action": "opened",
+      "date": "2026-09-29T08:56:45.000Z",
+      "actor": {
+        "login": "SAGARRAMBADE21",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/241298048?v=4",
+        "url": "https://github.com/SAGARRAMBADE21"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:194:closed:2026-09-29T08:57:32.000Z",
+      "itemId": "quirq-ai/xo-space:pull_request:194",
+      "kind": "pull_request",
+      "action": "closed",
+      "date": "2026-09-29T08:57:32.000Z",
+      "actor": {
+        "login": null,
+        "avatarUrl": null,
+        "url": null
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:5888848303:commented:2026-09-29T10:59:07.000Z",
+      "itemId": "quirq-ai/xo-space:issue_comment:5888848303",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-09-29T10:59:07.000Z",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:196:closed:2026-09-30T17:17:28.000Z",
+      "itemId": "quirq-ai/xo-space:pull_request:196",
+      "kind": "pull_request",
+      "action": "closed",
+      "date": "2026-09-30T17:17:28.000Z",
+      "actor": {
+        "login": null,
+        "avatarUrl": null,
+        "url": null
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:198:opened:2026-10-01T10:54:34.000Z",
+      "itemId": "quirq-ai/xo-space:pull_request:198",
+      "kind": "pull_request",
+      "action": "opened",
+      "date": "2026-10-01T10:54:34.000Z",
+      "actor": {
+        "login": "SAGARRAMBADE21",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/241298048?v=4",
+        "url": "https://github.com/SAGARRAMBADE21"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:198:closed:2026-10-01T10:57:20.000Z",
+      "itemId": "quirq-ai/xo-space:pull_request:198",
+      "kind": "pull_request",
+      "action": "closed",
+      "date": "2026-10-01T10:57:20.000Z",
+      "actor": {
+        "login": null,
+        "avatarUrl": null,
+        "url": null
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:224:opened:2026-10-06T15:50:38.000Z",
+      "itemId": "quirq-ai/xo-space:pull_request:224",
+      "kind": "pull_request",
+      "action": "opened",
+      "date": "2026-10-06T15:50:38.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue:226:opened:2026-10-07T08:14:00.000Z",
+      "itemId": "quirq-ai/xo-space:issue:226",
+      "kind": "issue",
+      "action": "opened",
+      "date": "2026-10-07T08:14:00.000Z",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:6039623271:commented:2026-10-07T14:02:50.000Z",
+      "itemId": "quirq-ai/xo-space:issue_comment:6039623271",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-07T14:02:50.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:224:closed:2026-10-07T14:02:51.000Z",
+      "itemId": "quirq-ai/xo-space:pull_request:224",
+      "kind": "pull_request",
+      "action": "closed",
+      "date": "2026-10-07T14:02:51.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:235:opened:2026-10-08T15:33:07.000Z",
+      "itemId": "quirq-ai/xo-space:pull_request:235",
+      "kind": "pull_request",
+      "action": "opened",
+      "date": "2026-10-08T15:33:07.000Z",
+      "actor": {
+        "login": "SAGARRAMBADE21",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/241298048?v=4",
+        "url": "https://github.com/SAGARRAMBADE21"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:237:opened:2026-10-08T16:31:05.000Z",
+      "itemId": "quirq-ai/xo-space:pull_request:237",
+      "kind": "pull_request",
+      "action": "opened",
+      "date": "2026-10-08T16:31:05.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:239:opened:2026-10-13T11:25:49.000Z",
+      "itemId": "quirq-ai/xo-space:pull_request:239",
+      "kind": "pull_request",
+      "action": "opened",
+      "date": "2026-10-13T11:25:49.000Z",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:239:merged:2026-10-13T13:14:26.000Z",
+      "itemId": "quirq-ai/xo-space:pull_request:239",
+      "kind": "pull_request",
+      "action": "merged",
+      "date": "2026-10-13T13:14:26.000Z",
+      "actor": {
+        "login": null,
+        "avatarUrl": null,
+        "url": null
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:240:opened:2026-10-13T14:51:55.000Z",
+      "itemId": "quirq-ai/xo-space:pull_request:240",
+      "kind": "pull_request",
+      "action": "opened",
+      "date": "2026-10-13T14:51:55.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:235:closed:2026-10-13T16:49:33.000Z",
+      "itemId": "quirq-ai/xo-space:pull_request:235",
+      "kind": "pull_request",
+      "action": "closed",
+      "date": "2026-10-13T16:49:33.000Z",
+      "actor": {
+        "login": null,
+        "avatarUrl": null,
+        "url": null
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue:241:opened:2026-10-14T13:46:03.000Z",
+      "itemId": "quirq-ai/xo-space:issue:241",
+      "kind": "issue",
+      "action": "opened",
+      "date": "2026-10-14T13:46:03.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:242:opened:2026-10-15T15:28:35.000Z",
+      "itemId": "quirq-ai/xo-space:pull_request:242",
+      "kind": "pull_request",
+      "action": "opened",
+      "date": "2026-10-15T15:28:35.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:243:opened:2026-10-15T15:34:26.000Z",
+      "itemId": "quirq-ai/xo-space:pull_request:243",
+      "kind": "pull_request",
+      "action": "opened",
+      "date": "2026-10-15T15:34:26.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:244:opened:2026-10-15T15:46:19.000Z",
+      "itemId": "quirq-ai/xo-space:pull_request:244",
+      "kind": "pull_request",
+      "action": "opened",
+      "date": "2026-10-15T15:46:19.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:245:opened:2026-10-15T16:03:24.000Z",
+      "itemId": "quirq-ai/xo-space:pull_request:245",
+      "kind": "pull_request",
+      "action": "opened",
+      "date": "2026-10-15T16:03:24.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:246:opened:2026-10-15T16:16:00.000Z",
+      "itemId": "quirq-ai/xo-space:pull_request:246",
+      "kind": "pull_request",
+      "action": "opened",
+      "date": "2026-10-15T16:16:00.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:247:opened:2026-10-15T16:32:25.000Z",
+      "itemId": "quirq-ai/xo-space:pull_request:247",
+      "kind": "pull_request",
+      "action": "opened",
+      "date": "2026-10-15T16:32:25.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4285778388:commented:2026-10-15T16:46:21.000Z",
+      "itemId": "quirq-ai/xo-space:review_comment:4285778388",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-15T16:46:21.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4285778406:commented:2026-10-15T16:46:21.000Z",
+      "itemId": "quirq-ai/xo-space:review_comment:4285778406",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-15T16:46:21.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4285778423:commented:2026-10-15T16:46:21.000Z",
+      "itemId": "quirq-ai/xo-space:review_comment:4285778423",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-15T16:46:21.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4285778435:commented:2026-10-15T16:46:21.000Z",
+      "itemId": "quirq-ai/xo-space:review_comment:4285778435",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-15T16:46:21.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4285778454:commented:2026-10-15T16:46:21.000Z",
+      "itemId": "quirq-ai/xo-space:review_comment:4285778454",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-15T16:46:21.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4285778467:commented:2026-10-15T16:46:21.000Z",
+      "itemId": "quirq-ai/xo-space:review_comment:4285778467",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-15T16:46:21.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review:5536743724:submitted:2026-10-15T16:46:21.000Z",
+      "itemId": "quirq-ai/xo-space:review:5536743724",
+      "kind": "review",
+      "action": "submitted",
+      "date": "2026-10-15T16:46:21.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:248:opened:2026-10-15T17:24:45.000Z",
+      "itemId": "quirq-ai/xo-space:pull_request:248",
+      "kind": "pull_request",
+      "action": "opened",
+      "date": "2026-10-15T17:24:45.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review:5537449185:submitted:2026-10-15T17:40:30.000Z",
+      "itemId": "quirq-ai/xo-space:review:5537449185",
+      "kind": "review",
+      "action": "submitted",
+      "date": "2026-10-15T17:40:30.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4286308550:commented:2026-10-15T17:40:31.000Z",
+      "itemId": "quirq-ai/xo-space:review_comment:4286308550",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-15T17:40:31.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4286308578:commented:2026-10-15T17:40:31.000Z",
+      "itemId": "quirq-ai/xo-space:review_comment:4286308578",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-15T17:40:31.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4286308601:commented:2026-10-15T17:40:31.000Z",
+      "itemId": "quirq-ai/xo-space:review_comment:4286308601",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-15T17:40:31.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4286308615:commented:2026-10-15T17:40:31.000Z",
+      "itemId": "quirq-ai/xo-space:review_comment:4286308615",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-15T17:40:31.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4286308629:commented:2026-10-15T17:40:31.000Z",
+      "itemId": "quirq-ai/xo-space:review_comment:4286308629",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-15T17:40:31.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:6198846883:commented:2026-10-15T18:03:12.000Z",
+      "itemId": "quirq-ai/xo-space:issue_comment:6198846883",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-15T18:03:12.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:6198847367:commented:2026-10-15T18:03:13.000Z",
+      "itemId": "quirq-ai/xo-space:issue_comment:6198847367",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-15T18:03:13.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4286658354:commented:2026-10-15T18:15:40.000Z",
+      "itemId": "quirq-ai/xo-space:review_comment:4286658354",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-15T18:15:40.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4286658368:commented:2026-10-15T18:15:40.000Z",
+      "itemId": "quirq-ai/xo-space:review_comment:4286658368",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-15T18:15:40.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review:5537876337:submitted:2026-10-15T18:15:40.000Z",
+      "itemId": "quirq-ai/xo-space:review:5537876337",
+      "kind": "review",
+      "action": "submitted",
+      "date": "2026-10-15T18:15:40.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4286691914:commented:2026-10-15T18:19:15.000Z",
+      "itemId": "quirq-ai/xo-space:review_comment:4286691914",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-15T18:19:15.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review:5537916971:submitted:2026-10-15T18:19:15.000Z",
+      "itemId": "quirq-ai/xo-space:review:5537916971",
+      "kind": "review",
+      "action": "submitted",
+      "date": "2026-10-15T18:19:15.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4286691938:commented:2026-10-15T18:19:16.000Z",
+      "itemId": "quirq-ai/xo-space:review_comment:4286691938",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-15T18:19:16.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4286691949:commented:2026-10-15T18:19:16.000Z",
+      "itemId": "quirq-ai/xo-space:review_comment:4286691949",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-15T18:19:16.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:6201279396:commented:2026-10-15T20:09:56.000Z",
+      "itemId": "quirq-ai/xo-space:issue_comment:6201279396",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-15T20:09:56.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:6201279883:commented:2026-10-15T20:09:58.000Z",
+      "itemId": "quirq-ai/xo-space:issue_comment:6201279883",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-15T20:09:58.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_event:33375197735",
+      "itemId": "quirq-ai/xo-space:pull_request:242",
+      "kind": "pull_request",
+      "action": "merged",
+      "date": "2026-10-15T20:24:38.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "GitHub issue event"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_event:33375198019",
+      "itemId": "quirq-ai/xo-space:pull_request:242",
+      "kind": "pull_request",
+      "action": "closed",
+      "date": "2026-10-15T20:24:38.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "GitHub issue event"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_event:33375204486",
+      "itemId": "quirq-ai/xo-space:pull_request:243",
+      "kind": "pull_request",
+      "action": "merged",
+      "date": "2026-10-15T20:24:43.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "GitHub issue event"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_event:33375204641",
+      "itemId": "quirq-ai/xo-space:pull_request:243",
+      "kind": "pull_request",
+      "action": "closed",
+      "date": "2026-10-15T20:24:43.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "GitHub issue event"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_event:33375210457",
+      "itemId": "quirq-ai/xo-space:pull_request:244",
+      "kind": "pull_request",
+      "action": "merged",
+      "date": "2026-10-15T20:24:47.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "GitHub issue event"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_event:33375210593",
+      "itemId": "quirq-ai/xo-space:pull_request:244",
+      "kind": "pull_request",
+      "action": "closed",
+      "date": "2026-10-15T20:24:47.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "GitHub issue event"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_event:33375230536",
+      "itemId": "quirq-ai/xo-space:pull_request:245",
+      "kind": "pull_request",
+      "action": "merged",
+      "date": "2026-10-15T20:25:01.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "GitHub issue event"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_event:33375230684",
+      "itemId": "quirq-ai/xo-space:pull_request:245",
+      "kind": "pull_request",
+      "action": "closed",
+      "date": "2026-10-15T20:25:01.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "GitHub issue event"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_event:33375241807",
+      "itemId": "quirq-ai/xo-space:pull_request:246",
+      "kind": "pull_request",
+      "action": "merged",
+      "date": "2026-10-15T20:25:09.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "GitHub issue event"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_event:33375241951",
+      "itemId": "quirq-ai/xo-space:pull_request:246",
+      "kind": "pull_request",
+      "action": "closed",
+      "date": "2026-10-15T20:25:09.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "GitHub issue event"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4287939353:commented:2026-10-15T20:27:51.000Z",
+      "itemId": "quirq-ai/xo-space:review_comment:4287939353",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-15T20:27:51.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review:5539452007:submitted:2026-10-15T20:27:51.000Z",
+      "itemId": "quirq-ai/xo-space:review:5539452007",
+      "kind": "review",
+      "action": "submitted",
+      "date": "2026-10-15T20:27:51.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4287939364:commented:2026-10-15T20:27:52.000Z",
+      "itemId": "quirq-ai/xo-space:review_comment:4287939364",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-15T20:27:52.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4287939373:commented:2026-10-15T20:27:52.000Z",
+      "itemId": "quirq-ai/xo-space:review_comment:4287939373",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-15T20:27:52.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4287939386:commented:2026-10-15T20:27:52.000Z",
+      "itemId": "quirq-ai/xo-space:review_comment:4287939386",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-15T20:27:52.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4287939403:commented:2026-10-15T20:27:52.000Z",
+      "itemId": "quirq-ai/xo-space:review_comment:4287939403",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-15T20:27:52.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_event:33375914958",
+      "itemId": "quirq-ai/xo-space:pull_request:247",
+      "kind": "pull_request",
+      "action": "merged",
+      "date": "2026-10-15T20:32:57.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "GitHub issue event"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_event:33375915138",
+      "itemId": "quirq-ai/xo-space:pull_request:247",
+      "kind": "pull_request",
+      "action": "closed",
+      "date": "2026-10-15T20:32:57.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "GitHub issue event"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_event:33375926467",
+      "itemId": "quirq-ai/xo-space:pull_request:248",
+      "kind": "pull_request",
+      "action": "merged",
+      "date": "2026-10-15T20:33:05.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "GitHub issue event"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_event:33375926604",
+      "itemId": "quirq-ai/xo-space:pull_request:248",
+      "kind": "pull_request",
+      "action": "closed",
+      "date": "2026-10-15T20:33:05.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "GitHub issue event"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_comment:6201748563:commented:2026-10-15T20:35:58.000Z",
+      "itemId": "quirq-ai/xo-space:issue_comment:6201748563",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-15T20:35:58.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:249:opened:2026-10-16T11:07:09.000Z",
+      "itemId": "quirq-ai/xo-space:pull_request:249",
+      "kind": "pull_request",
+      "action": "opened",
+      "date": "2026-10-16T11:07:09.000Z",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_event:33439704168",
+      "itemId": "quirq-ai/xo-space:pull_request:249",
+      "kind": "pull_request",
+      "action": "review_requested",
+      "date": "2026-10-16T11:25:46.000Z",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "provenance": "GitHub issue event"
+    },
+    {
+      "id": "quirq-ai/xo-space:review:5547182435:submitted:2026-10-16T11:31:00.000Z",
+      "itemId": "quirq-ai/xo-space:review:5547182435",
+      "kind": "review",
+      "action": "submitted",
+      "date": "2026-10-16T11:31:00.000Z",
+      "actor": {
+        "login": "sharmasuraj0123",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/36091186?u=7bf14a22ecbfbd7c6ca1e338ae6398b4e3837edb&v=4",
+        "url": "https://github.com/sharmasuraj0123"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_event:33440573512",
+      "itemId": "quirq-ai/xo-space:pull_request:249",
+      "kind": "pull_request",
+      "action": "merged",
+      "date": "2026-10-16T11:37:44.000Z",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "provenance": "GitHub issue event"
+    },
+    {
+      "id": "quirq-ai/xo-space:issue_event:33440573677",
+      "itemId": "quirq-ai/xo-space:pull_request:249",
+      "kind": "pull_request",
+      "action": "closed",
+      "date": "2026-10-16T11:37:44.000Z",
+      "actor": {
+        "login": "KrishBhimani",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4",
+        "url": "https://github.com/KrishBhimani"
+      },
+      "provenance": "GitHub issue event"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:250:opened:2026-10-16T16:39:35.000Z",
+      "itemId": "quirq-ai/xo-space:pull_request:250",
+      "kind": "pull_request",
+      "action": "opened",
+      "date": "2026-10-16T16:39:35.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:251:opened:2026-10-16T16:39:40.000Z",
+      "itemId": "quirq-ai/xo-space:pull_request:251",
+      "kind": "pull_request",
+      "action": "opened",
+      "date": "2026-10-16T16:39:40.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:252:opened:2026-10-16T16:39:46.000Z",
+      "itemId": "quirq-ai/xo-space:pull_request:252",
+      "kind": "pull_request",
+      "action": "opened",
+      "date": "2026-10-16T16:39:46.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:pull_request:253:opened:2026-10-16T16:39:51.000Z",
+      "itemId": "quirq-ai/xo-space:pull_request:253",
+      "kind": "pull_request",
+      "action": "opened",
+      "date": "2026-10-16T16:39:51.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4297071408:commented:2026-10-16T16:49:28.000Z",
+      "itemId": "quirq-ai/xo-space:review_comment:4297071408",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-16T16:49:28.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4297071418:commented:2026-10-16T16:49:28.000Z",
+      "itemId": "quirq-ai/xo-space:review_comment:4297071418",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-16T16:49:28.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review:5550923242:submitted:2026-10-16T16:49:28.000Z",
+      "itemId": "quirq-ai/xo-space:review:5550923242",
+      "kind": "review",
+      "action": "submitted",
+      "date": "2026-10-16T16:49:28.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4297079222:commented:2026-10-16T16:50:25.000Z",
+      "itemId": "quirq-ai/xo-space:review_comment:4297079222",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-16T16:50:25.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review:5550932489:submitted:2026-10-16T16:50:25.000Z",
+      "itemId": "quirq-ai/xo-space:review:5550932489",
+      "kind": "review",
+      "action": "submitted",
+      "date": "2026-10-16T16:50:25.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4297423851:commented:2026-10-16T17:29:49.000Z",
+      "itemId": "quirq-ai/xo-space:review_comment:4297423851",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-16T17:29:49.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review:5551349223:submitted:2026-10-16T17:29:49.000Z",
+      "itemId": "quirq-ai/xo-space:review:5551349223",
+      "kind": "review",
+      "action": "submitted",
+      "date": "2026-10-16T17:29:49.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?u=fb0d3bb735ac5b98dba0c8b3b17d432c83bd20dd&v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4297424099:commented:2026-10-16T17:29:50.000Z",
+      "itemId": "quirq-ai/xo-space:review_comment:4297424099",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-16T17:29:50.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review:5551349517:submitted:2026-10-16T17:29:50.000Z",
+      "itemId": "quirq-ai/xo-space:review:5551349517",
+      "kind": "review",
+      "action": "submitted",
+      "date": "2026-10-16T17:29:50.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?u=fb0d3bb735ac5b98dba0c8b3b17d432c83bd20dd&v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4297424377:commented:2026-10-16T17:29:52.000Z",
+      "itemId": "quirq-ai/xo-space:review_comment:4297424377",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-16T17:29:52.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review:5551349869:submitted:2026-10-16T17:29:52.000Z",
+      "itemId": "quirq-ai/xo-space:review:5551349869",
+      "kind": "review",
+      "action": "submitted",
+      "date": "2026-10-16T17:29:52.000Z",
+      "actor": {
+        "login": "dwivedi-ai",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/65527745?u=fb0d3bb735ac5b98dba0c8b3b17d432c83bd20dd&v=4",
+        "url": "https://github.com/dwivedi-ai"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4297517272:commented:2026-10-16T17:40:03.000Z",
+      "itemId": "quirq-ai/xo-space:review_comment:4297517272",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-16T17:40:03.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review:5551465165:submitted:2026-10-16T17:40:03.000Z",
+      "itemId": "quirq-ai/xo-space:review:5551465165",
+      "kind": "review",
+      "action": "submitted",
+      "date": "2026-10-16T17:40:03.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4297529813:commented:2026-10-16T17:41:16.000Z",
+      "itemId": "quirq-ai/xo-space:review_comment:4297529813",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-16T17:41:16.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review_comment:4297529835:commented:2026-10-16T17:41:16.000Z",
+      "itemId": "quirq-ai/xo-space:review_comment:4297529835",
+      "kind": "comment",
+      "action": "commented",
+      "date": "2026-10-16T17:41:16.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    },
+    {
+      "id": "quirq-ai/xo-space:review:5551478493:submitted:2026-10-16T17:41:16.000Z",
+      "itemId": "quirq-ai/xo-space:review:5551478493",
+      "kind": "review",
+      "action": "submitted",
+      "date": "2026-10-16T17:41:16.000Z",
+      "actor": {
+        "login": "cursor[bot]",
+        "avatarUrl": "https://avatars.githubusercontent.com/in/1210556?v=4",
+        "url": "https://github.com/cursor%5Bbot%5D"
+      },
+      "provenance": "object timestamp"
+    }
+  ],
+  "limitations": [
+    "Conversation comments: only the first requested page is included; further results are omitted.",
+    "Issue workflow events: only the first requested page is included; further results are omitted.",
+    "Issue/PR listing: only the first requested page is included; further results are omitted.",
+    "Pull requests: only the first requested page is included; further results are omitted.",
+    "Inline review comments: only the first requested page is included; further results are omitted.",
+    "Bounded public snapshot: up to 20 recently updated PRs; issues from the first 50 mixed issue/PR results; 30 conversation comments, 30 inline comments, 20 newest forks, 30 contributors and 50 issue events. Available parent objects may also be included to connect real comments and events.",
+    "Reviews cover the first 30 reviews, in chronological order, on at most 8 sampled recently updated PRs. Other reviews are not loaded.",
+    "Replay uses returned object timestamps and sampled issue events, not a complete historical audit. State, titles, ownership and contributor counts describe the fetched snapshot, not reconstructed historical values. Missing timestamps do not become invented events.",
+    "The issues endpoint includes pull requests; issue items and PR items are separated. GitHub’s repository open-issues total includes open pull requests.",
+    "Contributor counts are GitHub’s cached aggregate commit counts, not collaboration scores or productivity measures. Undated contributors remain visible outside replay; anonymous contributors are not requested.",
+    "Some comments refer to PRs or issues outside the sampled parent listings. Their real parent reference is retained without inventing a parent object.",
+    "Preloaded from actual GitHub API responses. This bundled snapshot works without API access and does not update automatically."
+  ],
+  "provenance": {
+    "provider": "GitHub REST API",
+    "endpoints": [
+      {
+        "name": "comments",
+        "url": "https://api.github.com/repos/quirq-ai/xo-space/issues/comments?sort=updated&direction=desc&per_page=30&page=1",
+        "fetchedAt": "2026-10-18T21:47:51.849Z",
+        "status": 200,
+        "count": 30,
+        "more": true
+      },
+      {
+        "name": "contributors",
+        "url": "https://api.github.com/repos/quirq-ai/xo-space/contributors?per_page=30&page=1",
+        "fetchedAt": "2026-10-18T21:47:52.260Z",
+        "status": 200,
+        "count": 13,
+        "more": false
+      },
+      {
+        "name": "forks",
+        "url": "https://api.github.com/repos/quirq-ai/xo-space/forks?sort=newest&per_page=20&page=1",
+        "fetchedAt": "2026-10-18T21:47:52.340Z",
+        "status": 200,
+        "count": 4,
+        "more": false
+      },
+      {
+        "name": "issueEvents",
+        "url": "https://api.github.com/repos/quirq-ai/xo-space/issues/events?per_page=50&page=1",
+        "fetchedAt": "2026-10-18T21:48:37.755Z",
+        "status": 200,
+        "count": 50,
+        "more": true
+      },
+      {
+        "name": "issues",
+        "url": "https://api.github.com/repos/quirq-ai/xo-space/issues?state=all&sort=updated&direction=desc&per_page=50&page=1",
+        "fetchedAt": "2026-10-18T21:47:51.827Z",
+        "status": 200,
+        "count": 50,
+        "more": true
+      },
+      {
+        "name": "pulls",
+        "url": "https://api.github.com/repos/quirq-ai/xo-space/pulls?state=all&sort=updated&direction=desc&per_page=20&page=1",
+        "fetchedAt": "2026-10-18T21:47:51.615Z",
+        "status": 200,
+        "count": 20,
+        "more": true
+      },
+      {
+        "name": "repository",
+        "url": "https://api.github.com/repos/quirq-ai/xo-space",
+        "fetchedAt": "2026-10-18T21:47:51.266Z",
+        "status": 200,
+        "count": null,
+        "more": false
+      },
+      {
+        "name": "reviewComments",
+        "url": "https://api.github.com/repos/quirq-ai/xo-space/pulls/comments?sort=updated&direction=desc&per_page=30&page=1",
+        "fetchedAt": "2026-10-18T21:47:52.543Z",
+        "status": 200,
+        "count": 30,
+        "more": true
+      },
+      {
+        "name": "reviews-246",
+        "url": "https://api.github.com/repos/quirq-ai/xo-space/pulls/246/reviews?per_page=30&page=1",
+        "fetchedAt": "2026-10-18T21:48:38.644Z",
+        "status": 200,
+        "count": 0,
+        "more": false
+      },
+      {
+        "name": "reviews-247",
+        "url": "https://api.github.com/repos/quirq-ai/xo-space/pulls/247/reviews?per_page=30&page=1",
+        "fetchedAt": "2026-10-18T21:48:38.458Z",
+        "status": 200,
+        "count": 2,
+        "more": false
+      },
+      {
+        "name": "reviews-248",
+        "url": "https://api.github.com/repos/quirq-ai/xo-space/pulls/248/reviews?per_page=30&page=1",
+        "fetchedAt": "2026-10-18T21:48:38.378Z",
+        "status": 200,
+        "count": 3,
+        "more": false
+      },
+      {
+        "name": "reviews-249",
+        "url": "https://api.github.com/repos/quirq-ai/xo-space/pulls/249/reviews?per_page=30&page=1",
+        "fetchedAt": "2026-10-18T21:48:38.243Z",
+        "status": 200,
+        "count": 1,
+        "more": false
+      },
+      {
+        "name": "reviews-250",
+        "url": "https://api.github.com/repos/quirq-ai/xo-space/pulls/250/reviews?per_page=30&page=1",
+        "fetchedAt": "2026-10-18T21:48:37.233Z",
+        "status": 200,
+        "count": 4,
+        "more": false
+      },
+      {
+        "name": "reviews-251",
+        "url": "https://api.github.com/repos/quirq-ai/xo-space/pulls/251/reviews?per_page=30&page=1",
+        "fetchedAt": "2026-10-18T21:48:37.806Z",
+        "status": 200,
+        "count": 2,
+        "more": false
+      },
+      {
+        "name": "reviews-252",
+        "url": "https://api.github.com/repos/quirq-ai/xo-space/pulls/252/reviews?per_page=30&page=1",
+        "fetchedAt": "2026-10-18T21:48:37.883Z",
+        "status": 200,
+        "count": 0,
+        "more": false
+      },
+      {
+        "name": "reviews-253",
+        "url": "https://api.github.com/repos/quirq-ai/xo-space/pulls/253/reviews?per_page=30&page=1",
+        "fetchedAt": "2026-10-18T21:48:37.491Z",
+        "status": 200,
+        "count": 1,
+        "more": false
+      }
+    ]
+  }
+}

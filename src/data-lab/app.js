@@ -9,8 +9,10 @@ import { TreeScene } from './tree-scene.js';
 import { DataPanel } from './panel.js';
 import { DataGuide } from './guide.js';
 import { DataLabControls } from './data-controls.js';
+import { restoreRepositorySession, saveRepositoryDataset, updateRepositorySelection } from '../repository/session.js';
+import { connectedRepository, connectRepository } from '../repository/connection.js';
 
-export function mountDataLab() {
+export async function mountDataLab() {
   document.body.dataset.mode = 'data';
   document.title = 'quirq observatory · Data Lab';
   for (const tab of document.querySelectorAll('#tab-switch a')) {
@@ -22,6 +24,7 @@ export function mountDataLab() {
   let model, frame, index = -1, selectedId = null;
   let playing = false, restartAtEnd = false, speed = 1, stepTime = 0, previousTime = 0, raf;
   let requestId = 0, requestController = null, disposed = false, scene;
+  let applyingDataset = false;
   let view = 'structure';
   const options = { links: true, labels: true, ghosts: true, activity: true, roots: true };
   document.body.dataset.dataView = view;
@@ -158,6 +161,9 @@ export function mountDataLab() {
     updateFocusHint();
     renderPanel();
   }
+  function persistSelection() {
+    if (model && !applyingDataset) updateRepositorySelection({ commitSha: frame?.commit?.sha ?? null, fileId: selectedId });
+  }
   function setIndex(next) {
     if (!model) return;
     index = Math.max(-1, Math.min(model.commits.length - 1, Math.floor(Number(next))));
@@ -166,6 +172,7 @@ export function mountDataLab() {
     stepTime = 0;
     updateScene();
     renderPanel();
+    persistSelection();
   }
   function setPlaying(next) {
     playing = Boolean(next && model?.commits.length);
@@ -191,27 +198,34 @@ export function mountDataLab() {
     selectedId = id;
     scene.select(id);
     renderPanel();
+    persistSelection();
   }
-  function useDataset(dataset, autoplay = false) {
+  function useDataset(dataset, autoplay = false, selection = null, publishConnection = true) {
+    applyingDataset = true;
     playing = false;
     model = buildModel(dataset);
+    if (publishConnection) connectRepository(dataset.repository.url);
     selectedId = null;
     scene.setModel(model);
-    setIndex(autoplay && !reducedMotion.matches ? 0 : model.commits.length - 1);
+    const restoredIndex = selection?.commitSha === null ? -1 : model.commits.findIndex(commit => commit.sha === selection?.commitSha);
+    setIndex(selection ? (restoredIndex >= 0 || selection.commitSha === null ? restoredIndex : model.commits.length - 1) : autoplay && !reducedMotion.matches ? 0 : model.commits.length - 1);
+    if (selection?.fileId && model.nodes.some(node => node.id === selection.fileId)) selectFile(selection.fileId);
     setPlaying(autoplay && !reducedMotion.matches);
+    applyingDataset = false;
+    void saveRepositoryDataset(dataset, { commitSha: frame?.commit?.sha ?? null, fileId: selectedId });
     panel.setStatus(dataset.repository.source === 'example'
       ? `Preloaded ${model.repository.fullName} · ${model.commits.length} commits from the ${model.repository.capturedAt.slice(0, 10)} snapshot.`
       : `Loaded ${model.commits.length} first-parent commits from ${model.repository.fullName}.`,
     'success');
   }
-  function showExample(url, limit, autoplay = false) {
+  function showExample(url, limit, autoplay = false, publishConnection = true) {
     const dataset = getExampleDataset(url, limit);
     if (!dataset) return false;
     requestId++;
     requestController?.abort();
     requestController = null;
     panel.setLoading(false);
-    useDataset(dataset, autoplay);
+    useDataset(dataset, autoplay, null, publishConnection);
     return true;
   }
   async function importRepository(url, limit) {
@@ -290,8 +304,26 @@ export function mountDataLab() {
     stage.composer.dispose();
     stage.renderer.dispose();
   }
-  listen(window, 'pagehide', event => { if (!event.persisted) dispose(); });
-  showExample(DEFAULT_EXAMPLE_URL, 12, true);
+  listen(window, 'pagehide', event => { if (event.persisted) setPlaying(false); else dispose(); });
+  listen(window, 'pageshow', async event => {
+    if (!event.persisted || disposed) return;
+    const restoreRequest = requestId;
+    const saved = await restoreRepositorySession({ refresh: true });
+    if (disposed || requestId !== restoreRequest) return;
+    const connected = connectedRepository();
+    if (connected && connected !== saved?.dataset.repository.url) await importRepository(connected);
+    else if (saved) useDataset(saved.dataset, false, saved.selection);
+  });
+  const startupRequest = requestId;
+  const savedSession = await restoreRepositorySession();
+  if (disposed) return;
+  if (requestId === startupRequest) {
+    const connected = connectedRepository();
+    if (savedSession) useDataset(savedSession.dataset, false, savedSession.selection, false);
+    else showExample(DEFAULT_EXAMPLE_URL, 12, true, false);
+    if (connected && connected !== model?.repository.url) await importRepository(connected);
+    else if (model) connectRepository(model.repository.url);
+  }
   document.getElementById('loading')?.remove();
   requestAnimationFrame(() => document.getElementById('tab-data')?.scrollIntoView({ block: 'nearest', inline: 'nearest' }));
   raf = requestAnimationFrame(tick);

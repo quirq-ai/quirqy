@@ -1,12 +1,19 @@
 import './glass-surfaces.css';
 import './panel-appearance.css';
 import { mountGlassRefraction } from './glass-refraction.js';
+import { REPOSITORY_LABS } from './repository-labs.js';
 
 const STORAGE_KEY = 'quirq-observatory.panel-opacity.v1';
 const DEFAULT_OPACITY = 62;
 const STRUCTURE_ICON = '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m5 6 10 8M15 6 5 14M5 6h10M5 14h10"/><circle cx="5" cy="6" r="2"/><circle cx="15" cy="6" r="2"/><circle cx="5" cy="14" r="2"/><circle cx="15" cy="14" r="2"/></svg>';
 const TREE_ICON = '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 18V5m0 7L5 7m5 7 5-5M10 7l4-4"/><circle cx="10" cy="3" r="1.5"/><circle cx="4" cy="6" r="1.5"/><circle cx="16" cy="8" r="1.5"/><path d="m6 18 4-2 4 2"/></svg>';
 const ICON = '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m10 2 8 4-8 4-8-4 8-4Z"/><path d="m2 10 8 4 8-4M2 14l8 4 8-4"/></svg>';
+
+const ACTIVITY_ICONS = {
+  constellation: '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m4 5 5 5 7-6M9 10l5 6M4 5l-1 10"/><circle cx="4" cy="5" r="2"/><circle cx="9" cy="10" r="2"/><circle cx="16" cy="4" r="1.5"/><circle cx="14" cy="16" r="1.5"/><circle cx="3" cy="15" r="1.5"/></svg>',
+  orbits: '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="2"/><ellipse cx="10" cy="10" rx="8" ry="4" transform="rotate(-30 10 10)"/><ellipse cx="10" cy="10" rx="8" ry="4" transform="rotate(45 10 10)"/></svg>',
+  contributors: '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="6" r="3"/><path d="M4 18v-2a6 6 0 0 1 12 0v2M3 4a2 2 0 0 0 0 4m14-4a2 2 0 0 1 0 4M1 14a4 4 0 0 1 3-4m15 4a4 4 0 0 0-3-4"/></svg>',
+};
 
 function readOpacity(raw) {
   try {
@@ -26,7 +33,7 @@ export function mountPanelAppearance() {
   const triggers = new Set();
   const observed = new WeakSet();
   const panelObservers = [];
-  let dataViews = null;
+  let repositoryViews = null;
   const popover = document.createElement('div');
   popover.id = 'glass-appearance-popover';
   popover.setAttribute('popover', 'auto');
@@ -110,7 +117,7 @@ export function mountPanelAppearance() {
   function open(trigger) {
     if (isOpen() && activeTrigger === trigger) { close(); return; }
     activeTrigger = trigger;
-    const isView = trigger.classList.contains('glass-view-trigger') && Boolean(dataViews);
+    const isView = trigger.classList.contains('glass-view-trigger') && Boolean(repositoryViews);
     popover.classList.toggle('glass-view-popover', Boolean(isView));
     viewOptions.hidden = !isView;
     opacitySection.open = !isView;
@@ -123,19 +130,19 @@ export function mountPanelAppearance() {
     }
     syncExpanded();
     positionPopover();
-    (isView ? dataViews.row.querySelector('[aria-pressed="true"]') || dataViews.row.querySelector('button') : range).focus({ preventScroll: true });
+    (isView ? repositoryViews.row.querySelector('[aria-pressed="true"]') || repositoryViews.row.querySelector('button') : range).focus({ preventScroll: true });
   }
 
   function addTrigger(host, after = null) {
     if (!host || host.querySelector(':scope > .glass-opacity-trigger')) return;
     const button = document.createElement('button');
     button.type = 'button';
-    button.className = `glass-opacity-trigger${host.id === 'data-timebar' ? ' glass-view-trigger' : ''}`;
+    button.className = `glass-opacity-trigger${REPOSITORY_LABS.some(lab => lab.dockId === host.id) ? ' glass-view-trigger' : ''}`;
     button.setAttribute('aria-haspopup', 'dialog');
     button.setAttribute('aria-controls', popover.id);
     button.setAttribute('popovertarget', popover.id);
     button.setAttribute('aria-expanded', 'false');
-    button.innerHTML = `${ICON}<span class="glass-opacity-text">${host.id === 'data-timebar' ? 'View' : 'Opacity'}</span><span class="glass-opacity-value"></span>`;
+    button.innerHTML = `${ICON}<span class="glass-opacity-text">${REPOSITORY_LABS.some(lab => lab.dockId === host.id) ? 'View' : 'Opacity'}</span><span class="glass-opacity-value"></span>`;
     if (after) after.after(button);
     else host.append(button);
     triggers.add(button);
@@ -144,22 +151,23 @@ export function mountPanelAppearance() {
     render();
   }
 
-  function releaseDataViews() {
-    if (!dataViews) return;
-    const { row, placeholder, originalMarkup } = dataViews;
+  function releaseRepositoryViews() {
+    if (!repositoryViews) return;
+    const { row, placeholder, originalMarkup } = repositoryViews;
     if (activeTrigger?.classList.contains('glass-view-trigger')) close();
     for (const [button, markup] of originalMarkup) button.innerHTML = markup;
     if (placeholder.parentNode) placeholder.replaceWith(row);
     else row.remove();
     viewOptions.hidden = true;
-    dataViews = null;
+    repositoryViews = null;
   }
 
-  function attachDataViews() {
-    const panel = document.getElementById('data-panel');
-    if (dataViews && (dataViews.panel !== panel || !dataViews.placeholder.isConnected)) releaseDataViews();
-    if (!panel || dataViews) return;
-    const row = panel.querySelector('.data-view-switch');
+  function attachRepositoryViews() {
+    const lab = REPOSITORY_LABS.find(lab => document.getElementById(lab.panelId));
+    const panel = lab && document.getElementById(lab.panelId);
+    if (repositoryViews && (repositoryViews.panel !== panel || !repositoryViews.placeholder.isConnected)) releaseRepositoryViews();
+    if (!panel || repositoryViews) return;
+    const row = panel.querySelector(lab.viewSwitch);
     if (!row) return;
     const placeholder = document.createComment('Repository views are presented in the dock View popover.');
     row.before(placeholder);
@@ -167,15 +175,26 @@ export function mountPanelAppearance() {
     for (const button of row.querySelectorAll('[data-view]')) {
       originalMarkup.set(button, button.innerHTML);
       const tree = button.dataset.view === 'tree';
-      button.innerHTML = `<span class="glass-view-icon">${tree ? TREE_ICON : STRUCTURE_ICON}</span><span>${tree ? 'Growth Tree' : 'Structure'}</span><span class="glass-view-check" aria-hidden="true">✓</span>`;
+      const label = button.textContent.trim();
+      button.replaceChildren();
+      const icon = document.createElement('span');
+      icon.className = 'glass-view-icon';
+      icon.innerHTML = tree ? TREE_ICON : ACTIVITY_ICONS[button.dataset.view] || STRUCTURE_ICON;
+      const text = document.createElement('span');
+      text.textContent = label;
+      const check = document.createElement('span');
+      check.className = 'glass-view-check';
+      check.setAttribute('aria-hidden', 'true');
+      check.textContent = '✓';
+      button.append(icon, text, check);
     }
-    dataViews = { panel, row, placeholder, originalMarkup };
+    repositoryViews = { panel, row, placeholder, originalMarkup };
     viewOptions.append(row);
   }
 
   function attachControls() {
-    attachDataViews();
-    for (const id of ['timebar', 'math-timebar', 'data-timebar', 'equation-panel', 'data-panel']) {
+    attachRepositoryViews();
+    for (const id of ['timebar', 'math-timebar', 'equation-panel', ...REPOSITORY_LABS.flatMap(lab => [lab.dockId, lab.panelId])]) {
       const container = document.getElementById(id);
       if (!container) continue;
       if (!observed.has(container)) {
@@ -185,13 +204,14 @@ export function mountPanelAppearance() {
         observer.observe(container, { childList: true });
         panelObservers.push(observer);
       }
-      if (id === 'data-panel') continue;
+      const lab = REPOSITORY_LABS.find(lab => lab.dockId === id || lab.panelId === id);
+      if (id === lab?.panelId) continue;
       if (id === 'equation-panel') {
         const row = container.querySelector('#eq-speed')?.previousElementSibling;
         if (row) { row.classList.add('glass-speed-heading'); addTrigger(row); }
       } else {
         const midpoint = container.querySelector('.t-mid');
-        if (midpoint) addTrigger(container, id === 'data-timebar' ? container.querySelector('.data-speed') : midpoint);
+        if (midpoint) addTrigger(container, lab ? container.querySelector(lab.speedSelector) : midpoint);
       }
     }
   }
@@ -230,7 +250,7 @@ export function mountPanelAppearance() {
     bodyObserver.disconnect();
     for (const observer of panelObservers) observer.disconnect();
     for (const trigger of triggers) trigger.remove();
-    releaseDataViews();
+    releaseRepositoryViews();
     refraction.dispose();
     popover.remove();
   };

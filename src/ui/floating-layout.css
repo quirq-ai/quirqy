@@ -20,17 +20,17 @@ html body .panel-drag-grip {
 }
 html body .panel-drag-grip:hover { border-color: rgba(220, 236, 255, .16); background: rgba(210, 230, 255, .07); color: #e5f1ff; }
 html body :is(.panel-drag-grip, .panel-dock-grip):focus-visible { outline: 2px solid #b8d8f4; outline-offset: 2px; }
-html body :is(#data-guide, #data-panel) .list-title.panel-drag-handle { cursor: grab; gap: 8px; }
-html body :is(#data-guide, #data-panel) .list-title .panel-drag-grip { display: inline-flex; order: 1; font-size: 16px; line-height: 1; }
-html body #data-guide-collapse,
-html body #data-panel .data-sheet-close { order: 2; }
-html body #data-guide .list-title { padding-top: 9px; padding-bottom: 7px; }
+html body :is(#data-guide, #activity-guide, #data-panel, #activity-panel) .list-title.panel-drag-handle { cursor: grab; gap: 8px; }
+html body :is(#data-guide, #activity-guide, #data-panel, #activity-panel) .list-title .panel-drag-grip { display: inline-flex; order: 1; font-size: 16px; line-height: 1; }
+html body :is(#data-guide-collapse, #activity-guide-collapse),
+html body :is(#data-panel, #activity-panel) :is(.data-sheet-close, .activity-sheet-close) { order: 2; }
+html body :is(#data-guide, #activity-guide) .list-title { padding-top: 9px; padding-bottom: 7px; }
 
-html body :is(#timebar, #math-timebar, #data-timebar).panel-dock {
+html body :is(#timebar, #math-timebar, #data-timebar, #activity-timebar).panel-dock {
   padding-top: 28px;
   z-index: 40;
 }
-html body #data-timebar.panel-dock {
+html body :is(#data-timebar, #activity-timebar).panel-dock {
   left: 50%;
   right: auto;
   transform: translateX(-50%);
@@ -69,25 +69,25 @@ html body .panel-float.is-dragging :is(.panel-drag-handle, .panel-drag-grip, .pa
 
 /* Leave a clear lane for the centered dock on compact desktop layouts. */
 @media (min-width: 901px) and (max-width: 1440px) {
-  html body #data-panel.panel {
-    max-height: calc(100dvh - var(--data-timebar-height, 82px) - 100px);
+  html body :is(#data-panel, #activity-panel).panel {
+    max-height: calc(100dvh - var(--repository-timebar-height, 82px) - 100px);
   }
 }
 @media (min-width: 1201px) {
-  html body #data-guide-body { max-height: calc(100dvh - 204px); }
+  html body :is(#data-guide-body, #activity-guide-body) { max-height: calc(100dvh - 204px); }
 }
 @media (min-width: 901px) and (max-width: 1200px) {
-  html body #data-guide-body { max-height: calc(100dvh - 264px); }
+  html body :is(#data-guide-body, #activity-guide-body) { max-height: calc(100dvh - 264px); }
 }
 @media (max-width: 900px) {
-  html body #data-timebar.panel-dock { width: calc(100vw - 20px); }
-  html body :is(#data-panel, #data-guide).panel:not(.is-user-positioned) {
-    bottom: calc(var(--data-timebar-height, 136px) + 24px + env(safe-area-inset-bottom, 0px)) !important;
+  html body :is(#data-timebar, #activity-timebar).panel-dock { width: calc(100vw - 20px); }
+  html body :is(#data-panel, #activity-panel, #data-guide, #activity-guide).panel:not(.is-user-positioned) {
+    bottom: calc(var(--repository-timebar-height, 136px) + 24px + env(safe-area-inset-bottom, 0px)) !important;
   }
-  html body :is(#data-panel, #data-guide).panel {
-    max-height: calc(100dvh - var(--data-timebar-height, 136px) - 170px);
+  html body :is(#data-panel, #activity-panel, #data-guide, #activity-guide).panel {
+    max-height: calc(100dvh - var(--repository-timebar-height, 136px) - 170px);
   }
-  html body #data-guide-body { max-height: calc(100dvh - var(--data-timebar-height, 136px) - 214px); }
+  html body :is(#data-guide-body, #activity-guide-body) { max-height: calc(100dvh - var(--repository-timebar-height, 136px) - 214px); }
   html body.is-mobile[data-mode="math"] #equation-panel.panel:not(.is-user-positioned) {
     bottom: calc(var(--math-timebar-height, 148px) + 24px + env(safe-area-inset-bottom, 0px));
   }
@@ -96,17 +96,17 @@ html body .panel-float.is-dragging :is(.panel-drag-handle, .panel-drag-grip, .pa
   html body .panel-dock-grip > span { transition: none; }
 }
 
-/* Data Lab keeps Help beside View and the source status in its header. */
-html body[data-mode="data"] #btn-snap { display: none !important; }
-html body[data-mode="data"].data-dock-layout #topbar > .top-actions { display: none; }
-html body[data-mode="data"] #help-overlay .help-card {
+/* Repository labs keep Help beside View and the source status in its header. */
+html body:is([data-mode="data"], [data-mode="activity"]) #btn-snap { display: none !important; }
+html body:is([data-mode="data"], [data-mode="activity"]).repository-dock-layout #topbar > .top-actions { display: none; }
+html body:is([data-mode="data"], [data-mode="activity"]) #help-overlay .help-card {
   max-height: 80dvh;
   overflow-y: auto;
   overscroll-behavior: contain;
 }
-html body #data-panel > .data-status-header { gap: 7px; }
-html body #data-panel > .data-status-header .panel-drag-grip { margin-left: 0; }
-html body #data-panel > .data-status-header #sim-date {
+html body :is(#data-panel, #activity-panel) > .repository-status-header { gap: 7px; }
+html body :is(#data-panel, #activity-panel) > .repository-status-header .panel-drag-grip { margin-left: 0; }
+html body :is(#data-panel, #activity-panel) > .repository-status-header #sim-date {
   flex: 1;
   min-width: 0;
   max-width: none;
@@ -119,10 +119,10 @@ html body #data-panel > .data-status-header #sim-date {
   white-space: nowrap;
   overflow: hidden;
 }
-html body #data-panel #sim-date #date-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-html body #data-panel #sim-date .live-badge { flex: none; font-size: 8px; letter-spacing: .05em; }
-html body #data-timebar .data-dock-actions { display: flex; align-items: center; flex: none; gap: 6px; }
-html body #data-timebar .data-dock-actions .tbtn {
+html body :is(#data-panel, #activity-panel) #sim-date #date-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+html body :is(#data-panel, #activity-panel) #sim-date .live-badge { flex: none; font-size: 8px; letter-spacing: .05em; }
+html body :is(#data-timebar, #activity-timebar) .repository-dock-actions { display: flex; align-items: center; flex: none; gap: 6px; }
+html body :is(#data-timebar, #activity-timebar) .repository-dock-actions .tbtn {
   display: inline-grid !important;
   place-items: center;
   width: 36px;
@@ -131,13 +131,13 @@ html body #data-timebar .data-dock-actions .tbtn {
   padding: 0;
 }
 @media (max-width: 900px) {
-  html body #data-timebar.data-actions-dock {
+  html body :is(#data-timebar, #activity-timebar).repository-actions-dock {
     grid-template-columns: 30px 38px 30px minmax(0, 1fr) auto auto;
     column-gap: 6px;
   }
-  html body #data-timebar.data-actions-dock > :where(#data-prev, #data-play, #data-next, .data-speed, .glass-opacity-trigger, .data-dock-actions) { grid-row: 2; }
-  html body #data-timebar.data-actions-dock > .data-speed { grid-column: 4; }
-  html body #data-timebar.data-actions-dock > .glass-opacity-trigger { grid-column: 5; }
-  html body #data-timebar.data-actions-dock > .data-dock-actions { grid-column: 6; }
-  html body #data-timebar .data-dock-actions .tbtn { width: 32px; min-width: 32px; height: 38px; }
+  html body :is(#data-timebar, #activity-timebar).repository-actions-dock > :where(:is(#data-prev, #activity-prev), :is(#data-play, #activity-play), :is(#data-next, #activity-next), :is(.data-speed, .activity-speed), .glass-opacity-trigger, .repository-dock-actions) { grid-row: 2; }
+  html body :is(#data-timebar, #activity-timebar).repository-actions-dock > :is(.data-speed, .activity-speed) { grid-column: 4; }
+  html body :is(#data-timebar, #activity-timebar).repository-actions-dock > .glass-opacity-trigger { grid-column: 5; }
+  html body :is(#data-timebar, #activity-timebar).repository-actions-dock > .repository-dock-actions { grid-column: 6; }
+  html body :is(#data-timebar, #activity-timebar) .repository-dock-actions .tbtn { width: 32px; min-width: 32px; height: 38px; }
 }

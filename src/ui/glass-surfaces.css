@@ -194,7 +194,7 @@ html body :is(.panel, #glass-appearance-popover) :is(.body-row.selected, .data-f
   border-color: rgba(239, 202, 150, .19);
 }
 
-html body :is(.panel, #glass-appearance-popover) :is(.data-changes, .data-file-list, .data-directory-list, .eq-history-list, #data-guide-body, #guide-index) {
+html body :is(.panel, #glass-appearance-popover) :is(.data-changes, .data-file-list, .data-directory-list, .eq-history-list, :is(#data-guide-body, #activity-guide-body), #guide-index) {
   scrollbar-width: thin;
   scrollbar-color: rgba(192, 212, 236, .24) transparent;
 }
@@ -220,7 +220,7 @@ html body :is(.panel, #glass-appearance-popover) ::-webkit-scrollbar-track {
 
 @media (max-width: 900px) {
   /* The sticky sheet title needs its own material when content moves beneath. */
-  html body #data-panel.panel > .list-title {
+  html body :is(#data-panel, #activity-panel).panel > .list-title {
     background:
       linear-gradient(160deg, rgba(222, 239, 255, calc(var(--glass-opacity) * .065)), transparent 70%),
       rgba(16, 25, 38, var(--glass-fill-alpha, var(--glass-opacity)));
@@ -245,7 +245,7 @@ html body :is(.panel, #glass-appearance-popover) ::-webkit-scrollbar-track {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
-  html body #data-panel.panel > .list-title {
+  html body :is(#data-panel, #activity-panel).panel > .list-title {
     background: #101926;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
@@ -268,7 +268,7 @@ html body :is(.panel, #glass-appearance-popover) ::-webkit-scrollbar-track {
     color: #e9f1fb;
     opacity: 1;
   }
-  html body #data-panel.panel > .list-title {
+  html body :is(#data-panel, #activity-panel).panel > .list-title {
     background: #101926;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
@@ -277,7 +277,7 @@ html body :is(.panel, #glass-appearance-popover) ::-webkit-scrollbar-track {
 
 @media (forced-colors: active) {
   html body :is(.panel, #glass-appearance-popover),
-  html body #data-panel.panel > .list-title {
+  html body :is(#data-panel, #activity-panel).panel > .list-title {
     color: CanvasText;
     background: Canvas;
     border-color: ButtonText;
