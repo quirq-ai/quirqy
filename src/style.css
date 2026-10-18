@@ -433,6 +433,9 @@ html, body {
 }
 .tabs a:hover { color: var(--text); }
 
+/* Keep hidden instruments out of the navigation, including Data Lab on mobile. */
+#topbar #tab-switch [hidden] { display: none !important; }
+
 /* ---------- equation lab ---------- */
 
 #equation-panel {
