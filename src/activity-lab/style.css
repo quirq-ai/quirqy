@@ -138,3 +138,6 @@ body[data-mode="activity"] #attribution { max-width: 225px; font-size: 9px; }
   .activity-kind-key small { font-size: 8px; }
 }
 @media (prefers-reduced-motion: reduce) { :is(#activity-panel,#activity-guide,#activity-timebar) * { transition: none; scroll-behavior: auto; } }
+
+.activity-contributor-tag { padding: 2px 6px; border: 1px solid rgba(188,207,234,.15); border-radius: 5px; background: rgba(8,14,24,.8); width: max-content; }
+.activity-contributor-tag.is-active { border-color: rgba(255,207,135,.5); background: rgba(28,24,20,.9); }

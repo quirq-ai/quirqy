@@ -1,0 +1,210 @@
+{
+  "formatVersion": 1,
+  "source": "Actual GitHub contributor actors from the bundled Activity Lab snapshots; local author images reused only when login and GitHub avatar identity match.",
+  "createdAt": "2026-10-18T22:59:35.508Z",
+  "portraits": [
+    {
+      "login": "quirq-gates",
+      "avatarIdentity": "/u/333820652",
+      "avatarPath": "/data-lab/authors/quirq-gates.png",
+      "sourceAvatarUrl": "https://avatars.githubusercontent.com/u/333820652?v=4&s=128",
+      "capturedAt": "2026-10-18T21:12:59.676791Z",
+      "repositories": [
+        "quirq-ai/xo",
+        "quirq-ai/xo-space"
+      ],
+      "mimeType": "image/png",
+      "bytes": 1586,
+      "sha256": "0ab88f3b2033b5421e3c2b265e8f909a8aa7bba0ade2124a13acd2800c3773fd",
+      "reusedFrom": "src/data-lab/examples/author-profiles.json",
+      "width": 420,
+      "height": 420
+    },
+    {
+      "login": "KrishBhimani",
+      "avatarIdentity": "/u/126689784",
+      "avatarPath": "/data-lab/authors/krishbhimani.png",
+      "sourceAvatarUrl": "https://avatars.githubusercontent.com/u/126689784?v=4&s=128",
+      "capturedAt": "2026-10-18T21:12:59.676791Z",
+      "repositories": [
+        "quirq-ai/xo-space"
+      ],
+      "mimeType": "image/png",
+      "bytes": 1548,
+      "sha256": "30270d28cf3077bb9edda5be59d0bb37bbd5244fc08977978bb28697a8e28150",
+      "reusedFrom": "src/data-lab/examples/author-profiles.json",
+      "width": 420,
+      "height": 420
+    },
+    {
+      "login": "seemanttripathi",
+      "avatarIdentity": "/u/47049137",
+      "avatarPath": "/activity-lab/contributors/seemanttripathi.png",
+      "sourceAvatarUrl": "https://avatars.githubusercontent.com/u/47049137?v=4&s=128",
+      "capturedAt": "2026-10-18T22:59:33.904Z",
+      "repositories": [
+        "quirq-ai/xo-space"
+      ],
+      "mimeType": "image/png",
+      "bytes": 1535,
+      "sha256": "220c0cd4031beedcef82088afdb84be0cfe0dde79aeba985ebf9c601f7f53af7",
+      "width": 420,
+      "height": 420
+    },
+    {
+      "login": "sharmasuraj0123",
+      "avatarIdentity": "/u/36091186",
+      "avatarPath": "/data-lab/authors/sharmasuraj0123.jpg",
+      "sourceAvatarUrl": "https://avatars.githubusercontent.com/u/36091186?v=4&s=128",
+      "capturedAt": "2026-10-18T21:12:59.676791Z",
+      "repositories": [
+        "quirq-ai/xo-space"
+      ],
+      "mimeType": "image/jpeg",
+      "bytes": 4579,
+      "sha256": "b035e50d517d22ae488682da408a3f5f21124f0924d60a7849a35b4ab98d087a",
+      "reusedFrom": "src/data-lab/examples/author-profiles.json",
+      "width": 128,
+      "height": 128
+    },
+    {
+      "login": "dwivedi-ai",
+      "avatarIdentity": "/u/65527745",
+      "avatarPath": "/data-lab/authors/dwivedi-ai.jpg",
+      "sourceAvatarUrl": "https://avatars.githubusercontent.com/u/65527745?v=4&s=128",
+      "capturedAt": "2026-10-18T21:12:59.676791Z",
+      "repositories": [
+        "quirq-ai/xo-space"
+      ],
+      "mimeType": "image/jpeg",
+      "bytes": 2053,
+      "sha256": "b139b4b70712d84e56392e0907237742d0365e59d7ab5a7ed8527505a0745cc7",
+      "reusedFrom": "src/data-lab/examples/author-profiles.json",
+      "width": 128,
+      "height": 128
+    },
+    {
+      "login": "mukesh804",
+      "avatarIdentity": "/u/73191137",
+      "avatarPath": "/activity-lab/contributors/mukesh804.png",
+      "sourceAvatarUrl": "https://avatars.githubusercontent.com/u/73191137?v=4&s=128",
+      "capturedAt": "2026-10-18T22:59:34.218Z",
+      "repositories": [
+        "quirq-ai/xo-space"
+      ],
+      "mimeType": "image/png",
+      "bytes": 1546,
+      "sha256": "3b0a46ebd1b28bb9921e443d41209bfd01800a64a55db923abb8a8738f68ce16",
+      "width": 420,
+      "height": 420
+    },
+    {
+      "login": "rohini-sp",
+      "avatarIdentity": "/u/138889836",
+      "avatarPath": "/activity-lab/contributors/rohini-sp.png",
+      "sourceAvatarUrl": "https://avatars.githubusercontent.com/u/138889836?v=4&s=128",
+      "capturedAt": "2026-10-18T22:59:34.535Z",
+      "repositories": [
+        "quirq-ai/xo-space"
+      ],
+      "mimeType": "image/png",
+      "bytes": 1556,
+      "sha256": "723de32a41d63eed0e7b0e01a32815f3235c6cf178f071c63fbd33515dfe6311",
+      "width": 420,
+      "height": 420
+    },
+    {
+      "login": "SAGARRAMBADE21",
+      "avatarIdentity": "/u/241298048",
+      "avatarPath": "/data-lab/authors/sagarrambade21.jpg",
+      "sourceAvatarUrl": "https://avatars.githubusercontent.com/u/241298048?v=4&s=128",
+      "capturedAt": "2026-10-18T21:12:59.676791Z",
+      "repositories": [
+        "quirq-ai/xo-space"
+      ],
+      "mimeType": "image/jpeg",
+      "bytes": 4791,
+      "sha256": "805182369286d1e984ccdd46ac0dd15bfb7d4f99c4bde63ad5cef8aa852decf8",
+      "reusedFrom": "src/data-lab/examples/author-profiles.json",
+      "width": 128,
+      "height": 128
+    },
+    {
+      "login": "quirq-dev",
+      "avatarIdentity": "/u/256758572",
+      "avatarPath": "/data-lab/authors/quirq-dev.jpg",
+      "sourceAvatarUrl": "https://avatars.githubusercontent.com/u/256758572?v=4&s=128",
+      "capturedAt": "2026-10-18T21:12:59.676791Z",
+      "repositories": [
+        "quirq-ai/xo-space"
+      ],
+      "mimeType": "image/jpeg",
+      "bytes": 3313,
+      "sha256": "1193259b8dac53305979acc890d1a04976fef1069675727dc48b56c5b1e60598",
+      "reusedFrom": "src/data-lab/examples/author-profiles.json",
+      "width": 128,
+      "height": 128
+    },
+    {
+      "login": "andreolf",
+      "avatarIdentity": "/u/15174764",
+      "avatarPath": "/activity-lab/contributors/andreolf.jpg",
+      "sourceAvatarUrl": "https://avatars.githubusercontent.com/u/15174764?v=4&s=128",
+      "capturedAt": "2026-10-18T22:59:34.907Z",
+      "repositories": [
+        "quirq-ai/xo-space"
+      ],
+      "mimeType": "image/jpeg",
+      "bytes": 4062,
+      "sha256": "882e17b8169ef5498698cb71dfc241adbfe4b07763557ac344baacfa27e39a17",
+      "width": 128,
+      "height": 128
+    },
+    {
+      "login": "Copilot",
+      "avatarIdentity": "/in/1143301",
+      "avatarPath": "/activity-lab/contributors/copilot.png",
+      "sourceAvatarUrl": "https://avatars.githubusercontent.com/in/1143301?v=4&s=128",
+      "capturedAt": "2026-10-18T22:59:35.191Z",
+      "repositories": [
+        "quirq-ai/xo-space"
+      ],
+      "mimeType": "image/png",
+      "bytes": 6777,
+      "sha256": "1da43235f2b89b191bb765d54ed3346c5464a97e28e6bba787f62cc0e459fdbb",
+      "width": 128,
+      "height": 128
+    },
+    {
+      "login": "harishkotra",
+      "avatarIdentity": "/u/4999463",
+      "avatarPath": "/data-lab/authors/harishkotra.png",
+      "sourceAvatarUrl": "https://avatars.githubusercontent.com/u/4999463?v=4&s=128",
+      "capturedAt": "2026-10-18T21:12:59.676791Z",
+      "repositories": [
+        "quirq-ai/xo-space"
+      ],
+      "mimeType": "image/png",
+      "bytes": 48503,
+      "sha256": "95cdde4a879d4d056cd17adadcafde6d6fbb59a4938e1e20386f266589887a04",
+      "reusedFrom": "src/data-lab/examples/author-profiles.json",
+      "width": 128,
+      "height": 128
+    },
+    {
+      "login": "argus-runtime",
+      "avatarIdentity": "/u/298680943",
+      "avatarPath": "/activity-lab/contributors/argus-runtime.png",
+      "sourceAvatarUrl": "https://avatars.githubusercontent.com/u/298680943?v=4&s=128",
+      "capturedAt": "2026-10-18T22:59:35.502Z",
+      "repositories": [
+        "quirq-ai/xo-space"
+      ],
+      "mimeType": "image/png",
+      "bytes": 1572,
+      "sha256": "33be47a5a4080d59fbc47eaff197226d63a5852337095a04c6c4fb5d4e23766e",
+      "width": 420,
+      "height": 420
+    }
+  ]
+}

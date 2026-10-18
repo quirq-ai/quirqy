@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { softDotTexture } from '../scene/setup.js';
 import { radialSpriteTexture } from '../textures/procedural.js';
+import { createContributorPortrait } from './contributor-portrait.js';
+import { placeContributorCards } from './contributor-screen-layout.js';
 import { createActivityLayout, activityFrameBounds, activityClusterVisible, activityRadius, activityHash, ACTIVITY_KIND_COLORS, ACTIVITY_KIND_LABELS, REPOSITORY_NODE_ID } from './scene-layout.js';
 
 export { ACTIVITY_KIND_COLORS, ACTIVITY_KIND_LABELS } from './scene-layout.js';
@@ -19,13 +21,23 @@ const textLabel = (text, color = '#b7c5d9', size = 10) => {
   element.style.cssText = `pointer-events:none;color:${color};font:500 ${size}px/1.4 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.03em;white-space:nowrap;text-shadow:0 1px 5px #000,0 0 14px #000;`;
   return new CSS2DObject(element);
 };
-const safeAvatar = value => {
-  if (typeof value !== 'string') return null;
-  if (/^\/data-lab\/authors\/[a-z\d_-]+\.(?:png|jpe?g|webp)$/i.test(value)) return value;
-  try {
-    const url = new URL(value);
-    return url.protocol === 'https:' && url.hostname === 'avatars.githubusercontent.com' && !url.username && !url.password && !url.port && !url.hash ? url.href : null;
-  } catch { return null; }
+
+
+// CSS2DRenderer sets hidden captions to display:none. Measure changed text once
+// without painting it, so a hidden label does not lose its collision footprint.
+const labelSize = label => {
+  const element = label.element, text = element.textContent;
+  const previous = label.userData.textSize;
+  let width = element.offsetWidth, height = element.offsetHeight;
+  if (!width && (!previous || previous.text !== text) && element.isConnected) {
+    const display = element.style.display, visibility = element.style.visibility;
+    element.style.visibility = 'hidden'; element.style.display = '';
+    width = element.offsetWidth; height = element.offsetHeight;
+    element.style.display = display; element.style.visibility = visibility;
+  }
+  if (width) label.userData.textSize = { text, width, height };
+  return label.userData.textSize?.text === text ? label.userData.textSize
+    : { text, width: text.length * (parseFloat(element.style.fontSize) || 10) * .7, height: 20 };
 };
 
 /** Native Observatory scene. The caller owns stage rendering and controls.update(). */
@@ -83,6 +95,8 @@ export class ActivityScene {
     this.ownedTextures.add(this.dot);
     this.geometries = {
       sphere: new THREE.SphereGeometry(1, 32, 24),
+      portrait: new THREE.CircleGeometry(1, 64),
+      portraitRim: new THREE.RingGeometry(1.025, 1.085, 64),
       small: new THREE.SphereGeometry(1, 18, 12),
       issue: new THREE.IcosahedronGeometry(1, 2),
       review: new THREE.OctahedronGeometry(1, 1),
@@ -221,9 +235,11 @@ export class ActivityScene {
     this.repositoryLabel.element.textContent = this.repository.fullName || this.repository.name || 'Repository';
     for (const item of this.layout.items) {
       const color = new THREE.Color(ACTIVITY_KIND_COLORS[item.kind]);
-      const material = new THREE.MeshStandardMaterial({ color, roughness: .26, metalness: .32, emissive: color.clone(), emissiveIntensity: .12 });
+      const portrait = item.kind === 'contributor' ? createContributorPortrait(item.actor) : null;
+      const material = portrait ? new THREE.MeshBasicMaterial({ map: portrait.map, color: '#ffffff', toneMapped: false, side: THREE.DoubleSide })
+        : new THREE.MeshStandardMaterial({ color, roughness: .26, metalness: .32, emissive: color.clone(), emissiveIntensity: .12 });
       this.dataMaterials.add(material);
-      const geometry = item.kind === 'issue' ? this.geometries.issue : item.kind === 'review' ? this.geometries.review : item.kind === 'comment' ? this.geometries.small : this.geometries.sphere;
+      const geometry = portrait ? this.geometries.portrait : item.kind === 'issue' ? this.geometries.issue : item.kind === 'review' ? this.geometries.review : item.kind === 'comment' ? this.geometries.small : this.geometries.sphere;
       const radius = activityRadius(item);
       const position = vec(this.layout.positions.get(item.id));
       const mesh = new THREE.Mesh(geometry, material);
@@ -232,12 +248,24 @@ export class ActivityScene {
       mesh.userData = { id: item.id, kind: item.kind };
       mesh.name = item.title || item.actor?.login || item.id;
       if (item.kind === 'issue' || item.kind === 'review') mesh.rotation.set(.1, (activityHash(item.id) % 100) / 100, .2);
-      const pick = new THREE.Mesh(this.geometries.pick, this.pickMaterial);
+      const pick = new THREE.Mesh(portrait ? this.geometries.portrait : this.geometries.pick, this.pickMaterial);
       pick.position.copy(position);
-      pick.scale.setScalar(radius * 1.3);
+      pick.scale.setScalar(radius * (portrait ? 1.1 : 1.3));
       pick.userData = { id: item.id, kind: item.kind };
       this.world.add(mesh, pick);
-      const record = { item, mesh, pick, position, radius, color };
+      const record = { item, mesh, pick, position, renderPosition: position.clone(), radius, color, portrait };
+      if (portrait) {
+        const rimMaterial = new THREE.MeshBasicMaterial({ color: '#c5d5ec', transparent: true, opacity: .8, side: THREE.DoubleSide, toneMapped: false });
+        this.dataMaterials.add(rimMaterial);
+        record.ring = new THREE.Mesh(this.geometries.portraitRim, rimMaterial);
+        record.ring.position.copy(position); record.ring.scale.setScalar(radius); record.ring.raycast = () => {};
+        this.world.add(record.ring);
+        record.tag = textLabel(item.actor?.login ? `@${item.actor.login}` : 'Unknown contributor', '#e8eef8', 10);
+        record.tag.element.classList.add('activity-contributor-tag');
+        record.tag.element.dataset.contributor = item.actor?.login || '';
+        record.tag.center.set(.5, 0);
+        this.labelGroup.add(record.tag);
+      }
       if (item.kind === 'fork' || item.kind === 'pull_request') {
         const ringMaterial = new THREE.MeshBasicMaterial({ color: color.clone().multiplyScalar(.8), transparent: true, opacity: item.kind === 'fork' ? .42 : .27, depthWrite: false });
         this.dataMaterials.add(ringMaterial);
@@ -337,8 +365,8 @@ export class ActivityScene {
 
   _updateLinks() {
     for (const link of this.links) {
-      const a = link.from === REPOSITORY_NODE_ID ? new THREE.Vector3() : this.nodes.get(link.from).position;
-      const b = this.nodes.get(link.to).position;
+      const a = link.from === REPOSITORY_NODE_ID ? new THREE.Vector3() : this.nodes.get(link.from).renderPosition;
+      const b = this.nodes.get(link.to).renderPosition;
       const bend = Math.min(8, a.distanceTo(b) * .09);
       const midpoint = a.clone().lerp(b, .5).add(new THREE.Vector3(0, bend, bend * .4));
       const positions = link.line.geometry.attributes.position;
@@ -374,9 +402,16 @@ export class ActivityScene {
       const selected = id === this.selectedId, hovered = id === this.hoveredId;
       record.mesh.visible = record.pick.visible = visible;
       if (record.ring) record.ring.visible = visible;
-      record.mesh.material.color.copy(record.color).lerp(WHITE, selected ? .22 : hovered ? .12 : 0);
-      record.mesh.material.emissive.copy(record.color);
-      record.mesh.material.emissiveIntensity = selected ? .45 : hovered ? .3 : .12;
+      if (record.portrait) {
+        record.ring.material.color.set(selected ? '#ffe1ab' : hovered ? '#ffffff' : '#c5d5ec');
+        record.ring.material.opacity = selected || hovered ? 1 : .8;
+        record.tag.visible = visible;
+        record.tag.element.classList.toggle('is-active', selected || hovered);
+      } else {
+        record.mesh.material.color.copy(record.color).lerp(WHITE, selected ? .22 : hovered ? .12 : 0);
+        record.mesh.material.emissive.copy(record.color);
+        record.mesh.material.emissiveIntensity = selected ? .45 : hovered ? .3 : .12;
+      }
       record.mesh.scale.setScalar(record.radius * (selected ? 1.08 : 1));
     }
     for (const link of this.links) {
@@ -397,19 +432,21 @@ export class ActivityScene {
       label.userData.count = cluster.total;
     }
     const highlighted = this.nodes.get(this.hoveredId || this.selectedId);
-    this.focusHalo.visible = Boolean(highlighted && this.visibleIds.has(highlighted.item.id));
-    this.selectionRing.visible = Boolean(this.selectedId && this.visibleIds.has(this.selectedId));
-    this.selectionLabel.visible = this.focusHalo.visible;
+    // Portraits already have their own gold selection rim; an extra wide halo
+    // or ring would reach into the attached username and neighboring cards.
+    this.focusHalo.visible = Boolean(highlighted && !highlighted.portrait && this.visibleIds.has(highlighted.item.id));
+    this.selectionRing.visible = Boolean(this.selectedId && !this.nodes.get(this.selectedId)?.portrait && this.visibleIds.has(this.selectedId));
+    this.selectionLabel.visible = this.focusHalo.visible && !highlighted.portrait;
     if (highlighted && this.focusHalo.visible) {
-      this.focusHalo.position.copy(highlighted.position);
+      this.focusHalo.position.copy(highlighted.renderPosition);
       this.focusHalo.scale.setScalar(highlighted.radius * 6.4);
       this.focusHalo.material.color.copy(highlighted.color);
-      this.selectionLabel.position.copy(highlighted.position).add(new THREE.Vector3(0, highlighted.radius * 2.05, 0));
+      this.selectionLabel.position.copy(highlighted.renderPosition).add(new THREE.Vector3(0, highlighted.radius * 2.05, 0));
       this._setSelectionLabel(highlighted.item);
     }
     if (this.selectionRing.visible) {
       const selected = this.nodes.get(this.selectedId);
-      this.selectionRing.position.copy(selected.position);
+      this.selectionRing.position.copy(selected.renderPosition);
       this.selectionRing.scale.setScalar(selected.radius * 1.48);
     }
   }
@@ -425,14 +462,6 @@ export class ActivityScene {
     const caption = document.createElement('span');
     caption.textContent = `${ACTIVITY_KIND_LABELS[item.kind]}${item.actor?.login && item.kind !== 'contributor' ? ` · @${item.actor.login}` : ''}`;
     caption.style.cssText = `display:block;color:${ACTIVITY_KIND_COLORS[item.kind]};font-size:9px;opacity:.8;margin-top:3px;`;
-    const avatar = safeAvatar(item.actor?.avatarUrl);
-    if (avatar && item.kind === 'contributor') {
-      const image = document.createElement('img');
-      image.src = avatar; image.alt = ''; image.referrerPolicy = 'no-referrer';
-      image.style.cssText = 'width:25px;height:25px;border-radius:50%;float:left;margin-right:7px;border:1px solid rgba(220,230,245,.25);';
-      image.onerror = () => { image.onerror = null; image.remove(); };
-      element.append(image);
-    }
     element.append(title, caption);
   }
 
@@ -494,7 +523,7 @@ export class ActivityScene {
     if (!record || !this.visibleIds.has(id)) return;
     const ray = this.camera.position.clone().sub(this.controls.target).normalize();
     if (Math.abs(ray.y) > .97) ray.set(.1, .6, 1).normalize();
-    this._flyTo(this._pose([{ position: record.position, radius: Math.max(9, record.radius * 4.2) }], ray));
+    this._flyTo(this._pose([{ position: record.renderPosition, radius: Math.max(9, record.radius * 4.2) }], ray));
   }
 
   _hit(event) {
@@ -520,7 +549,7 @@ export class ActivityScene {
     const record = this.nodes.get(id);
     if (!record) return null;
     this.camera.updateMatrixWorld();
-    const position = record.position.clone().project(this.camera);
+    const position = record.renderPosition.clone().project(this.camera);
     const rect = this.canvas.getBoundingClientRect();
     return { x: rect.left + (position.x * .5 + .5) * rect.width, y: rect.top + (-position.y * .5 + .5) * rect.height,
       visible: this.visibleIds.has(id) && position.z > -1 && position.z < 1 && Math.abs(position.x) < 1 && Math.abs(position.y) < 1 };
@@ -530,6 +559,7 @@ export class ActivityScene {
     if (!this.layoutTransition || !this.layout) return;
     for (const [id, record] of this.nodes) {
       record.position.fromArray(this.layout.positions.get(id));
+      record.renderPosition.copy(record.position);
       record.mesh.position.copy(record.position); record.pick.position.copy(record.position); record.ring?.position.copy(record.position);
     }
     this.layoutTransition = null;
@@ -545,23 +575,49 @@ export class ActivityScene {
     const viewport = this._viewport();
     const narrow = viewport.width <= 600;
     const occupied = [];
-    const reserve = (object, half, height) => {
+    const reserve = (object, half, height, offsetY = 0) => {
       object.getWorldPosition(this.projected).project(this.camera);
       if (this.projected.z < -1 || this.projected.z > 1) return;
-      occupied.push({ x: (this.projected.x * .5 + .5) * viewport.width, y: (-this.projected.y * .5 + .5) * viewport.height, half, height });
+      occupied.push({ x: (this.projected.x * .5 + .5) * viewport.width, y: (-this.projected.y * .5 + .5) * viewport.height + offsetY, half, height });
     };
     // Scene labels are secondary to the repository sun, its name, and the
-    // selected entity. Keep those readable even in dense participant clusters.
+    // contributor identities. Keep those readable in dense participant clusters.
     const sunDistance = Math.max(1, this.camera.position.distanceTo(this.sun.getWorldPosition(new THREE.Vector3())));
     const sunPixels = 4.5 * viewport.height / (2 * Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2)) * sunDistance);
     reserve(this.sun, sunPixels + 10, (sunPixels + 10) * 2);
-    const repositoryHalf = Math.max(40, this.repositoryLabel.element.offsetWidth / 2 || this.repositoryLabel.element.textContent.length * 3.2);
+    const repositoryHalf = Math.max(40, labelSize(this.repositoryLabel).width / 2);
     reserve(this.repositoryLabel, repositoryHalf + 8, narrow ? 30 : 24);
-    if (this.selectionLabel.visible) reserve(this.selectionLabel,
-      Math.min(148, Math.max(50, this.selectionLabel.element.offsetWidth / 2 + 8)),
-      Math.max(40, this.selectionLabel.element.offsetHeight + 10));
 
-    const selectedActor = this.nodes.get(this.hoveredId || this.selectedId)?.item.actor?.login?.toLowerCase();
+    // Contributor identity stays attached to the camera-facing portrait. Category
+    // captions yield to these tags so people remain readable at every zoom.
+    for (const record of this.nodes.values()) if (record.tag) {
+      record.tag.getWorldPosition(this.projected).project(this.camera);
+      const x = (this.projected.x * .5 + .5) * viewport.width, y = (-this.projected.y * .5 + .5) * viewport.height;
+      record.tag.visible = this.visibleIds.has(record.item.id) && this.projected.z >= -1 && this.projected.z <= 1
+        && x >= 8 && x <= viewport.width - 8 && y >= 66 && y <= viewport.height - 55;
+      if (record.tag.visible) {
+        reserve(record.tag, Math.max(35, (record.tagWidth || labelSize(record.tag).width) / 2 + 6),
+          (record.tagHeight || 20) + 8, (record.tagHeight || 20) / 2);
+        const center = record.mesh.getWorldPosition(new THREE.Vector3()).project(this.camera);
+        const edge = record.mesh.localToWorld(new THREE.Vector3(1.085, 0, 0)).project(this.camera);
+        const radius = Math.hypot((edge.x - center.x) * viewport.width / 2, (edge.y - center.y) * viewport.height / 2);
+        reserve(record.mesh, radius + 8, (radius + 8) * 2);
+      }
+    }
+    // Transient activity captions yield to people too. The selected record's
+    // details remain available in the inspector when no clear caption fits.
+    const highlighted = this.nodes.get(this.hoveredId || this.selectedId);
+    this.selectionLabel.visible = Boolean(highlighted && !highlighted.portrait && this.visibleIds.has(highlighted.item.id));
+    if (this.selectionLabel.visible) {
+      this.selectionLabel.getWorldPosition(this.projected).project(this.camera);
+      const x = (this.projected.x * .5 + .5) * viewport.width, y = (-this.projected.y * .5 + .5) * viewport.height;
+      const size = labelSize(this.selectionLabel), half = size.width / 2 + 8, height = size.height + 10;
+      this.selectionLabel.visible = this.projected.z >= -1 && this.projected.z <= 1
+        && x - half >= 8 && x + half <= viewport.width - 8 && y - height / 2 >= 66 && y + height / 2 <= viewport.height - 55
+        && !occupied.some(box => Math.abs(x - box.x) < half + box.half && Math.abs(y - box.y) < (box.height + height) / 2);
+      if (this.selectionLabel.visible) occupied.push({ x, y, half, height });
+    }
+    const selectedActor = highlighted?.item.actor?.login?.toLowerCase();
     const labels = narrow ? [...this.clusterLabels].sort((a, b) => {
       const aSelected = a.cluster.actor && a.cluster.id === selectedActor ? 1 : 0;
       const bSelected = b.cluster.actor && b.cluster.id === selectedActor ? 1 : 0;
@@ -575,8 +631,9 @@ export class ActivityScene {
       label.getWorldPosition(this.projected).project(this.camera);
       if (this.projected.z < -1 || this.projected.z > 1) continue;
       const x = (this.projected.x * .5 + .5) * viewport.width, y = (-this.projected.y * .5 + .5) * viewport.height;
-      const half = Math.min(125, Math.max(label.element.offsetWidth / 2, (cluster.label.length + 6) * 3.1)) + (narrow ? 6 : 2);
-      const height = narrow ? 28 : 22;
+      const size = labelSize(label);
+      const half = size.width / 2 + 6;
+      const height = size.height + 8;
       if (x - half < 8 || x + half > viewport.width - 8 || y < 66 || y > viewport.height - 55) continue;
       if (occupied.some(box => Math.abs(x - box.x) < half + box.half && Math.abs(y - box.y) < (box.height + height) / 2)) continue;
       occupied.push({ x, y, half, height });
@@ -603,14 +660,107 @@ export class ActivityScene {
       const amount = easing(Math.min(1, transition.elapsed / transition.duration));
       for (const [id, record] of this.nodes) {
         record.position.lerpVectors(transition.from.get(id), vec(this.layout.positions.get(id)), amount);
+        record.renderPosition.copy(record.position);
         record.mesh.position.copy(record.position); record.pick.position.copy(record.position); record.ring?.position.copy(record.position);
       }
       this._updateLinks(); this._paint();
       if (amount === 1) this.layoutTransition = null;
     }
+    this.camera.updateMatrixWorld();
+    this._spaceContributorCards();
     if (this.selectionRing.visible) this.selectionRing.quaternion.copy(this.camera.quaternion);
-    this.camera.updateMatrixWorld(); this.group.updateMatrixWorld(true);
+    this.group.updateMatrixWorld(true);
     this._updateLabels();
+  }
+
+  _spaceContributorCards() {
+    const viewport = this._viewport();
+    const dock = document.getElementById('activity-timebar')?.getBoundingClientRect();
+    const signature = [this.view, this.selectedId, [...this.visibleIds].join(','), dock?.x, dock?.y, dock?.width, dock?.height, ...Object.values(viewport), ...this.camera.matrixWorld.elements,
+      ...this.camera.projectionMatrix.elements, ...[...this.nodes.values()].filter(record => record.tag).map(record => record.tag.element.offsetWidth)].join('|');
+    if (!this.layoutTransition && signature === this.contributorScreenSignature) return;
+    this.contributorScreenSignature = this.layoutTransition ? null : signature;
+    const right = new THREE.Vector3(1, 0, 0).applyQuaternion(this.camera.quaternion);
+    const project = position => {
+      const point = position.clone().project(this.camera);
+      return { x: (point.x * .5 + .5) * viewport.width, y: (-point.y * .5 + .5) * viewport.height, z: point.z };
+    };
+    const cards = [], activityCards = [], obstacles = [], projected = new Map();
+    if (dock?.width && dock.height) obstacles.push({ x: dock.x + dock.width / 2, y: dock.y + dock.height / 2, width: dock.width + 8, height: dock.height + 8 });
+    for (const record of this.nodes.values()) {
+      const center = project(record.position);
+      if (center.z < -1 || center.z > 1) continue;
+      const edge = project(record.position.clone().addScaledVector(right, record.mesh.scale.x * (record.portrait ? 1.085 : 1.65)));
+      const pixels = Math.max(1, Math.hypot(edge.x - center.x, edge.y - center.y));
+      if (!record.portrait) {
+        projected.set(record.item.id, { center, pixels, footer: 0 });
+        if (this.visibleIds.has(record.item.id)) activityCards.push({ id: record.item.id, x: center.x, y: center.y, width: pixels * 2 + 4, height: pixels * 2 + 4 });
+        continue;
+      }
+      record.tagWidth = record.tag.element.offsetWidth || record.tagWidth || record.tag.element.textContent.length * 6 + 14;
+      record.tagHeight = record.tag.element.offsetHeight || record.tagHeight || 20;
+      const textWidth = record.tagWidth, textHeight = record.tagHeight;
+      const footer = textHeight + 5;
+      projected.set(record.item.id, { center, pixels, footer });
+      cards.push({ id: record.item.id, x: center.x, y: center.y + footer / 2,
+        width: Math.max(pixels * 2, textWidth), height: pixels * 2 + footer });
+    }
+    const sun = project(new THREE.Vector3());
+    if (sun.z >= -1 && sun.z <= 1) {
+      const edge = project(right.clone().multiplyScalar(7));
+      const radius = Math.max(12, Math.hypot(edge.x - sun.x, edge.y - sun.y));
+      obstacles.push({ x: sun.x, y: sun.y + 10, width: Math.max(radius * 2, 130), height: radius * 2 + 35 });
+    }
+    const repositoryName = project(this.repositoryLabel.getWorldPosition(new THREE.Vector3()));
+    if (repositoryName.z >= -1 && repositoryName.z <= 1) {
+      const size = labelSize(this.repositoryLabel);
+      obstacles.push({ x: repositoryName.x, y: repositoryName.y, width: size.width + 12, height: size.height + 12 });
+    }
+    // Recompute from the immutable layout, never from last frame's correction.
+    // All loaded contributor cards keep their anchors; hidden activities never
+    // take away the screen space needed to read a visible person's name.
+    const placementBounds = { left: viewport.left, right: viewport.right, top: viewport.top,
+      bottom: Math.min(viewport.bottom, dock?.y > viewport.height * .65 ? dock.y - 20 : viewport.bottom) };
+    const placed = placeContributorCards(cards, { ...placementBounds, gap: 16, obstacles, priorityId: this.selectedId });
+    const portraitBounds = cards.filter(card => this.visibleIds.has(card.id)).map(card => ({ ...card, ...placed.get(card.id) }));
+    const intersectsPortrait = card => portraitBounds.some(other => Math.abs(card.x - other.x) < (card.width + other.width) / 2 + 5
+      && Math.abs(card.y - other.y) < (card.height + other.height) / 2 + 5);
+    // People get the first claim on readable screen space. Only activity bodies
+    // that collide with a portrait/name move aside; their links follow them.
+    const displaced = activityCards.filter(intersectsPortrait), fixed = activityCards.filter(card => !intersectsPortrait(card));
+    const activityPlaced = placeContributorCards(displaced, { ...placementBounds, gap: 5,
+      obstacles: [...obstacles, ...portraitBounds, ...fixed], priorityId: this.selectedId });
+    let changed = false;
+    for (const record of this.nodes.values()) {
+      const old = record.renderPosition.clone();
+      record.renderPosition.copy(record.position);
+      if (record.portrait) {
+        const target = placed.get(record.item.id), original = projected.get(record.item.id);
+        if (target && original) record.renderPosition.set(target.x / viewport.width * 2 - 1,
+          1 - (target.y - original.footer / 2) / viewport.height * 2, original.center.z).unproject(this.camera);
+        record.mesh.quaternion.copy(this.camera.quaternion);
+        record.pick.quaternion.copy(this.camera.quaternion);
+        record.ring.quaternion.copy(this.camera.quaternion);
+        record.ring.scale.copy(record.mesh.scale);
+        const point = project(record.renderPosition);
+        const tagY = point.y + (original?.pixels || 0) + 5;
+        record.tag.position.set(point.x / viewport.width * 2 - 1, 1 - tagY / viewport.height * 2, point.z).unproject(this.camera);
+      }
+      if (!record.portrait && activityPlaced.has(record.item.id)) {
+        const target = activityPlaced.get(record.item.id), original = projected.get(record.item.id);
+        record.renderPosition.set(target.x / viewport.width * 2 - 1, 1 - target.y / viewport.height * 2, original.center.z).unproject(this.camera);
+      }
+      record.mesh.position.copy(record.renderPosition); record.pick.position.copy(record.renderPosition); record.ring?.position.copy(record.renderPosition);
+      if (old.distanceToSquared(record.renderPosition) > 1e-8) changed = true;
+    }
+    if (changed) this._updateLinks();
+    const highlighted = this.nodes.get(this.hoveredId || this.selectedId);
+    if (highlighted) {
+      this.focusHalo.position.copy(highlighted.renderPosition);
+      if (!highlighted.portrait) this.selectionLabel.position.copy(highlighted.renderPosition).add(new THREE.Vector3(0, highlighted.radius * 2.05, 0));
+    }
+    const selected = this.nodes.get(this.selectedId);
+    if (selected) this.selectionRing.position.copy(selected.renderPosition);
   }
 
   _clearGuidesAndLinks() {
@@ -627,8 +777,13 @@ export class ActivityScene {
   }
 
   _clearData() {
+    this.contributorScreenSignature = null;
     this.layoutTransition = this.cameraTween = null;
     this._clearGuidesAndLinks();
+    for (const record of this.nodes.values()) {
+      record.portrait?.dispose();
+      if (record.tag) { record.tag.element.remove(); record.tag.removeFromParent(); }
+    }
     this.world.clear();
     for (const material of this.dataMaterials) material.dispose();
     for (const geometry of this.dataGeometries) geometry.dispose();

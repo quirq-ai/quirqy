@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createActivityLayout, activityFrameBounds, activityClusterVisible, activityRadius, REPOSITORY_NODE_ID } from './scene-layout.js';
+import { createActivityLayout, activityFrameBounds, activityClusterVisible, activityRadius, CONTRIBUTOR_FOOTPRINT, CONTRIBUTOR_SPACING, REPOSITORY_NODE_ID } from './scene-layout.js';
 
 const items = [
   { id: 'person:a', kind: 'contributor', actor: { login: 'alice' } },
@@ -126,4 +126,77 @@ test('missing or inconsistent totals fall back to real loaded counts', () => {
   assert.equal(layout.kindStats.issue.total, 1);
   assert.equal(layout.kindStats.issue.exact, false);
   assert.equal(layout.positions.size, items.length);
+});
+
+
+test('contributors have the largest individual bodies and the greatest category space', () => {
+  const records = [
+    { id: 'pr:1', kind: 'pull_request' }, { id: 'issue:1', kind: 'issue' },
+    { id: 'person:1', kind: 'contributor', actor: { login: 'alice' } },
+  ];
+  const stats = { pull_request: { total: 800, exact: true }, issue: { total: 300, exact: true } };
+  assert.equal(activityRadius(records[2]), 6.5);
+  for (const kind of ['pull_request', 'issue', 'review', 'comment', 'fork']) assert.ok(activityRadius(records[2]) > activityRadius({ kind }) * 2);
+  for (const view of ['constellation', 'orbits']) {
+    const layout = createActivityLayout(records, view, stats);
+    const contributor = layout.clusters.find(cluster => cluster.kind === 'contributor');
+    for (const other of layout.clusters.filter(cluster => cluster !== contributor)) {
+      if (view === 'constellation') assert.ok(contributor.radius >= other.radius * 1.22);
+      else assert.ok(contributor.tubeRadius >= other.tubeRadius * 1.22);
+    }
+  }
+});
+
+for (const view of ['constellation', 'orbits', 'contributors']) test(`${view}: dense contributor portraits reserve tag clearance and remain inside capacity`, () => {
+  const records = Array.from({ length: 120 }, (_, index) => ({ id: `person:${index}`, kind: 'contributor', actor: { login: `person${index}` } }));
+  const layout = createActivityLayout(records, view);
+  const points = [...layout.positions.values()];
+  for (let a = 0; a < points.length; a++) for (let b = a + 1; b < points.length; b++) {
+    const distance = Math.hypot(...points[a].map((value, axis) => value - points[b][axis]));
+    assert.ok(distance >= CONTRIBUTOR_SPACING - 1e-8, `${view}: portraits ${a}/${b} overlap their reserved tag space`);
+  }
+  for (const cluster of layout.clusters) for (const id of cluster.ids) {
+    const point = layout.positions.get(id);
+    const distance = Math.hypot(...point.map((value, axis) => value - cluster.bounds.position[axis]));
+    assert.ok(distance + CONTRIBUTOR_FOOTPRINT <= cluster.bounds.radius + 1e-8);
+    if (view === 'orbits') assert.ok(distance - CONTRIBUTOR_FOOTPRINT >= cluster.innerRadius - 1e-8);
+  }
+});
+
+test('contributor-centered satellites clear portraits and actor envelopes do not intersect', () => {
+  const records = Array.from({ length: 12 }, (_, index) => ({ id: `person:${index}`, kind: 'contributor', actor: { login: `person${index}` } }));
+  for (let index = 0; index < 70; index++) records.push({ id: `pr:${index}`, kind: index % 2 ? 'pull_request' : 'fork', actor: { login: `person${index % 12}` } });
+  const layout = createActivityLayout(records, 'contributors');
+  for (const cluster of layout.clusters) {
+    const portrait = cluster.ids.find(id => id.startsWith('person:'));
+    for (const id of cluster.ids.filter(id => id !== portrait)) {
+      const item = records.find(record => record.id === id);
+      const extent = activityRadius(item) * (item.kind === 'fork' ? 1.65 : 1.35);
+      const distance = Math.hypot(...layout.positions.get(id).map((value, axis) => value - layout.positions.get(portrait)[axis]));
+      assert.ok(distance >= CONTRIBUTOR_FOOTPRINT + extent + 3 - 1e-8);
+      assert.ok(distance + extent <= cluster.radius + 1e-8);
+    }
+  }
+  for (let a = 0; a < layout.clusters.length; a++) for (let b = a + 1; b < layout.clusters.length; b++) {
+    const left = layout.clusters[a], right = layout.clusters[b];
+    const distance = Math.hypot(...left.position.map((value, axis) => value - right.position[axis]));
+    assert.ok(distance >= left.radius + right.radius + 8 - 1e-8);
+  }
+});
+
+test('portrait emphasis keeps PR and issue total scaling and history geometry unchanged', () => {
+  const records = [
+    { id: 'pr:1', kind: 'pull_request', state: 'open' }, { id: 'issue:1', kind: 'issue', state: 'open' },
+    ...Array.from({ length: 18 }, (_, index) => ({ id: `person:${index}`, kind: 'contributor', actor: { login: `person${index}` } })),
+  ];
+  const stats = { pull_request: { total: 80, open: 1, exact: true }, issue: { total: 40, open: 1, exact: true } };
+  const withoutPortraits = createActivityLayout(records.slice(0, 2), 'constellation', stats);
+  const withPortraits = createActivityLayout(records, 'constellation', stats);
+  for (const cluster of withoutPortraits.clusters) assert.equal(withPortraits.clusters.find(other => other.kind === cluster.kind).radius, cluster.radius);
+  for (const view of ['constellation', 'orbits', 'contributors']) {
+    const before = createActivityLayout(records, view, stats);
+    const after = createActivityLayout([...records].reverse().map(item => ({ ...item, state: 'closed' })), view, stats);
+    assert.deepEqual([...before.positions], [...after.positions]);
+    assert.deepEqual(activityFrameBounds(before), activityFrameBounds(after));
+  }
 });
