@@ -5,7 +5,7 @@ const hex = value => `#${value.toString(16).padStart(6, '0')}`;
 const icons = {
   trunk: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 22 3-7V3h4v12l3 7ZM11 11 5 5l-1 2 7 8m2-7 6-5 1 2-7 7" fill="#ad8a61"/><path d="M12 5v16" stroke="#e2c39a" stroke-width=".7"/></svg>',
   branch: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21 13 10l8-7M8 15 5 8m8 2-1-8M9 14l12-3" fill="none" stroke="#ad8a61" stroke-width="2" stroke-linecap="round"/><path d="m5 8-3-2m10-2 2-2m6 10 3 2" fill="none" stroke="#c5ad82" stroke-width="1"/></svg>',
-  roots: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 5h20" stroke="#9aab8d" stroke-width=".8"/><path d="M12 2v7m0 0-6 5-3 5m9-10 6 5 3 5M6 14l4 6m8-6-4 6" fill="none" stroke="#b79a77" stroke-width="1.7" stroke-linecap="round"/><circle cx="3" cy="19" r="1.2" fill="#ddc19b"/><circle cx="10" cy="20" r="1.2" fill="#ddc19b"/><circle cx="14" cy="20" r="1.2" fill="#ddc19b"/><circle cx="21" cy="19" r="1.2" fill="#ddc19b"/></svg>',
+  roots: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 5h20" stroke="#9aab8d" stroke-width=".8"/><path d="M12 2v7m0 0-6 5-3 5m9-10 6 5 3 5M6 14l4 6m8-6-4 6" fill="none" stroke="#b79a77" stroke-width="1.7" stroke-linecap="round"/></svg>',
   leaf: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21C2 10 8 3 21 3 21 15 14 22 4 21Z" fill="#7ea27a"/><path d="M4 21 19 5M9 16l-1-6m5 2 6 1" fill="none" stroke="#c9ddab" stroke-width=".8"/></svg>',
   atom: '<span class="guide-atom" aria-hidden="true"></span>',
   carbon: '<span class="guide-atom guide-carbon" aria-hidden="true">C</span>',
@@ -26,7 +26,7 @@ export class DataGuide {
     this.el.innerHTML = `
       <div class="list-title"><span>Scene guide</span><button type="button" id="data-guide-collapse" aria-label="Collapse scene guide" aria-expanded="true" aria-controls="data-guide-body">−</button></div>
       <div id="data-guide-body">
-        <p class="lab-note guide-intro">Each folder is one carbon atom; each file is one attached N, O, H or S atom.</p>
+        <p class="lab-note guide-intro">One folder, two forms: a small carbon marble when paused, an enclosure while playing. The root stays small and shines like a sun during playback.</p>
         <div class="section-title">Reading the structure</div>
         <dl class="guide-key" id="guide-shape-key"></dl>
         <div id="guide-atom-types"><div class="section-title">File elements</div><div class="guide-atom-key">${FILE_ATOM_KINDS.map(kind => `<div><span class="data-element-symbol" style="--atom-color:${hex(kind.color)}">${kind.element}</span><span>${kind.label}<small>${kind.elementName}</small></span></div>`).join('')}</div></div>
@@ -37,7 +37,7 @@ export class DataGuide {
           ${[['added', 'Added / copied'], ['modified', 'Modified'], ['renamed', 'Renamed'], ['removed', 'Removed']].map(([key, label]) => `<span><i style="--change-color:${hex(CHANGE_COLORS[key])}"></i>${label}</span>`).join('')}
         </div>
         <div id="guide-activity-key" class="guide-activity-key" aria-label="Brightness and pulses in loaded commit history"><span title="Translucent: no commit touches yet"><i class="guide-activity-sample untouched" aria-hidden="true"></i>Untouched</span><span title="Brighter: more commit touches so far"><i class="guide-activity-sample frequent" aria-hidden="true"></i>More touches</span><span class="guide-activity-pulse" title="A brief travelling light marks the current commit"><i class="guide-activity-sample pulse" aria-hidden="true"></i>Pulse · current commit</span></div>
-        <p class="lab-note guide-motion">Commit touches brighten atoms and paths through the selected point in the loaded history. A brief pulse travels root → folder → file. Wireframes mark absent files; a halo marks hover or selection.</p>
+        <p class="lab-note guide-motion">Loaded commit touches build brightness up to this cursor. Playing shows current as folder marbles become enclosures. Pause restores small marbles and pathways, freezing current. Wireframes mark absent files; a halo marks selection.</p>
         <div class="section-title" id="guide-index-title">Repository index</div>
         <p class="lab-note guide-count-note" id="guide-index-caption"></p>
         <nav id="guide-index" aria-label="Focus a repository folder"></nav>
@@ -46,10 +46,10 @@ export class DataGuide {
           <ol>
             <li><strong>Read GitHub.</strong> Fetch the default branch, pin its latest commit, and read that commit’s file tree.</li>
             <li><strong>Read changes.</strong> Load recent commits and their file changes, following the first parent through merges.</li>
-            <li id="guide-map-step"><strong>Build the structure.</strong> Make one atom per folder and file. Connect folders to their parents, and files to their folders.</li>
+            <li id="guide-map-step"><strong>Build the structure.</strong> Keep folders at repository depth and connect files to their own folders. Each non-root folder switches between a carbon marble and its enclosure.</li>
             <li id="guide-replay-step"><strong>Replay.</strong> Add or remove file atoms; renames retain their identity. Each loaded commit touch adds brightness to that file and its folder path. Rewinding restores the touch counts at that commit.</li>
           </ol>
-          <p class="lab-note" id="guide-encoding-note">Connections encode repository containment; a folder can have any number of files. Color and sphere size identify the assigned file element; byte size is shown in the inspector. Historical wireframes are excluded from current counts.</p>
+          <p class="lab-note" id="guide-encoding-note">During playback, each non-root enclosure replaces its folder’s marble and fits current contents. Pause restores the small marble. The root remains a small marble: glowing like a sun while playing, graphite gray when paused. Connections encode containment. Color and sphere size identify the assigned file element; byte size is shown in the inspector. Historical wireframes are excluded from current counts.</p>
           <p class="lab-note" id="guide-coverage-note">Up to 500 files are mapped. All their ancestor folders remain visible; the inspector lists every loaded file and change.</p>
           <p class="lab-note" id="guide-source-note"></p>
         </details>
@@ -184,7 +184,7 @@ export class DataGuide {
     const $ = selector => this.el.querySelector(selector);
     $('.guide-intro').textContent = tree
       ? 'One repository, growing through the same commit history.'
-      : 'Each folder is one carbon atom; each file is one attached N, O, H or S atom.';
+      : 'One folder, two forms: a small carbon marble when paused, an enclosure while playing. The root stays small and shines like a sun during playback.';
     $('#guide-atom-types').hidden = tree;
     $('#guide-activity-key').hidden = tree;
     $('#guide-index-title').textContent = tree ? 'Root directory index' : 'Repository index';
@@ -196,12 +196,12 @@ export class DataGuide {
       ? `<div><dt><span class="guide-icon">${icons.trunk}</span>Repository trunk</dt><dd>The repository root, growing taller and thicker with each commit</dd></div>
          <div><dt><span class="guide-icon">${icons.branch}</span>Folder branches</dt><dd>More present leaves lengthen and bend a limb</dd></div>
          <div><dt><span class="guide-icon">${icons.leaf}</span>File leaves</dt><dd>One leaf for each mapped file</dd></div>
-         <div><dt><span class="guide-icon">${icons.roots}</span>Directory roots</dt><dd>Folder forks, subfolder branches and file tips follow their actual parents</dd></div>`
-      : `<div><dt><span class="guide-icon">${icons.carbon}</span>Folder carbon · C</dt><dd>Exactly one graphite carbon atom for each folder</dd></div>
-         <div><dt><span class="guide-icon">${icons.atom}</span>File atom</dt><dd>Exactly one N, O, H or S atom for each mapped file</dd></div>`;
+         <div><dt><span class="guide-icon">${icons.roots}</span>Directory roots</dt><dd>Thin vines spiral into growing ropes along exact folder and file paths</dd></div>`
+      : `<div><dt><span class="guide-icon">${icons.carbon}</span>Folder · C</dt><dd>Its small marble becomes an enclosing boundary while playing; pause restores it</dd></div>
+         <div><dt><span class="guide-icon">${icons.atom}</span>File atom</dt><dd>One N, O, H or S atom per file, visible in both modes</dd></div>`;
     $('#guide-relations').innerHTML = tree
-      ? 'The trunk is the repository root. Below ground, the full hierarchy spreads into balanced horizontal branches, with depth in 3D. Click a folder to focus its subtree or a file tip to inspect it.'
-      : '<span class="guide-connection" aria-hidden="true"></span>Folder carbons bond to their actual parent. Every file atom bonds directly to its folder’s carbon.';
+      ? 'The trunk is the repository root. Thin strands meet at folder junctions in the fully expanded hierarchy. Folder names sit beside junctions; file names stay just below tapered tips. When the screen or viewing angle crowds the roots, the ground and roots curve downward from the trunk, their highest point. They flatten when the view has enough room. Click a name to focus its folder or inspect its file.'
+      : '<span class="guide-connection" aria-hidden="true"></span>Each enclosure fits its folder’s current files. The root keeps its small marble, and folder levels preserve the actual hierarchy.';
     const sizeNote = $('#guide-size-note');
     sizeNote.hidden = !tree;
     if (tree) {
@@ -210,20 +210,20 @@ export class DataGuide {
       sizeNote.textContent = `Leaf area follows snapshot bytes, with limits for readability. Empty files use the minimum size; unknown sizes use a muted fallback. ${known.toLocaleString()} known · ${(nodes.length - known).toLocaleString()} unknown.`;
     }
     $('.guide-motion').textContent = tree
-      ? 'Commit effects adds change colors and motion: step forward to grow new leaves and let removed leaves fall. Jumps and backward steps settle immediately. Above ground, faint wireframes mark absent files; a bright halo marks hover or selection. Roots include only present files.'
-      : 'Commit touches brighten atoms and paths through the selected point in the loaded history. A brief pulse travels root → folder → file. Wireframes mark absent files; a halo marks hover or selection.';
+      ? 'Roots begin with one initial strand. Each loaded commit touch grows one new vine along the route, spiraling in the same direction into a twisted rope: 1, 2, 3, 4 vines. Shared folders gain one vine per commit touching any descendant. The bundles grow gradually, bending and lengthening to make room. Rewinding removes later vines and restores the earlier shape. Above ground, new leaves grow and removed leaves fall.'
+      : 'Loaded commit touches build brightness up to this cursor. Playing shows current as folder marbles become enclosures. Pause restores small marbles and pathways, freezing current. Wireframes mark absent files; a halo marks selection.';
     $('#guide-map-step').innerHTML = tree
       ? '<strong>Build both hierarchies.</strong> The trunk begins the root hierarchy. Every present file connects to its actual folder, and every folder connects to its parent. Above ground, mapped files become leaves on growing limbs.'
-      : '<strong>Build the structure.</strong> Make one atom per folder and file. Connect folders to their parents, and files to their folders.';
+      : '<strong>Build the structure.</strong> Keep folders at repository depth and connect files to their own folders. Each non-root folder switches between a carbon marble and its enclosure.';
     $('#guide-replay-step').innerHTML = tree
-      ? '<strong>Replay growth.</strong> Each loaded commit adds height and thickness. Additions grow, removals fall, and lighter branches lift back up.'
+      ? '<strong>Replay growth.</strong> Each loaded commit grows the tree and adds a vine to touched root paths. New leaves grow, removed leaves fall, and lighter branches lift back up.'
       : '<strong>Replay.</strong> Add or remove file atoms; renames retain their identity. Each loaded commit touch adds brightness to that file and its folder path. Rewinding restores the touch counts at that commit.';
     $('#guide-coverage-note').textContent = tree
-      ? 'Roots display every present loaded file and ancestor folder in one fully expanded hierarchy. The canopy maps up to 500 leaves and may group deep folders. GitHub loading limits are listed under Data coverage.'
+      ? 'Roots display every present loaded file and ancestor folder. Short names identify junctions and tapered ends; zoom or focus a folder to separate dense labels. The canopy maps up to 500 leaves. GitHub loading limits are listed under Data coverage.'
       : 'Up to 500 files are mapped. All their ancestor folders remain visible; the inspector lists every loaded file and change.';
     $('#guide-encoding-note').textContent = tree
-      ? 'Trunk height and thickness show progress through the loaded history. Branch weight is a visual metaphor for present mapped leaf counts, not bytes or code quality. File identities survive renames; their positions follow the growing limbs. Leaf areas use known file sizes at the loaded snapshot, held constant during replay. Historical byte sizes are not inferred from lines added or deleted. Areas are relative to the median known positive file size, limited to 0.16–6.25 times that area. Empty files use the minimum; unknown sizes use a muted 0.65 fallback.'
-      : 'Connections encode repository containment; a folder can have any number of files. Color and sphere size identify the assigned file element; byte size is shown in the inspector. Historical wireframes are excluded from current counts.';
+      ? 'Trunk height and thickness show progress through the loaded history. Branch weight is a visual metaphor for present mapped leaf counts, not bytes or code quality. File identities survive renames; their positions follow the growing limbs. Leaf areas use known file sizes at the loaded snapshot, held constant during replay. Each root bundle contains one initial strand plus one thin vine per loaded commit touch. Vines spiral in the same direction around the route. File vines count touches to the current folder attachment; a cross-folder move starts a new attachment while retaining file identity. Every ancestor folder keeps its cumulative vines, including earlier touches from files that have since moved or disappeared, while that folder remains present. Several changed descendants add only one vine to their shared folder in a commit. Root length and bending grow gradually with the bundles to keep connected paths readable. On narrow screens or crowded viewing angles, the ground and roots curve downward away from the trunk. A wider view, zoom, or folder focus lets the surface flatten as space becomes available. This adapts to the current view without changing the hierarchy, commit counts, or vine counts. Filenames remain attached to their tips without guide-line extensions. Historical byte sizes are not inferred from lines added or deleted. Areas are relative to the median known positive file size, limited to 0.16–6.25 times that area. Empty files use the minimum; unknown sizes use a muted 0.65 fallback.'
+      : 'During playback, each non-root enclosure replaces its folder’s marble and fits current contents. Pause restores the small marble. The root remains a small marble: glowing like a sun while playing, graphite gray when paused. Connections encode containment. Color and sphere size identify the assigned file element; byte size is shown in the inspector. Historical wireframes are excluded from current counts.';
   }
 
   buildIndex() {

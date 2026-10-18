@@ -70,6 +70,8 @@ Side panels and playback bars share a liquid-glass appearance. In Data Lab, open
 
 Use the − / + control in either sidebar header to collapse or expand it on desktop. On mobile, the header control closes the sheet, which can be reopened from its page button. Drag either Data Lab sidebar by its header, or move the centered timeline dock using its top grab handle. Positions are remembered separately for desktop and mobile. Double-click a handle to restore the default position; focused handles also support Arrow keys (Shift for larger steps) and Home to reset.
 
+In Data Lab's Growth Tree, **Frame roots** enlarges the roots, shrinks the canopy, and enables unrestricted 3D rotation. Drag to turn in any direction; Shift-drag horizontally or twist two fingers to roll sideways. Portrait screens initially frame the roots sideways for more detail. **Frame view** (or **F**) emphasizes the canopy with smaller roots and restores upright orbit. Structure also uses upright orbit. Right-drag pans, the wheel or pinch zooms, and two-finger dragging pans. File and folder focus within roots retain the chosen orientation. Presentation scaling stays anchored at the trunk and does not change repository data or commit growth.
+
 Open the app, then switch instruments with the tabs in the top-left (or open a
 section URL directly). Press **H** at any
 time for a context-aware help card, **S** for a PNG snapshot, and **V** to record up to

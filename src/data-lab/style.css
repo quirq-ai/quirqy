@@ -36,6 +36,7 @@ body[data-mode="data"] #app { background: var(--bg); }
 #data-status[data-kind="success"] { color: var(--text-dim); }
 #data-panel .data-view-switch { padding-top: 4px; padding-bottom: 4px; }
 #data-panel .data-view-actions { padding-top: 3px; }
+#data-panel .data-view-actions .btn[aria-pressed="true"] { border-color: #a18a60; color: #efdcba; background: rgba(154, 122, 69, .18); }
 .data-view-toggles { display: grid; grid-template-columns: 1fr 1fr; padding: 5px 16px 0; gap: 0 4px; }
 #data-panel .data-view-toggles .setting { padding: 4px 0; gap: 6px; font-size: 10.5px; color: var(--text-dim); }
 .data-structure { margin: 10px 16px 1px; padding: 9px 0 2px; border-top: 1px solid var(--panel-border); }

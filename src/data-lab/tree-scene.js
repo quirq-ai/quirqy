@@ -6,8 +6,12 @@ import { createTreeLayout, createTreePose, trunkRadius } from './tree-layout.js'
 import { stateAt } from './model.js';
 import { RepositoryRoots } from './root-scene.js';
 import { createRootLayout } from './root-layout.js';
+import { rootSurfaceHeight, measureRootSurfaceCrowding, createRootSurface, applyRootSurface } from './root-surface.js';
 
 const DURATION = 1.6;
+const GROUND_Y = -40;
+const PRESENTATION = { tree: { canopy: 1, roots: 0.32 }, roots: { canopy: 0.24, roots: 1 } };
+const FLAT_GROUND = { height: 0, radiusX: 50, radiusZ: 30, depthWeight: 0.2, active: false };
 const UP = new THREE.Vector3(0, 1, 0);
 const WHITE = new THREE.Color(0xf2f0d8);
 const FOLIAGE = [0x83a974, 0xa1b775, 0x67a489, 0x9aa45c, 0x54886d, 0xa4b58c, 0x74a394, 0xaabb71];
@@ -125,9 +129,21 @@ export class TreeScene extends RepositoryScene {
   constructor(stage, callbacks = {}) {
     super(stage, callbacks);
     this.group.name = 'Data Lab · Growth tree';
+    this.onFocusMode = callbacks.onFocusMode || (() => {});
+    this.frameMode = 'tree';
+    this.canopyGroup = new THREE.Group();
+    this.canopyGroup.name = 'Canopy presentation';
+    this.canopyGroup.add(this.world, this.linkGroup, this.activityGroup, this.focusHalo, this.selectionLabel);
+    this.groundGroup = new THREE.Group();
+    this.groundGroup.name = 'Ground presentation';
+    this.group.add(this.canopyGroup, this.groundGroup);
+    this.presentation = { ...PRESENTATION.tree };
+    this.presentationTarget = { ...PRESENTATION.tree };
+    this.presentationTransition = null;
     this.options.roots = true;
     this.roots = new RepositoryRoots(stage);
     this.group.add(this.roots.group);
+    this._applyPresentation();
     this.selectionInRoots = false;
     this.lastHit = null;
     for (const [name, geometry] of Object.entries(this.geometries)) if (name !== 'pick') { geometry.dispose(); delete this.geometries[name]; }
@@ -141,7 +157,7 @@ export class TreeScene extends RepositoryScene {
     this.fallingLeaves = [];
     this.index = null;
     this.trunkRadius = trunkRadius(-1);
-    this.renderer.domElement.setAttribute('aria-label', 'Three-dimensional repository growth tree. Each leaf is a file. The trunk is the repository root. Below ground, every folder and file branches into a fully expanded, balanced three-dimensional hierarchy. Click a folder root to focus its subtree, or a file tip or leaf to inspect. Drag to orbit, scroll to zoom, double-click a file to focus.');
+    this.renderer.domElement.setAttribute('aria-label', 'Three-dimensional repository growth tree. Each leaf is a file. The trunk is the repository root. Below ground, every folder and file branches into a fully expanded, balanced three-dimensional hierarchy. Folder names sit beside junctions and file names below tapered root ends. Each root begins with one strand. Every commit touch adds one thin vine winding in the same direction around that path. The twisted ropes gradually grow, bend, and lengthen to make room. When root tips become crowded, including on small screens, the ground curves downward and their names stay at the tips. Click a folder name to focus its subtree, or a file name or leaf to inspect. Frame roots enlarges the roots, reduces the canopy, and enables free rotation and sideways roll with Shift-drag or a two-finger twist. Frame view emphasizes the canopy with smaller roots and upright orbit. Scroll to zoom, double-click a file to focus.');
   }
 
   setModel(model) {
@@ -181,17 +197,25 @@ export class TreeScene extends RepositoryScene {
     }
     this._label(model.repository?.name || 'Repository', new THREE.Vector3(0, -38, 0), '#b7a88b', '');
 
-    const ground = new THREE.Mesh(new THREE.PlaneGeometry(150, 150), new THREE.MeshBasicMaterial({ color: 0x17251c, map: this.dot, transparent: true, opacity: 0.18, depthWrite: false, side: THREE.DoubleSide }));
-    ground.rotation.x = -Math.PI / 2;
+    const groundGeometry = new THREE.PlaneGeometry(150, 150, 48, 48);
+    groundGeometry.rotateX(-Math.PI / 2);
+    groundGeometry.attributes.position.setUsage(THREE.DynamicDrawUsage);
+    const ground = new THREE.Mesh(groundGeometry, new THREE.MeshBasicMaterial({ color: 0x17251c, map: this.dot, transparent: true, opacity: 0.18, depthWrite: false, side: THREE.DoubleSide }));
     ground.position.y = -40.3;
-    this.world.add(ground);
+    this.ground = ground;
+    this.groundBaseVertices = groundGeometry.attributes.position.array.slice();
+    this.groundSurfaceSignature = null;
+    this.groundGroup.add(ground);
     // A fine soil contour separates growth above from exact paths below without
     // hiding the underground geometry behind an opaque ground plane.
     const contour = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(Array.from({ length: 128 }, (_, index) => {
       const angle = index / 128 * Math.PI * 2;
       return new THREE.Vector3(Math.cos(angle) * 50, -40.25, Math.sin(angle) * 30);
     })), new THREE.LineBasicMaterial({ color: 0x8f7955, transparent: true, opacity: 0.28, depthWrite: false }));
-    this.world.add(contour);
+    contour.geometry.attributes.position.setUsage(THREE.DynamicDrawUsage);
+    this.groundContour = contour;
+    this.groundContourBaseVertices = contour.geometry.attributes.position.array.slice();
+    this.groundGroup.add(contour);
 
     for (const node of this.layout.nodes) {
       const folder = this.folders.get(node.folder);
@@ -286,7 +310,7 @@ export class TreeScene extends RepositoryScene {
     this.index = nextIndex;
     this.commitCount = commitCount ?? this.model?.commits.length ?? 0;
     this.frameKey = frameKey;
-    this.roots.setFrame({ activeIds: this.activeIds, paths: this.paths, changedIds: this.changedIds, statuses: this.statuses, selectedId, frameKey });
+    this.roots.setFrame({ activeIds: this.activeIds, paths: this.paths, changedIds: this.changedIds, statuses: this.statuses, selectedId, frameKey, index: this.index, duration: this.duration, animate: different && this.animateTransition });
     if (selectedId !== undefined) this.select(selectedId);
     this.update(0);
   }
@@ -357,6 +381,7 @@ export class TreeScene extends RepositoryScene {
     const previousRoots = this.options.roots;
     Object.assign(this.options, options);
     this.roots?.setOptions(this.options);
+    this._updateGroundSurface();
     if (previousRoots !== this.options.roots && this.layout) this.resetView();
     // Branches carry directory structure; Links controls fine file stems only.
     this.linkGroup.visible = this.options.links;
@@ -368,6 +393,7 @@ export class TreeScene extends RepositoryScene {
     if (this.disposed || !this.layout) return;
     const delta = Math.min(Math.max(Number(dt) || 0, 0), 0.1);
     this.time += delta;
+    this._advancePresentation(delta);
     this.elapsed = Math.min(this.duration, this.elapsed + delta);
     if (this.tween) {
       const tween = this.tween;
@@ -437,18 +463,102 @@ export class TreeScene extends RepositoryScene {
       this.selectionLabel.position.copy(highlighted.center).add(new THREE.Vector3(0, Math.max(3, highlighted.size * 2.2), 0));
       this.selectionLabelElement.textContent = this.paths[highlighted.node.id] || highlighted.node.path;
     }
+  }
+
+  afterCameraUpdate(dt) {
+    // Project labels and responsive crowding from the same camera as the render.
     this._updateLabels();
     this.roots.update?.(dt);
+    this._updateGroundSurface();
+  }
+
+  _updateLabels() {
+    super._updateLabels();
+    if (this.frameMode === 'roots') for (const record of this.labelRecords) if (record.path) record.object.visible = false;
+  }
+
+  _setFrameMode(mode, immediate = false) {
+    const changed = this.frameMode !== mode;
+    this.frameMode = mode;
+    this.selectionInRoots = mode === 'roots';
+    if (changed) this._clearHover();
+    this.presentationTarget = { ...PRESENTATION[mode] };
+    this.controls.setRootMode?.(mode === 'roots');
+    this.roots.labels.setFocusMode?.(mode === 'roots');
+    this.roots.labelWidths = new Map(this.roots.labels.files.map(label => [label.key, label.textWidth]));
+    this.roots.surfaceSignature = null;
+    if (immediate || this.reducedMotion) {
+      this.presentation = { ...this.presentationTarget };
+      this.presentationTransition = null;
+      this._applyPresentation();
+    } else if (changed || this.presentationTransition) {
+      this.presentationTransition = { elapsed: 0, from: { ...this.presentation } };
+    }
+    if (changed) this.onFocusMode(mode);
+  }
+
+  _applyPresentation() {
+    for (const [group, scale] of [[this.canopyGroup, this.presentation.canopy], [this.roots.group, this.presentation.roots], [this.groundGroup, this.presentation.roots]]) {
+      group.scale.setScalar(scale);
+      group.position.set(0, GROUND_Y * (1 - scale), 0);
+    }
+    this.group.updateWorldMatrix(true, true);
+  }
+
+  _advancePresentation(delta) {
+    const transition = this.presentationTransition;
+    if (!transition) return;
+    transition.elapsed += delta;
+    const amount = this.reducedMotion ? 1 : ease(Math.min(1, transition.elapsed / 0.65));
+    for (const part of ['canopy', 'roots']) this.presentation[part] = THREE.MathUtils.lerp(transition.from[part], this.presentationTarget[part], amount);
+    this._applyPresentation();
+    if (amount === 1) this.presentationTransition = null;
+  }
+
+  _presentationPoint(point, part, target = true) {
+    const scale = (target ? this.presentationTarget : this.presentation)[part];
+    return point.clone().multiplyScalar(scale).add(new THREE.Vector3(0, GROUND_Y * (1 - scale), 0));
+  }
+
+  _clearWorld() {
+    if (this.groundGroup) {
+      for (const object of [...this.groundGroup.children]) this.world.add(object);
+    }
+    super._clearWorld();
+  }
+
+  _updateGroundSurface() {
+    if (!this.ground || !this.groundContour) return;
+    const surface = this.options.roots !== false
+      ? this.roots?.surfaceDisplay || this.roots?.surface || FLAT_GROUND
+      : FLAT_GROUND;
+    const signature = `${surface.height || 0}|${surface.radiusX || 50}|${surface.radiusZ || 30}|${surface.depthWeight ?? 0.2}|${surface.active !== false}`;
+    if (signature === this.groundSurfaceSignature) return;
+    this.groundSurfaceSignature = signature;
+    for (const [geometry, base] of [
+      [this.ground.geometry, this.groundBaseVertices],
+      [this.groundContour.geometry, this.groundContourBaseVertices],
+    ]) {
+      const position = geometry.attributes.position;
+      for (let offset = 0; offset < base.length; offset += 3) {
+        position.array[offset + 1] = base[offset + 1] + rootSurfaceHeight(surface, base[offset], base[offset + 2]);
+      }
+      position.needsUpdate = true;
+      if (geometry === this.ground.geometry) geometry.computeVertexNormals();
+      geometry.computeBoundingBox();
+      geometry.computeBoundingSphere();
+    }
   }
 
   _flyTo(target, distance, immediate = false, direction = null) {
-    const ray = (direction || this.camera.position.clone().sub(this.controls.target)).normalize();
+    this.controls.stop?.();
+    const ray = (direction?.clone() || this.camera.position.clone().sub(this.controls.target)).normalize();
     if (ray.lengthSq() < 0.1) ray.set(0.18, 0.13, 1).normalize();
     const width = this.renderer.domElement.clientWidth || window.innerWidth;
     const height = this.renderer.domElement.clientHeight || window.innerHeight;
     const rightPanel = width > 900 ? 390 : width > 700 ? 330 : 0;
     const leftGuide = width > 1100 ? 235 : width > 700 ? 200 : 0;
-    const right = new THREE.Vector3().crossVectors(UP, ray).normalize();
+    const right = this._cameraRight(ray);
     const shift = distance * Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2)) * (rightPanel - leftGuide) / height;
     const endTarget = target.clone().addScaledVector(right, shift);
     const endPosition = endTarget.clone().addScaledVector(ray, distance);
@@ -458,6 +568,9 @@ export class TreeScene extends RepositoryScene {
 
   resetView(immediate = false) {
     if (!this.layout) return;
+    this._setFrameMode('tree', immediate);
+    this.controls.stop?.();
+    this.camera.up.copy(UP);
     const width = this.renderer.domElement.clientWidth || window.innerWidth;
     const height = this.renderer.domElement.clientHeight || window.innerHeight;
     const availableWidth = Math.max(270, width - (width > 1100 ? 660 : width > 900 ? 610 : width > 700 ? 555 : 36));
@@ -466,9 +579,11 @@ export class TreeScene extends RepositoryScene {
     const right = new THREE.Vector3().crossVectors(UP, ray).normalize();
     const up = new THREE.Vector3().crossVectors(ray, right);
     const canopy = this.cameraPoints || [...this.layout.nodes.map(node => asVector(node.position)), ...this.layout.trunk.map(asVector)];
-    const rootBounds = this.roots?.getBounds();
+    const rootLayout = this.roots?.growthLayout;
+    const rootBounds = rootLayout ? new THREE.Box3(asVector(rootLayout.bounds.min), asVector(rootLayout.bounds.max)) : this.roots?.getBounds();
     const currentRoots = rootBounds && !rootBounds.isEmpty() ? this._boundsPoints(rootBounds) : [];
-    const points = this.options.roots ? [...canopy, ...(this.rootCameraPoints || []), ...currentRoots] : canopy;
+    const canopyPoints = canopy.map(point => this._presentationPoint(point, 'canopy'));
+    const points = this.options.roots ? [...canopyPoints, ...[...(this.rootCameraPoints || []), ...currentRoots].map(point => this._presentationPoint(point, 'roots'))] : canopyPoints;
     this.center = new THREE.Box3().setFromPoints(points).getCenter(new THREE.Vector3());
     const halfWidth = Math.max(14, ...points.map(point => Math.abs(point.clone().sub(this.center).dot(right)))) + 8;
     const halfHeight = Math.max(20, ...points.map(point => Math.abs(point.clone().sub(this.center).dot(up)))) + 7;
@@ -476,9 +591,13 @@ export class TreeScene extends RepositoryScene {
     const tangent = Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2));
     const distance = Math.max(halfWidth / (tangent * availableWidth / height), halfHeight / (tangent * availableHeight / height)) + depth * 0.45;
     this.controls.maxDistance = Math.max(650, distance * 1.2);
-    this._flyTo(this.center, distance, immediate, ray);
+    // Leave room for persistent filenames beneath the roots on narrow screens.
+    const target = this.center.clone();
+    if (this.options.roots && width <= 700) target.addScaledVector(up, -2 * distance * tangent * 35 / height);
+    this._flyTo(target, distance, immediate, ray);
   }
 
+  get activityState() { return this.roots?.activityState; }
   get indexLayout() { return this.roots?.layout || this.layout; }
   get indexFolders() { return this.roots?.folders || this.folders; }
   get indexNodes() { return this.roots?.files || this.nodes; }
@@ -497,6 +616,7 @@ export class TreeScene extends RepositoryScene {
     const rect = this.renderer.domElement.getBoundingClientRect();
     this.pointer.set((event.clientX - rect.left) / rect.width * 2 - 1, -(event.clientY - rect.top) / rect.height * 2 + 1);
     this.raycaster.setFromCamera(this.pointer, this.camera);
+    this.group.updateWorldMatrix(true, true);
     let nearest = this.roots?.hit(this.raycaster) || null;
     for (const hit of this.raycaster.intersectObjects(this.pickables || [], false)) {
       const data = hit.object.userData;
@@ -517,34 +637,41 @@ export class TreeScene extends RepositoryScene {
 
   focusNode(id) {
     if (this.options.roots && this.roots?.files.has(id) && (this.selectionInRoots || !this.nodes.has(id))) {
-      const rootPosition = this.roots.getNodePosition(id);
+      this._setFrameMode('roots');
+      const rootPosition = this.roots.files.get(id)?.position.clone();
       if (rootPosition) {
         this.select(id);
-        this._flyTo(rootPosition, 22);
+        this._frameRootsBounds(new THREE.Box3().setFromCenterAndSize(rootPosition, new THREE.Vector3(4, 4, 4)), false, '', id);
         return;
       }
     }
-    super.focusNode(id);
+    const record = this.nodes.get(id);
+    if (!record) return;
+    this._setFrameMode('tree');
+    this.select(id);
+    this._flyTo(this._presentationPoint(record.position, 'canopy'), Math.max(14, record.size * 17));
   }
 
   focusFolder(path) {
     if (this.lastHit?.root && this.lastHit.path === path) this.focusRootFolder(path);
-    else super.focusFolder(path);
+    else { this._setFrameMode('tree'); super.focusFolder(path); }
   }
 
   focusRootFolder(path) {
     if (!this.options.roots) { super.focusFolder(path); return; }
     this.selectionInRoots = true;
+    this._setFrameMode('roots');
     const bounds = path ? this.roots?.getFolderBounds(path) : this.roots?.getBounds();
     if (!bounds || bounds.isEmpty()) return;
-    this._frameRootsBounds(bounds);
+    this._frameRootsBounds(bounds, false, path);
   }
 
   focusRoots() {
     if (!this.options.roots) return;
     this.selectionInRoots = true;
+    this._setFrameMode('roots');
     const bounds = this.roots?.getBounds();
-    if (bounds && !bounds.isEmpty()) this._frameRootsBounds(bounds);
+    if (bounds && !bounds.isEmpty()) this._frameRootsBounds(bounds, true);
   }
 
   _boundsPoints(bounds) {
@@ -553,23 +680,89 @@ export class TreeScene extends RepositoryScene {
     return points;
   }
 
-  _frameRootsBounds(bounds) {
+  _frameRootsBounds(bounds, overview = false, path = '', fileId = null) {
     const width = this.renderer.domElement.clientWidth || window.innerWidth;
     const height = this.renderer.domElement.clientHeight || window.innerHeight;
-    const availableWidth = Math.max(270, width - (width > 1100 ? 660 : width > 900 ? 610 : width > 700 ? 555 : 36));
-    const availableHeight = Math.max(250, height - (width > 700 ? 210 : 290));
-    const ray = new THREE.Vector3(0, 0.2, 1).normalize();
-    const right = new THREE.Vector3().crossVectors(UP, ray).normalize();
-    const up = new THREE.Vector3().crossVectors(ray, right);
-    const center = bounds.getCenter(new THREE.Vector3());
-    const points = this._boundsPoints(bounds).map(point => point.sub(center));
-    const halfWidth = Math.max(10, ...points.map(point => Math.abs(point.dot(right)))) + 3;
-    const halfHeight = Math.max(8, ...points.map(point => Math.abs(point.dot(up)))) + 3;
-    const depth = Math.max(1, ...points.map(point => Math.abs(point.dot(ray))));
+    const portrait = width <= 700 && height > width;
+    this.controls.stop?.();
+    // Portrait root views use the long edge of the screen; later focus keeps
+    // the user's orientation, including sideways roll.
+    if (overview) this.camera.up.set(portrait ? 1 : 0, portrait ? 0 : 1, 0);
+    const ray = overview ? new THREE.Vector3(0, 0.32, 1) : this.camera.position.clone().sub(this.controls.target);
+    if (ray.lengthSq() < 1e-8) ray.set(0, 0.32, 1);
+    ray.normalize();
+    const right = this._cameraRight(ray), up = new THREE.Vector3().crossVectors(ray, right).normalize();
+    const rightPanel = width > 900 ? 390 : width > 700 ? 330 : 16;
+    const leftGuide = width > 1200 ? 245 : 16;
+    const top = width > 700 ? 100 : 140, bottom = width > 700 ? 120 : 220;
+    const availableWidth = Math.max(220, width - rightPanel - leftGuide - 40);
+    const availableHeight = Math.max(220, height - top - bottom - 36);
     const tangent = Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2));
-    const distance = Math.max(halfWidth / (tangent * availableWidth / height), halfHeight / (tangent * availableHeight / height)) + depth;
-    this.controls.maxDistance = Math.max(650, distance * 1.2);
-    this._flyTo(center, distance, false, ray);
+    const fit = layout => {
+      const points = [];
+      const add = (control, radius = 0.5) => {
+        for (const axis of [0, 1, 2]) for (const sign of [-1, 1]) {
+          const point = asVector(control);
+          point.setComponent(axis, point.getComponent(axis) + sign * radius);
+          points.push(this._presentationPoint(point, 'roots'));
+        }
+      };
+      if (fileId) {
+        const file = layout.nodes.find(node => node.id === fileId);
+        if (file) add(file.position, 2);
+      } else {
+        const junction = layout.folders.find(folder => folder.path === path);
+        if (junction) add(junction.position);
+        for (const record of [...layout.folders, ...layout.nodes]) {
+          const folder = record.kind === 'file' ? record.folder : record.path;
+          if (path && folder !== path && !folder.startsWith(`${path}/`)) continue;
+          if (path && record.kind !== 'file' && record.path === path) continue;
+          const source = record.kind === 'file' ? this.roots.files.get(record.id) : this.roots.folders.get(record.path);
+          for (const point of record.curve) add(point, Math.max(0.5, source?.radiusTarget || source?.radius || 0.5));
+        }
+      }
+      if (!points.length) points.push(...this._boundsPoints(bounds).map(point => this._presentationPoint(point, 'roots')));
+      const center = new THREE.Box3().setFromPoints(points).getCenter(new THREE.Vector3());
+      let distance = 24;
+      for (const point of points) {
+        const offset = point.clone().sub(center), depth = offset.dot(ray);
+        distance = Math.max(distance,
+          depth + Math.abs(offset.dot(right)) * height / (tangent * availableWidth),
+          depth + Math.abs(offset.dot(up)) * height / (tangent * availableHeight));
+      }
+      distance *= 1.025;
+      const target = center.addScaledVector(right, distance * tangent * (rightPanel - leftGuide) / height)
+        .addScaledVector(up, distance * tangent * (top - bottom) / height);
+      return { distance, target, position: target.clone().addScaledVector(ray, distance) };
+    };
+    // Zooming can relieve crowding and flatten the surface. Solve that target
+    // pose together with framing so the chosen file does not move offscreen
+    // after the camera arrives. This only runs on an explicit focus action.
+    const probe = this.camera.clone();
+    const canonical = this.roots.growthLayout;
+    let surface = this.roots.surfaceDisplay || this.roots.surface || FLAT_GROUND;
+    let pose = fit(this.roots.layout || canonical);
+    for (let iteration = 0; iteration < 8; iteration++) {
+      probe.position.copy(pose.position);
+      probe.up.copy(this.camera.up);
+      probe.lookAt(pose.target);
+      probe.updateMatrixWorld(true);
+      const points = canonical.nodes.map(node => {
+        const projected = this._presentationPoint(asVector(node.position), 'roots').project(probe);
+        return { x: (projected.x * .5 + .5) * width, y: (-projected.y * .5 + .5) * height,
+          visible: projected.z >= -1 && projected.z <= 1, textWidth: this.roots.labelWidths.get(node.id) || 70 };
+      });
+      const crowding = measureRootSurfaceCrowding(points, { width, height, labelOrientation: 'horizontal' });
+      const next = createRootSurface(this.roots.baseLayout, { viewportWidth: width, crowding });
+      pose = fit(applyRootSurface(canonical, next));
+      if (Math.abs(next.height - surface.height) < .01) break;
+      surface = next;
+    }
+    this.controls.maxDistance = Math.max(650, pose.distance * 1.25);
+    if (this.reducedMotion) {
+      this.camera.position.copy(pose.position); this.controls.target.copy(pose.target);
+      this.camera.lookAt(pose.target); this.tween = null;
+    } else this.tween = { elapsed: 0, from: this.camera.position.clone(), fromTarget: this.controls.target.clone(), to: pose.position, toTarget: pose.target };
   }
 
   getRootScreenPoint(id) { return this.roots?.getRootNodeScreenPoint(id); }
@@ -580,6 +773,9 @@ export class TreeScene extends RepositoryScene {
     super.dispose();
     this.poseTransition = null;
     this.poseTarget = null;
+    this.ground = this.groundContour = null;
+    this.groundBaseVertices = this.groundContourBaseVertices = null;
+    this.groundSurfaceSignature = null;
     this.rootCameraPoints = [];
     this.cameraPoints = [];
   }
@@ -588,7 +784,7 @@ export class TreeScene extends RepositoryScene {
     const record = this.nodes.get(id);
     if (!record) return this.options.roots ? this.roots?.getRootNodeScreenPoint(id) : null;
     this.camera.updateMatrixWorld();
-    const point = record.center.clone().project(this.camera);
+    const point = this.world.localToWorld(record.center.clone()).project(this.camera);
     const rect = this.renderer.domElement.getBoundingClientRect();
     return { x: rect.left + (point.x * 0.5 + 0.5) * rect.width, y: rect.top + (-point.y * 0.5 + 0.5) * rect.height, visible: point.z > -1 && point.z < 1 && Math.abs(point.x) < 1 && Math.abs(point.y) < 1 };
   }

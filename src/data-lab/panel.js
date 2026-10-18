@@ -1,6 +1,7 @@
 import { makePanelDraggable } from '../ui/dragPanel.js';
 import { activityInsights } from './model.js';
 import { FILE_ATOM_KINDS, fileAtomKind } from './molecule-layout.js';
+import { rootMembershipKey } from './root-activity.js';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
 const fmt = value => Number(value || 0).toLocaleString();
@@ -29,7 +30,7 @@ export class DataPanel {
     this.el.innerHTML = `
       <div class="list-title">Data Lab <button class="data-sheet-close" id="data-panel-collapse" type="button" aria-label="Collapse Data Lab controls" aria-expanded="true" aria-controls="data-panel-body">−</button></div>
       <div id="data-panel-body">
-      <p class="lab-note" id="data-view-intro">One folder, one carbon atom. Each file is one element atom bonded directly to its folder.</p>
+      <p class="lab-note" id="data-view-intro">Play turns each non-root folder marble into an enclosure around its files; the small root shines like a sun. Pause restores normal marbles and pathways.</p>
       <div class="section-title">Repository <span class="lab-hint" id="data-source-kind"></span></div>
       <form id="data-source-form" aria-label="Load a public GitHub repository">
         <div class="data-source-row"><label class="data-sr-only" for="data-repository-url">Public GitHub repository URL</label><input id="data-repository-url" type="url" placeholder="https://github.com/owner/repo" autocomplete="off" spellcheck="false" required><button class="btn tiny primary" id="data-load" type="submit">Load</button></div>
@@ -39,8 +40,8 @@ export class DataPanel {
       <p class="lab-note" id="data-status" role="status" aria-live="polite"></p>
       <div class="section-title">View</div>
       <div class="seg data-view-switch" role="group" aria-label="Repository visualization"><button type="button" data-view="structure" class="active" aria-pressed="true">Structure</button><button type="button" data-view="tree" aria-pressed="false">Growth tree</button></div>
-      <div class="kick-row eq-actions data-view-actions"><button class="btn tiny" id="data-frame" type="button">Frame view</button><button class="btn tiny" id="data-frame-roots" type="button" title="Frame the complete 3D root hierarchy beneath the tree" hidden>Frame roots</button><button class="btn tiny" id="data-focus" type="button" disabled>Focus file</button></div>
-      <div class="data-view-toggles"><label class="setting"><input type="checkbox" data-option="links" checked> <span id="data-links-label">Bonds</span></label><label class="setting"><input type="checkbox" data-option="labels" checked> Folder labels</label><label class="setting"><input type="checkbox" data-option="ghosts" checked> Historical files</label><label class="setting"><input type="checkbox" data-option="activity" checked> <span id="data-activity-label">Commit effects</span></label><label class="setting" id="data-roots-option" hidden><input type="checkbox" data-option="roots" checked> Show roots</label></div>
+      <div class="kick-row eq-actions data-view-actions"><button class="btn tiny" id="data-frame" type="button" title="Focus the canopy with smaller roots and upright orbit (F)">Frame view</button><button class="btn tiny" id="data-frame-roots" type="button" title="Enlarge the roots, shrink the canopy, and enable free rotation" hidden>Frame roots</button><button class="btn tiny" id="data-focus" type="button" disabled>Focus file</button></div>
+      <div class="data-view-toggles"><label class="setting"><input type="checkbox" data-option="links" checked> <span id="data-links-label">Bonds</span></label><label class="setting"><input type="checkbox" data-option="labels" checked> <span id="data-labels-label">Folder labels</span></label><label class="setting"><input type="checkbox" data-option="ghosts" checked> Historical files</label><label class="setting"><input type="checkbox" data-option="activity" checked> <span id="data-activity-label">Commit effects</span></label><label class="setting" id="data-roots-option" hidden><input type="checkbox" data-option="roots" checked> Show roots</label></div>
       <section id="data-structure" class="data-structure" aria-label="Current repository structure">
         <div class="data-structure-summary"><span><b id="data-structure-folders"></b> folder carbons</span><span><b id="data-structure-atoms"></b> file atoms</span></div>
         <p class="lab-note" id="data-structure-scope"><span id="data-structure-connections"></span></p>
@@ -246,6 +247,11 @@ export class DataPanel {
     if (modelChanged || viewChanged || (frameChanged && state.view !== 'tree')) this.renderDirectories();
     if (frameChanged || selectionChanged || viewChanged) { this.renderChanges(); this.renderSelected(); this.renderFiles(); }
     else if (activityChanged) this.renderSelected();
+    for (const [id, mode] of [['data-frame', 'tree'], ['data-frame-roots', 'roots']]) {
+      const button = this.$(`#${id}`);
+      if (state.view === 'tree') button.setAttribute('aria-pressed', String((state.frameMode || 'tree') === mode));
+      else button.removeAttribute('aria-pressed');
+    }
     this.$('#data-focus').disabled = !this.isRendered(state.selectedId);
     this.$('[data-option="roots"]').checked = state.rootsVisible !== false;
     if (selectionChanged && this.pendingSelectionScroll) this.showSelectedInPanel();
@@ -279,10 +285,12 @@ export class DataPanel {
       button.setAttribute('aria-pressed', String(active));
     }
     this.$('#data-view-intro').textContent = tree
-      ? 'The trunk is the repository root, growing with each commit. Below ground, the complete folder and file hierarchy spreads into balanced 3D branches.'
-      : 'One folder, one carbon atom. Each file is one element atom bonded directly to its folder.';
+      ? 'Each root starts with one initial strand. Every commit touch adds a thin vine, spiraling in the same direction to form a twisted rope. Shared folders gain one vine per touching commit.'
+      : 'Play turns each non-root folder marble into an enclosure around its files; the small root shines like a sun. Pause restores normal marbles and pathways.';
     this.$('#data-links-label').textContent = tree ? 'File stems' : 'Bonds';
+    this.$('#data-links-label').title = tree ? '' : 'Show or hide pathways and current. Playing shows current only; pause restores pathways.';
     this.$('#data-activity-label').textContent = 'Commit effects';
+    this.$('#data-labels-label').textContent = tree ? 'Names' : 'Folder labels';
     this.$('[data-option="activity"]').title = tree
       ? 'Show commit change colors and motion.'
       : 'Show current-commit pulses and highlights. Cumulative touch brightness stays visible.';
@@ -389,11 +397,16 @@ export class DataPanel {
     const historyWasOpen = this.$('#data-selected .data-file-history')?.open;
     const kind = this.state.view !== 'tree' ? fileAtomKind(file.path) : null;
     const touchesSoFar = this.state.activity?.fileTouches?.get(file.id) ?? changes.filter(commit => commit.index <= this.state.index).length;
-    const touchRows = kind ? `<div class="stat-k" title="Commit touches through the selected point in the loaded history">Touches so far</div><div class="stat-v data-file-touches">${fmt(touchesSoFar)}</div>` : '';
+    const attachment = file.path.includes('/') ? file.path.slice(0, file.path.lastIndexOf('/')) : '';
+    const strandTouches = this.state.activity?.membershipTouches?.get(rootMembershipKey(attachment, file.id)) || 0;
+    const folderTouches = this.state.activity?.folderTouches?.get(attachment) || 0;
+    const folderVineRows = !kind && file.exists && attachment ? `<div class="stat-k" title="Commits touching any file beneath ${esc(attachment)}, once per commit">Folder strand touches</div><div class="stat-v data-root-folder-touches">${fmt(folderTouches)}</div><div class="stat-k" title="One initial strand plus one vine per folder touch">Folder vines</div><div class="stat-v data-root-folder-vines">${fmt(folderTouches + 1)}</div>` : '';
+    const touchRows = kind ? `<div class="stat-k" title="Commit touches through the selected point in the loaded history">Touches so far</div><div class="stat-v data-file-touches">${fmt(touchesSoFar)}</div>`
+      : file.exists ? `<div class="stat-k" title="Loaded commits touching this file in its current folder; a cross-folder move starts a new attachment">File strand touches</div><div class="stat-v data-root-touches">${fmt(strandTouches)}</div><div class="stat-k" title="One initial strand plus one vine per file attachment touch">File vines</div><div class="stat-v data-root-file-vines">${fmt(strandTouches + 1)}</div>` : '';
     const currentFolder = file.path.includes('/') ? file.path.slice(0, file.path.lastIndexOf('/')) : '(root)';
     const atomRows = kind ? `<div class="stat-k">File category</div><div class="stat-v">${esc(kind.label)}</div><div class="stat-k">File element</div><div class="stat-v data-file-element">${esc(kind.element)} · ${esc(kind.elementName)}</div><div class="stat-k">Current folder</div><div class="stat-v data-folder-path">${esc(currentFolder)}</div>` : '';
     const history = changes.length ? `<details class="data-file-history" ${historyWasOpen ? 'open' : ''}><summary>File activity · ${changes.length} commits</summary>${changes.map(commit => `<button type="button" data-commit-index="${commit.index}" aria-current="${commit.index === this.state.index}" title="${esc(commit.message)}"><code>${esc(this.shortSha(commit.sha))}</code><span>${esc(commit.message.split('\n')[0])}</span></button>`).join('')}</details>` : '';
-    this.replaceContent(this.$('#data-selected'), `<div class="data-selected-path">${esc(file.path)}</div><div class="stat-grid"><div class="stat-k">At this point</div><div class="stat-v">${file.exists ? 'Present' : 'Not present'}</div><div class="stat-k">Current change</div><div class="stat-v">${esc(file.status)}</div>${touchRows}<div class="stat-k">${kind ? 'Touches in loaded history' : 'Commits touching file'}</div><div class="stat-v">${fmt(changes.length)}</div>${atomRows}<div class="stat-k">Snapshot size</div><div class="stat-v">${file.size != null ? `${fmt(file.size)} bytes` : 'Unknown'}</div></div>${historical.length ? `<div class="data-history-paths"><span>Other paths for this file</span>${historical.map(path => `<code>${esc(path)}</code>`).join('')}</div>` : ''}${rendered ? '' : '<p class="lab-note" style="padding:0 0 8px">Outside the displayed subset; data remains available here.</p>'}<button class="btn tiny" type="button" data-focus-id="${esc(file.id)}" ${rendered ? '' : 'disabled'}>Focus in scene</button>${history}`);
+    this.replaceContent(this.$('#data-selected'), `<div class="data-selected-path">${esc(file.path)}</div><div class="stat-grid"><div class="stat-k">At this point</div><div class="stat-v">${file.exists ? 'Present' : 'Not present'}</div><div class="stat-k">Current change</div><div class="stat-v">${esc(file.status)}</div>${touchRows}${folderVineRows}<div class="stat-k">${kind ? 'Touches in loaded history' : 'Commits touching file'}</div><div class="stat-v">${fmt(changes.length)}</div>${atomRows}<div class="stat-k">Snapshot size</div><div class="stat-v">${file.size != null ? `${fmt(file.size)} bytes` : 'Unknown'}</div></div>${historical.length ? `<div class="data-history-paths"><span>Other paths for this file</span>${historical.map(path => `<code>${esc(path)}</code>`).join('')}</div>` : ''}${rendered ? '' : '<p class="lab-note" style="padding:0 0 8px">Outside the displayed subset; data remains available here.</p>'}<button class="btn tiny" type="button" data-focus-id="${esc(file.id)}" ${rendered ? '' : 'disabled'}>Focus in scene</button>${history}`);
   }
 
   renderFiles() {

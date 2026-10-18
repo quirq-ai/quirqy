@@ -96,7 +96,8 @@ html body .panel-float.is-dragging :is(.panel-drag-handle, .panel-drag-grip, .pa
   html body .panel-dock-grip > span { transition: none; }
 }
 
-/* Data Lab keeps capture/help beside View and the source status in its header. */
+/* Data Lab keeps Help beside View and the source status in its header. */
+html body[data-mode="data"] #btn-snap { display: none !important; }
 html body[data-mode="data"].data-dock-layout #topbar > .top-actions { display: none; }
 html body[data-mode="data"] #help-overlay .help-card {
   max-height: 80dvh;
@@ -139,11 +140,4 @@ html body #data-timebar .data-dock-actions .tbtn {
   html body #data-timebar.data-actions-dock > .glass-opacity-trigger { grid-column: 5; }
   html body #data-timebar.data-actions-dock > .data-dock-actions { grid-column: 6; }
   html body #data-timebar .data-dock-actions .tbtn { width: 32px; min-width: 32px; height: 38px; }
-}
-@media (max-width: 360px) {
-  html body #data-timebar.data-actions-dock { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  html body #data-timebar.data-actions-dock > :is(#data-prev, #data-play, #data-next, .data-speed) { justify-self: center; }
-  html body #data-timebar.data-actions-dock > .glass-opacity-trigger { grid-row: 3; grid-column: 1 / span 2; justify-self: end; }
-  html body #data-timebar.data-actions-dock > .data-dock-actions { grid-row: 3; grid-column: 3 / span 2; justify-self: start; }
-  html body #data-timebar .data-dock-actions .tbtn { width: 38px; min-width: 38px; }
 }

@@ -8,6 +8,7 @@ import { MoleculeScene } from './molecule-scene.js';
 import { TreeScene } from './tree-scene.js';
 import { DataPanel } from './panel.js';
 import { DataGuide } from './guide.js';
+import { DataLabControls } from './data-controls.js';
 
 export function mountDataLab() {
   document.body.dataset.mode = 'data';
@@ -19,7 +20,7 @@ export function mountDataLab() {
   const listen = (el, event, handler) => el?.addEventListener(event, handler, { signal: lifetime.signal });
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   let model, frame, index = -1, selectedId = null;
-  let playing = false, speed = 1, stepTime = 0, previousTime = 0, raf;
+  let playing = false, restartAtEnd = false, speed = 1, stepTime = 0, previousTime = 0, raf;
   let requestId = 0, requestController = null, disposed = false, scene;
   let view = 'structure';
   const options = { links: true, labels: true, ghosts: true, activity: true, roots: true };
@@ -28,8 +29,8 @@ export function mountDataLab() {
   const panel = new DataPanel({
     onLoad: importRepository,
     onDemo: showDemo,
-    onFrame: () => scene.resetView(),
-    onFrameRoots: () => { options.roots = true; scene.setOptions({ roots: true }); renderPanel(); scene.focusRoots?.(); },
+    onFrame: () => { scene.resetView(); renderPanel(); },
+    onFrameRoots: () => { options.roots = true; scene.setOptions({ roots: true }); scene.focusRoots?.(); renderPanel(); },
     onFocusFile: id => { selectFile(id); scene.focusNode(id); },
     onFocusFolder: path => focusDirectory(path === '(root)' ? '' : path),
     onSelectFile: selectFile,
@@ -37,36 +38,46 @@ export function mountDataLab() {
     onPlay: togglePlayback,
     onPrev: () => { setPlaying(false); setIndex(index - 1); },
     onNext: () => { setPlaying(false); setIndex(index + 1); },
-    onSpeed: next => { speed = next; stepTime = 0; renderPanel(); },
+    onSpeed: next => {
+      stepTime *= speed / next;
+      speed = next;
+      if (view === 'structure') updateScene();
+      renderPanel();
+    },
     onView: switchView,
     onOptions: next => { Object.assign(options, next); scene.setOptions(options); renderPanel(); },
     onExport: exportData,
   });
   const stage = createStage(document.getElementById('app'));
+  stage.controls.dispose();
+  stage.controls = new DataLabControls(stage.camera, stage.renderer.domElement);
   scene = new MoleculeScene(stage, { onSelect: selectFile });
   const guide = new DataGuide({
-    onOverview: () => scene.resetView(),
+    onOverview: () => { scene.resetView(); renderPanel(); },
     onFocusFolder: focusDirectory,
   });
 
   const topDate = document.getElementById('date-text');
   const liveBadge = document.getElementById('live-badge');
   const attribution = document.getElementById('attribution');
-  attribution.textContent = 'Repository atoms · Drag to orbit · Scroll to zoom · Double-click to focus · H for help';
+  attribution.textContent = 'Repository atoms · Drag to orbit · Scroll to zoom · H for help';
   const help = document.getElementById('help-overlay');
   help.innerHTML = `<div class="help-card" role="dialog" aria-modal="true" aria-labelledby="data-help-title">
     <button class="panel-close" type="button" aria-label="Close help">×</button>
     <h2 id="data-help-title">Data Lab</h2>
-    <p class="help-sub">Two views share one repository and commit timeline. Structure shows exactly one carbon atom per folder and one typed atom per file. Each folder connects to its parent, and each file connects directly to its folder. File elements are nitrogen for code, oxygen for data, hydrogen for documents, and sulfur for media. Growth tree grows taller and thicker with each loaded commit; branches lengthen and droop as more leaves appear. The trunk itself is the repository root. Below ground, the complete folder hierarchy branches horizontally in a balanced, fully expanded 3D tree, following the exact paths at the selected commit.</p>
-    <div class="help-grid"><span>Drag / scroll</span><span>Orbit / zoom the scene</span>
+    <p class="help-sub">Two views share one repository and commit timeline. Structure shows each folder as a small carbon marble when paused. During playback, non-root marbles expand into boundaries around their current contents; the root shines like a warm sun. Each file remains one typed atom. Each folder connects to its parent, and each file connects directly to its folder. File elements are nitrogen for code, oxygen for data, hydrogen for documents, and sulfur for media. Growth tree grows taller and thicker with each loaded commit; branches lengthen and droop as more leaves appear. The trunk itself is the repository root. Below ground, the complete folder hierarchy branches horizontally in a balanced, fully expanded 3D tree, following the exact paths at the selected commit.</p>
+    <div class="help-grid"><span>Drag</span><span>Orbit upright; rotate freely in root focus</span>
+    <span>Shift + drag</span><span>Roll sideways in root focus</span>
+    <span>Right-drag / scroll</span><span>Pan / zoom the scene</span>
+    <span>Two fingers</span><span>Pinch to zoom, drag to pan; twist to roll in root focus</span>
     <span>Click</span><span>Select a file and inspect its history</span>
     <span>Double-click</span><span>Focus a file or folder</span>
     <span>Space</span><span>Play or pause commit history</span>
     <span>← / →</span><span>Previous / next commit</span>
-    <span>F</span><span>Frame the repository</span>
+    <span>F / Frame view</span><span>Frame the repository and return upright</span>
     <span>S</span><span>Save a scene image</span>
     <span>H / Escape</span><span>Open / close help</span></div>
-    <p class="help-tip">In Structure, click a colored atom to inspect its file, or a carbon atom to focus its folder and direct contents. Use Frame view to return to the full repository. One folder always means one carbon, including the repository root. All files connect directly to their folder carbon; folders can have as many connections as their contents require. A moved file keeps its identity and reconnects to its current folder. Element assignments encode file types. Atoms and bonds begin translucent. Each loaded commit touching a file strengthens that file and its folder pathway; frequently touched parts become brighter. Travelling current marks the selected commit, and rewinding restores the earlier brightness. This shows commit touches, not runtime calls. Counts cover present mapped files and their folders; historical ghosts are excluded. In Growth tree, leaves follow the growing limbs. Step forward to see additions grow, removals fall, and lighter branches lift; seeking restores the chosen state. Branch weight follows present mapped leaf counts. Leaf area uses known snapshot bytes, with size limits for readability. Use Frame roots to inspect the full hierarchy beneath the trunk. Folder roots split into their actual subfolders and files, with sibling branches spread symmetrically across the scene. Every present loaded file and ancestor folder is expanded. Click a folder root to focus its subtree, or a file tip to inspect the same file as its canopy leaf. Public history follows the sampled first-parent chain. The scene guide explains each view and its coverage.</p>
+    <p class="help-tip">In Structure, click a colored atom to inspect its file, or a folder marble or boundary to focus its direct contents. Use Frame view to return to the full repository and its upright orbit. One folder always means one carbon anchor, including the repository root. During playback, each non-root folder’s marble expands into a softly outlined boundary around its current contents. The small marble is hidden while this boundary is visible. The boundary resizes as files are added, removed, or moved. The repository root keeps its small sphere, glowing like a warm sun during playback and returning to a gray marble when paused. It has no boundary. Enclosure size follows occupied space, not bytes. The vertical gaps between hierarchy levels stay fixed. All files connect directly to their folder carbon; folders can have as many connections as their contents require. A moved file keeps its identity and reconnects to its current folder. Element assignments encode file types. Atoms and bonds begin translucent. Each loaded commit touching a file strengthens that file and its folder pathway; frequently touched parts become brighter. Travelling current marks the selected commit. During playback, only the moving current is visible between atoms; pathways are hidden. Pausing immediately returns folders to their small marbles, hides boundaries, freezes the current, and reveals all pathways enabled in this view. Rewinding restores the earlier brightness. This shows commit touches, not runtime calls. Counts cover present mapped files and their folders; historical ghosts are excluded. In Growth tree, leaves follow the growing limbs. Step forward to see additions grow, removals fall, and lighter branches lift; seeking restores the chosen state. Branch weight follows present mapped leaf counts. Leaf area uses known snapshot bytes, with size limits for readability. Use Frame roots to enlarge the roots and shrink the canopy around the same ground junction. Root focus alone enables free rotation and sideways roll. On portrait screens, roots initially frame sideways to use the taller space. Frame view restores a full canopy with smaller roots and upright orbit. These presentation sizes do not change file bytes or commit growth. Folder roots split into their actual subfolders and files, with sibling branches spread symmetrically across the scene. Every present loaded file and ancestor folder is expanded. Folder names sit beside junctions, and file basenames sit below naturally tapered ends. Each root begins with one thin initial strand. Every loaded commit touching a file adds one thin vine to its current attachment and each ancestor folder along the path to the trunk. The vines spiral in the same direction, forming a twisted rope that grows gradually. The new vine grows along its route during playback; rewinding removes later vines and restores the earlier shape. Shared folders gain one vine per commit touching any descendant, even when several files change. Existing folders retain earlier vines after a descendant moves or disappears. A cross-folder move starts a new file attachment with its own initial strand and touch count. The growing bundles bend and lengthen to keep neighboring roots and their tapered tips separate. On narrow screens or crowded viewing angles, the ground and connected roots curve downward away from the trunk, which remains the highest point. The surface flattens when a wider view, zoom, or folder focus provides enough room. This adjustment follows the current view without changing repository data or vine counts. Root focus shows horizontal file basenames close to their tips with compact spacing and no extended guide lines. The smaller roots in tree view show folder names and the hovered or selected file; Frame roots reveals every file name. Click a folder name to focus its subtree, or a file name to inspect the same file as its canopy leaf. Public history follows the sampled first-parent chain. The scene guide explains each view and its coverage.</p>
     </div>`;
   const helpButton = document.getElementById('btn-help');
   let previousFocus = null;
@@ -92,21 +103,31 @@ export function mountDataLab() {
     if (event.code === 'Space') { event.preventDefault(); togglePlayback(); }
     if (event.key === 'ArrowLeft') { event.preventDefault(); setPlaying(false); setIndex(index - 1); }
     if (event.key === 'ArrowRight') { event.preventDefault(); setPlaying(false); setIndex(index + 1); }
-    if (event.key.toLowerCase() === 'f') scene.resetView();
+    if (event.key.toLowerCase() === 'f') { scene.resetView(); renderPanel(); }
     if (event.key.toLowerCase() === 's') saveSnapshot();
     if (event.key.toLowerCase() === 'h') toggleHelp();
   });
   listen(document, 'visibilitychange', () => { previousTime = 0; stepTime = 0; });
 
+  function updateFocusHint() {
+    const roots = view === 'tree' && scene.frameMode === 'roots';
+    document.body.dataset.dataFocus = roots ? 'roots' : 'tree';
+    attribution.textContent = roots
+      ? 'Root focus · Drag to rotate freely · Shift-drag / two-finger twist to roll · F for tree view'
+      : `${view === 'tree' ? 'Growth tree · Frame roots to inspect below ground' : 'Repository atoms'} · Drag to orbit · Scroll to zoom · H for help`;
+  }
+
   function renderPanel() {
     if (!model || !frame) return;
-    panel.setState({ model, frame, index, selectedId, playing, speed, view, structure: scene.structure, activity: scene.activityState, renderedCount: scene.renderedCount, rootLayout: scene.roots?.layout, rootsVisible: scene.options.roots !== false, mappedIds: scene.mappedNodes || scene.nodes });
+    updateFocusHint();
+    panel.setState({ model, frame, index, selectedId, playing, speed, view, frameMode: scene.frameMode, structure: scene.structure, activity: scene.activityState, renderedCount: scene.renderedCount, rootLayout: scene.roots?.layout, rootsVisible: scene.options.roots !== false, mappedIds: scene.mappedNodes || scene.nodes });
     guide.setState({ model, frame, scene, selectedId, view });
     topDate.textContent = index < 0 ? 'Before sampled history' : `${frame.commit.sha.slice(0, 7)} · ${index + 1}/${model.commits.length}`;
     liveBadge.textContent = model.repository.source === 'demo' ? 'SAMPLE' : playing ? 'REPLAY' : 'GITHUB';
     liveBadge.classList.toggle('on', playing);
   }
   function updateScene() {
+    scene.setPlayback?.(playing);
     scene.setFrame({
       visibleIds: frame.activeIds,
       changedIds: frame.changedIds,
@@ -127,7 +148,7 @@ export function mountDataLab() {
     view = next;
     document.body.dataset.dataView = view;
     scene = view === 'tree'
-      ? new TreeScene(stage, { onSelect: selectFile })
+      ? new TreeScene(stage, { onSelect: selectFile, onFocusMode: renderPanel })
       : new MoleculeScene(stage, { onSelect: selectFile });
     scene.setOptions(options);
     if (model) {
@@ -135,26 +156,26 @@ export function mountDataLab() {
       updateScene();
     }
     stepTime = 0;
-    attribution.textContent = view === 'tree'
-      ? 'Repository growth tree · Drag to orbit · Scroll to zoom · Double-click to focus · H for help'
-      : 'Repository atoms · Drag to orbit · Scroll to zoom · Double-click to focus · H for help';
+    updateFocusHint();
     renderPanel();
   }
   function setIndex(next) {
     if (!model) return;
     index = Math.max(-1, Math.min(model.commits.length - 1, Math.floor(Number(next))));
     frame = stateAt(model, index);
+    restartAtEnd = !playing && index === model.commits.length - 1;
     stepTime = 0;
     updateScene();
     renderPanel();
   }
   function setPlaying(next) {
     playing = Boolean(next && model?.commits.length);
-    stepTime = 0;
+    if (playing) restartAtEnd = false;
+    scene.setPlayback?.(playing);
     renderPanel();
   }
   function togglePlayback() {
-    if (!playing && index === model.commits.length - 1) setIndex(-1);
+    if (!playing && restartAtEnd) setIndex(-1);
     setPlaying(!playing);
   }
   function focusDirectory(path) {
@@ -163,6 +184,7 @@ export function mountDataLab() {
       scene.setOptions({ roots: true });
       renderPanel();
       scene.focusRootFolder(path);
+      renderPanel();
     } else scene.focusFolder(path);
   }
   function selectFile(id) {
@@ -239,12 +261,13 @@ export function mountDataLab() {
       if (playing) {
         stepTime += dt;
         if (stepTime >= 2 / speed) {
-          setIndex(index + 1);
-          if (index === model.commits.length - 1) setPlaying(false);
+          if (index === model.commits.length - 1) { restartAtEnd = true; setPlaying(false); }
+          else setIndex(index + 1);
         }
       }
       scene.update(dt);
       stage.controls.update();
+      scene.afterCameraUpdate?.(dt);
       stage.composer.render();
       stage.labelRenderer.render(stage.scene, stage.camera);
     }

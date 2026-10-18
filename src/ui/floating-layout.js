@@ -32,23 +32,21 @@ export function mountFloatingLayout() {
       restoreDataControls();
     }
     const view = dock?.querySelector(':scope > .glass-opacity-trigger');
-    const capture = document.getElementById('btn-snap');
     const help = document.getElementById('btn-help');
     const status = document.getElementById('sim-date');
-    if (!header || !view || !capture || !help || !status) return;
+    if (!header || !view || !help || !status) return;
 
     const group = document.createElement('div');
     group.className = 'data-dock-actions';
     group.setAttribute('role', 'group');
-    group.setAttribute('aria-label', 'Capture and help');
-    const moves = [capture, help, status].map(node => {
+    group.setAttribute('aria-label', 'Dock actions');
+    const moves = [help, status].map(node => {
       const placeholder = document.createComment(`${node.id} original position`);
       node.before(placeholder);
       return { node, placeholder, label: node.getAttribute('aria-label') };
     });
-    capture.setAttribute('aria-label', 'Save scene image');
     help.setAttribute('aria-label', 'Help');
-    group.append(capture, help);
+    group.append(help);
     view.after(group);
     header.insertBefore(status, header.querySelector('button'));
     header.classList.add('data-status-header');

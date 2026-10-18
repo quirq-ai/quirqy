@@ -17,6 +17,7 @@ export class RepositoryScene {
     this.scene = stage.scene;
     this.camera = stage.camera;
     this.controls = stage.controls;
+    this.controls.setRootMode?.(false);
     this.renderer = stage.renderer;
     this.onSelect = onSelect;
     this.onHover = onHover;
@@ -275,13 +276,22 @@ export class RepositoryScene {
     this._flyTo(folder.position, radius * 3.4);
   }
 
+  _cameraRight(ray) {
+    // Panel offsets and focus bounds follow the screen even when it is rolled.
+    const right = new THREE.Vector3().crossVectors(this.camera.up, ray);
+    if (right.lengthSq() < 1e-8) right.set(1, 0, 0).applyQuaternion(this.camera.quaternion).projectOnPlane(ray);
+    if (right.lengthSq() < 1e-8) right.crossVectors(new THREE.Vector3(0, Math.abs(ray.y) < 0.9 ? 1 : 0, Math.abs(ray.y) < 0.9 ? 0 : 1), ray);
+    return right.normalize();
+  }
+
   _flyTo(target, distance, immediate = false, direction = null) {
-    const ray = direction || this.camera.position.clone().sub(this.controls.target).normalize();
+    this.controls.stop?.();
+    const ray = (direction?.clone() || this.camera.position.clone().sub(this.controls.target)).normalize();
     if (ray.lengthSq() < 0.1) ray.set(0.5, 0.4, 1).normalize();
     const width = this.renderer.domElement.clientWidth || window.innerWidth;
     const height = this.renderer.domElement.clientHeight || window.innerHeight;
     const panelWidth = width > 900 ? 390 : width > 700 ? 330 : 0;
-    const right = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), ray).normalize();
+    const right = this._cameraRight(ray);
     const shift = distance * Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2)) * panelWidth / height;
     const endTarget = target.clone().addScaledVector(right, shift);
     const endPosition = endTarget.clone().addScaledVector(ray, distance);
@@ -313,6 +323,8 @@ export class RepositoryScene {
   }
 
   resetView(immediate = false) {
+    this.controls.stop?.();
+    this.camera.up.set(0, 1, 0);
     const width = this.renderer.domElement.clientWidth || window.innerWidth;
     const height = this.renderer.domElement.clientHeight || window.innerHeight;
     const availableWidth = Math.max(300, width - (width > 900 ? 410 : width > 700 ? 350 : 24));
@@ -432,9 +444,10 @@ export class RepositoryScene {
     for (const record of this.labelRecords) {
       record.object.visible = false;
       if (!this.options.labels) continue;
-      const distance = this.camera.position.distanceTo(record.position);
+      record.object.getWorldPosition(this.temp);
+      const distance = this.camera.position.distanceTo(this.temp);
       if (record.path && distance < 12) continue;
-      this.temp.copy(record.position).project(this.camera);
+      this.temp.project(this.camera);
       if (this.temp.z < -1 || this.temp.z > 1 || Math.abs(this.temp.x) > 1 || Math.abs(this.temp.y) > 1) continue;
       const x = (this.temp.x * 0.5 + 0.5) * width, y = (-this.temp.y * 0.5 + 0.5) * height;
       const half = Math.min(120, record.text.length * 3.2 + 5);
