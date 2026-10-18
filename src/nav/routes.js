@@ -2,6 +2,7 @@
 // Each section has a stable URL so it can be bookmarked and shared.
 
 export const ROUTES = [
+  { mode: 'data', path: '/data', title: 'Observatory · Data Lab', aliases: ['/data-lab'] },
   { mode: 'spm', path: '/spm', title: 'Observatory · SPM Mooring', aliases: ['/mooring'] },
   { mode: 'solar', path: '/', title: 'Observatory · Solar System', aliases: ['/solar'] },
   { mode: 'math', path: '/equation', title: 'Observatory · Equation Lab', aliases: ['/math', '/equations'] },
