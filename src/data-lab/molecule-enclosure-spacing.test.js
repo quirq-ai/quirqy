@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildModel, stateAt } from './model.js';
-import { createDemoDataset } from './demo.js';
+import { createRepositoryFixture } from './test-fixtures/repository.js';
 import { buildMolecularTree, molecularTreeState, fileAtomKind } from './molecule-layout.js';
 import { buildFolderEnclosures } from './molecule-enclosures.js';
 import { spaceFolderEnclosures } from './molecule-enclosure-spacing.js';
@@ -62,7 +62,7 @@ function verify(graph, before) {
 }
 
 test('sample sibling environments separate without changing vertical tiers, directions or ordering', () => {
-  const model = buildModel(createDemoDataset()), graph = buildMolecularTree(model), before = positions(graph);
+  const model = buildModel(createRepositoryFixture()), graph = buildMolecularTree(model), before = positions(graph);
   const order = graph.folders.map(folder => [folder.path, [...folder.children], [...folder.memberIds]]);
   spaceFolderEnclosures(graph);
   verify(graph, before);

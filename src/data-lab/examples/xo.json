@@ -1,0 +1,1384 @@
+{
+  "repository": {
+    "name": "xo",
+    "fullName": "quirq-ai/xo",
+    "url": "https://github.com/quirq-ai/xo",
+    "branch": "main",
+    "source": "example",
+    "headSha": "b61bc4cac605679c2a97def9b64ef56456cb0827",
+    "treeSha": "bd58bd1b613bc79a083fdafb6fbb9f1c2305de77",
+    "capturedAt": "2026-10-18T19:56:47.367Z"
+  },
+  "files": [
+    {
+      "path": ".dockerignore",
+      "size": 63,
+      "existsAtHead": true
+    },
+    {
+      "path": ".github/CODEOWNERS",
+      "size": 390,
+      "existsAtHead": true
+    },
+    {
+      "path": ".github/workflows/presubmit.yml",
+      "size": 829,
+      "existsAtHead": true
+    },
+    {
+      "path": ".gitignore",
+      "size": 56,
+      "existsAtHead": true
+    },
+    {
+      "path": ".python-version",
+      "size": 5,
+      "existsAtHead": true
+    },
+    {
+      "path": ".vercelignore",
+      "size": 150,
+      "existsAtHead": true
+    },
+    {
+      "path": "AGENTS.md",
+      "size": 1920,
+      "existsAtHead": true
+    },
+    {
+      "path": "Dockerfile",
+      "size": 930,
+      "existsAtHead": true
+    },
+    {
+      "path": "LICENSE",
+      "size": 11358,
+      "existsAtHead": true
+    },
+    {
+      "path": "README.md",
+      "size": 17930,
+      "existsAtHead": true
+    },
+    {
+      "path": "app.py",
+      "size": 347,
+      "existsAtHead": true
+    },
+    {
+      "path": "docs/architecture.html",
+      "size": 159692,
+      "existsAtHead": true
+    },
+    {
+      "path": "docs/architecture.md",
+      "size": 39804,
+      "existsAtHead": true
+    },
+    {
+      "path": "docs/coder.md",
+      "size": 4273,
+      "existsAtHead": false
+    },
+    {
+      "path": "docs/deploy-vercel.md",
+      "size": 13582,
+      "existsAtHead": true
+    },
+    {
+      "path": "docs/guide.md",
+      "size": 13326,
+      "existsAtHead": true
+    },
+    {
+      "path": "docs/quickstart.md",
+      "size": 7354,
+      "existsAtHead": true
+    },
+    {
+      "path": "docs/server.md",
+      "size": 33384,
+      "existsAtHead": true
+    },
+    {
+      "path": "docs/test-xo-server.sh",
+      "size": 8229,
+      "existsAtHead": true
+    },
+    {
+      "path": "pyproject.toml",
+      "size": 880,
+      "existsAtHead": true
+    },
+    {
+      "path": "src/xo/__init__.py",
+      "size": 72,
+      "existsAtHead": true
+    },
+    {
+      "path": "src/xo/cli.py",
+      "size": 79517,
+      "existsAtHead": true
+    },
+    {
+      "path": "src/xo/client.py",
+      "size": 17568,
+      "existsAtHead": true
+    },
+    {
+      "path": "src/xo/coder.py",
+      "size": 2133,
+      "existsAtHead": false
+    },
+    {
+      "path": "src/xo/commands.py",
+      "size": 8873,
+      "existsAtHead": true
+    },
+    {
+      "path": "src/xo/github.py",
+      "size": 7341,
+      "existsAtHead": true
+    },
+    {
+      "path": "src/xo/gitops.py",
+      "size": 11982,
+      "existsAtHead": true
+    },
+    {
+      "path": "src/xo/names.py",
+      "size": 6079,
+      "existsAtHead": true
+    },
+    {
+      "path": "src/xo/openapi.json",
+      "size": 32400,
+      "existsAtHead": true
+    },
+    {
+      "path": "src/xo/server.py",
+      "size": 110756,
+      "existsAtHead": true
+    },
+    {
+      "path": "src/xo/services.json",
+      "size": 387,
+      "existsAtHead": true
+    },
+    {
+      "path": "src/xo/services.py",
+      "size": 9260,
+      "existsAtHead": true
+    },
+    {
+      "path": "src/xo/spec.py",
+      "size": 14901,
+      "existsAtHead": true
+    },
+    {
+      "path": "src/xo/status_page.py",
+      "size": 8229,
+      "existsAtHead": true
+    },
+    {
+      "path": "src/xo/workspace.py",
+      "size": 17923,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/conftest.py",
+      "size": 9050,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/README.md",
+      "size": 164,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/openapi.json",
+      "size": 3368,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_cli.py",
+      "size": 117124,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_coder.py",
+      "size": 29473,
+      "existsAtHead": false
+    },
+    {
+      "path": "tests/test_github.py",
+      "size": 9454,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_server.py",
+      "size": 131335,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_services.py",
+      "size": 8588,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_workspace.py",
+      "size": 23461,
+      "existsAtHead": true
+    }
+  ],
+  "commits": [
+    {
+      "sha": "27f05790090fdc2d01d0ce51177c21adf610731e",
+      "message": "quickstart: pin the install to c713106 (xo me profile) (#27)\n\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "date": "2026-10-16T18:54:05+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/27f05790090fdc2d01d0ce51177c21adf610731e",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "c7131061632cd8ade5b1afb778fd1e1febc14d30",
+      "files": [
+        {
+          "path": "docs/quickstart.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        }
+      ]
+    },
+    {
+      "sha": "d121180cbb39f625207dd6f0894a29e9b38fa78d",
+      "message": "xo projects: a projects list in private metadata, written only by the server (#28)\n\n* xo projects: a projects list in private metadata, written only by the server\n\nGET /me/projects shows the key's own private metadata `projects`; POST\n/me/projects {\"name\": ...} adds one. The client sends only the name. The\nserver validates it, reads the list, appends, and sends Clerk a metadata\nmerge naming only `projects`, so no other key changes. Adds are\nserialized per user per instance, the written list is read back and the\nadd retried if another write replaced it; a non-list `projects`, a\nduplicate or a full list is refused without a write. Audited without\nnames. `xo projects` and `xo projects add NAME` call it.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* xo projects: review fixes (parallel adds, credential-like names, 429)\n\n- After each write, wait briefly and read the list again; answer 200 only\n  when the new name and every name read before are there, else write the\n  list again with dropped names put back (3 writes, then 503). Parallel\n  adds on different instances no longer lose a name while reporting 200.\n- Refuse names that look like credentials, which /me would show masked.\n- Clerk's own per-user limit on this route is a 429, not a 503 that marks\n  the server degraded.\n- Docs: the stale-read assumption, the 30/min limit, XO_ME_PRIVATE_KEYS\n  not applying to /me/projects.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n---------\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "date": "2026-10-16T19:50:31+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/d121180cbb39f625207dd6f0894a29e9b38fa78d",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "27f05790090fdc2d01d0ce51177c21adf610731e",
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 0
+        },
+        {
+          "path": "docs/guide.md",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 0
+        },
+        {
+          "path": "docs/server.md",
+          "status": "modified",
+          "additions": 39,
+          "deletions": 3
+        },
+        {
+          "path": "src/xo/cli.py",
+          "status": "modified",
+          "additions": 31,
+          "deletions": 2
+        },
+        {
+          "path": "src/xo/commands.py",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 1
+        },
+        {
+          "path": "src/xo/server.py",
+          "status": "modified",
+          "additions": 128,
+          "deletions": 3
+        },
+        {
+          "path": "tests/test_cli.py",
+          "status": "modified",
+          "additions": 21,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_server.py",
+          "status": "modified",
+          "additions": 259,
+          "deletions": 0
+        }
+      ]
+    },
+    {
+      "sha": "22c64998ed7cf097dbb2d588dc56c5a082245e62",
+      "message": "xo projects: stop retry writes once Clerk has been slow; pin d121180 (#29)\n\n* xo projects: stop retry writes once Clerk has been slow; pin d121180\n\nAn add no longer writes again after CLERK_TIMEOUT seconds; it answers 503\ninstead, so a slow Clerk cannot keep it past the client's or the\nplatform's deadline. Quickstart installs d121180 (#28), which has\n`xo projects`.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* docs: say a slow Clerk can still make an add take about 40 seconds\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n---------\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "date": "2026-10-16T20:07:38+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/22c64998ed7cf097dbb2d588dc56c5a082245e62",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "d121180cbb39f625207dd6f0894a29e9b38fa78d",
+      "files": [
+        {
+          "path": "docs/quickstart.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "docs/server.md",
+          "status": "modified",
+          "additions": 4,
+          "deletions": 1
+        },
+        {
+          "path": "src/xo/server.py",
+          "status": "modified",
+          "additions": 4,
+          "deletions": 1
+        },
+        {
+          "path": "tests/test_server.py",
+          "status": "modified",
+          "additions": 9,
+          "deletions": 0
+        }
+      ]
+    },
+    {
+      "sha": "bdceb6d5c522f870c1439699cb8e54c6e4bc313f",
+      "message": "xo create, connect and list: projects and spaces recorded by the server (#30)\n\n* xo create, connect and list: projects and spaces recorded by the server\n\nxo create project NAME|URL adds the project and makes its folder (a GitHub\nowner/repo is cloned, any other name gets git init). xo create space KIND NAME\ncreates the space through XO as xo KIND does and the server records it in the\ncaller's own private metadata spaces list. xo connect sets a project's ref in a\nspace, or records a space the key can read. xo list shows projects or spaces.\n\nThe server builds every change and writes only the one list, with the same\nsettle, re-read and put-back as xo projects; other spaces are put back at their\nhighest rev, and a space changed meanwhile is a 409. Writes stop at 6KB of\nprivate metadata. Names and refs are checked on both sides, and git runs with\nplain https only, no submodules, --end-of-options and no xo tokens.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* xo connect space:NAME makes a new space entry in metadata\n\nsuraj (16 Oct, 15:59): connect space means create a new entry in Clerk\nmetadata. xo connect space:NAME now records {name, rev 1, projects []} with no\nXO call; --id ID ties the entry to an XO space the key can read, checked with\nXO first as before.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* xo spaces: check before XO creates, show refs as stored, keep git to https\n\n- create space checks shape and 6KB before XO creates anything; the\n  connect hint only for a race or a busy Clerk\n- space answers, GET /me/spaces and /me show project refs unmasked;\n  credential-looking refs and ids are refused when written\n- git runs with GIT_ALLOW_PROTOCOL=https and without GIT_DIR and the\n  other variables that point it at another repository\n- connect space:NAME --id ID gives an entry made without an id its id\n- case-duplicate spaces and multi-key project entries are never rewritten\n- space ids at most 64 characters, as the core route forwards\n- docs: --dry-run scope, masking, admin put-back, the 30-project cap\n- test git helper ignores the user's global config\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n---------\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "date": "2026-10-16T22:17:26+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/bdceb6d5c522f870c1439699cb8e54c6e4bc313f",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "22c64998ed7cf097dbb2d588dc56c5a082245e62",
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "additions": 4,
+          "deletions": 0
+        },
+        {
+          "path": "docs/guide.md",
+          "status": "modified",
+          "additions": 11,
+          "deletions": 1
+        },
+        {
+          "path": "docs/server.md",
+          "status": "modified",
+          "additions": 69,
+          "deletions": 5
+        },
+        {
+          "path": "src/xo/cli.py",
+          "status": "modified",
+          "additions": 142,
+          "deletions": 10
+        },
+        {
+          "path": "src/xo/commands.py",
+          "status": "modified",
+          "additions": 7,
+          "deletions": 1
+        },
+        {
+          "path": "src/xo/gitops.py",
+          "status": "added",
+          "additions": 63,
+          "deletions": 0
+        },
+        {
+          "path": "src/xo/names.py",
+          "status": "added",
+          "additions": 59,
+          "deletions": 0
+        },
+        {
+          "path": "src/xo/server.py",
+          "status": "modified",
+          "additions": 362,
+          "deletions": 62
+        },
+        {
+          "path": "tests/conftest.py",
+          "status": "modified",
+          "additions": 10,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_cli.py",
+          "status": "modified",
+          "additions": 169,
+          "deletions": 1
+        },
+        {
+          "path": "tests/test_server.py",
+          "status": "modified",
+          "additions": 314,
+          "deletions": 1
+        }
+      ]
+    },
+    {
+      "sha": "71b043cdf8cebe5e239a2f4a9f42adb7ef9c55d1",
+      "message": "xo spaces: connect hint after a Clerk failure, token-like branch names, pin #30 (#31)\n\n* xo spaces: hint at connect after a Clerk failure, allow token-like branch names, pin bdceb6d\n\n- create space names xo connect --id also when recording fails with 502\n  (Clerk failing or unreachable), as it can pass once Clerk is back\n- a ref is refused as a credential only with a token prefix and a run of\n  16+ letters and digits, so npm_bump or sk-rewrite are refs; shown as such\n- quickstart pins the #30 merge\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* xo spaces: refuse token-shaped refs however cut, keep masking stored values\n\n- only prefixes a branch can start with are relaxed; glpat-, AIza, ya29.,\n  eyJ and Bearer are refused on the prefix, and a relaxed ref is refused\n  with a token's body, split by separators or not\n- on read the ref rule applies only to valid refs; anything else stored\n  under a space's projects is masked as /me masks it\n- the connect hint says to check xo list spaces first\n- quickstart: xo list spaces lists only what xo recorded\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n---------\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "date": "2026-10-16T22:48:09+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/71b043cdf8cebe5e239a2f4a9f42adb7ef9c55d1",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "bdceb6d5c522f870c1439699cb8e54c6e4bc313f",
+      "files": [
+        {
+          "path": "docs/quickstart.md",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 2
+        },
+        {
+          "path": "docs/server.md",
+          "status": "modified",
+          "additions": 7,
+          "deletions": 3
+        },
+        {
+          "path": "src/xo/server.py",
+          "status": "modified",
+          "additions": 27,
+          "deletions": 5
+        },
+        {
+          "path": "tests/test_server.py",
+          "status": "modified",
+          "additions": 46,
+          "deletions": 0
+        }
+      ]
+    },
+    {
+      "sha": "f0ed8aeb73bf939dda75244baa7aa1efb6940ae8",
+      "message": "xo install, update and sync for projects and spaces (#32)\n\n* xo install, update and sync for projects and spaces\n\nxo install space:S clones or fetches each GitHub project of a space into\n./S/OWNER/REPO at its ref and remembers the rev; xo update records the refs\nchecked out there with PUT /me/spaces/S, refused unless the space's rev is still\nthe one installed; xo sync merges the space's changes with yours and stops on a\nproject both changed. For a project, update is git push and sync is pull\n--rebase then push: never forced, current branch to its upstream only, refused\non a dirty tree or detached HEAD. Names and refs from metadata are checked again\nbefore git sees them, and a ref its remote lacks is never recorded.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* xo install/update/sync: own checkouts only, race-safe records, push per project\n\n- git refuses a folder that is not a checkout of its own, so xo never\n  fetches or pushes an enclosing repository\n- PUT /me/spaces/{name} also takes base, the projects the change starts\n  from, and refuses unless the space still holds them; nothing changed\n  means no new rev; a space named connect can be updated\n- sync keeps your refs when the space's rev went back, saves the state\n  right after moving checkouts, and stops when the space dropped a\n  project you changed\n- update space pushes each branch first and records nothing when refs are\n  unchanged; sync space rebases each branch on its upstream and pushes it\n- install project fast-forwards an existing checkout\n- a conflicting rebase is undone and said so; clearer git errors\n- a JSON number too long to read is a 422, not a 500\n- tests run xo's own git without user or system config\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* xo sync: stop when the space's rev went back, and audit nits\n\nWhen the space's rev is older than the one installed, sync now names the\nprojects whose refs differ and stops without recording, instead of keeping\nyours (which could undo a newer write). Clashes say what was left as it was.\nClearer diverged-branch message; server docstring mentions base.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n---------\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "date": "2026-10-17T00:13:00+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/f0ed8aeb73bf939dda75244baa7aa1efb6940ae8",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "71b043cdf8cebe5e239a2f4a9f42adb7ef9c55d1",
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "additions": 3,
+          "deletions": 0
+        },
+        {
+          "path": "docs/guide.md",
+          "status": "modified",
+          "additions": 21,
+          "deletions": 0
+        },
+        {
+          "path": "docs/server.md",
+          "status": "modified",
+          "additions": 13,
+          "deletions": 0
+        },
+        {
+          "path": "src/xo/cli.py",
+          "status": "modified",
+          "additions": 25,
+          "deletions": 1
+        },
+        {
+          "path": "src/xo/gitops.py",
+          "status": "modified",
+          "additions": 143,
+          "deletions": 2
+        },
+        {
+          "path": "src/xo/server.py",
+          "status": "modified",
+          "additions": 73,
+          "deletions": 6
+        },
+        {
+          "path": "src/xo/workspace.py",
+          "status": "added",
+          "additions": 287,
+          "deletions": 0
+        },
+        {
+          "path": "tests/conftest.py",
+          "status": "modified",
+          "additions": 65,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_cli.py",
+          "status": "modified",
+          "additions": 3,
+          "deletions": 34
+        },
+        {
+          "path": "tests/test_server.py",
+          "status": "modified",
+          "additions": 69,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_workspace.py",
+          "status": "added",
+          "additions": 277,
+          "deletions": 0
+        }
+      ]
+    },
+    {
+      "sha": "4027932e95ad68ab891afdc643b0dc852fd157c5",
+      "message": "xo sync: say only what was pushed; pin the quickstart to the #32 merge (#33)\n\nA sync that stops now names the checkouts it rebased and pushed, and says\nnothing about pushing when none was on a branch with an upstream. The\nquickstart installs f0ed8ae, which has install, update and sync.\n\n\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "date": "2026-10-17T00:34:56+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/4027932e95ad68ab891afdc643b0dc852fd157c5",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "f0ed8aeb73bf939dda75244baa7aa1efb6940ae8",
+      "files": [
+        {
+          "path": "docs/quickstart.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "src/xo/workspace.py",
+          "status": "modified",
+          "additions": 10,
+          "deletions": 6
+        },
+        {
+          "path": "tests/test_workspace.py",
+          "status": "modified",
+          "additions": 15,
+          "deletions": 2
+        }
+      ]
+    },
+    {
+      "sha": "1413dc8dd43b267eb7df1209381b69815a2be9d7",
+      "message": "xo share, accept and reject: invites in the recipient's shared list (#34)\n\n* xo share, accept and reject: invites in the recipient's shared list\n\nxo share space:S|project:OWNER/REPO USERNAME puts an invite in that user's\nprivate metadata, in a new shared list: the space's name and projects, never\nits id. The recipient runs xo list shared, then xo accept (a copy goes into\ntheir own spaces and projects) or xo reject (it comes off the list).\n\nThe server writes only the recipient's shared key, only the sharer's own\ninvite, with the usual lock, settle, re-read and 6KB check. Everything about\nthe recipient is the same 404, every share takes 1.5s at least, and the limits\nare 20 invites waiting, 5 per sender and 10 shares a minute.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* xo share: own room for invites, one-write accept by id, 7-day block\n\n- invites never stop a user's own writes: shared has its own 1.5KB (1KB an\n  invite), and own writes do not count it\n- accept checks every refusal first, then writes spaces, projects and shared\n  in one Clerk merge; a refused accept leaves nothing behind\n- accept and reject take the id xo list shared shows (a hash of the sender id\n  and the exact invite); the list shows each sender's username now; xo accept\n  shows what it adds and asks y/N (--yes)\n- reject blocks that sender and item for 7 days\n- an identical re-share writes nothing; a changed one waits a minute\n- a space invite leaves local projects out\n- the 1.5s floor starts once the key is verified\n- docs: who can write what, rate limits, audit values, Clerk calls per share\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* xo share: no re-invite block, a shared project goes into the space you pick\n\nsuraj's answers: a sender can share again after a reject, and accepting a\nshared project puts it in a space the recipient names (--space, --ref,\ndefault main), still adding it to projects, in one write. Old reject marks\nare passed over and dropped on the next write.\n\nRe-check folds: invites count toward the 6KB again, ids are 16 hex\ncharacters and a reject takes off every invite with its id, the accept\nprompt says (shared as X) or (account gone), /me/shared falls back to the\nnames shared as when the lookup fails, and deploy-vercel lists the call\ncounts.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n---------\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "date": "2026-10-17T02:39:23+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/1413dc8dd43b267eb7df1209381b69815a2be9d7",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "4027932e95ad68ab891afdc643b0dc852fd157c5",
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "additions": 3,
+          "deletions": 1
+        },
+        {
+          "path": "docs/deploy-vercel.md",
+          "status": "modified",
+          "additions": 4,
+          "deletions": 1
+        },
+        {
+          "path": "docs/guide.md",
+          "status": "modified",
+          "additions": 20,
+          "deletions": 0
+        },
+        {
+          "path": "docs/server.md",
+          "status": "modified",
+          "additions": 54,
+          "deletions": 5
+        },
+        {
+          "path": "src/xo/cli.py",
+          "status": "modified",
+          "additions": 94,
+          "deletions": 4
+        },
+        {
+          "path": "src/xo/commands.py",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 1
+        },
+        {
+          "path": "src/xo/server.py",
+          "status": "modified",
+          "additions": 416,
+          "deletions": 17
+        },
+        {
+          "path": "tests/test_cli.py",
+          "status": "modified",
+          "additions": 67,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_server.py",
+          "status": "modified",
+          "additions": 439,
+          "deletions": 0
+        }
+      ]
+    },
+    {
+      "sha": "dd727fef44802baa23e328cc6820263dc7bae333",
+      "message": "xo accept: put back a space part lost to a racing write; name invites in the 6KB answer (#37)\n\nAn accept whose PATCH landed and was then overwritten by a write of\nspaces from another instance used to answer 409 with the invite already\nspent. It now treats the write as its own and writes spaces again,\nrefusing only when the name was taken or the space is gone or full.\n\nThe 6KB 422 says how many bytes waiting invites take and that xo reject\nfrees them. server.md says /me/shared is the one to trust about senders,\nwrites down the cross-instance 6KB overshoot, and lists the two Clerk\nlist answers to confirm on a development instance.\n\n\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "date": "2026-10-17T02:57:16+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/dd727fef44802baa23e328cc6820263dc7bae333",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "1413dc8dd43b267eb7df1209381b69815a2be9d7",
+      "files": [
+        {
+          "path": "docs/server.md",
+          "status": "modified",
+          "additions": 12,
+          "deletions": 2
+        },
+        {
+          "path": "src/xo/server.py",
+          "status": "modified",
+          "additions": 24,
+          "deletions": 4
+        },
+        {
+          "path": "tests/test_server.py",
+          "status": "modified",
+          "additions": 38,
+          "deletions": 1
+        }
+      ]
+    },
+    {
+      "sha": "2cc240503dc64919409c7a7a400a108aa70f0f11",
+      "message": "Unified create and the architecture doc, replacing #35 and #36 (#38)\n\n* docs: architecture with a diagram for every command\n\ndocs/architecture.md maps the CLI and the xo server: system context, how\nargv becomes a request, one Mermaid sequence diagram per command (24),\nthe server's routes, the projects and spaces lists, install/update/sync,\nthe access model, where state lives and the folder map. It describes\nmain at 4027932 (through #33).\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* docs: the architecture page itself, with its drawn diagrams\n\ndocs/architecture.html is the full page that docs/architecture.md\nmirrors: the same sections and the same 24 command swimlanes, drawn as\ninline SVG instead of Mermaid. It is standalone (no build, no scripts);\nGitHub shows it as source, so open it locally or from a static host.\narchitecture.md now links to it.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* docs: command table rows are full invocations that pass --dry-run\n\nBare rows like `xo claude-code` and `xo spaces` fail without their\nrequired flags. Each row now shows the required flags (--name,\n--volume-size, --space-id, --user-id, the nebius keys), checked with\n--dry-run against main at 4027932.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* xo create: one command for every space and project\n\nSpaces: `xo create space NAME KIND [flags]` is the only create. NAME is\nthe space's name on XO and in your spaces, so --name is gone (and a\n--data name is refused). The old `xo claude-code`, `xo codex`, ...\ncommands are gone; each says what replaced it, before anything is\nparsed or sent. The kinds are one list in names.py, shared by the CLI\nand the server.\n\nProjects: `xo create project NAME [URL]` takes a name, a GitHub URL, or\nboth when they name the same repository (a project is named after its\nrepo). `xo connect project:P --repo URL` gives a project made with a\nname only its repo: the server's new POST /me/projects/connect renames\nP to OWNER/REPO in place through the same write engine, writing only\n`projects`, and refuses while P is in a space. The CLI then points\n./P's origin at GitHub and moves it to ./OWNER/REPO.\n\nTests: the synthetic fixture op /claude-code is now /agent-run, the\ncreate tests run through `xo create space`, and new tests cover the\nmoved commands, names, the new route and connect --repo. The README,\nguide, quickstart, server docs and docs/architecture.{html,md} follow,\nwith a diagram for each new flow.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* xo create and architecture: audit fixes on top of #35 and #36\n\nArchitecture docs (#35): every diagram arrow is now a real call or reply\n(CLI to server, git, gh or coder; server to Clerk or XO; answers back the\nsame way), the Google Fonts links are gone, and the doc describes main\nincluding share, list shared, accept and reject and their routes, who\ncan write what, the 6KB count with invites, the --dry-run claim and the\nopenclaw row.\n\nUnified create (#36): POST /me/projects/connect checks spaces on every\nread and puts the rename back when a racing connect puts the project in\na space, lists the repo once whatever a racing add wrote, and reads\nspaces through _readable_spaces (no 500 on a malformed list). connect\n--repo leaves a folder whose origin is another repository where it is,\nand exits 0 when only the move fails. create space records the\nlowercase name XO keeps. The --field refusal names --field. CORE_ROUTES\nis built from names.SPACE_KINDS. Tests cover the races, the folder\ncases and the origin forms; docs/server.md documents the rename race.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n---------\n\nCo-authored-by: sharmasuraj0123 <sharmasuraj0123@gmail.com>\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "date": "2026-10-17T03:38:17+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/2cc240503dc64919409c7a7a400a108aa70f0f11",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "dd727fef44802baa23e328cc6820263dc7bae333",
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "additions": 27,
+          "deletions": 19
+        },
+        {
+          "path": "docs/architecture.html",
+          "status": "added",
+          "additions": 2178,
+          "deletions": 0
+        },
+        {
+          "path": "docs/architecture.md",
+          "status": "added",
+          "additions": 765,
+          "deletions": 0
+        },
+        {
+          "path": "docs/guide.md",
+          "status": "modified",
+          "additions": 31,
+          "deletions": 16
+        },
+        {
+          "path": "docs/quickstart.md",
+          "status": "modified",
+          "additions": 12,
+          "deletions": 10
+        },
+        {
+          "path": "docs/server.md",
+          "status": "modified",
+          "additions": 17,
+          "deletions": 2
+        },
+        {
+          "path": "src/xo/cli.py",
+          "status": "modified",
+          "additions": 130,
+          "deletions": 31
+        },
+        {
+          "path": "src/xo/commands.py",
+          "status": "modified",
+          "additions": 9,
+          "deletions": 5
+        },
+        {
+          "path": "src/xo/gitops.py",
+          "status": "modified",
+          "additions": 27,
+          "deletions": 0
+        },
+        {
+          "path": "src/xo/names.py",
+          "status": "modified",
+          "additions": 15,
+          "deletions": 0
+        },
+        {
+          "path": "src/xo/server.py",
+          "status": "modified",
+          "additions": 91,
+          "deletions": 9
+        },
+        {
+          "path": "tests/fixtures/openapi.json",
+          "status": "modified",
+          "additions": 3,
+          "deletions": 3
+        },
+        {
+          "path": "tests/test_cli.py",
+          "status": "modified",
+          "additions": 196,
+          "deletions": 74
+        },
+        {
+          "path": "tests/test_server.py",
+          "status": "modified",
+          "additions": 95,
+          "deletions": 4
+        }
+      ]
+    },
+    {
+      "sha": "516638cb5f966320d93be7add8ac6b465752d275",
+      "message": "Bump the quickstart pin to #38 and fold its review nits (#39)\n\n- docs/quickstart.md installs 2cc2405 (the #38 merge), so steps 3-5 work.\n- connect --repo: the put-back keeps OWNER/REPO when another space names it,\n  is one audit line (409), names the space in its 503, and says\n  \"nothing was changed\" only on the first read.\n- set_origin checks every fetch and push URL of origin; a refusal says xo\n  cannot confirm the origin, never echoing it.\n- Tests for the lost put-back retry, the 503, both-names case, push URLs and\n  a credentialed origin; server.md says when the rename stays.\n\n\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "date": "2026-10-17T03:52:13+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/516638cb5f966320d93be7add8ac6b465752d275",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "2cc240503dc64919409c7a7a400a108aa70f0f11",
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "docs/architecture.html",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "docs/architecture.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "docs/guide.md",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 2
+        },
+        {
+          "path": "docs/quickstart.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "docs/server.md",
+          "status": "modified",
+          "additions": 4,
+          "deletions": 1
+        },
+        {
+          "path": "src/xo/gitops.py",
+          "status": "modified",
+          "additions": 9,
+          "deletions": 6
+        },
+        {
+          "path": "src/xo/server.py",
+          "status": "modified",
+          "additions": 55,
+          "deletions": 26
+        },
+        {
+          "path": "tests/test_cli.py",
+          "status": "modified",
+          "additions": 21,
+          "deletions": 1
+        },
+        {
+          "path": "tests/test_server.py",
+          "status": "modified",
+          "additions": 52,
+          "deletions": 7
+        }
+      ]
+    },
+    {
+      "sha": "5573ff9ff1c0b5bb927385cd99a878baea1530cc",
+      "message": "Remove Coder from xo for this version (#40)\n\n* Remove Coder from xo for this version\n\nsuraj: too many things at once confuses new users, so Coder leaves this\nversion and comes back later. Removed: xo coder (github, login, logout and\nthe pass-through verbs), --coder-url / XO_CODER_URL, the coder step in xo\nlogin, logout and status, CoderClient and coder_url, src/xo/coder.py, the\ncoder entry in services.json (so /config no longer lists it; schema stays\nxo-services/2), tests/test_coder.py, docs/coder.md, and every Coder\nmention in README, guide, quickstart and the architecture docs.\n\nA served list that still names xo.coder is skipped with the usual\n\"skipped the xo coder service\" note. git and gh still never get CODER_*\nvariables (kept as environment hygiene). To bring Coder back, restore\nfrom 516638c.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* Fold the #40 review nits: baseline line, wrapping, trailing blank line\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n---------\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "date": "2026-10-17T18:59:26+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/5573ff9ff1c0b5bb927385cd99a878baea1530cc",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "516638cb5f966320d93be7add8ac6b465752d275",
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "additions": 13,
+          "deletions": 84
+        },
+        {
+          "path": "docs/architecture.html",
+          "status": "modified",
+          "additions": 160,
+          "deletions": 304
+        },
+        {
+          "path": "docs/architecture.md",
+          "status": "modified",
+          "additions": 19,
+          "deletions": 67
+        },
+        {
+          "path": "docs/coder.md",
+          "status": "removed",
+          "additions": 0,
+          "deletions": 71
+        },
+        {
+          "path": "docs/guide.md",
+          "status": "modified",
+          "additions": 10,
+          "deletions": 40
+        },
+        {
+          "path": "docs/quickstart.md",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 6
+        },
+        {
+          "path": "src/xo/cli.py",
+          "status": "modified",
+          "additions": 26,
+          "deletions": 203
+        },
+        {
+          "path": "src/xo/client.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 247
+        },
+        {
+          "path": "src/xo/coder.py",
+          "status": "removed",
+          "additions": 0,
+          "deletions": 39
+        },
+        {
+          "path": "src/xo/commands.py",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 2
+        },
+        {
+          "path": "src/xo/server.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "src/xo/services.json",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 5
+        },
+        {
+          "path": "src/xo/services.py",
+          "status": "modified",
+          "additions": 10,
+          "deletions": 17
+        },
+        {
+          "path": "tests/conftest.py",
+          "status": "modified",
+          "additions": 0,
+          "deletions": 29
+        },
+        {
+          "path": "tests/test_cli.py",
+          "status": "modified",
+          "additions": 22,
+          "deletions": 92
+        },
+        {
+          "path": "tests/test_coder.py",
+          "status": "removed",
+          "additions": 0,
+          "deletions": 613
+        },
+        {
+          "path": "tests/test_github.py",
+          "status": "modified",
+          "additions": 0,
+          "deletions": 17
+        },
+        {
+          "path": "tests/test_server.py",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 2
+        },
+        {
+          "path": "tests/test_services.py",
+          "status": "modified",
+          "additions": 31,
+          "deletions": 35
+        }
+      ]
+    },
+    {
+      "sha": "42b25e90f668d539707a61ab09713cb7a19373a7",
+      "message": "Pin the quickstart install to the Coder removal (#41)\n\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "date": "2026-10-17T19:04:42+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/42b25e90f668d539707a61ab09713cb7a19373a7",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "5573ff9ff1c0b5bb927385cd99a878baea1530cc",
+      "files": [
+        {
+          "path": "docs/quickstart.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        }
+      ]
+    },
+    {
+      "sha": "7f7f8884586476e146b35d14ccbe8f15d4cdac11",
+      "message": "Short project names and local spaces (#42)\n\n* Call GitHub projects by their repo name; xo create space with no kind makes a local space\n\nA project from https://github.com/juanfont/headscale is still recorded as\njuanfont/headscale, but is cloned into ./headscale, called headscale in\nevery command, and listed with its repo beside it. Two projects with one\nrepo name are called by OWNER/REPO, never share a folder, and a checkout\nwhose origin is another repo is never fetched. Checkouts an older xo put\nin ./OWNER/REPO are still used.\n\nxo create space NAME with no KIND records the space with no projects\n(POST /me/spaces/connect, nothing on XO) and makes ./NAME here, marked\ninstalled.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* Keep both of two repos with one name, and fix the review findings\n\n- A GitHub project's folder is ./REPO, or ./OWNER/REPO (the layout before\n  short names) when another project in the same place is called the same\n  or the repo is .xo. A fork and its upstream in one space both install,\n  update and sync again; a space main installed keeps working.\n- An existing checkout is looked for in ./REPO and ./OWNER/REPO and used\n  only when its origin is that repo. xo update and xo sync project:P look\n  P up in your projects and never push another repo's checkout.\n- An exact name wins: a plain project keeps its name beside a GitHub\n  project called the same.\n- The space state file is never written through a link, and a ./S/.xo\n  that is a link or a checkout is refused.\n- xo create space NAME with no KIND lowercases NAME, refuses kind words,\n  and says how to finish after a 409; a case-only rename on connect --repo\n  works. Docs, help and tests follow.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* Never put one project's folder inside another's; a plain name never pushes a GitHub checkout\n\nA repo named like another project's OWNER folder now goes in ./OWNER/REPO too, so suraj/suraj,\nsuraj/react and facebook/react install side by side, and nothing is cloned inside a checkout. A plain\nproject's folder is refused when its origin is one of your GitHub projects. A case-only rename checks\nthe target first and moves back if the second step fails.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* Find main's ./OWNER/REPO checkouts again, and install a space whose folder is a repository\n\nThe skip for an OWNER folder applies only to a ./REPO candidate, so a checkout main put in\n./suraj/tool is still found beside suraj/headscale and juanfont/headscale. The check for an enclosing\ncheckout looks only below the space's own folder.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n---------\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "date": "2026-10-18T02:52:58+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/7f7f8884586476e146b35d14ccbe8f15d4cdac11",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "42b25e90f668d539707a61ab09713cb7a19373a7",
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "additions": 18,
+          "deletions": 6
+        },
+        {
+          "path": "docs/architecture.html",
+          "status": "modified",
+          "additions": 310,
+          "deletions": 187
+        },
+        {
+          "path": "docs/architecture.md",
+          "status": "modified",
+          "additions": 65,
+          "deletions": 30
+        },
+        {
+          "path": "docs/guide.md",
+          "status": "modified",
+          "additions": 29,
+          "deletions": 12
+        },
+        {
+          "path": "docs/quickstart.md",
+          "status": "modified",
+          "additions": 3,
+          "deletions": 2
+        },
+        {
+          "path": "src/xo/cli.py",
+          "status": "modified",
+          "additions": 165,
+          "deletions": 44
+        },
+        {
+          "path": "src/xo/gitops.py",
+          "status": "modified",
+          "additions": 9,
+          "deletions": 4
+        },
+        {
+          "path": "src/xo/names.py",
+          "status": "modified",
+          "additions": 53,
+          "deletions": 0
+        },
+        {
+          "path": "src/xo/workspace.py",
+          "status": "modified",
+          "additions": 129,
+          "deletions": 44
+        },
+        {
+          "path": "tests/test_cli.py",
+          "status": "modified",
+          "additions": 189,
+          "deletions": 42
+        },
+        {
+          "path": "tests/test_server.py",
+          "status": "modified",
+          "additions": 16,
+          "deletions": 1
+        },
+        {
+          "path": "tests/test_workspace.py",
+          "status": "modified",
+          "additions": 234,
+          "deletions": 56
+        }
+      ]
+    },
+    {
+      "sha": "8e89be0aa93a2936a38c29324a5976a9e6d11f37",
+      "message": "Pin the quickstart install to the short-names change (#43)\n\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "date": "2026-10-18T02:56:09+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/8e89be0aa93a2936a38c29324a5976a9e6d11f37",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "7f7f8884586476e146b35d14ccbe8f15d4cdac11",
+      "files": [
+        {
+          "path": "docs/quickstart.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        }
+      ]
+    },
+    {
+      "sha": "027dec8b22da96799e5f9c89a7f67ac8e2c7a37d",
+      "message": "xo spaces lists your spaces; projects show their owner, not a repo URL (#44)\n\n`xo spaces` with no --space-id shows the spaces linked to your account, as xo list spaces does\n(XO's API has no list of spaces); with --space-id it is GET /spaces/{spaceId} as before. Project\nlists show a GitHub project as {\"name\": \"headscale\", \"owner\": \"juanfont\"}. Nothing stored changes:\nmetadata still records OWNER/REPO.\n\n\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "date": "2026-10-18T05:38:03+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/027dec8b22da96799e5f9c89a7f67ac8e2c7a37d",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "8e89be0aa93a2936a38c29324a5976a9e6d11f37",
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "additions": 7,
+          "deletions": 5
+        },
+        {
+          "path": "docs/architecture.html",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 1
+        },
+        {
+          "path": "docs/architecture.md",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 1
+        },
+        {
+          "path": "docs/guide.md",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 2
+        },
+        {
+          "path": "src/xo/cli.py",
+          "status": "modified",
+          "additions": 19,
+          "deletions": 5
+        },
+        {
+          "path": "tests/test_cli.py",
+          "status": "modified",
+          "additions": 15,
+          "deletions": 8
+        }
+      ]
+    },
+    {
+      "sha": "3699cdc08c08da7ad8387837346fb18fea0d39a2",
+      "message": "Drop xo user-metadata; xo list alone shows projects and spaces (#45)\n\n* Drop xo user-metadata; xo list alone shows your projects and spaces\n\nxo me covers your own profile, so the user-metadata command goes: its path leaves the bundled spec.\nThe server's admin-only /user-metadata route is unchanged, and docs/test-xo-server.sh checks its 403\nwith curl (the key on stdin, never on a command line). `xo list` with nothing after it prints\n{\"projects\": [...], \"spaces\": [...]}.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* Say what bare xo spaces does in its help and dry run; point xo user-metadata at xo me\n\nFolds the review of #44 and its follow-up: xo spaces --help and --dry-run cover the form with no\n--space-id, docs and the login line name xo spaces --space-id for XO's view of a space, and\nxo user-metadata says xo me replaced it.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n---------\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "date": "2026-10-18T05:56:15+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/3699cdc08c08da7ad8387837346fb18fea0d39a2",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "027dec8b22da96799e5f9c89a7f67ac8e2c7a37d",
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "additions": 6,
+          "deletions": 7
+        },
+        {
+          "path": "docs/architecture.html",
+          "status": "modified",
+          "additions": 7,
+          "deletions": 61
+        },
+        {
+          "path": "docs/architecture.md",
+          "status": "modified",
+          "additions": 5,
+          "deletions": 19
+        },
+        {
+          "path": "docs/deploy-vercel.md",
+          "status": "modified",
+          "additions": 3,
+          "deletions": 3
+        },
+        {
+          "path": "docs/guide.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 0
+        },
+        {
+          "path": "docs/quickstart.md",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 2
+        },
+        {
+          "path": "docs/server.md",
+          "status": "modified",
+          "additions": 4,
+          "deletions": 4
+        },
+        {
+          "path": "docs/test-xo-server.sh",
+          "status": "modified",
+          "additions": 9,
+          "deletions": 2
+        },
+        {
+          "path": "src/xo/cli.py",
+          "status": "modified",
+          "additions": 34,
+          "deletions": 9
+        },
+        {
+          "path": "src/xo/client.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "src/xo/commands.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "src/xo/openapi.json",
+          "status": "modified",
+          "additions": 0,
+          "deletions": 104
+        },
+        {
+          "path": "src/xo/services.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "tests/test_cli.py",
+          "status": "modified",
+          "additions": 28,
+          "deletions": 43
+        },
+        {
+          "path": "tests/test_server.py",
+          "status": "modified",
+          "additions": 4,
+          "deletions": 5
+        }
+      ]
+    },
+    {
+      "sha": "05d910bf51506ef86c0ed4625f9dd5d34091b8db",
+      "message": "Pin the quickstart to #45 and mention bare xo spaces in the help list (#46)\n\nThe quickstart still installed #42, where bare `xo spaces` errors and\n`xo user-metadata` still exists. Pin it to 3699cdc (#45). The `spaces`\nrow in the `xo --help` command list now says it lists your spaces with\nnothing after it, and the quickstart says the xo server answers bare\n`xo spaces` itself.\n\n\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "date": "2026-10-18T06:09:46+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/05d910bf51506ef86c0ed4625f9dd5d34091b8db",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "3699cdc08c08da7ad8387837346fb18fea0d39a2",
+      "files": [
+        {
+          "path": "docs/quickstart.md",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 2
+        },
+        {
+          "path": "src/xo/cli.py",
+          "status": "modified",
+          "additions": 7,
+          "deletions": 3
+        },
+        {
+          "path": "tests/test_cli.py",
+          "status": "modified",
+          "additions": 4,
+          "deletions": 0
+        }
+      ]
+    },
+    {
+      "sha": "ab7d88637ecfbd8a69e2e458938ded0518bca41c",
+      "message": "xo connect takes plain names: xo connect headscale test2 (#47)\n\n* xo connect takes plain names: xo connect headscale test2\n\nsuraj asked that `xo connect` drop the project:/space: prefixes and work\nout from the names what to do. A bare name is read against your projects:\n- two names: a project and the space it goes in, in either order;\n- one name with --repo: a project getting its repo;\n- one name alone: a new space entry, refused when it is one of your\n  projects (space:NAME still makes it).\nproject: and space: in front keep working as before. The CLI only;\nthe server is unchanged.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* xo connect: when both names are projects, your spaces decide the order\n\nReview fixes for #47.\n- Both names your projects: read GET /me/spaces once and take the one\n  order whose space exists; refuse when both or neither are spaces, so\n  xo connect dev headscale never puts dev into a space named headscale.\n- A projects list that is not a list of names stops the command.\n- A missing space's 404 says how to make it; a project-shaped name alone\n  says to give a space; bare S project:P works like space:S P.\n- Tests pin the failed-read rule, the swap rule, same-name repos and\n  case; the architecture diagrams show the new reads.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n---------\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "date": "2026-10-18T18:33:22+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/ab7d88637ecfbd8a69e2e458938ded0518bca41c",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "05d910bf51506ef86c0ed4625f9dd5d34091b8db",
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "additions": 3,
+          "deletions": 3
+        },
+        {
+          "path": "docs/architecture.html",
+          "status": "modified",
+          "additions": 109,
+          "deletions": 89
+        },
+        {
+          "path": "docs/architecture.md",
+          "status": "modified",
+          "additions": 21,
+          "deletions": 17
+        },
+        {
+          "path": "docs/guide.md",
+          "status": "modified",
+          "additions": 11,
+          "deletions": 6
+        },
+        {
+          "path": "src/xo/cli.py",
+          "status": "modified",
+          "additions": 113,
+          "deletions": 31
+        },
+        {
+          "path": "tests/test_cli.py",
+          "status": "modified",
+          "additions": 121,
+          "deletions": 3
+        }
+      ]
+    },
+    {
+      "sha": "b61bc4cac605679c2a97def9b64ef56456cb0827",
+      "message": "Pin the quickstart to #47; tighten xo connect's hints and tests (#48)\n\n* Pin the quickstart to #47; tighten xo connect's hints and tests\n\n- The quickstart installs ab7d886 (#47, bare-name xo connect).\n- The missing-space hint leaves out xo create space for a name it\n  would refuse (a kind word, new, create, or ./S already here).\n- \"Neither is a space\" says to make the space first.\n- Hints quote a project name with a space in it.\n- Tests pin the spaces-read failure rule and the any-case space match.\n- architecture: the route row says which bare forms read your projects.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n* Review fixes for #48: route row, hint names, test assertions\n\n- architecture route row: a plain P reads your projects in xo connect\n  with or without project:, and so does a bare name alone or beside\n  another bare name; only NAME --repo and a project-shaped name alone\n  send none.\n- The missing-space hint offers [KIND] only for a name XO takes.\n- The create-project hint quotes the project name.\n- Tests assert the spaces-list shape error, the hint's lowercasing and\n  the [KIND] rule.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SBUmhUH6RQViYBmTp6swFy\n\n---------\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "date": "2026-10-18T19:53:00+05:30",
+      "url": "https://github.com/quirq-ai/xo/commit/b61bc4cac605679c2a97def9b64ef56456cb0827",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "ab7d88637ecfbd8a69e2e458938ded0518bca41c",
+      "files": [
+        {
+          "path": "docs/architecture.html",
+          "status": "modified",
+          "additions": 3,
+          "deletions": 3
+        },
+        {
+          "path": "docs/architecture.md",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 2
+        },
+        {
+          "path": "docs/quickstart.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "src/xo/cli.py",
+          "status": "modified",
+          "additions": 22,
+          "deletions": 8
+        },
+        {
+          "path": "tests/test_cli.py",
+          "status": "modified",
+          "additions": 61,
+          "deletions": 0
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "label": "20 first-parent commits · bundled snapshot · pinned b61bc4c",
+    "limitations": [
+      "Bundled snapshot from a precloned public repository. It loads locally and does not update from GitHub automatically.",
+      "The snapshot follows recent first-parent history; earlier history and side-branch commits are not replayed separately.",
+      "Line additions and deletions describe Git diffs; they do not measure runtime behavior, code quality or individual productivity."
+    ]
+  },
+  "provenance": {
+    "formatVersion": 1,
+    "generator": "scripts/build-data-examples.mjs",
+    "source": "local bare Git clone",
+    "remote": "https://github.com/quirq-ai/xo.git",
+    "branchRef": "refs/heads/main",
+    "headSha": "b61bc4cac605679c2a97def9b64ef56456cb0827",
+    "treeSha": "bd58bd1b613bc79a083fdafb6fbb9f1c2305de77",
+    "capturedAt": "2026-10-18T19:56:47.367Z",
+    "firstParentBoundarySha": "c7131061632cd8ade5b1afb778fd1e1febc14d30",
+    "commitCount": 20,
+    "headFileCount": 41,
+    "historicalPathCount": 3,
+    "changedFileCount": 146,
+    "binaryChangeCount": 0,
+    "completeHeadTree": true,
+    "completeCommitDiffs": true,
+    "diff": {
+      "parent": "first",
+      "renameThreshold": "50%",
+      "algorithm": "myers",
+      "indentHeuristic": false
+    }
+  }
+}

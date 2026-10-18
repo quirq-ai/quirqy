@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildModel, stateAt } from './model.js';
-import { createDemoDataset } from './demo.js';
+import { createRepositoryFixture } from './test-fixtures/repository.js';
 import { FILE_ATOM_KINDS, fileAtomKind, buildMolecularTree, molecularTreeState } from './molecule-layout.js';
 
 const modelFor = paths => buildModel({ repository: { name: 'fixture' }, files: paths.map(path => ({ path, size: 128 })), commits: [] });
@@ -100,7 +100,7 @@ test('one terminal typed atom represents each file with element-inspired display
 });
 
 test('every demo frame has exactly one active or ghost atom per mapped identity', () => {
-  const model = buildModel(createDemoDataset()), graph = buildMolecularTree(model);
+  const model = buildModel(createRepositoryFixture()), graph = buildMolecularTree(model);
   for (let index = -1; index < model.commits.length; index++) {
     const state = at(model, graph, index), expected = stateAt(model, index).activeIds.filter(id => graph.nodeById.has(id));
     assert.equal(state.atomCount, expected.length);
@@ -202,7 +202,7 @@ test('layout is deterministic and active membership does not mutate reserved pos
 
 
 test('representative containment tree separates file and folder spheres in genuine 3D', () => {
-  const graph = buildMolecularTree(buildModel(createDemoDataset()));
+  const graph = buildMolecularTree(buildModel(createRepositoryFixture()));
   const state = molecularTreeState(graph), atoms = [...state.atoms, ...state.backboneAtoms];
   assert.ok(Math.max(...graph.folders.map(folder => folder.position[2])) - Math.min(...graph.folders.map(folder => folder.position[2])) > 5, 'folder centers have genuine z depth');
   for (let a = 0; a < atoms.length; a++) for (let b = a + 1; b < atoms.length; b++) {

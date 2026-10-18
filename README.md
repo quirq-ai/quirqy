@@ -64,6 +64,8 @@ npm run build     # production build to dist/
 npm run preview   # serve the production build
 ```
 
+Data Lab starts with a preloaded snapshot of **quirq-ai/xo**. **Examples** contains only **quirq-ai/xo** and **quirq-ai/xo-space**, both cloned ahead of time and bundled with the app. Choosing either works without GitHub access, with 8, 12, or 20 recent first-parent commits; the snapshot date and pinned commit identify the captured version. Custom repository URLs still use the live GitHub loader. Refresh the bundled snapshots from the local clones with `npm run examples:refresh` (see the generator's `--help` for clone and output paths).
+
 Click the navbar logo to upload a PNG, JPG, WebP, or SVG (up to 5 MB), or reset to the default. Custom logos are saved in this browser for this site and used in the navbar, loading screen, favicon, and recording overlay. This preference does not require login and does not sync across browsers, devices, or accounts.
 
 Side panels and playback bars share a liquid-glass appearance. In Data Lab, open **View** beside playback speed to choose **Structure**, **Growth Tree**, or **Opacity**. The scene choices live in this dock menu. In other labs, choose **Opacity** beside the playback controls (or beside Time speed in Equation Lab). Adjust the surface from 0–100%, keeping text and controls fully visible. At 0%, the tint disappears into clear glass; lower opacity also increases the simulated refraction around panel edges, while higher opacity adds softness. The opacity setting is shared across labs, saved in this browser, and can be reset to the default. Browsers without SVG backdrop refraction retain the changing blur and highlights. Reduced-transparency and high-contrast preferences keep panels solid for readability.

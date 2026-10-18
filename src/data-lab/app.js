@@ -1,7 +1,7 @@
 // Data Lab uses quirq observatory's stage and HUD, with its own repository state.
 import './style.css';
 import { createStage } from '../scene/setup.js';
-import { createDemoDataset } from './demo.js';
+import { DEFAULT_EXAMPLE_URL, getExampleDataset } from './examples.js';
 import { loadRepository } from './github.js';
 import { buildModel, stateAt } from './model.js';
 import { MoleculeScene } from './molecule-scene.js';
@@ -28,7 +28,6 @@ export function mountDataLab() {
 
   const panel = new DataPanel({
     onLoad: importRepository,
-    onDemo: showDemo,
     onFrame: () => { scene.resetView(); renderPanel(); },
     onFrameRoots: () => { options.roots = true; scene.setOptions({ roots: true }); scene.focusRoots?.(); renderPanel(); },
     onFocusFile: id => { selectFile(id); scene.focusNode(id); },
@@ -123,7 +122,7 @@ export function mountDataLab() {
     panel.setState({ model, frame, index, selectedId, playing, speed, view, frameMode: scene.frameMode, structure: scene.structure, activity: scene.activityState, renderedCount: scene.renderedCount, rootLayout: scene.roots?.layout, rootsVisible: scene.options.roots !== false, mappedIds: scene.mappedNodes || scene.nodes });
     guide.setState({ model, frame, scene, selectedId, view });
     topDate.textContent = index < 0 ? 'Before sampled history' : `${frame.commit.sha.slice(0, 7)} · ${index + 1}/${model.commits.length}`;
-    liveBadge.textContent = model.repository.source === 'demo' ? 'SAMPLE' : playing ? 'REPLAY' : 'GITHUB';
+    liveBadge.textContent = model.repository.source === 'example' ? 'EXAMPLE' : playing ? 'REPLAY' : 'GITHUB';
     liveBadge.classList.toggle('on', playing);
   }
   function updateScene() {
@@ -200,18 +199,23 @@ export function mountDataLab() {
     scene.setModel(model);
     setIndex(autoplay && !reducedMotion.matches ? 0 : model.commits.length - 1);
     setPlaying(autoplay && !reducedMotion.matches);
-    panel.setStatus(dataset.repository.source === 'demo'
-      ? 'Synthetic sample · 22 illustrative commits. Load a public repository to use real Git history.'
+    panel.setStatus(dataset.repository.source === 'example'
+      ? `Preloaded ${model.repository.fullName} · ${model.commits.length} commits from the ${model.repository.capturedAt.slice(0, 10)} snapshot.`
       : `Loaded ${model.commits.length} first-parent commits from ${model.repository.fullName}.`,
-    dataset.repository.source === 'demo' ? 'sample' : 'success');
+    'success');
   }
-  function showDemo() {
+  function showExample(url, limit, autoplay = false) {
+    const dataset = getExampleDataset(url, limit);
+    if (!dataset) return false;
     requestId++;
     requestController?.abort();
+    requestController = null;
     panel.setLoading(false);
-    useDataset(createDemoDataset(), true);
+    useDataset(dataset, autoplay);
+    return true;
   }
   async function importRepository(url, limit) {
+    if (showExample(url, limit)) return;
     requestController?.abort();
     const controller = new AbortController();
     requestController = controller;
@@ -287,7 +291,7 @@ export function mountDataLab() {
     stage.renderer.dispose();
   }
   listen(window, 'pagehide', event => { if (!event.persisted) dispose(); });
-  showDemo();
+  showExample(DEFAULT_EXAMPLE_URL, 12, true);
   document.getElementById('loading')?.remove();
   requestAnimationFrame(() => document.getElementById('tab-data')?.scrollIntoView({ block: 'nearest', inline: 'nearest' }));
   raf = requestAnimationFrame(tick);

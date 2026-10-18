@@ -1,7 +1,7 @@
-// A fictional, deterministic repository. This is not quirq observatory's Git history.
-// Include code, configuration, documentation and media so each file encoding
-// can be explored in the sample without changing its counts or timeline.
-export function createDemoDataset() {
+// Test-only deterministic repository fixture; never import into application runtime.
+// Fictional history covers code, configuration, documentation and media.
+// Keep its files, counts and timeline stable for regression tests.
+export function createRepositoryFixture() {
   const groups = {
     app: ['bootstrap.js', 'router.js', 'shell.js', 'navigation.js', 'state.js', 'README.md', 'shortcuts.js', 'views.js'],
     components: ['button.js', 'panel.js', 'slider.js', 'card.js', 'badge.js', 'dialog.js', 'tooltip.js', 'icons.svg'],

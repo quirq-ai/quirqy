@@ -35,7 +35,7 @@ export class DataPanel {
       <form id="data-source-form" aria-label="Load a public GitHub repository">
         <div class="data-source-row"><label class="data-sr-only" for="data-repository-url">Public GitHub repository URL</label><input id="data-repository-url" type="url" placeholder="https://github.com/owner/repo" autocomplete="off" spellcheck="false" required><button class="btn tiny primary" id="data-load" type="submit">Load</button></div>
         <div class="data-source-tools"><label for="data-history-limit">History</label><select id="data-history-limit"><option value="8">8 commits</option><option value="12" selected>12 commits</option><option value="20">20 commits</option></select></div>
-        <div class="data-source-tools data-sample-choices" role="group" aria-labelledby="data-samples-label"><span id="data-samples-label">Samples</span><button class="btn tiny" type="button" data-sample-url="https://github.com/quirq-ai/xo" aria-pressed="false" title="Load quirq-ai/xo from GitHub">quirq-ai/xo</button><button class="btn tiny" type="button" data-sample-url="https://github.com/quirq-ai/xo-space" aria-pressed="false" title="Load quirq-ai/xo-space from GitHub">quirq-ai/xo-space</button></div>
+        <div class="data-source-tools data-example-choices" role="group" aria-labelledby="data-examples-label"><span id="data-examples-label">Examples</span><button class="btn tiny" type="button" data-example-url="https://github.com/quirq-ai/xo" aria-pressed="false" title="Open the preloaded quirq-ai/xo example">quirq-ai/xo</button><button class="btn tiny" type="button" data-example-url="https://github.com/quirq-ai/xo-space" aria-pressed="false" title="Open the preloaded quirq-ai/xo-space example">quirq-ai/xo-space</button></div>
       </form>
       <div class="data-repo-meta"><a id="data-repo-link" target="_blank" rel="noopener noreferrer"></a><span id="data-repo-name"></span><span id="data-branch"></span></div>
       <p class="lab-note" id="data-status" role="status" aria-live="polite"></p>
@@ -108,16 +108,16 @@ export class DataPanel {
     this.bind();
     this.syncCollapseControl();
     this.clampFrame = requestAnimationFrame(() => this.clampPosition());
-    this.setStatus('Choose a sample repository or enter a public GitHub URL.');
+    this.setStatus('Choose a preloaded example or enter a public GitHub URL.');
   }
 
   bind() {
     const on = (node, type, callback) => node.addEventListener(type, callback, { signal: this.listeners.signal });
     const invoke = (name, ...args) => this.hooks[name]?.(...args);
     on(this.$('#data-source-form'), 'submit', event => { event.preventDefault(); invoke('onLoad', this.$('#data-repository-url').value.trim(), Number(this.$('#data-history-limit').value)); });
-    for (const button of this.el.querySelectorAll('[data-sample-url]')) {
+    for (const button of this.el.querySelectorAll('[data-example-url]')) {
       on(button, 'click', () => {
-        const url = button.dataset.sampleUrl;
+        const url = button.dataset.exampleUrl;
         this.$('#data-repository-url').value = url;
         invoke('onLoad', url, Number(this.$('#data-history-limit').value));
       });
@@ -233,7 +233,7 @@ export class DataPanel {
   setLoading(loading) {
     this.$('#data-source-form').setAttribute('aria-busy', String(loading));
     this.$('#data-load').disabled = loading;
-    // Sample choices stay available so a new selection can replace an in-flight import.
+    // Preloaded examples stay available so a new selection can replace an in-flight import.
     this.$('#data-history-limit').disabled = loading;
     this.$('#data-load').textContent = loading ? 'Loading…' : 'Load';
   }
@@ -319,13 +319,12 @@ export class DataPanel {
 
   shortSha(sha) {
     if (!sha) return '';
-    return this.state?.model.repository.source === 'demo' ? `${sha.slice(0, 7)}…${sha.slice(-4)}` : sha.slice(0, 7);
+    return sha.slice(0, 7);
   }
 
   renderRepository() {
     const { repository } = this.state.model;
-    const demo = repository.source === 'demo';
-    this.$('#data-source-kind').textContent = demo ? 'Synthetic sample' : 'GitHub';
+    this.$('#data-source-kind').textContent = repository.source === 'example' ? 'Preloaded example' : 'GitHub';
     const link = this.$('#data-repo-link');
     const url = githubUrl(repository.url);
     link.hidden = !url;
@@ -336,9 +335,9 @@ export class DataPanel {
     name.textContent = repository.fullName || repository.name || 'Repository';
     this.$('#data-branch').textContent = `${repository.branch || 'default branch'} · ${this.shortSha(repository.headSha)}`;
     this.$('#data-file-count').textContent = fmt(this.state.model.nodes.length);
-    if (!demo && url) this.$('#data-repository-url').value = url;
-    for (const button of this.el.querySelectorAll('[data-sample-url]')) {
-      const active = !demo && url?.toLowerCase().replace(/\/$/, '') === button.dataset.sampleUrl;
+    if (url) this.$('#data-repository-url').value = url;
+    for (const button of this.el.querySelectorAll('[data-example-url]')) {
+      const active = url?.toLowerCase().replace(/\/$/, '') === button.dataset.exampleUrl;
       button.classList.toggle('active', active);
       button.setAttribute('aria-pressed', String(active));
     }

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildModel, stateAt, activityInsights } from './model.js';
-import { createDemoDataset } from './demo.js';
+import { createRepositoryFixture } from './test-fixtures/repository.js';
 import { loadRepository, parseRepositoryUrl } from './github.js';
 
 const repository = { name: 'sample', fullName: 'example/sample', source: 'demo', headSha: 'c3' };
@@ -11,7 +11,7 @@ const dataset = (files, commits) => ({ repository, files, commits, coverage: { l
 const pathsAt = (model, index) => stateAt(model, index).files.filter(file => file.exists).map(file => file.path).sort();
 
  test('demo replay preserves the baseline and reaches exactly the pinned head', () => {
-  const data = createDemoDataset();
+  const data = createRepositoryFixture();
   const original = JSON.stringify(data);
   const model = buildModel(data);
   assert.equal(data.repository.source, 'demo');
@@ -26,7 +26,7 @@ const pathsAt = (model, index) => stateAt(model, index).files.filter(file => fil
   assert.equal(initial.id, renamed.id);
   assert.equal(renamed.status, 'renamed');
   assert.ok(activityInsights(model, 10).some(text => text.includes('node identity')));
-  assert.deepEqual(buildModel(createDemoDataset()).nodes, model.nodes);
+  assert.deepEqual(buildModel(createRepositoryFixture()).nodes, model.nodes);
 });
 
  test('rename chains preserve identity, while remove and re-add create a new identity', () => {

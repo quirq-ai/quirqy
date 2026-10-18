@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
 import { TreeScene } from './tree-scene.js';
-import { createDemoDataset } from './demo.js';
+import { createRepositoryFixture } from './test-fixtures/repository.js';
 import { buildModel, stateAt } from './model.js';
 import { createRootLayout } from './root-layout.js';
 import { createRootWarpLayout } from './root-warp.js';
@@ -11,7 +11,7 @@ import { ROOT_VINE_RADIUS, rootRopeRadius } from './root-rope-geometry.js';
 import { createRootSurface, measureRootSurfaceCrowding, applyRootSurface } from './root-surface.js';
 
 function fixture(width, height, reducedMotion) {
-  const model = buildModel(createDemoDataset());
+  const model = buildModel(createRepositoryFixture());
   const frame = stateAt(model, model.commits.length - 1);
   const baseLayout = createRootLayout(model, { activeIds: frame.activeIds, paths: new Map(frame.files.map(file => [file.id, file.path])) });
   const activity = rootActivityAt(buildRootActivityHistory(model), frame.index);

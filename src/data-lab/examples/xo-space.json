@@ -1,0 +1,5392 @@
+{
+  "repository": {
+    "name": "xo-space",
+    "fullName": "quirq-ai/xo-space",
+    "url": "https://github.com/quirq-ai/xo-space",
+    "branch": "main",
+    "source": "example",
+    "headSha": "577850bfe9363b04e17c012ebe2c014df9490bc1",
+    "treeSha": "c55981e07e0a5ae470f51f0191d92731eaa6b729",
+    "capturedAt": "2026-10-18T19:56:47.367Z"
+  },
+  "files": [
+    {
+      "path": ".agents/plugins/marketplace.json",
+      "size": 353,
+      "existsAtHead": true
+    },
+    {
+      "path": ".agents/skills/agno-agentic-backend/SKILL.md",
+      "size": 1742,
+      "existsAtHead": true
+    },
+    {
+      "path": ".agents/skills/code-writer/SKILL.md",
+      "size": 816,
+      "existsAtHead": true
+    },
+    {
+      "path": ".agents/skills/debugger/SKILL.md",
+      "size": 631,
+      "existsAtHead": true
+    },
+    {
+      "path": ".agents/skills/default/SKILL.md",
+      "size": 611,
+      "existsAtHead": true
+    },
+    {
+      "path": ".agents/skills/reviewer/SKILL.md",
+      "size": 625,
+      "existsAtHead": true
+    },
+    {
+      "path": ".agents/skills/xo-projects/SKILL.md",
+      "size": 14670,
+      "existsAtHead": false
+    },
+    {
+      "path": ".agents/skills/xo-projects/references/backup-restore.md",
+      "size": 12458,
+      "existsAtHead": false
+    },
+    {
+      "path": ".agents/skills/xo-projects/references/inbox-http-api.md",
+      "size": 5538,
+      "existsAtHead": false
+    },
+    {
+      "path": ".agents/skills/xo-projects/references/todos-http-api.md",
+      "size": 7955,
+      "existsAtHead": false
+    },
+    {
+      "path": ".claude-plugin/marketplace.json",
+      "size": 344,
+      "existsAtHead": true
+    },
+    {
+      "path": ".dockerignore",
+      "size": 114,
+      "existsAtHead": true
+    },
+    {
+      "path": ".env.example",
+      "size": 18045,
+      "existsAtHead": true
+    },
+    {
+      "path": ".gitattributes",
+      "size": 302,
+      "existsAtHead": true
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/bug_report.yml",
+      "size": 3371,
+      "existsAtHead": true
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/config.yml",
+      "size": 976,
+      "existsAtHead": true
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/feature_request.yml",
+      "size": 2614,
+      "existsAtHead": true
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/new_runtime.yml",
+      "size": 1807,
+      "existsAtHead": true
+    },
+    {
+      "path": ".github/dependabot.yml",
+      "size": 453,
+      "existsAtHead": true
+    },
+    {
+      "path": ".github/screenshots/issue105/command-inbox.png",
+      "size": 166281,
+      "existsAtHead": true
+    },
+    {
+      "path": ".github/screenshots/issue105/command-results.png",
+      "size": 111501,
+      "existsAtHead": true
+    },
+    {
+      "path": ".github/screenshots/issue105/inbox-jobs.png",
+      "size": 98558,
+      "existsAtHead": true
+    },
+    {
+      "path": ".github/screenshots/projects-experience/README.md",
+      "size": 847,
+      "existsAtHead": true
+    },
+    {
+      "path": ".github/screenshots/projects-experience/data-list.png",
+      "size": 111718,
+      "existsAtHead": true
+    },
+    {
+      "path": ".github/screenshots/projects-experience/manage-collapsed.png",
+      "size": 56594,
+      "existsAtHead": true
+    },
+    {
+      "path": ".github/screenshots/projects-experience/manage-expanded.png",
+      "size": 111738,
+      "existsAtHead": true
+    },
+    {
+      "path": ".github/screenshots/projects-experience/manage-issues-mobile.png",
+      "size": 66145,
+      "existsAtHead": true
+    },
+    {
+      "path": ".github/screenshots/projects-experience/project-activity.png",
+      "size": 66471,
+      "existsAtHead": true
+    },
+    {
+      "path": ".github/screenshots/projects-experience/timeline-mobile.png",
+      "size": 62175,
+      "existsAtHead": true
+    },
+    {
+      "path": ".github/screenshots/projects-experience/timeline.png",
+      "size": 78838,
+      "existsAtHead": true
+    },
+    {
+      "path": ".github/workflows/publish-container.yml",
+      "size": 1489,
+      "existsAtHead": true
+    },
+    {
+      "path": ".github/workflows/python-3.12.yml",
+      "size": 4078,
+      "existsAtHead": true
+    },
+    {
+      "path": ".github/workflows/qq-roll-land.yml",
+      "size": 58312,
+      "existsAtHead": true
+    },
+    {
+      "path": ".github/workflows/qq-xo-space-postsubmit.yml",
+      "size": 3307,
+      "existsAtHead": true
+    },
+    {
+      "path": ".github/workflows/qq-xo-space-presubmit.yml",
+      "size": 2438,
+      "existsAtHead": true
+    },
+    {
+      "path": ".github/workflows/test-codex-plugin.yml",
+      "size": 1735,
+      "existsAtHead": true
+    },
+    {
+      "path": ".gitignore",
+      "size": 1477,
+      "existsAtHead": true
+    },
+    {
+      "path": "AGENTS.md",
+      "size": 4348,
+      "existsAtHead": true
+    },
+    {
+      "path": "CLAUDE.md",
+      "size": 4442,
+      "existsAtHead": true
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "size": 17770,
+      "existsAtHead": true
+    },
+    {
+      "path": "DEVELOPING.md",
+      "size": 57703,
+      "existsAtHead": true
+    },
+    {
+      "path": "Dockerfile",
+      "size": 1099,
+      "existsAtHead": true
+    },
+    {
+      "path": "INSTALLATION.md",
+      "size": 12516,
+      "existsAtHead": true
+    },
+    {
+      "path": "LICENSE",
+      "size": 1070,
+      "existsAtHead": true
+    },
+    {
+      "path": "README.md",
+      "size": 27063,
+      "existsAtHead": true
+    },
+    {
+      "path": "RELEASING.md",
+      "size": 3272,
+      "existsAtHead": true
+    },
+    {
+      "path": "brand/screenshots/dashboard-todos.png",
+      "size": 390623,
+      "existsAtHead": true
+    },
+    {
+      "path": "brand/screenshots/file-preview.png",
+      "size": 142864,
+      "existsAtHead": true
+    },
+    {
+      "path": "brand/screenshots/files-drawer.png",
+      "size": 92242,
+      "existsAtHead": true
+    },
+    {
+      "path": "brand/screenshots/files-list.png",
+      "size": 78481,
+      "existsAtHead": true
+    },
+    {
+      "path": "brand/screenshots/files-tree.png",
+      "size": 152481,
+      "existsAtHead": true
+    },
+    {
+      "path": "brand/screenshots/issue-100/projects-detail.png",
+      "size": 137526,
+      "existsAtHead": true
+    },
+    {
+      "path": "brand/screenshots/issue-100/projects-list.png",
+      "size": 152734,
+      "existsAtHead": true
+    },
+    {
+      "path": "brand/screenshots/issue-100/projects-mobile-320.png",
+      "size": 65349,
+      "existsAtHead": true
+    },
+    {
+      "path": "brand/screenshots/issue-100/projects-mobile-375.png",
+      "size": 71613,
+      "existsAtHead": true
+    },
+    {
+      "path": "brand/screenshots/issue-100/space-dashboard.png",
+      "size": 421845,
+      "existsAtHead": true
+    },
+    {
+      "path": "brand/screenshots/setup-intelligence.png",
+      "size": 101652,
+      "existsAtHead": true
+    },
+    {
+      "path": "brand/screenshots/setup-projects.png",
+      "size": 104326,
+      "existsAtHead": true
+    },
+    {
+      "path": "brand/screenshots/setup.png",
+      "size": 110346,
+      "existsAtHead": true
+    },
+    {
+      "path": "brand/screenshots/timeline.png",
+      "size": 63955,
+      "existsAtHead": true
+    },
+    {
+      "path": "brand/xo-logo-light.svg",
+      "size": 783,
+      "existsAtHead": true
+    },
+    {
+      "path": "brand/xo-logo.svg",
+      "size": 754,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/__init__.py",
+      "size": 0,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/agents/antigravity/capabilities.json",
+      "size": 457,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/agents/antigravity/manifest.json",
+      "size": 1823,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/agents/antigravity/settings.json",
+      "size": 100,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/agents/antigravity/setup.sh",
+      "size": 10033,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/agents/claude_code/capabilities.json",
+      "size": 684,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/agents/claude_code/manifest.json",
+      "size": 2157,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/agents/claude_code/settings.json",
+      "size": 94,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/agents/claude_code/setup.sh",
+      "size": 13614,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/agents/claude_code/troubleshoot.py",
+      "size": 5192,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/agents/codex/capabilities.json",
+      "size": 685,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/agents/codex/manifest.json",
+      "size": 1016,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/agents/codex/settings.json",
+      "size": 92,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/agents/codex/setup.sh",
+      "size": 10522,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/agents/codex/troubleshoot.py",
+      "size": 5749,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/agents/grokbot/capabilities.json",
+      "size": 690,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/agents/grokbot/manifest.json",
+      "size": 2033,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/agents/grokbot/settings.json",
+      "size": 21,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/agents/hermes/agent.sh",
+      "size": 33932,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/agents/hermes/capabilities.json",
+      "size": 681,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/agents/hermes/manifest.json",
+      "size": 4726,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/agents/hermes/settings.json",
+      "size": 109,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/agents/hermes/setup.sh",
+      "size": 11702,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/agents/hermes/troubleshoot.py",
+      "size": 12172,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/agents/openclaw/agent.sh",
+      "size": 36527,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/agents/openclaw/capabilities.json",
+      "size": 682,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/agents/openclaw/manifest.json",
+      "size": 4829,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/agents/openclaw/settings.json",
+      "size": 206,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/agents/openclaw/setup.sh",
+      "size": 10083,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/agents/openclaw/troubleshoot.py",
+      "size": 9135,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/models/__init__.py",
+      "size": 0,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/models/claude_code/__init__.py",
+      "size": 327,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/models/claude_code/client.py",
+      "size": 11113,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/models/codex/__init__.py",
+      "size": 280,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/models/codex/client.py",
+      "size": 8415,
+      "existsAtHead": true
+    },
+    {
+      "path": "config/skills/catalog.json",
+      "size": 1951,
+      "existsAtHead": true
+    },
+    {
+      "path": "cowork-api.sh",
+      "size": 15155,
+      "existsAtHead": true
+    },
+    {
+      "path": "cowork-update.sh",
+      "size": 2399,
+      "existsAtHead": true
+    },
+    {
+      "path": "infra/repo.toml",
+      "size": 3039,
+      "existsAtHead": true
+    },
+    {
+      "path": "install.sh",
+      "size": 37870,
+      "existsAtHead": true
+    },
+    {
+      "path": "plugin/.claude-plugin/plugin.json",
+      "size": 518,
+      "existsAtHead": true
+    },
+    {
+      "path": "plugin/README.md",
+      "size": 1188,
+      "existsAtHead": true
+    },
+    {
+      "path": "plugin/commands/install.md",
+      "size": 2032,
+      "existsAtHead": true
+    },
+    {
+      "path": "plugin/commands/start.md",
+      "size": 1719,
+      "existsAtHead": true
+    },
+    {
+      "path": "plugin/commands/status.md",
+      "size": 1218,
+      "existsAtHead": true
+    },
+    {
+      "path": "plugin/scripts/discover.sh",
+      "size": 7667,
+      "existsAtHead": true
+    },
+    {
+      "path": "plugin/skills/quirq/SKILL.md",
+      "size": 2788,
+      "existsAtHead": true
+    },
+    {
+      "path": "plugins/quirq/.codex-plugin/plugin.json",
+      "size": 1611,
+      "existsAtHead": true
+    },
+    {
+      "path": "plugins/quirq/.mcp.json",
+      "size": 155,
+      "existsAtHead": true
+    },
+    {
+      "path": "plugins/quirq/EXTENSIONS.md",
+      "size": 6085,
+      "existsAtHead": true
+    },
+    {
+      "path": "plugins/quirq/README.md",
+      "size": 5442,
+      "existsAtHead": true
+    },
+    {
+      "path": "plugins/quirq/assets/icon.svg",
+      "size": 783,
+      "existsAtHead": true
+    },
+    {
+      "path": "plugins/quirq/assets/logo-dark.svg",
+      "size": 754,
+      "existsAtHead": true
+    },
+    {
+      "path": "plugins/quirq/assets/logo.svg",
+      "size": 783,
+      "existsAtHead": true
+    },
+    {
+      "path": "plugins/quirq/assets/projects.png",
+      "size": 390623,
+      "existsAtHead": true
+    },
+    {
+      "path": "plugins/quirq/mcp/server.py",
+      "size": 33927,
+      "existsAtHead": true
+    },
+    {
+      "path": "plugins/quirq/plugin.json",
+      "size": 1611,
+      "existsAtHead": true
+    },
+    {
+      "path": "plugins/quirq/scripts/build_space_app.py",
+      "size": 7176,
+      "existsAtHead": true
+    },
+    {
+      "path": "plugins/quirq/scripts/discover.sh",
+      "size": 7667,
+      "existsAtHead": true
+    },
+    {
+      "path": "plugins/quirq/scripts/package_plugin.py",
+      "size": 3117,
+      "existsAtHead": true
+    },
+    {
+      "path": "plugins/quirq/scripts/space.sh",
+      "size": 9583,
+      "existsAtHead": true
+    },
+    {
+      "path": "plugins/quirq/skills/quirq-install/SKILL.md",
+      "size": 3464,
+      "existsAtHead": true
+    },
+    {
+      "path": "plugins/quirq/skills/quirq-onboarding/SKILL.md",
+      "size": 1741,
+      "existsAtHead": true
+    },
+    {
+      "path": "plugins/quirq/skills/quirq-start/SKILL.md",
+      "size": 2575,
+      "existsAtHead": true
+    },
+    {
+      "path": "plugins/quirq/skills/quirq-status/SKILL.md",
+      "size": 1056,
+      "existsAtHead": true
+    },
+    {
+      "path": "plugins/quirq/skills/quirq/SKILL.md",
+      "size": 5469,
+      "existsAtHead": true
+    },
+    {
+      "path": "plugins/quirq/ui/dashboard.html",
+      "size": 10760,
+      "existsAtHead": true
+    },
+    {
+      "path": "plugins/quirq/ui/space-app.html",
+      "size": 1200065,
+      "existsAtHead": true
+    },
+    {
+      "path": "plugins/quirq/ui/space-bridge.js",
+      "size": 26143,
+      "existsAtHead": true
+    },
+    {
+      "path": "pytest.ini",
+      "size": 828,
+      "existsAtHead": true
+    },
+    {
+      "path": "requirements-dev.txt",
+      "size": 1213,
+      "existsAtHead": true
+    },
+    {
+      "path": "requirements.txt",
+      "size": 2927,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/__init__.py",
+      "size": 52,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/auth/__init__.py",
+      "size": 148,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/auth/auth.py",
+      "size": 8531,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/auth/claude_setup_token.py",
+      "size": 50023,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/auth/codex_setup.py",
+      "size": 39047,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/branding.py",
+      "size": 1779,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/browser_guard.py",
+      "size": 10057,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/__init__.py",
+      "size": 3211,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/agents.py",
+      "size": 6097,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/bff/__init__.py",
+      "size": 1154,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/bff/_visualizer_models.py",
+      "size": 21342,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/bff/_visualizer_presenter.py",
+      "size": 13235,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/bff/connections.py",
+      "size": 4186,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/bff/errors.py",
+      "size": 705,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/bff/filters.py",
+      "size": 4078,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/bff/inbox.py",
+      "size": 3542,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/bff/project_management.py",
+      "size": 2220,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/bff/project_sharing.py",
+      "size": 3223,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/bff/secrets.py",
+      "size": 6901,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/bff/visualizer.py",
+      "size": 72637,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/bff/workspace_visualizer.py",
+      "size": 34339,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/bff/xo_projects.py",
+      "size": 17650,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/channels.py",
+      "size": 7225,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/chat.py",
+      "size": 16758,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/config.py",
+      "size": 12310,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/connectors/__init__.py",
+      "size": 189,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/connectors/composio.py",
+      "size": 23584,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/connectors/composio_mcp_proxy.py",
+      "size": 6665,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/connectors/gdrive.py",
+      "size": 10039,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/connectors/github_cli.py",
+      "size": 3316,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/connectors/github_pat.py",
+      "size": 3881,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/connectors/magicpath.py",
+      "size": 19038,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/connectors/onedrive.py",
+      "size": 5258,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/connectors/vercel.py",
+      "size": 8729,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/doctor.py",
+      "size": 3189,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/files.py",
+      "size": 11290,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/fts.py",
+      "size": 608,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/legacy/__init__.py",
+      "size": 108,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/legacy/openclaw_usage.py",
+      "size": 1115,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/misc.py",
+      "size": 3929,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/onboarding.py",
+      "size": 931,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/opentelemetry.py",
+      "size": 2844,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/quirq_state.py",
+      "size": 276,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/runtime_config.py",
+      "size": 1763,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/secrets.py",
+      "size": 1766,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/sessions.py",
+      "size": 5522,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/skills.py",
+      "size": 1826,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/usage.py",
+      "size": 4821,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/workspace_memory.py",
+      "size": 936,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/cowork_agent/xo_projects_sync.py",
+      "size": 13060,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/schedules.py",
+      "size": 3267,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/space.py",
+      "size": 9184,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/status/__init__.py",
+      "size": 177,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/status/channels.py",
+      "size": 2386,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/status/models.py",
+      "size": 2583,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/status/providers.py",
+      "size": 1928,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/telemetry_sources.py",
+      "size": 2437,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/theme.py",
+      "size": 1167,
+      "existsAtHead": true
+    },
+    {
+      "path": "routers/xo_data.py",
+      "size": 2720,
+      "existsAtHead": true
+    },
+    {
+      "path": "scripts/check_plugin_sync.sh",
+      "size": 546,
+      "existsAtHead": true
+    },
+    {
+      "path": "scripts/check_route_parity.py",
+      "size": 5533,
+      "existsAtHead": true
+    },
+    {
+      "path": "scripts/install_shared_deps.sh",
+      "size": 5915,
+      "existsAtHead": true
+    },
+    {
+      "path": "scripts/list_runtime_mounts.py",
+      "size": 2160,
+      "existsAtHead": true
+    },
+    {
+      "path": "server.py",
+      "size": 51958,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/background.py",
+      "size": 4895,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/branding.py",
+      "size": 6401,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/connections/__init__.py",
+      "size": 2682,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/connections/collectors.py",
+      "size": 18115,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/connections/mcp_client.py",
+      "size": 22143,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/connections/poller.py",
+      "size": 28783,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/connections/service.py",
+      "size": 11411,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/connections/store.py",
+      "size": 23700,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/__init__.py",
+      "size": 200,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/__init__.py",
+      "size": 0,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/antigravity/__init__.py",
+      "size": 0,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/antigravity/adapter.py",
+      "size": 22972,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/antigravity/agents.py",
+      "size": 6505,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/antigravity/auth.py",
+      "size": 2477,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/antigravity/channels_status.py",
+      "size": 901,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/antigravity/models.py",
+      "size": 1172,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/antigravity/models_status.py",
+      "size": 1540,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/antigravity/paths.py",
+      "size": 2528,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/antigravity/providers_status.py",
+      "size": 2193,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/antigravity/routes.py",
+      "size": 32781,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/antigravity/sessions.py",
+      "size": 11432,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/antigravity/tokens.py",
+      "size": 7663,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/antigravity/transcript.py",
+      "size": 11794,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/antigravity/usage.py",
+      "size": 11324,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/antigravity/visualizer_source.py",
+      "size": 7338,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/base.py",
+      "size": 3021,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/claude_code/__init__.py",
+      "size": 0,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/claude_code/_project_encoding.py",
+      "size": 3180,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/claude_code/adapter.py",
+      "size": 23840,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/claude_code/agents.py",
+      "size": 7971,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/claude_code/channels_status.py",
+      "size": 1390,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/claude_code/mcp_config.py",
+      "size": 3839,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/claude_code/models.py",
+      "size": 550,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/claude_code/models_status.py",
+      "size": 3600,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/claude_code/providers_status.py",
+      "size": 2867,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/claude_code/remote_control.py",
+      "size": 13280,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/claude_code/routes.py",
+      "size": 1685,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/claude_code/session_prompts.py",
+      "size": 6988,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/claude_code/session_telemetry.py",
+      "size": 4624,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/claude_code/sessions.py",
+      "size": 5286,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/claude_code/streaming.py",
+      "size": 4319,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/claude_code/usage.py",
+      "size": 19047,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/claude_code/visualizer_source.py",
+      "size": 21451,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/cli_status.py",
+      "size": 4068,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/codex/__init__.py",
+      "size": 195,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/codex/adapter.py",
+      "size": 23155,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/codex/agents.py",
+      "size": 6584,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/codex/app_server_rpc.py",
+      "size": 3564,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/codex/channels_status.py",
+      "size": 891,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/codex/models.py",
+      "size": 1182,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/codex/models_status.py",
+      "size": 3181,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/codex/paths.py",
+      "size": 5978,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/codex/providers_status.py",
+      "size": 1499,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/codex/remote_control.py",
+      "size": 30558,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/codex/routes.py",
+      "size": 2137,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/codex/session_prompts.py",
+      "size": 4509,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/codex/session_telemetry.py",
+      "size": 31616,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/codex/sessions.py",
+      "size": 20462,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/codex/streaming.py",
+      "size": 7637,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/codex/usage.py",
+      "size": 21696,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/codex/visualizer_source.py",
+      "size": 17436,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/cursor/__init__.py",
+      "size": 209,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/cursor/session_telemetry.py",
+      "size": 29653,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/grokbot/__init__.py",
+      "size": 54,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/grokbot/adapter.py",
+      "size": 3899,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/grokbot/gateway.py",
+      "size": 9244,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/grokbot/oneshot.py",
+      "size": 7899,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/grokbot/paths.py",
+      "size": 9722,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/grokbot/session_seats.py",
+      "size": 1788,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/grokbot/sessions.py",
+      "size": 4962,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/grokbot/transcript.py",
+      "size": 2358,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/hermes/__init__.py",
+      "size": 0,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/hermes/adapter.py",
+      "size": 9331,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/hermes/agents.py",
+      "size": 16224,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/hermes/channels_status.py",
+      "size": 3865,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/hermes/chat.py",
+      "size": 1503,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/hermes/dump.py",
+      "size": 5247,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/hermes/gateway_pool.py",
+      "size": 17053,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/hermes/models.py",
+      "size": 1766,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/hermes/models_status.py",
+      "size": 3984,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/hermes/paths.py",
+      "size": 1456,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/hermes/profile_env.py",
+      "size": 4957,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/hermes/providers_status.py",
+      "size": 1014,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/hermes/routes.py",
+      "size": 75679,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/hermes/sessions.py",
+      "size": 2500,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/hermes/sessionslist.py",
+      "size": 2448,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/hermes/state_db.py",
+      "size": 16997,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/hermes/streaming.py",
+      "size": 7632,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/hermes/usage.py",
+      "size": 29171,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/hermes/visualizer_source.py",
+      "size": 13462,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/loader.py",
+      "size": 3862,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/openclaw/__init__.py",
+      "size": 0,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/openclaw/adapter.py",
+      "size": 8553,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/openclaw/agents.py",
+      "size": 12087,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/openclaw/channels_status.py",
+      "size": 4239,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/openclaw/chat.py",
+      "size": 2899,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/openclaw/direct_stream.py",
+      "size": 12972,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/openclaw/models.py",
+      "size": 2364,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/openclaw/models_status.py",
+      "size": 3846,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/openclaw/paths.py",
+      "size": 1649,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/openclaw/providers_status.py",
+      "size": 1064,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/openclaw/routes.py",
+      "size": 3325,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/openclaw/sessions.py",
+      "size": 8782,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/openclaw/store.py",
+      "size": 6055,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/openclaw/streaming.py",
+      "size": 3548,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/openclaw/transcript.py",
+      "size": 3257,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/openclaw/usage.py",
+      "size": 20193,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/openclaw/visualizer_source.py",
+      "size": 10272,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/adapters/usage_common.py",
+      "size": 30100,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/coder_identity.py",
+      "size": 2380,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/connectors/__init__.py",
+      "size": 1702,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/connectors/composio/__init__.py",
+      "size": 1,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/connectors/composio/action_prefs.py",
+      "size": 4766,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/connectors/composio/byo_key.py",
+      "size": 3697,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/connectors/composio/categories.py",
+      "size": 24325,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/connectors/composio/client.py",
+      "size": 10482,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/connectors/composio/identity.py",
+      "size": 1432,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/connectors/composio/mcp.py",
+      "size": 24785,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/connectors/composio/paths.py",
+      "size": 1865,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/connectors/composio/service.py",
+      "size": 46643,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/connectors/composio/space_scope.py",
+      "size": 9794,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/connectors/gdrive/__init__.py",
+      "size": 910,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/connectors/gdrive/provider.py",
+      "size": 6487,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/connectors/github/__init__.py",
+      "size": 1078,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/connectors/github/cli_auth.py",
+      "size": 13126,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/connectors/github/common.py",
+      "size": 10710,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/connectors/github/issue_actions.py",
+      "size": 6474,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/connectors/github/issues.py",
+      "size": 25133,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/connectors/github/pat.py",
+      "size": 1948,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/connectors/onedrive/__init__.py",
+      "size": 635,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/connectors/onedrive/provider.py",
+      "size": 5146,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/connectors/rclone/__init__.py",
+      "size": 1117,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/connectors/rclone/connector.py",
+      "size": 28446,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/connectors/rclone/oauth_lock.py",
+      "size": 3032,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/connectors/token_store.py",
+      "size": 5121,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/connectors/vercel/__init__.py",
+      "size": 1262,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/connectors/vercel/api.py",
+      "size": 1948,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/connectors/vercel/connector.py",
+      "size": 14431,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/connectors/vercel/oauth.py",
+      "size": 9306,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/engine/__init__.py",
+      "size": 579,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/engine/chat_state.py",
+      "size": 318,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/engine/dispatcher.py",
+      "size": 1115,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/engine/messages.py",
+      "size": 18217,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/engine/sessions_io.py",
+      "size": 14707,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/engine/stream_events.py",
+      "size": 3870,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/engine/usage_loader.py",
+      "size": 1198,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/file_history.py",
+      "size": 9863,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/github_poller.py",
+      "size": 28515,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/helpers.py",
+      "size": 7858,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/local_state.py",
+      "size": 156,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/opentelemetry_exporter.py",
+      "size": 12718,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/project_layout.py",
+      "size": 30867,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/project_sharing/__init__.py",
+      "size": 865,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/project_sharing/clone.py",
+      "size": 7820,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/project_sharing/config.py",
+      "size": 2634,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/project_sharing/git_ops.py",
+      "size": 7550,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/project_sharing/poller.py",
+      "size": 12117,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/project_sharing/repo_identity.py",
+      "size": 1280,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/project_sharing/service.py",
+      "size": 6122,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/project_sharing/state.py",
+      "size": 5096,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/project_sharing/status.py",
+      "size": 8931,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/project_sharing/watcher.py",
+      "size": 2821,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/project_template/AGENTS.md",
+      "size": 18429,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/project_template/CLAUDE.md",
+      "size": 10,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/project_template/OBJECTIVES.md",
+      "size": 923,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/project_template/PLAN.md",
+      "size": 1278,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/project_template/PROGRESS.md",
+      "size": 583,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/project_template/PROJECT.md",
+      "size": 1259,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/project_template/memory/episodic/README.md",
+      "size": 1157,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/project_template/memory/procedural/README.md",
+      "size": 1219,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/project_template/memory/semantic/constraints.md",
+      "size": 135,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/project_template/memory/semantic/preferences.md",
+      "size": 215,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/project_template/memory/semantic/project-facts.md",
+      "size": 141,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/project_template/memory/working/.gitkeep",
+      "size": 0,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/providers_status_lib.py",
+      "size": 8377,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/quirq_catalog.py",
+      "size": 29207,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/registry/__init__.py",
+      "size": 491,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/registry/adapter_registry.py",
+      "size": 1812,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/registry/agent_env.py",
+      "size": 6385,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/registry/agent_registry.py",
+      "size": 9418,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/registry/agent_settings.py",
+      "size": 3989,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/registry/settings.py",
+      "size": 3267,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/runtime_config.py",
+      "size": 24616,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/scopes.py",
+      "size": 23670,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/self_update.py",
+      "size": 6735,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/session_transcript.py",
+      "size": 3959,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/skill_catalog.py",
+      "size": 14058,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/skill_installer.py",
+      "size": 6294,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/__init__.py",
+      "size": 715,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/argus_index.py",
+      "size": 11459,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/atomic_write.py",
+      "size": 170,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/categorized_graph.py",
+      "size": 14712,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/discovery.py",
+      "size": 774,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/flock.py",
+      "size": 156,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/git_provenance.py",
+      "size": 2717,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/github_mirror.py",
+      "size": 15082,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/ingest/__init__.py",
+      "size": 770,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/ingest/events.py",
+      "size": 8344,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/ingest/jsonl_tail.py",
+      "size": 6667,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/ingest/pii_filter.py",
+      "size": 9889,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/migrate.py",
+      "size": 5130,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/peers_store.py",
+      "size": 11413,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/project_index.py",
+      "size": 1463,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/reader.py",
+      "size": 158,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/schema/activity.schema.json",
+      "size": 2587,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/schema/agent.schema.json",
+      "size": 3207,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/schema/github-issues.schema.json",
+      "size": 10515,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/schema/inbox.schema.json",
+      "size": 6313,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/schema/peers.schema.json",
+      "size": 1154,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/schema/project.schema.json",
+      "size": 4250,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/schema/projects.schema.json",
+      "size": 3740,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/schema/sessions-augment.schema.json",
+      "size": 5319,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/schema/sessionslist.schema.json",
+      "size": 2695,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/schema/space.schema.json",
+      "size": 4440,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/schema/stats.schema.json",
+      "size": 10215,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/schema/sync.schema.json",
+      "size": 1468,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/schema/timeline.schema.json",
+      "size": 8707,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/schema/todos.schema.json",
+      "size": 3268,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/schema/workitems.schema.json",
+      "size": 10095,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/session_telemetry.py",
+      "size": 15549,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/sinks/__init__.py",
+      "size": 59,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/sinks/activity.py",
+      "size": 3736,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/sinks/project_json.py",
+      "size": 5420,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/sinks/sessions_augment.py",
+      "size": 8789,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/sinks/stats.py",
+      "size": 12352,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/sinks/timeline.py",
+      "size": 6935,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/source_loader.py",
+      "size": 1575,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/sources/__init__.py",
+      "size": 473,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/sources/base.py",
+      "size": 1462,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/space_index.py",
+      "size": 21604,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/state.py",
+      "size": 2532,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/store_common.py",
+      "size": 2492,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/todo_status.py",
+      "size": 663,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/todos_store.py",
+      "size": 14180,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/watcher.py",
+      "size": 15245,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/workitem_claims.py",
+      "size": 11824,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/workitem_projection.py",
+      "size": 6080,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/workitems_store.py",
+      "size": 34083,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/workspace/__init__.py",
+      "size": 425,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/workspace/activity.py",
+      "size": 1803,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/workspace/projects_json.py",
+      "size": 6121,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/workspace/sessions_augment.py",
+      "size": 2327,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/workspace/sessionslist.py",
+      "size": 1567,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/workspace/space_json.py",
+      "size": 8536,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/workspace/stats.py",
+      "size": 7762,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/workspace/timeline.py",
+      "size": 1155,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/workspace/views.py",
+      "size": 11597,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/visualizer/workspace_index.py",
+      "size": 3268,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/xo_cowork_state.py",
+      "size": 2499,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/xo_projects_sync/__init__.py",
+      "size": 83,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/xo_projects_sync/backup.py",
+      "size": 7700,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/xo_projects_sync/config.py",
+      "size": 5044,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/xo_projects_sync/crypto.py",
+      "size": 6524,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/xo_projects_sync/github.py",
+      "size": 12632,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/xo_projects_sync/manifest.py",
+      "size": 3496,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/xo_projects_sync/restore.py",
+      "size": 12988,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/cowork_agent/xo_projects_sync/tarball.py",
+      "size": 8580,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/doctor/__init__.py",
+      "size": 325,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/doctor/catalog.py",
+      "size": 30148,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/doctor/checks.py",
+      "size": 38901,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/doctor/content.py",
+      "size": 3799,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/doctor/context.py",
+      "size": 4992,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/doctor/history.py",
+      "size": 4465,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/doctor/inventory.py",
+      "size": 11888,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/doctor/leftovers.py",
+      "size": 24665,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/doctor/liveness.py",
+      "size": 40038,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/doctor/model.py",
+      "size": 5421,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/doctor/projects.py",
+      "size": 4094,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/doctor/reading.py",
+      "size": 10090,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/doctor/relate.py",
+      "size": 5228,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/doctor/run.py",
+      "size": 6838,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/errors.py",
+      "size": 750,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/inbox/__init__.py",
+      "size": 1332,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/inbox/feeders.py",
+      "size": 20352,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/inbox/service.py",
+      "size": 8898,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/inbox/store.py",
+      "size": 20027,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/periodic.py",
+      "size": 1928,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/project_management.py",
+      "size": 18258,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/setup_status.py",
+      "size": 3044,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/storage/__init__.py",
+      "size": 1163,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/storage/atomic_write.py",
+      "size": 13810,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/storage/flock.py",
+      "size": 2329,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/storage/layout.py",
+      "size": 2967,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/storage/migrations.py",
+      "size": 8552,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/storage/paths.py",
+      "size": 903,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/storage/reader.py",
+      "size": 8221,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/swarm_api/__init__.py",
+      "size": 1026,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/swarm_api/_http.py",
+      "size": 4500,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/swarm_api/auth.py",
+      "size": 1543,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/swarm_api/chat.py",
+      "size": 1982,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/swarm_api/project_sharing.py",
+      "size": 2483,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/swarm_api/usage.py",
+      "size": 600,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/telemetry_sources.py",
+      "size": 6433,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/theme.py",
+      "size": 2427,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/timestamps.py",
+      "size": 1554,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/usage_sync.py",
+      "size": 18866,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/xo_manifest.py",
+      "size": 9195,
+      "existsAtHead": true
+    },
+    {
+      "path": "services/xo_structure.py",
+      "size": 10075,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/README.md",
+      "size": 54807,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/css/base.css",
+      "size": 9218,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/css/chat.css",
+      "size": 5894,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/css/chrome.css",
+      "size": 5708,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/css/command-palette.css",
+      "size": 3804,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/css/connectors.css",
+      "size": 13876,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/css/graph.css",
+      "size": 6926,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/css/inbox-activity.css",
+      "size": 5246,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/css/inbox.css",
+      "size": 10883,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/css/navigation.css",
+      "size": 7469,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/css/preview.css",
+      "size": 6446,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/css/project-management.css",
+      "size": 16522,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/css/project-share.css",
+      "size": 1985,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/css/projects.css",
+      "size": 23296,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/css/quirq.css",
+      "size": 14769,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/css/sessions.css",
+      "size": 7372,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/css/setup.css",
+      "size": 29630,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/css/shadcn.css",
+      "size": 29092,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/css/sharing.css",
+      "size": 11368,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/css/stage.css",
+      "size": 372,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/css/themes.css",
+      "size": 6417,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/css/timeline.css",
+      "size": 6043,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/css/wiki.css",
+      "size": 4464,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/fonts/README.md",
+      "size": 1559,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/fonts/inter/InterVariable-Italic.woff2",
+      "size": 387976,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/fonts/inter/InterVariable.woff2",
+      "size": 352240,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/fonts/inter/LICENSE.txt",
+      "size": 4380,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/fonts/jetbrains-mono/JetBrainsMono-Latin.woff2",
+      "size": 31340,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/fonts/jetbrains-mono/LICENSE.txt",
+      "size": 4398,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/fonts/poppins/LICENSE.txt",
+      "size": 4384,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/fonts/poppins/Poppins-SemiBold-Latin.woff2",
+      "size": 7992,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/index.html",
+      "size": 11611,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/app.js",
+      "size": 5111,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/core/api.js",
+      "size": 4535,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/core/branding.js",
+      "size": 2133,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/core/chart.js",
+      "size": 18394,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/core/command-palette.js",
+      "size": 11784,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/core/command-results.js",
+      "size": 5614,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/core/connections.js",
+      "size": 2088,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/core/data-views.js",
+      "size": 430,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/core/jobs.js",
+      "size": 11221,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/core/markdown.js",
+      "size": 4933,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/core/navigation.js",
+      "size": 2786,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/core/page-refresh.js",
+      "size": 492,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/core/preview.js",
+      "size": 14063,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/core/project-actions.js",
+      "size": 1310,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/core/project-issues.js",
+      "size": 9324,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/core/project-pins.js",
+      "size": 1706,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/core/project-root.js",
+      "size": 7174,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/core/project-share.js",
+      "size": 5291,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/core/project-ui.js",
+      "size": 5835,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/core/registry.js",
+      "size": 9211,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/core/section-nav.js",
+      "size": 5348,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/core/server-widget.js",
+      "size": 1707,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/core/setup-sections.js",
+      "size": 1302,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/core/setup-state.js",
+      "size": 3264,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/core/shadcn.js",
+      "size": 21510,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/core/store.js",
+      "size": 1073,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/core/theme.js",
+      "size": 1130,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/core/timeline-summary.js",
+      "size": 2179,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/core/toolbar.js",
+      "size": 4064,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/core/ui.js",
+      "size": 2255,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/core/workspace.js",
+      "size": 2968,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/views/atlas.js",
+      "size": 92684,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/views/chat.js",
+      "size": 12361,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/views/connectors.js",
+      "size": 41687,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/views/inbox-activity.js",
+      "size": 21201,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/views/inbox.js",
+      "size": 32324,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/views/native-connectors.js",
+      "size": 21124,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/views/project-manage.js",
+      "size": 1689,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/views/project-management.js",
+      "size": 33378,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/views/projects.js",
+      "size": 29479,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/views/quirq.js",
+      "size": 24701,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/views/sessions.js",
+      "size": 52475,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/views/setup-branding.js",
+      "size": 7473,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/views/setup-commands.js",
+      "size": 29169,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/views/setup-identity.js",
+      "size": 3252,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/views/setup-search.js",
+      "size": 3872,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/views/setup-shell.js",
+      "size": 11156,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/views/setup-theme.js",
+      "size": 4047,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/views/setup.js",
+      "size": 37617,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/views/sharing.js",
+      "size": 38063,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/views/sharing_data.js",
+      "size": 8531,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/views/tree.js",
+      "size": 19746,
+      "existsAtHead": true
+    },
+    {
+      "path": "space_ui/js/views/wiki.js",
+      "size": 8251,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/__init__.py",
+      "size": 205,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/doctor_sandbox.py",
+      "size": 4183,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/.locks/todos.json.121bc02e.lock",
+      "size": 0,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/README.md",
+      "size": 6853,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/cache/activity/projects/sample-project.json",
+      "size": 338,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/cache/activity/workspace.json",
+      "size": 376,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/cache/heartbeat.json",
+      "size": 256,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/cache/sessions/sessions-augment.json",
+      "size": 554,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/cache/sessions/sessionslist.json",
+      "size": 443,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/cache/stats.json",
+      "size": 1297,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/connections/accounts.json",
+      "size": 181,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/connections/gmail/config.json",
+      "size": 116,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/connections/gmail/events.jsonl",
+      "size": 226,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/connections/gmail/state.json",
+      "size": 233,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/inbox/activity/commands.log",
+      "size": 134,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/inbox/inbox.json",
+      "size": 1424,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/logs/quirq.log",
+      "size": 197,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/logs/scheduler/nightly-tests-a1b2c3.log",
+      "size": 165,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/projects/00000000-0000-4000-8000-000000000000/github/issues.json",
+      "size": 649,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/projects/00000000-0000-4000-8000-000000000000/sessions/sessions-augment.json",
+      "size": 554,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/projects/00000000-0000-4000-8000-000000000000/sessions/sessionslist.d/c769df1f8af960c8.json",
+      "size": 443,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/projects/00000000-0000-4000-8000-000000000000/stats.json",
+      "size": 1297,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/projects/00000000-0000-4000-8000-000000000000/timeline.jsonl",
+      "size": 872,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/projects/00000000-0000-4000-8000-000000000000/workitems/claims.json",
+      "size": 265,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/projects/offsets.json",
+      "size": 173,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/projects/timeline.jsonl",
+      "size": 1000,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/quarantine/runtime-leftovers/00000000-0000-4000-8000-000000000000-20260101T091500Z/stats.json",
+      "size": 1297,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/scheduler/jobs.json",
+      "size": 575,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/scheduler/runs/nightly-tests-a1b2c3.jsonl",
+      "size": 291,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/scheduler/state.json",
+      "size": 477,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/secrets/secrets.env",
+      "size": 38,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/secrets/token.json",
+      "size": 184,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/sessions/sessionslist.d/aaac1877f296bbf0.json",
+      "size": 392,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/settings/onboarding.json",
+      "size": 102,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/settings/roots.env",
+      "size": 190,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/settings/runtime.env",
+      "size": 174,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/sharing/github.com__acme__sample-project-9eef45d3.json",
+      "size": 126,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/sharing/removed/288aaf6b3941bb899aefbe16df47958bd7497522cf269a073d95e354d2692adb.json",
+      "size": 98,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/quirq-state/usage/sample_agent.json",
+      "size": 170,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/xo-project/.xo/peers.json",
+      "size": 92,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/xo-project/.xo/project.json",
+      "size": 220,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/xo-project/.xo/todos.json",
+      "size": 95,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/xo-project/.xo/workitems.json",
+      "size": 96,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/fixtures/xo-project/README.md",
+      "size": 4412,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/install_sh_harness.sh",
+      "size": 20553,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/quirq/check_bridge.cjs",
+      "size": 8494,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/required_tools.py",
+      "size": 3049,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/space_ui_preview/README.md",
+      "size": 12660,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/space_ui_preview/capture.mjs",
+      "size": 19575,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/space_ui_preview/command-results-races.mjs",
+      "size": 7766,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/space_ui_preview/commands-live.mjs",
+      "size": 6546,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/space_ui_preview/commands-restart.mjs",
+      "size": 17797,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/space_ui_preview/commands_server.py",
+      "size": 2820,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/space_ui_preview/contextual-toolbar.mjs",
+      "size": 20358,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/space_ui_preview/fixtures.py",
+      "size": 16953,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/space_ui_preview/global-refresh.mjs",
+      "size": 9802,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/space_ui_preview/inbox-activity.mjs",
+      "size": 14203,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/space_ui_preview/inbox-jobs.mjs",
+      "size": 16002,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/space_ui_preview/inline-sharing.mjs",
+      "size": 9392,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/space_ui_preview/manage-details.mjs",
+      "size": 31655,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/space_ui_preview/manage-refresh-races.mjs",
+      "size": 5663,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/space_ui_preview/native-connectors.mjs",
+      "size": 18527,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/space_ui_preview/project-actions.mjs",
+      "size": 13325,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/space_ui_preview/projects-experience.mjs",
+      "size": 22029,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/space_ui_preview/projects-root.mjs",
+      "size": 6845,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/space_ui_preview/refresh-helpers.mjs",
+      "size": 2013,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/space_ui_preview/routes.mjs",
+      "size": 2062,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/space_ui_preview/screenshots/global-refresh-desktop.png",
+      "size": 109553,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/space_ui_preview/screenshots/global-refresh-mobile.png",
+      "size": 59396,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/space_ui_preview/search-sessions-inbox.mjs",
+      "size": 10302,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/space_ui_preview/section-navigation.mjs",
+      "size": 23639,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/space_ui_preview/server.py",
+      "size": 5904,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/space_ui_preview/setup-branding.mjs",
+      "size": 19284,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/space_ui_preview/setup-connectors.mjs",
+      "size": 19113,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/space_ui_preview/setup-identity.mjs",
+      "size": 11762,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/space_ui_preview/setup-journey.mjs",
+      "size": 28541,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/space_ui_preview/setup-projects.mjs",
+      "size": 23651,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/space_ui_preview/setup-state.mjs",
+      "size": 8367,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/space_ui_preview/setup-theme.mjs",
+      "size": 21402,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/space_ui_preview/timeline-experience.mjs",
+      "size": 15311,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_activity_state.py",
+      "size": 5986,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_agent_env.py",
+      "size": 2339,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_background.py",
+      "size": 5189,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_background_wiring.py",
+      "size": 5019,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_branding.py",
+      "size": 13234,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_browser_guard.py",
+      "size": 9877,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_checkout_hygiene.py",
+      "size": 3110,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_claude_stream_deltas.py",
+      "size": 9228,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_codex_plugin_package.py",
+      "size": 4095,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_codex_plugin_runtime.py",
+      "size": 13369,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_codex_remote_control.py",
+      "size": 42373,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_codex_rollout_messages.py",
+      "size": 12581,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_command_executor.py",
+      "size": 34657,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_command_sync_lifecycle.py",
+      "size": 2054,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_composio.py",
+      "size": 86040,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_composio_byo.py",
+      "size": 19061,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_composio_mcp.py",
+      "size": 30270,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_connections_bff.py",
+      "size": 14140,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_connections_collectors.py",
+      "size": 31627,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_connections_docs.py",
+      "size": 18579,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_connections_mcp_client.py",
+      "size": 35826,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_connections_poller.py",
+      "size": 72663,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_connections_store.py",
+      "size": 29570,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_data_file_rules.py",
+      "size": 5004,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_doctor_catalog.py",
+      "size": 6008,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_doctor_checks.py",
+      "size": 16093,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_doctor_content.py",
+      "size": 6464,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_doctor_every_finding.py",
+      "size": 1265,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_doctor_history.py",
+      "size": 2490,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_doctor_inventory.py",
+      "size": 9128,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_doctor_leftovers.py",
+      "size": 29512,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_doctor_liveness.py",
+      "size": 28654,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_doctor_model.py",
+      "size": 2738,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_doctor_read_findings.py",
+      "size": 10033,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_doctor_reading.py",
+      "size": 12867,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_doctor_regressions.py",
+      "size": 5650,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_doctor_relate.py",
+      "size": 5604,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_doctor_routes.py",
+      "size": 6089,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_doctor_run.py",
+      "size": 19790,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_doctor_seams.py",
+      "size": 2115,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_doctor_special.py",
+      "size": 3965,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_env_blank_shadow.py",
+      "size": 3857,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_files_paths.py",
+      "size": 6624,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_grokbot_adapter.py",
+      "size": 14911,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_grokbot_dispatcher.py",
+      "size": 20209,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_grokbot_history.py",
+      "size": 8587,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_inbox_bff.py",
+      "size": 12330,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_inbox_docs.py",
+      "size": 11264,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_inbox_feeders_issues_connections.py",
+      "size": 23239,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_inbox_store.py",
+      "size": 42620,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_install_sh.py",
+      "size": 2330,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_issue_37_gaps.py",
+      "size": 6873,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_local_port.py",
+      "size": 1897,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_local_state.py",
+      "size": 4099,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_opentelemetry_exporter.py",
+      "size": 2621,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_periodic.py",
+      "size": 9404,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_pid_keys.py",
+      "size": 4682,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_plugin_discovery.py",
+      "size": 8244,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_project_management.py",
+      "size": 21586,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_project_sharing_bff.py",
+      "size": 9472,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_project_sharing_clone.py",
+      "size": 15345,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_project_sharing_e2e.py",
+      "size": 11944,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_project_sharing_git_ops.py",
+      "size": 2900,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_project_sharing_identity.py",
+      "size": 2027,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_project_sharing_layout.py",
+      "size": 6366,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_project_sharing_nudge.py",
+      "size": 3744,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_project_sharing_poller.py",
+      "size": 10714,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_project_sharing_state.py",
+      "size": 6506,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_project_sharing_status.py",
+      "size": 4655,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_project_tree_listing.py",
+      "size": 3527,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_quirq_bridge.py",
+      "size": 816,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_quirq_catalog.py",
+      "size": 5373,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_quirq_plugin_server.py",
+      "size": 17504,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_quirq_space_view.py",
+      "size": 3329,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_quirq_state_layout.py",
+      "size": 15512,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_repo_checks.py",
+      "size": 3264,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_root_sessions.py",
+      "size": 9321,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_runtime_config.py",
+      "size": 19932,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_safe_read.py",
+      "size": 3299,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_scheduler.py",
+      "size": 27991,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_scheduler_api.py",
+      "size": 13026,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_session_mounts.py",
+      "size": 2923,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_session_transcript.py",
+      "size": 5101,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_setup_status.py",
+      "size": 13632,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_space_activity_views.py",
+      "size": 17557,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_space_atlas_lifecycle.py",
+      "size": 5891,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_space_command_palette.py",
+      "size": 6926,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_space_commands.py",
+      "size": 15982,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_space_connections.py",
+      "size": 21985,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_space_dashboard.py",
+      "size": 7203,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_space_doctor_ui.py",
+      "size": 4634,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_space_file_history.py",
+      "size": 13610,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_space_foundation.py",
+      "size": 14379,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_space_inbox.py",
+      "size": 7571,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_space_index_counts.py",
+      "size": 8220,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_space_inline_sharing.py",
+      "size": 11518,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_space_issues.py",
+      "size": 7321,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_space_jobs.py",
+      "size": 6252,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_space_navigation.py",
+      "size": 14241,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_space_pr97_ui.py",
+      "size": 52763,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_space_preview_navigation.py",
+      "size": 13008,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_space_project_pins.py",
+      "size": 7541,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_space_project_root.py",
+      "size": 12688,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_space_project_sharing.py",
+      "size": 6951,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_space_restart.py",
+      "size": 17167,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_space_self_update.py",
+      "size": 4824,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_space_sessions.py",
+      "size": 13032,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_space_sharing_drafts.py",
+      "size": 5723,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_space_subpage_controllers.py",
+      "size": 10298,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_space_timeline_events.py",
+      "size": 4496,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_space_timeline_modes.py",
+      "size": 9648,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_space_timeline_summary.py",
+      "size": 3337,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_space_toolbar.py",
+      "size": 12669,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_space_ui_project_actions.py",
+      "size": 12051,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_space_view_search.py",
+      "size": 11430,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_space_wiki.py",
+      "size": 40572,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_storage_layout.py",
+      "size": 3304,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_storage_migrations.py",
+      "size": 13021,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_stream_events.py",
+      "size": 4052,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_swarm_api.py",
+      "size": 9140,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_telemetry_sources.py",
+      "size": 8923,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_theme.py",
+      "size": 8620,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_timeline_routes.py",
+      "size": 3409,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_todo_status.py",
+      "size": 1142,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_todos_conflicts.py",
+      "size": 5255,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_uninstall_sh.py",
+      "size": 3139,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_usage_reporting_status.py",
+      "size": 3074,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_watcher_scheduler.py",
+      "size": 11144,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_workspace_document.py",
+      "size": 17986,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_xo_root_identity.py",
+      "size": 12027,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/test_xo_structure.py",
+      "size": 16803,
+      "existsAtHead": true
+    },
+    {
+      "path": "tests/uninstall_sh_harness.sh",
+      "size": 9689,
+      "existsAtHead": true
+    },
+    {
+      "path": "uninstall.sh",
+      "size": 15758,
+      "existsAtHead": true
+    },
+    {
+      "path": "utils/__init__.py",
+      "size": 55,
+      "existsAtHead": true
+    },
+    {
+      "path": "utils/commands/__init__.py",
+      "size": 34084,
+      "existsAtHead": true
+    },
+    {
+      "path": "utils/commands/scheduler.py",
+      "size": 31571,
+      "existsAtHead": true
+    },
+    {
+      "path": "utils/local_port.py",
+      "size": 2091,
+      "existsAtHead": true
+    },
+    {
+      "path": "utils/runtime_env.py",
+      "size": 2458,
+      "existsAtHead": true
+    },
+    {
+      "path": "utils/safe_read.py",
+      "size": 2895,
+      "existsAtHead": true
+    }
+  ],
+  "commits": [
+    {
+      "sha": "94a0eaf5b05098e4c3804afd3b6322382d464177",
+      "message": "V0-ROL-02: regenerate qq-roll-land from quirq-ai/rollers f9be218 (#219)\n\n* V0-ROL-02: regenerate qq-roll-land from quirq-ai/rollers a6e6ed9\n\nBrings the land check up to rollers main: the lockfile importers check (R-5, #12) and the\nresolved-tree check against the npm registry (ROL-R6, #14, #15). Generated from infra-config\nrollers.toml at 2db0ce1; dependabot.yml is unchanged.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_018J61nJvcYuL2ZeWXb1LP67\n\n* V0-ROL-02: regenerate qq-roll-land from quirq-ai/rollers f9be218\n\nPicks up rollers #16 (audit B-R6-1): the range reader refuses inputs npm reads differently\n(numbers past 2^53 - 1, non-ASCII whitespace, over 256 characters). Generated from infra-config\nrollers.toml at 2db0ce1.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_018J61nJvcYuL2ZeWXb1LP67\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "date": "2026-10-05T02:04:37+05:30",
+      "url": "https://github.com/quirq-ai/xo-space/commit/94a0eaf5b05098e4c3804afd3b6322382d464177",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "e15c064b6e933ce2bbffe51a7e96110b14fd783d",
+      "files": [
+        {
+          "path": ".github/workflows/qq-roll-land.yml",
+          "status": "modified",
+          "additions": 694,
+          "deletions": 8
+        }
+      ]
+    },
+    {
+      "sha": "2ac0aecb829d23e7f29cb54f3bce15d31e75ae2b",
+      "message": "Redeliver quirq infra workflows from infra-config 0d3bae7 (#218)\n\nGenerated by qqcfg deliver xo-space from infra-config main 0d3bae7:\npost-submit's result sink only runs for a backfill that passed its\ncheck (R1), the sink is pinned at test-pipelines ece61c0, and gate's\ntiming step at 7a4fb53 (no install).\n\n\nClaude-Session: https://claude.ai/code/session_01FCe7kFVGJzfPynSCtxtEtb\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "date": "2026-10-05T02:22:27+05:30",
+      "url": "https://github.com/quirq-ai/xo-space/commit/2ac0aecb829d23e7f29cb54f3bce15d31e75ae2b",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "94a0eaf5b05098e4c3804afd3b6322382d464177",
+      "files": [
+        {
+          "path": ".github/workflows/qq-xo-space-postsubmit.yml",
+          "status": "modified",
+          "additions": 3,
+          "deletions": 3
+        },
+        {
+          "path": ".github/workflows/qq-xo-space-presubmit.yml",
+          "status": "modified",
+          "additions": 3,
+          "deletions": 3
+        }
+      ]
+    },
+    {
+      "sha": "14b21a41668bc8124b4cf5cf9cd59fb44dc7d419",
+      "message": "Redeliver quirq infra workflows from infra-config 9123fa9 (#220)\n\nThe result sink moves from test-pipelines ece61c0 to 28f49a0, the cleared v0\npin. Produced by qqcfg deliver xo-space with no hand edits; check-delivered passes.\n\n\nClaude-Session: https://claude.ai/code/session_01FCe7kFVGJzfPynSCtxtEtb\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "date": "2026-10-05T02:57:04+05:30",
+      "url": "https://github.com/quirq-ai/xo-space/commit/14b21a41668bc8124b4cf5cf9cd59fb44dc7d419",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "2ac0aecb829d23e7f29cb54f3bce15d31e75ae2b",
+      "files": [
+        {
+          "path": ".github/workflows/qq-xo-space-postsubmit.yml",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 2
+        },
+        {
+          "path": ".github/workflows/qq-xo-space-presubmit.yml",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 2
+        }
+      ]
+    },
+    {
+      "sha": "92bfcc693a9c34d6f1e4b19b8d76664414262516",
+      "message": "fix(projects, sharing): removal no longer depends on sharing; restore prefills; bound the relay's git calls (#199)\n\n* fix(projects): removing a local project no longer depends on sharing\n\nRemoval deleted only this Space's copy, yet it asked the swarm who the repo\nwas shared with and blocked on the answer. The swarm answers 403 for a repo\nnobody shared, so every never-shared GitHub project was stuck behind\n\"Sharing could not be verified\", and a Space outside a sharing group was\ntold to get the owner to revoke everyone before deleting its own clone.\n\nRemoval now skips the membership check. Local safety checks, the\ncollaborator roster, the origin re-check and the relay's removal marker\n(which stops the relay from cloning the folder back) are unchanged.\n`members` stays in the removal response, always empty.\n\n* feat(sharing): \"Clone project\" on a removed repo prefills the Add form\n\nInbox → Sharing lists a repo removed from this Space with a \"Clone project\"\nbutton, which opened Manage's Add form empty although the repo was known.\nIt now passes the repository URL (https://<repo>.git, as the relay clones),\nand the form suggests the folder name from it as it does for typed URLs.\nThe form is filled only when empty, so a draft in progress is kept, and\ncloning still needs a click. Cache stamps are bumped for the changed modules.\n\n* fix(sharing): bound the relay's git calls so a hang can't stall the loop\n\ngit fetch and git ls-remote ran with no timeout, so one hung network call\nfroze the relay for every repo until a restart. Every git call in git_ops\nnow has one: 300 s for fetch (a large pack can't resume, so it gets room),\n60 s for ls-remote and 60 s for local reads. On a timeout the runner kills\ngit and its helpers, and the call fails like any other git error, so the\nrelay records it and retries on the next tick.\n\nfetch and ls-remote also run with GIT_TERMINAL_PROMPT=0 for that command\nonly, as clone already did: without credentials git fails at once instead\nof waiting on a username prompt. With a credential helper nothing changes.\n\n* docs(env): sharing bookmarks live in <state>/sharing/",
+      "author": "KrishBhimani",
+      "date": "2026-10-06T12:37:32+00:00",
+      "url": "https://github.com/quirq-ai/xo-space/commit/92bfcc693a9c34d6f1e4b19b8d76664414262516",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "14b21a41668bc8124b4cf5cf9cd59fb44dc7d419",
+      "files": [
+        {
+          "path": ".env.example",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "README.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "services/cowork_agent/project_sharing/git_ops.py",
+          "status": "modified",
+          "additions": 32,
+          "deletions": 9
+        },
+        {
+          "path": "services/doctor/liveness.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "services/project_management.py",
+          "status": "modified",
+          "additions": 11,
+          "deletions": 44
+        },
+        {
+          "path": "space_ui/README.md",
+          "status": "modified",
+          "additions": 7,
+          "deletions": 11
+        },
+        {
+          "path": "space_ui/index.html",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "space_ui/js/app.js",
+          "status": "modified",
+          "additions": 3,
+          "deletions": 3
+        },
+        {
+          "path": "space_ui/js/core/project-actions.js",
+          "status": "modified",
+          "additions": 6,
+          "deletions": 3
+        },
+        {
+          "path": "space_ui/js/views/project-manage.js",
+          "status": "modified",
+          "additions": 4,
+          "deletions": 4
+        },
+        {
+          "path": "space_ui/js/views/project-management.js",
+          "status": "modified",
+          "additions": 10,
+          "deletions": 4
+        },
+        {
+          "path": "space_ui/js/views/sharing.js",
+          "status": "modified",
+          "additions": 4,
+          "deletions": 3
+        },
+        {
+          "path": "tests/test_project_management.py",
+          "status": "modified",
+          "additions": 29,
+          "deletions": 54
+        },
+        {
+          "path": "tests/test_project_sharing_git_ops.py",
+          "status": "added",
+          "additions": 66,
+          "deletions": 0
+        }
+      ]
+    },
+    {
+      "sha": "c43598ed8c21ef12adc6441e560e8dfbae18f6a7",
+      "message": "feat(codex): add remote-control adapter routes and capability (#221)\n\n* feat(codex): add remote-control adapter routes and capability\n\nAdds codex adapter-owned Remote Control lifecycle endpoints so the codex\napp-server daemon can be started, paired, and stopped from the frontend,\nmirroring the claude_code adapter's contract:\n\n  * GET  /api/remote-control/status\n  * POST /api/remote-control/start\n  * POST /api/remote-control/pair\n  * POST /api/remote-control/stop\n\nRoutes mount only when codex is the active agent, so they never collide\nwith claude_code's own /api/remote-control/* routes. Enables the\nremote_control capability in the codex capabilities config.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>\n\n* fix(codex): keep remote-control pairing codes out of commands.log\n\n`utils.commands.run` records every command's output in the shared Inbox\nActivity commands.log, and its redaction does not recognise a pairing code.\nAdd a `log_output` option to `run`/`run_sync` that withholds output from\nevery log entry while still recording the command, cwd and exit status,\nand use it for `remote-control pair`.\n\nAlso turn the codex adapter's routes module into a `routes/` package\n(`routes/remote_control.py`) and add tests for the codex remote-control\nservice and routes.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* docs(codex): trim remote-control comments and docstrings\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* refactor(codex): flatten routes package into routes.py\n\nMatch the other adapters' shape: one adapters/codex/routes.py instead of a\nroutes/ package. Same four /api/remote-control/* routes, still mounted only\nwhile codex is the active agent.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* Update Codex setup\n\n---------\n\nCo-authored-by: SAGARRAMBADE21 <tools@kosh.network>\nCo-authored-by: Claude Opus 5 <noreply@anthropic.com>",
+      "author": "SAGAR RAMBADE",
+      "date": "2026-10-06T14:21:08+00:00",
+      "url": "https://github.com/quirq-ai/xo-space/commit/c43598ed8c21ef12adc6441e560e8dfbae18f6a7",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "92bfcc693a9c34d6f1e4b19b8d76664414262516",
+      "files": [
+        {
+          "path": "config/agents/codex/capabilities.json",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 1
+        },
+        {
+          "path": "config/agents/codex/setup.sh",
+          "status": "modified",
+          "additions": 5,
+          "deletions": 2
+        },
+        {
+          "path": "services/cowork_agent/adapters/codex/remote_control.py",
+          "status": "added",
+          "additions": 506,
+          "deletions": 0
+        },
+        {
+          "path": "services/cowork_agent/adapters/codex/routes.py",
+          "status": "added",
+          "additions": 43,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_codex_remote_control.py",
+          "status": "added",
+          "additions": 538,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_command_executor.py",
+          "status": "modified",
+          "additions": 23,
+          "deletions": 0
+        },
+        {
+          "path": "utils/commands/__init__.py",
+          "status": "modified",
+          "additions": 23,
+          "deletions": 9
+        }
+      ]
+    },
+    {
+      "sha": "48157d5f262dfef6b8dee74b86d6fa733dcc1f49",
+      "message": "feat(quirq): show the full Space UI in ChatGPT/Codex sidebar, panel and chat (#200)\n\n* feat(quirq): add MCP server with compact Space dashboard for ChatGPT/Codex\n\nBundle a local stdio MCP server with the quirq Codex plugin: read-only\ntools for projects, project details and active sessions, a compact MCP App\ndashboard with sidebar (global) and conversation (thread) entrypoints, a\ndemo mode, a packager for upload/marketplace ZIPs and hermetic tests.\n\n* feat(quirq): show the full Space UI in ChatGPT/Codex sidebar, panel and chat\n\nThe plugin now renders the real Space UI (space_ui/, unmodified) inside the\nChatGPT desktop app instead of a separate dashboard:\n\n- scripts/build_space_app.py bundles space_ui's markup, CSS, fonts and ES\n  modules (esbuild) plus ui/space-bridge.js into one MCP App view,\n  ui/space-app.html. The view is generated but committed, since the GitHub\n  marketplace installs this folder from git; a freshness test fails while it\n  is stale against its sources.\n- ui/space-bridge.js does the MCP Apps handshake and replaces fetch for Space\n  URLs: requests travel as space_api_read / space_api_write tool calls to the\n  MCP server, which forwards them to the local Space. It also handles links\n  (native opener, ui/open-link, copy fallback), deep links, hash routing and\n  shares the visible page with the conversation (background context, \"+ Chat\").\n- mcp/server.py: sidebar (global) and conversation panel (thread) entrypoints\n  plus space_open for any Space page; app-only proxy tools with a path\n  allowlist, header allowlist, size caps, no redirects and no server\n  stop/restart/update; composer @-mentions with xo-space:// project, inbox and\n  active-session resources; structured plugin settings; space_inbox and\n  space_status; honest results for hosts that cannot display views.\n- skills: onboarding skill (manifest onboardingSkill); start/install open Space\n  in the app with the link as fallback and explain how long Space keeps running.\n- Plugin version 1.5.0; EXTENSIONS.md documents design, build and limits.\n\n* test(quirq): move plugin tests to tests/ and keep them out of the plugin\n\nThe tests shipped inside plugins/quirq (the ZIP and every marketplace install)\nand the repo's own test run never executed them.\n\n- tests/test_quirq_space_view.py (stdlib): the committed Space view is fresh\n  against space_ui/ and the bridge; the upload ZIP contents (no tests/).\n  Runs in every test run, where a space_ui change would make it stale.\n- tests/test_quirq_plugin_server.py: the MCP server tests. They need the\n  plugin's pinned mcp 1.x, so they skip (with the uv command) under mcp 2.x.\n- tests/test_quirq_bridge.py runs tests/quirq/check_bridge.cjs when Node is\n  available.\n- Remove the manual smoke scripts check_ui.cjs (Playwright) and\n  check_http.py; package_plugin.py no longer zips tests/.\n- .gitattributes marks the generated ui/space-app.html as linguist-generated\n  so GitHub collapses it in diffs.\n\n* fix(quirq): enforce the proxy policy in the server, on the canonical route\n\nThe app-only visibility of space_api_read/space_api_write is a host hint,\nnot a boundary: a host that ignores it (Codex CLI, other MCP clients) lets\nthe model call the proxy, and Space trusts its requests as a local client.\n\n- The server now refuses, for any caller: reading secret values; changing\n  secrets, provider keys or the Composio key; jobs (they run local commands);\n  Space chat; runtime config and restart; doctor actions; project sharing\n  (share, revoke, apply, peers); deleting projects; server stop, restart and\n  update. Everyday Space UI reads and changes keep working.\n- Rules match the canonical route (decoded once as Space's server decodes it,\n  slashes collapsed, no trailing slash), so percent-encoded variants such as\n  /space/server/re%73tart no longer bypass the deny list. A path that only\n  decodes into an allowed prefix is rejected.\n\n* fix(quirq): forward only the routes the Space UI uses (default deny)\n\nThe proxy's deny list was default-allow: every Space route it did not name\nwas forwarded, including file read/write under $HOME (/api/files/*), skill\ninstalls, connector token writes and /api/xo-projects-sync. Hosts may ignore\nthe app-only visibility hint, so the proxy is now an allowlist of exactly the\nroutes space_ui/js calls, matched on the canonical route:\n\n- reads for every Space page (secrets: names only, never values);\n- everyday changes: theme/branding, inbox status, project creation,\n  connection settings and polling, telemetry sources.\n\nEverything else (secret values, files, jobs, sharing, project deletion,\nconnector credentials, workspace config, server control, any future route)\nis refused with \"not available from ChatGPT; open Space in your browser\".\nLoading all 21 Space pages through the bridge against a live Space made 25\ndistinct requests; none is refused.\n\n* docs(quirq): document the uv requirement for the MCP server\n\n* refactor(quirq): remove demo mode from the plugin\n\nQUIRQ_EXTENSION_DEMO made the MCP server answer from hardcoded sample\nprojects, sessions, todos and inbox items, and the compact dashboard had\nits own ?demo=1 sample. Test scaffolding does not belong in what users\ninstall, so both are gone: the plugin only ever shows real Space data.\n\nThe server tests now patch a small fake Space inside the test file, and\nthe real stdio protocol test checks the \"Space unreachable\" result instead\nof sample data.\n\n* chore: retrigger presubmit\n\n* fix(quirq): run esbuild through utils.commands, not subprocess\n\nThe repo's one-executor rule (tests/test_command_executor.py) forbids\nimporting subprocess outside utils/commands. The build script now calls\nutils.commands.run_sync, imported on use because the shipped plugin\ncontains the script but not the repo.\n\n* docs(quirq): run Space through WSL when Codex runs on Windows\n\nSpace runs on Linux or macOS only. When Codex runs on Windows, the quirq\nskill now runs the bundled scripts inside WSL (never Git Bash), converts the\nplugin path with wslpath using forward slashes (backslashes are mangled on\nthe way into WSL), uses Linux workspace paths, and asks for wsl --install\nwhen WSL is missing. Verified on Windows with Space already installed in WSL.\n\n* build(quirq): rebuild the Space view from main's space_ui\n\nmain changed space_ui/ (#199); regenerate plugins/quirq/ui/space-app.html so\nthe freshness check matches the merged sources. See #226 for whether this\ncheck should block space_ui/ changes.",
+      "author": "KrishBhimani",
+      "date": "2026-10-07T08:26:48+00:00",
+      "url": "https://github.com/quirq-ai/xo-space/commit/48157d5f262dfef6b8dee74b86d6fa733dcc1f49",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "c43598ed8c21ef12adc6441e560e8dfbae18f6a7",
+      "files": [
+        {
+          "path": ".gitattributes",
+          "status": "added",
+          "additions": 2,
+          "deletions": 0
+        },
+        {
+          "path": "plugins/quirq/.codex-plugin/plugin.json",
+          "status": "modified",
+          "additions": 33,
+          "deletions": 8
+        },
+        {
+          "path": "plugins/quirq/.mcp.json",
+          "status": "added",
+          "additions": 9,
+          "deletions": 0
+        },
+        {
+          "path": "plugins/quirq/EXTENSIONS.md",
+          "status": "added",
+          "additions": 109,
+          "deletions": 0
+        },
+        {
+          "path": "plugins/quirq/README.md",
+          "status": "modified",
+          "additions": 9,
+          "deletions": 0
+        },
+        {
+          "path": "plugins/quirq/mcp/server.py",
+          "status": "added",
+          "additions": 709,
+          "deletions": 0
+        },
+        {
+          "path": "plugins/quirq/plugin.json",
+          "status": "added",
+          "additions": 51,
+          "deletions": 0
+        },
+        {
+          "path": "plugins/quirq/scripts/build_space_app.py",
+          "status": "added",
+          "additions": 173,
+          "deletions": 0
+        },
+        {
+          "path": "plugins/quirq/scripts/package_plugin.py",
+          "status": "added",
+          "additions": 61,
+          "deletions": 0
+        },
+        {
+          "path": "plugins/quirq/skills/quirq-install/SKILL.md",
+          "status": "modified",
+          "additions": 7,
+          "deletions": 1
+        },
+        {
+          "path": "plugins/quirq/skills/quirq-onboarding/SKILL.md",
+          "status": "added",
+          "additions": 31,
+          "deletions": 0
+        },
+        {
+          "path": "plugins/quirq/skills/quirq-start/SKILL.md",
+          "status": "modified",
+          "additions": 9,
+          "deletions": 3
+        },
+        {
+          "path": "plugins/quirq/skills/quirq/SKILL.md",
+          "status": "modified",
+          "additions": 50,
+          "deletions": 3
+        },
+        {
+          "path": "plugins/quirq/ui/dashboard.html",
+          "status": "added",
+          "additions": 92,
+          "deletions": 0
+        },
+        {
+          "path": "plugins/quirq/ui/space-app.html",
+          "status": "added",
+          "additions": 4012,
+          "deletions": 0
+        },
+        {
+          "path": "plugins/quirq/ui/space-bridge.js",
+          "status": "added",
+          "additions": 559,
+          "deletions": 0
+        },
+        {
+          "path": "tests/quirq/check_bridge.cjs",
+          "status": "added",
+          "additions": 150,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_codex_plugin_package.py",
+          "status": "modified",
+          "additions": 13,
+          "deletions": 2
+        },
+        {
+          "path": "tests/test_quirq_bridge.py",
+          "status": "added",
+          "additions": 22,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_quirq_plugin_server.py",
+          "status": "added",
+          "additions": 276,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_quirq_space_view.py",
+          "status": "added",
+          "additions": 70,
+          "deletions": 0
+        }
+      ]
+    },
+    {
+      "sha": "942f2c5da82e1240c3c896df9bff4694a1704486",
+      "message": "fix(quirq): keep scripts LF on Windows and report when Space is ready (#228)\n\n* fix(quirq): keep scripts LF on Windows and report when Space is ready\n\nSetting up XO Space from the Codex app on Windows took over five minutes:\nthe marketplace clone checked out the shell scripts with CRLF line endings,\nwhich bash cannot run, and the start skill had the agent poll /health,\nparse runtime-config and read config files by hand, one tool call at a time.\n\n- .gitattributes: *.sh text eol=lf, so every checkout keeps runnable scripts.\n- space.sh start runs the server as its child (still attached to the task),\n  waits until discover.sh reports this checkout running, and prints one line,\n  XO_SPACE_START {json}: running with base_url, repo_dir and roots, or\n  exited/timeout pointing at the log. Then it waits on the server as before.\n- quirq-start reads that line instead of verifying by hand.\n- quirq-onboarding first identifies the system: Windows follows the quirq\n  skill's \"On Windows\" section; macOS, Linux and WSL run the scripts directly.\n\n* fix(quirq): rewrite discover.sh in existing clones and bump plugin versions\n\n.gitattributes (eol=lf) applies only when git writes a file. Clones made on\nWindows before it existed keep discover.sh with CRLF, because the file did not\nchange: the Codex marketplace clone still failed to run it. Touching both\nidentical copies (a comment) makes git rewrite them with LF on update.\n\nCodex caches installed plugins by version, so the fixes reach existing\ninstalls only with a new version: quirq 1.5.0 -> 1.5.1, the Claude plugin\n(which shares discover.sh) 1.2.0 -> 1.2.1.",
+      "author": "KrishBhimani",
+      "date": "2026-10-07T10:56:08+00:00",
+      "url": "https://github.com/quirq-ai/xo-space/commit/942f2c5da82e1240c3c896df9bff4694a1704486",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "48157d5f262dfef6b8dee74b86d6fa733dcc1f49",
+      "files": [
+        {
+          "path": ".claude-plugin/marketplace.json",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": ".gitattributes",
+          "status": "modified",
+          "additions": 4,
+          "deletions": 0
+        },
+        {
+          "path": "plugin/.claude-plugin/plugin.json",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "plugin/scripts/discover.sh",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 0
+        },
+        {
+          "path": "plugins/quirq/.codex-plugin/plugin.json",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "plugins/quirq/mcp/server.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "plugins/quirq/plugin.json",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "plugins/quirq/scripts/discover.sh",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 0
+        },
+        {
+          "path": "plugins/quirq/scripts/space.sh",
+          "status": "modified",
+          "additions": 46,
+          "deletions": 0
+        },
+        {
+          "path": "plugins/quirq/skills/quirq-onboarding/SKILL.md",
+          "status": "modified",
+          "additions": 4,
+          "deletions": 0
+        },
+        {
+          "path": "plugins/quirq/skills/quirq-start/SKILL.md",
+          "status": "modified",
+          "additions": 16,
+          "deletions": 18
+        }
+      ]
+    },
+    {
+      "sha": "756d058d7ae5e798284b8eb550e266d977d488fd",
+      "message": "fix(quirq): ask for approval before running wsl.exe on Windows (#229)\n\nCodex's sandbox always blocks wsl.exe (\"Access is denied\",\nWsl/E_ACCESSDENIED). The skill did not say so, so the agent sometimes ran\nthe WSL path check inside the sandbox, read the denial as \"WSL is missing\"\nand stopped without asking the user. The \"On Windows\" section now says to\nrun every wsl.exe command outside the sandbox from the first call, with the\nuser's approval, and when WSL counts as not installed. Bump quirq to 1.5.2.",
+      "author": "KrishBhimani",
+      "date": "2026-10-07T11:29:05+00:00",
+      "url": "https://github.com/quirq-ai/xo-space/commit/756d058d7ae5e798284b8eb550e266d977d488fd",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "942f2c5da82e1240c3c896df9bff4694a1704486",
+      "files": [
+        {
+          "path": "plugins/quirq/.codex-plugin/plugin.json",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "plugins/quirq/mcp/server.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "plugins/quirq/plugin.json",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "plugins/quirq/skills/quirq/SKILL.md",
+          "status": "modified",
+          "additions": 8,
+          "deletions": 1
+        }
+      ]
+    },
+    {
+      "sha": "7788e078cdd49667a19143a6a6b4bcd16ba5764f",
+      "message": "xo-doctor: never offer to move a live project's own history aside (#223)\n\nWhen a project's .xo/project.json loses its pid (the identity sink then\nmints a new one), has it changed, or is deleted, the project's earlier\nhistory stays under projects/<old pid>/. The doctor listed that folder as\na leftover with a Move aside action, and move_aside() succeeded, even\nthough the leftover's recovered name was a project folder that still\nexists.\n\nA leftover whose last-known name matches a live project folder (exactly\nor once normalised) is now runtime.identity_lost: no action, and a next\nstep that restores the old pid. FAIL when it is certainly the same\nproject (no usable pid, or its created_at predates the history's last\nwrite; a re-minted pid keeps created_at), WARN when a new project may\nonly reuse the name. move_aside() re-checks the rule and refuses with\n409 doctor_identity_lost. Damaged files inside the folder are grouped\nunder the finding, as they are under a leftover.\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+      "author": "Ankit Dwivedi",
+      "date": "2026-10-07T13:46:14+00:00",
+      "url": "https://github.com/quirq-ai/xo-space/commit/7788e078cdd49667a19143a6a6b4bcd16ba5764f",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "756d058d7ae5e798284b8eb550e266d977d488fd",
+      "files": [
+        {
+          "path": "services/doctor/leftovers.py",
+          "status": "modified",
+          "additions": 77,
+          "deletions": 3
+        },
+        {
+          "path": "services/doctor/relate.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "tests/test_doctor_leftovers.py",
+          "status": "modified",
+          "additions": 77,
+          "deletions": 0
+        }
+      ]
+    },
+    {
+      "sha": "2d56e47d1c2e82009b4303d3d65030bcf4a6427c",
+      "message": "Point the docs links at docs.quirq.dev (#225)\n\n* docs: point the docs links at docs.quirq.dev\n\nsuraj (2026-10-07): the docs site is now docs.quirq.dev. Moves the\ndocs.xo.builders links and the wrong-domain docs.quirq.ai links, including\nthe in-app Wiki's DOCS_ROOT. XO product addresses are unchanged.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01E8zVR2Psi3sUaiHFzMf8Ev\n\n* space_ui: advance the wiki view and app.js cache stamps\n\nCached browsers would otherwise keep the old DOCS_ROOT.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01E8zVR2Psi3sUaiHFzMf8Ev\n\n* quirq plugin: rebuild the bundled Space view for the new docs domain\n\nThe view bundles space_ui/ (#200), so DOCS_ROOT's move to docs.quirq.dev\nmakes it stale. Rebuilt with plugins/quirq/scripts/build_space_app.py; the\nonly changes are the docs URL and the sources digest.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01E8zVR2Psi3sUaiHFzMf8Ev\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "date": "2026-10-07T14:52:25+00:00",
+      "url": "https://github.com/quirq-ai/xo-space/commit/2d56e47d1c2e82009b4303d3d65030bcf4a6427c",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "7788e078cdd49667a19143a6a6b4bcd16ba5764f",
+      "files": [
+        {
+          "path": ".github/ISSUE_TEMPLATE/config.yml",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "CONTRIBUTING.md",
+          "status": "modified",
+          "additions": 3,
+          "deletions": 3
+        },
+        {
+          "path": "INSTALLATION.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "README.md",
+          "status": "modified",
+          "additions": 5,
+          "deletions": 5
+        },
+        {
+          "path": "plugins/quirq/ui/space-app.html",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 2
+        },
+        {
+          "path": "space_ui/README.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "space_ui/index.html",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "space_ui/js/app.js",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "space_ui/js/views/wiki.js",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        }
+      ]
+    },
+    {
+      "sha": "24f943f3af4c68b6562b4cebf07f72aac9b89e2d",
+      "message": "Keep only the previous command log when QUIRQ_COMMAND_LOG_ARCHIVE=false (#232)\n\n* Keep only the previous command log on a release\n\nA development checkout keeps every full commands.log in\ninbox/activity/archive/, which nothing deletes. On a release that grows\nwithout bound on machines nobody watches, so a release now keeps one\nearlier generation instead: at 5 MB the log replaces commands.log.1, and\nthe two files never take more than about 10 MB.\n\nA release is a checkout whose HEAD is exactly a vX.Y.Z tag (RELEASING.md),\nasked once per process with `git tag --points-at HEAD`. When git cannot\nanswer (no checkout, no git) the install gets the bounded log.\nQUIRQ_COMMAND_LOG_ARCHIVE=on|off overrides the checkout.\n\nUntil installs follow tags, every install is on a branch, so behaviour is\nunchanged.\n\n* Choose the command log archive with QUIRQ_COMMAND_LOG_ARCHIVE alone\n\nImages ship without .git, so a git probe cannot tell a release from a\ndevelopment build. Drop it: QUIRQ_COMMAND_LOG_ARCHIVE=true (the default)\nkeeps every full commands.log in inbox/activity/archive/ as before, and\nfalse keeps only the previous one as commands.log.1.\n\n* Tidy the command log rotation text and make the .1 helper private\n\nThe _iter_log_paths docstring and the Setup label said \"archived\" for\nboth modes; they now say rotated. _previous_command_log_path is only used\ninside the module. A comment at the .1 replace records the cross-process\nrace the per-process lock cannot prevent.",
+      "author": "KrishBhimani",
+      "date": "2026-10-07T20:22:22+00:00",
+      "url": "https://github.com/quirq-ai/xo-space/commit/24f943f3af4c68b6562b4cebf07f72aac9b89e2d",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "2d56e47d1c2e82009b4303d3d65030bcf4a6427c",
+      "files": [
+        {
+          "path": "INSTALLATION.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "README.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "services/cowork_agent/quirq_catalog.py",
+          "status": "modified",
+          "additions": 3,
+          "deletions": 1
+        },
+        {
+          "path": "tests/fixtures/quirq-state/README.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "tests/test_command_executor.py",
+          "status": "modified",
+          "additions": 32,
+          "deletions": 1
+        },
+        {
+          "path": "utils/commands/__init__.py",
+          "status": "modified",
+          "additions": 29,
+          "deletions": 7
+        }
+      ]
+    },
+    {
+      "sha": "dc96535452c5328fa7a8c5d33a85c8330afa0cb9",
+      "message": "fix(codex): stop remote-control start hanging until the proxy 504s (#227)\n\n* fix(codex): stop remote-control start hanging until the proxy 504s\n\n`codex remote-control start` forks the app-server daemon and exits in a\nfew seconds, but run() waited in communicate() for its output pipe to\nclose, which a forked descendant can hold open. The request never\nanswered and the workspace proxy cut it at 60s with a 504.\n\n- run(): new opt-in output_to_file captures into temp files and returns\n  when the child exits; the codex remote-control adapter uses it.\n- Action timeout 90s -> 45s, under the proxy's 60s limit, so a slow\n  action reports its own timeout instead of a bare 504.\n- _live_pid() reads daemon.pid (codex-cli 0.160+), then app-server.pid.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* test: RPC\n\n* fix(codex): keep remote-control pair under the proxy's 60s limit\n\npair still answers inside the request but used the 180s action timeout,\nso a slow or hung `codex remote-control pair` ran past the workspace\nproxy's 60s limit and the user got a bare 504.\n\npair now runs under REQUEST_TIMEOUT_SECONDS (45s): one deadline shared\nby the wait for _action_lock and the CLI, so a queued pair answers\n`busy` and a slow one `timeout` instead. CODEX_REMOTE_CONTROL_TIMEOUT\ncan shorten that budget but no longer lift it past the cap.\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>\nCo-authored-by: Rohan Yadav <35034374+Rohan-07@users.noreply.github.com>\nCo-authored-by: KrishBhimani <erkrishbhimani@gmail.com>",
+      "author": "SAGAR RAMBADE",
+      "date": "2026-10-08T08:45:42+00:00",
+      "url": "https://github.com/quirq-ai/xo-space/commit/dc96535452c5328fa7a8c5d33a85c8330afa0cb9",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "24f943f3af4c68b6562b4cebf07f72aac9b89e2d",
+      "files": [
+        {
+          "path": "requirements.txt",
+          "status": "modified",
+          "additions": 7,
+          "deletions": 0
+        },
+        {
+          "path": "services/cowork_agent/adapters/codex/app_server_rpc.py",
+          "status": "added",
+          "additions": 87,
+          "deletions": 0
+        },
+        {
+          "path": "services/cowork_agent/adapters/codex/remote_control.py",
+          "status": "modified",
+          "additions": 299,
+          "deletions": 30
+        },
+        {
+          "path": "services/cowork_agent/adapters/codex/routes.py",
+          "status": "modified",
+          "additions": 20,
+          "deletions": 5
+        },
+        {
+          "path": "tests/test_codex_remote_control.py",
+          "status": "modified",
+          "additions": 351,
+          "deletions": 7
+        },
+        {
+          "path": "tests/test_command_executor.py",
+          "status": "modified",
+          "additions": 18,
+          "deletions": 0
+        },
+        {
+          "path": "utils/commands/__init__.py",
+          "status": "modified",
+          "additions": 43,
+          "deletions": 5
+        }
+      ]
+    },
+    {
+      "sha": "37bd7f7918715d60bc55df197869cada5df602e6",
+      "message": "fix(quirq): start the plugin's MCP server from prebuilt packages only (#233)\n\ncryptography (pulled in by mcp -> pyjwt[crypto]) ships no Windows ARM\nwheel since 46.0.4 and no Intel macOS wheel since 49.0.0. On those\nmachines uv tried to compile it from source, which needs Rust and a C\ntoolchain, so the MCP server never started and the sidebar never showed.\nWith --no-build uv picks the newest version that has a wheel for the\nplatform; every other platform resolves to the same packages as before.\nBump quirq to 1.5.3.",
+      "author": "KrishBhimani",
+      "date": "2026-10-08T11:56:41+00:00",
+      "url": "https://github.com/quirq-ai/xo-space/commit/37bd7f7918715d60bc55df197869cada5df602e6",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "dc96535452c5328fa7a8c5d33a85c8330afa0cb9",
+      "files": [
+        {
+          "path": "plugins/quirq/.codex-plugin/plugin.json",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "plugins/quirq/.mcp.json",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "plugins/quirq/mcp/server.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "plugins/quirq/plugin.json",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        }
+      ]
+    },
+    {
+      "sha": "c633646798e757440c97b632e6fbdfdec5363dae",
+      "message": "fix(doctor): report only what is true, and what the stores refuse (#230)\n\n* fix(doctor): report documents that parse but their store can't use\n\nThe doctor judged a file healthy once it parsed and carried an accepted\nschema number. A todos.json whose sessions is a list, a workitems.json\nwhose items is a list, a peers.json listing a user twice, or a\nscheduler jobs.json whose jobs is a list all passed, while the stores\nrefuse them (todos and work items stop saving, collaborator requests\nand project removal fail, no scheduled command runs). An inbox.json\nwhose items is not a list loads as empty, and the next write replaces\nevery saved item; that passed too.\n\nEach of those stores now exposes its existing rule as a pure\nshape_problem(document) and calls it where it validated inline, so its\nbehaviour and messages are unchanged. The Inbox store stays lenient;\nits shape_problem only names what normalize_document would drop.\n\nA new content check (after read) asks each owning store that question\nfor every file that parsed, and reports content.wrong_shape with the\nstore's reason as evidence and the catalog's wrong_shape/wrong_type\ntexts. Stores are imported inside the check, so a renamed function\ncosts only this check. The scheduler liveness check no longer goes\nsilent without a report when jobs or state is not an object.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* fix(inbox): refuse to overwrite an inbox.json whose items would be lost\n\nload_document read an inbox.json whose items is not a list, or whose\nwhole document is not an object, as an empty Inbox with ok=True. The\nnext refresh or change then wrote that empty Inbox back over the file,\nso every saved item, seen and done mark and note was lost.\n\nSuch a file is now not ok, exactly like one that is not valid JSON:\nreads still show an empty Inbox, refresh skips it, and modify refuses\nwith scope_unavailable (the message now says the items may be the\nproblem). The file is never rewritten. An inbox.json with no items key\nyet is still a usable, empty Inbox.\n\nThe doctor's Inbox text follows: the wrong-type and wrong-shape cases\nnow say the Inbox shows empty and changes fail, instead of warning that\nthe next refresh overwrites it.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* fix(doctor): report saved commands that can't run while the watcher is off\n\nThe watcher is the only caller of scheduler.tick(), so with\nQUIRQ_WATCHER_ENABLED=false an enabled saved command never runs. Both\nthe watcher and scheduler checks returned nothing in that case: on a\nlive server, a command five days overdue was reported as healthy.\n\nThe scheduler check now reports scheduler.not_running when the watcher\nis off and enabled commands exist: WARN, or FAIL once one is already\npast due, with the most overdue command as evidence. Turning the\nwatcher off is a setting a person may choose in Setup, so on its own it\nis only an OK note (watcher.disabled), which the Health panel doesn't\nshow as a problem; the scheduler finding is not folded under it, since\na warning inside an OK row would be hidden.\n\nVerified with a live server (watcher off, a command due since January):\nscheduler.not_running FAIL naming the command.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* fix(doctor): say whether XO refused the key, errored, or couldn't be reached\n\nrelay.unreachable told a person to check their network for every failed\npoll: swarm_api.project_sharing.poll returned None for any failure and\nthe relay kept no status. On a live server with XO answering 401, the\nusage check said \"XO refused this Space's API key\" while the relay\ncheck, about the same 401, said \"check this machine's network\".\n\nThe swarm client gains poll_detailed() -> (body, status, offline); poll()\nis now a thin wrapper with the same contract. The relay poller uses it\nand records last_poll_status / last_poll_offline in its status snapshot\n(additive), and its log line names the cause. The doctor maps one rule\nfor every XO caller (liveness.xo_failure): offline -> relay.unreachable,\n401/403 or nothing to authenticate with -> relay.rejected, any other\nanswer -> relay.xo_error, unknown -> relay.failed, which claims no cause.\n\nUsage reporting already recorded an inconclusive key check as\n\"unverified\" with the HTTP status (or none when XO wasn't reached); the\ndoctor ignored it for 26 hours. It now reports usage.xo_error or\nusage.unreachable.\n\nRelay tests that mocked poll() now mock poll_detailed(). Verified on a\nlive server against a local fake XO: 401, 500 and no listener give\nrejected, xo_error and unreachable for both relay and usage.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* fix(doctor): tell an empty usage record from one that stops the watcher\n\nA stats.json or sessions-augment.json holding the wrong JSON type got\none text for every case: \"the watcher fails on this file on every tick\".\nOn a live server that is true only for a value with content. The\nwatcher's sinks read `read_json(path) or {}`: an empty value ([], \"\", 0,\nfalse, null) reads as no file and is replaced by totals counted from the\nnext activity, while a list or string with content makes the step raise\neach time the project has new activity. That activity, and its timeline\nlines, are then never recorded, even after the file is repaired\n(verified live: 8 exchanges with stats.json = [1, 2] left the timeline\nand totals unchanged, and repairing the file did not bring them back).\n\nReadResult gains empty_value for wrong_type, and a read finding looks\nup the catalog's \"wrong_type_empty\" situation first. Both files now say\nwhat actually happens in each case, and urge restoring a copy soon when\nactivity is being lost.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* fix(storage): never read a device, FIFO or runaway file as a state file\n\nWith scheduler/jobs.json linked to /dev/zero, a live server allocated\nabout 1 GB on every watcher tick until MemoryError: the scheduler read\nthe path with read_text(), which never ends on a device. A FIFO at a\nstate path would make open() wait for a writer forever.\n\nutils/safe_read.read_text_guarded() stats the path first and refuses\nanything but a regular file (a link to one is followed, as before)\nwithout opening it, opens with O_NONBLOCK and re-checks, and caps a\ndocument at 50 MB. Its errors subclass OSError, so callers that already\ntreat an unreadable file as unreadable keep their behaviour. It is used\nby the readers of state documents: storage.reader.read_json and\natomic_write's stamped-document reader (most stores), the scheduler,\nthe session index, the reading positions, the GitHub mirror, sharing\nbookmarks, theme, branding, onboarding and the Inbox's empty-file check.\nAppend-only logs (timelines, run histories) grow by design, so they are\nchecked for their kind only, with no size cap. It lives in utils/\nbecause the scheduler sits below services/.\n\nTwo tests that faked an unreadable file by patching Path.read_text now\npatch the reader those modules use. Verified live: with jobs.json ->\n/dev/zero the server's memory stays flat (82-89 MB over 30 s).\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* fix(doctor): report links, FIFOs and devices at state paths\n\nThe state walk kept only regular files, so a FIFO at inbox/inbox.json\nor scheduler/jobs.json linked to /dev/zero was never judged and the\nreport said healthy (live test D4).\n\nwalk_files() can now collect every entry that is neither a regular file\nnor a real folder (links to files or folders, FIFOs, sockets, devices),\nstill without opening or following any of them. For a known state path:\na FIFO or device is read.special; a link to one, or to a folder, gets\nthe same read finding with the link target as evidence; a dangling link\nis shape.symlink (FAIL where losing the file is a FAIL); a link to a\nreal file is shape.symlink WARN, since every store saves with\nos.replace() and so replaces the link with a regular file, and the\nfile it points to is judged as usual. Unknown entries stay OK notes,\nand logs and credentials behind links are left alone.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* fix(doctor): correct the catalog where it misdescribes what the server does\n\nAn audit of every catalog text against the code that writes and reads\neach file found five false claims and about twenty partial ones; the\nuser-visible ones were confirmed on a live server. Corrected:\n\n- todos.json and cache/stats.json holding a list or string with content\n  make their routes fail with HTTP 500 (`.get` on the value); an empty\n  value reads as no document. Each case now says which, using the\n  wrong_type_empty situation.\n- cache/sessions/sessionslist.json and sessions-augment.json: nothing in\n  the server reads them (Space-wide routes merge each project's index).\n- projects.json is written through ChangeGate, so it is a change cache,\n  not \"replaced within seconds\"; inventory behaviour updated.\n- Change caches are also rebuilt at the next server start.\n- An empty connection settings file is replaced with defaults on the\n  next save; an empty or wrong-type accounts.json is rewritten by the\n  next account lookup.\n- Smaller corrections: what an Inbox refresh brings back; scheduler\n  state needs the watcher; usage re-send needs sign-in and an accepted\n  key; reading positions cover the agents that use that file; todo\n  changes also rewrite session counters; session entries \"usually\"\n  can't be resumed; a GitHub copy is rewritten by any poll and deleting\n  it closes Inbox items only until each issue next changes; live\n  activity with content fails its route; agent.json leaves the agent\n  listed under its folder name; restoring .xo/ from git works only if\n  the project commits it.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* fix(doctor): say how much was checked, so \"Healthy\" means checked\n\nA report could read healthy while parts of the state were never looked\nat: the walk stops at 50,000 entries, and a check can fail to run. A\nbig but healthy Space also carried a permanent FAIL for its size (live\ntest C1).\n\nEvery report gains a coverage block (additive): files seen, documents\nread, unknown files, special entries, unreadable folders, whether the\nwalk was truncated, the walk limit, checks that couldn't run, and\ncomplete. read.too_large becomes a WARN, since size isn't damage, and\nis pinned so the per-check cap can never drop the row that says the\nreport is partial. The Health panel shows \"Healthy (partly checked)\"\ninstead of \"Healthy\" when coverage isn't complete, and adds the number\nof files read (and \"not every file was checked\") to the check time; a\nreport from an older server without coverage renders as before. The view's\ncache stamp and index.html's app.js stamp move together, and the plugin's\nprebuilt plugins/quirq/ui/space-app.html is rebuilt.\n\nVerified with a live server: 52,000 extra files give a WARN report with\ncomplete=false; the panel's real badge code, run under node on live\nreports, renders each case as described.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* fix(doctor): show \"partly checked\" on the badge at any level\n\nThe Health badge said \"Healthy (partly checked)\" only when the level was\nOK. A truncated walk always adds the read.too_large WARN, and a check\nthat couldn't run makes the level ERROR, so that text could never be\nseen: on a live server with 52,000 extra files the badge read just\n\"WARN\" while the report's coverage said complete=false.\n\n\"(partly checked)\" now follows whatever the level is: \"WARN (partly\nchecked)\" in that case, \"Healthy (partly checked)\" if a future cause\nleaves the level at OK. Stamps moved and the plugin's prebuilt UI is\nrebuilt.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+      "author": "Ankit Dwivedi",
+      "date": "2026-10-08T14:36:45+00:00",
+      "url": "https://github.com/quirq-ai/xo-space/commit/c633646798e757440c97b632e6fbdfdec5363dae",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "37bd7f7918715d60bc55df197869cada5df602e6",
+      "files": [
+        {
+          "path": "plugins/quirq/ui/space-app.html",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 2
+        },
+        {
+          "path": "services/branding.py",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 1
+        },
+        {
+          "path": "services/cowork_agent/engine/sessions_io.py",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 1
+        },
+        {
+          "path": "services/cowork_agent/project_sharing/poller.py",
+          "status": "modified",
+          "additions": 5,
+          "deletions": 4
+        },
+        {
+          "path": "services/cowork_agent/project_sharing/state.py",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 1
+        },
+        {
+          "path": "services/cowork_agent/project_sharing/status.py",
+          "status": "modified",
+          "additions": 9,
+          "deletions": 2
+        },
+        {
+          "path": "services/cowork_agent/visualizer/github_mirror.py",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 1
+        },
+        {
+          "path": "services/cowork_agent/visualizer/ingest/jsonl_tail.py",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 1
+        },
+        {
+          "path": "services/cowork_agent/visualizer/peers_store.py",
+          "status": "modified",
+          "additions": 20,
+          "deletions": 17
+        },
+        {
+          "path": "services/cowork_agent/visualizer/todos_store.py",
+          "status": "modified",
+          "additions": 13,
+          "deletions": 2
+        },
+        {
+          "path": "services/cowork_agent/visualizer/workitems_store.py",
+          "status": "modified",
+          "additions": 16,
+          "deletions": 12
+        },
+        {
+          "path": "services/cowork_agent/xo_cowork_state.py",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 1
+        },
+        {
+          "path": "services/doctor/catalog.py",
+          "status": "modified",
+          "additions": 118,
+          "deletions": 60
+        },
+        {
+          "path": "services/doctor/checks.py",
+          "status": "modified",
+          "additions": 71,
+          "deletions": 4
+        },
+        {
+          "path": "services/doctor/content.py",
+          "status": "added",
+          "additions": 81,
+          "deletions": 0
+        },
+        {
+          "path": "services/doctor/context.py",
+          "status": "modified",
+          "additions": 13,
+          "deletions": 1
+        },
+        {
+          "path": "services/doctor/inventory.py",
+          "status": "modified",
+          "additions": 12,
+          "deletions": 3
+        },
+        {
+          "path": "services/doctor/liveness.py",
+          "status": "modified",
+          "additions": 140,
+          "deletions": 13
+        },
+        {
+          "path": "services/doctor/reading.py",
+          "status": "modified",
+          "additions": 5,
+          "deletions": 1
+        },
+        {
+          "path": "services/doctor/run.py",
+          "status": "modified",
+          "additions": 34,
+          "deletions": 4
+        },
+        {
+          "path": "services/inbox/store.py",
+          "status": "modified",
+          "additions": 24,
+          "deletions": 3
+        },
+        {
+          "path": "services/storage/atomic_write.py",
+          "status": "modified",
+          "additions": 3,
+          "deletions": 1
+        },
+        {
+          "path": "services/storage/reader.py",
+          "status": "modified",
+          "additions": 4,
+          "deletions": 2
+        },
+        {
+          "path": "services/swarm_api/project_sharing.py",
+          "status": "modified",
+          "additions": 10,
+          "deletions": 1
+        },
+        {
+          "path": "services/theme.py",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 1
+        },
+        {
+          "path": "space_ui/index.html",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "space_ui/js/app.js",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "space_ui/js/views/quirq.js",
+          "status": "modified",
+          "additions": 9,
+          "deletions": 2
+        },
+        {
+          "path": "tests/test_branding.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "tests/test_doctor_content.py",
+          "status": "added",
+          "additions": 139,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_doctor_liveness.py",
+          "status": "modified",
+          "additions": 107,
+          "deletions": 3
+        },
+        {
+          "path": "tests/test_doctor_read_findings.py",
+          "status": "modified",
+          "additions": 48,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_doctor_reading.py",
+          "status": "modified",
+          "additions": 7,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_doctor_run.py",
+          "status": "modified",
+          "additions": 41,
+          "deletions": 5
+        },
+        {
+          "path": "tests/test_doctor_special.py",
+          "status": "added",
+          "additions": 80,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_inbox_store.py",
+          "status": "modified",
+          "additions": 24,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_project_sharing_clone.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "tests/test_project_sharing_e2e.py",
+          "status": "modified",
+          "additions": 4,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_project_sharing_nudge.py",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 2
+        },
+        {
+          "path": "tests/test_project_sharing_poller.py",
+          "status": "modified",
+          "additions": 22,
+          "deletions": 9
+        },
+        {
+          "path": "tests/test_safe_read.py",
+          "status": "added",
+          "additions": 90,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_space_doctor_ui.py",
+          "status": "modified",
+          "additions": 8,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_swarm_api.py",
+          "status": "modified",
+          "additions": 16,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_theme.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "utils/commands/scheduler.py",
+          "status": "modified",
+          "additions": 17,
+          "deletions": 3
+        },
+        {
+          "path": "utils/safe_read.py",
+          "status": "added",
+          "additions": 59,
+          "deletions": 0
+        }
+      ]
+    },
+    {
+      "sha": "48436388a7f4d2ee2a1a9bc7acb1f3fb6181930d",
+      "message": "fix(install): only run from a checkout nobody else can change, and stop instead of resetting it (#236)\n\n* fix(install): never adopt a shared temp dir as the checkout\n\nThe quirq.ai bootstrap saves install.sh to a temp file and runs it, and on\nLinux that file usually sits in /tmp. resolve_repo_dir took any directory\nholding server.py and requirements.txt as an in-place checkout, so files\nanother user left in /tmp were installed and run instead of xo-space. Both\nprobes (the script's own directory and the launch directory) now skip a\ndirectory that is world-writable or owned by another user, and say why.\n\nThe port probe now exits 3 for \"in use\", so a crash in the probe (exit 1,\ne.g. an ImportError) no longer reads as \"Port 5002 is already in use\".\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01UzFWDRUqzEGm8fntDTH9g1\n\n* test(install): check the launch-dir probe through looks_like_checkout\n\nThe source-text test asserted the old inline \"${LAUNCH_DIR}/server.py\"\ncheck, which the previous commit moved into looks_like_checkout.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01UzFWDRUqzEGm8fntDTH9g1\n\n* fix(install): trust a checkout by its real path, and stop instead of resetting it\n\nThe checkout probes now resolve the physical path (pwd -P) before any\ncheck, so a symlinked checkout runs in place and macOS's /tmp link is\nseen as the shared /private/tmp it points to.\n\nA sticky world-writable folder (/tmp and the like) is never a checkout\nand the install carries on in managed mode. Any other folder holding\nserver.py and requirements.txt must belong to the user, be writable by\nnobody else (group write only for the owner's private group), carry no\nACL, and sit under folders nobody else can rename it out of. If it fails,\nthe installer stops with the reason and the fix (chmod go-w, setfacl -b,\nor clone into a Linux folder on drives that keep no permissions) instead\nof falling back to managed mode, which reset a world-writable clone to\nupstream or nested a second clone in it.\n\nThe launch-dir probe adopts only a clone of the source repo, since\nmanaged mode resets the tree, and root never adopts another user's folder\nthat way; root may still run another user's install.sh by path.\n\nHarness cases cover symlinks, 0777 clones in all three launch forms,\ndrives without permissions, parents, group write, ACLs, another owner and\nan unrelated project.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01UzFWDRUqzEGm8fntDTH9g1\n\n* fix(install): give the managed checkout the same trust check\n\nThe one-liner's own clone was never checked: under umask 000 (common on\nWSL) it made a world-writable clone and ran it, and an existing managed\ncheckout that others could write to, or that another user owned, was\nupdated and run.\n\nNow main drops other-write from the umask before creating anything, a\nfresh clone is tightened with chmod -R go-w, and the managed checkout\npasses checkout_trust_problem before any git command runs in an existing\none and again after the clone. Where chmod has no effect (WSL's /mnt/c,\nFAT) that stops with the Linux-folder message INSTALLATION.md describes.\n\nAlso: repo_identity lowercases first and drops user and port from the\nhost only, and the filesystem check reads every layer findmnt lists.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01UzFWDRUqzEGm8fntDTH9g1\n\n* fix(install): say chmod -R go-w when the checkout itself is writable\n\nClearing the stop with plain chmod go-w left every file inside the\ncheckout writable by others. The message for the checkout now says\nchmod -R go-w; a parent folder still gets plain chmod go-w, since only\nits own bit matters.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01UzFWDRUqzEGm8fntDTH9g1\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "date": "2026-10-08T19:03:31+00:00",
+      "url": "https://github.com/quirq-ai/xo-space/commit/48436388a7f4d2ee2a1a9bc7acb1f3fb6181930d",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "c633646798e757440c97b632e6fbdfdec5363dae",
+      "files": [
+        {
+          "path": "INSTALLATION.md",
+          "status": "modified",
+          "additions": 3,
+          "deletions": 0
+        },
+        {
+          "path": "install.sh",
+          "status": "modified",
+          "additions": 241,
+          "deletions": 21
+        },
+        {
+          "path": "tests/install_sh_harness.sh",
+          "status": "modified",
+          "additions": 178,
+          "deletions": 2
+        },
+        {
+          "path": "tests/test_space_wiki.py",
+          "status": "modified",
+          "additions": 6,
+          "deletions": 2
+        }
+      ]
+    },
+    {
+      "sha": "e7092bac888cef6c1196dbb0f8043daa3ee19ce0",
+      "message": "docs: DEVELOPING, CONTRIBUTING and INSTALLATION match main (#231)\n\n* docs: make the README and docs match main (2026-10-07 refresh)\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01LhsK62AEecaoFxdxCjq88Q\n\n* docs: address the docs-refresh audit (round 1)\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01LhsK62AEecaoFxdxCjq88Q\n\n---------\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "date": "2026-10-08T19:19:19+00:00",
+      "url": "https://github.com/quirq-ai/xo-space/commit/e7092bac888cef6c1196dbb0f8043daa3ee19ce0",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "48436388a7f4d2ee2a1a9bc7acb1f3fb6181930d",
+      "files": [
+        {
+          "path": ".env.example",
+          "status": "modified",
+          "additions": 14,
+          "deletions": 15
+        },
+        {
+          "path": "AGENTS.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "CONTRIBUTING.md",
+          "status": "modified",
+          "additions": 10,
+          "deletions": 11
+        },
+        {
+          "path": "DEVELOPING.md",
+          "status": "modified",
+          "additions": 86,
+          "deletions": 113
+        },
+        {
+          "path": "INSTALLATION.md",
+          "status": "modified",
+          "additions": 6,
+          "deletions": 6
+        },
+        {
+          "path": "space_ui/README.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "tests/fixtures/quirq-state/README.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 2
+        }
+      ]
+    },
+    {
+      "sha": "a9225986343488d93aa29d420faf4c2726af3d22",
+      "message": "chore(deps): bump argus-code to 0.6.0 (#234)\n\nCompatible with how Space uses Argus:\n\n- Same dependencies and Python floor (>=3.11) as 0.5.1.\n- argus.db schema 6 -> 7 is additive: one index (idx_turns_message, for\n  fork de-duplication). No table or column the Sessions tab reads changes,\n  and the daemon migrates an existing DB itself on start.\n- `argus daemon start` still prints \"daemon already running, PID <n>\",\n  which scripts/install_shared_deps.sh matches.",
+      "author": "KrishBhimani",
+      "date": "2026-10-09T12:28:08+00:00",
+      "url": "https://github.com/quirq-ai/xo-space/commit/a9225986343488d93aa29d420faf4c2726af3d22",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "e7092bac888cef6c1196dbb0f8043daa3ee19ce0",
+      "files": [
+        {
+          "path": "requirements.txt",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        }
+      ]
+    },
+    {
+      "sha": "cc7d73db61e2eca99ceb798b0c43faf2817a3f2c",
+      "message": "docs: agents never approve pull requests (#238)\n\nProduct PRs will need one approval (gate #29, alpha decision 3). The approval\nmust come from a person, so agent sessions never submit an approving review.\n\n\nClaude-Session: https://claude.ai/code/session_015KcZRLjgYJLqvNh9raA6JY\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+      "author": "quirq-gates",
+      "date": "2026-10-09T12:42:12+00:00",
+      "url": "https://github.com/quirq-ai/xo-space/commit/cc7d73db61e2eca99ceb798b0c43faf2817a3f2c",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "a9225986343488d93aa29d420faf4c2726af3d22",
+      "files": [
+        {
+          "path": "AGENTS.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 0
+        },
+        {
+          "path": "CLAUDE.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 0
+        }
+      ]
+    },
+    {
+      "sha": "3bb8687307144ab604723e7c13f49753b22dc0e0",
+      "message": "test(inbox): pin retention's clock to the fixtures' date (#239)\n\nInboxStoreTests stamps its items with a fixed NOW (2026-09-10) while\nstore.modify runs retention on the wall clock. Since 2026-10-10 that\ndate is more than DONE_TTL_DAYS in the past, so an item stamped NOW and\nthen auto-closed was pruned by the same write, and two tests found no\nitem where they expected one.\n\nsetUp now wraps store.apply_retention so it defaults to NOW. An explicit\nnow still wins. No production code changes.",
+      "author": "KrishBhimani",
+      "date": "2026-10-13T13:11:27+00:00",
+      "url": "https://github.com/quirq-ai/xo-space/commit/3bb8687307144ab604723e7c13f49753b22dc0e0",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "cc7d73db61e2eca99ceb798b0c43faf2817a3f2c",
+      "files": [
+        {
+          "path": "tests/test_inbox_store.py",
+          "status": "modified",
+          "additions": 9,
+          "deletions": 1
+        }
+      ]
+    },
+    {
+      "sha": "577850bfe9363b04e17c012ebe2c014df9490bc1",
+      "message": "Stop bundling the xo-projects skill; default the projects root to ~ (#249)\n\n* chore(skills): stop bundling the xo-projects skill\n\nRemove .agents/skills/xo-projects/ and empty BUNDLED_SKILLS. The boot-time\ninstaller (install_xo_skills) stays, so a repo skill can be bundled again by\nadding its folder and its name; with the list empty the step installs nothing.\n\nThe tests that read the skill's reference files go with it; the inbox view-name\ncheck that also validated the store and feeders is kept without the doc text.\nINSTALLATION.md no longer offers \"ask your coding agent\" to create a project.\n\n* feat(layout): default the projects root to the home directory\n\nXO_PROJECTS_ROOT now falls back to ~ instead of ~/xo-projects, in\nproject_layout and the doctor's copy of the default. The Space UI clone\nfallback, the openclaw/hermes troubleshoot xo.json default, the manifests'\nworkspace_dir and the docs that named the root follow. The plugin Space view\nis rebuilt for the sharing_data.js change.\n\nOnly runs with XO_PROJECTS_ROOT unset change: install.sh still defaults to the\ndirectory it was run from. With the root at ~, every non-hidden folder in the\nhome directory is listed as a project and gets a .xo/ from the watcher.",
+      "author": "KrishBhimani",
+      "date": "2026-10-16T11:34:34+00:00",
+      "url": "https://github.com/quirq-ai/xo-space/commit/577850bfe9363b04e17c012ebe2c014df9490bc1",
+      "isMerge": false,
+      "partial": false,
+      "firstParent": "3bb8687307144ab604723e7c13f49753b22dc0e0",
+      "files": [
+        {
+          "path": ".agents/skills/xo-projects/SKILL.md",
+          "status": "removed",
+          "additions": 0,
+          "deletions": 158
+        },
+        {
+          "path": ".agents/skills/xo-projects/references/backup-restore.md",
+          "status": "removed",
+          "additions": 0,
+          "deletions": 260
+        },
+        {
+          "path": ".agents/skills/xo-projects/references/inbox-http-api.md",
+          "status": "removed",
+          "additions": 0,
+          "deletions": 69
+        },
+        {
+          "path": ".agents/skills/xo-projects/references/todos-http-api.md",
+          "status": "removed",
+          "additions": 0,
+          "deletions": 138
+        },
+        {
+          "path": "DEVELOPING.md",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "INSTALLATION.md",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 6
+        },
+        {
+          "path": "config/agents/antigravity/manifest.json",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "config/agents/claude_code/manifest.json",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "config/agents/codex/manifest.json",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "config/agents/hermes/troubleshoot.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "config/agents/openclaw/troubleshoot.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "plugins/quirq/ui/space-app.html",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 2
+        },
+        {
+          "path": "routers/cowork_agent/bff/workspace_visualizer.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "routers/cowork_agent/config.py",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 2
+        },
+        {
+          "path": "routers/status/channels.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "routers/status/models.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "server.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "services/cowork_agent/adapters/claude_code/adapter.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "services/cowork_agent/adapters/codex/adapter.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "services/cowork_agent/project_layout.py",
+          "status": "modified",
+          "additions": 5,
+          "deletions": 5
+        },
+        {
+          "path": "services/cowork_agent/skill_installer.py",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 3
+        },
+        {
+          "path": "services/cowork_agent/visualizer/schema/projects.schema.json",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "services/cowork_agent/visualizer/space_index.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "services/cowork_agent/visualizer/workspace/__init__.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "services/cowork_agent/visualizer/workspace_index.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "services/doctor/context.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "services/xo_manifest.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "space_ui/README.md",
+          "status": "modified",
+          "additions": 2,
+          "deletions": 2
+        },
+        {
+          "path": "space_ui/js/views/sharing_data.js",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        },
+        {
+          "path": "tests/test_connections_docs.py",
+          "status": "modified",
+          "additions": 0,
+          "deletions": 13
+        },
+        {
+          "path": "tests/test_inbox_docs.py",
+          "status": "modified",
+          "additions": 4,
+          "deletions": 50
+        },
+        {
+          "path": "tests/test_space_project_sharing.py",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "label": "20 first-parent commits · bundled snapshot · pinned 577850b",
+    "limitations": [
+      "Bundled snapshot from a precloned public repository. It loads locally and does not update from GitHub automatically.",
+      "The snapshot follows recent first-parent history; earlier history and side-branch commits are not replayed separately.",
+      "Line additions and deletions describe Git diffs; they do not measure runtime behavior, code quality or individual productivity."
+    ]
+  },
+  "provenance": {
+    "formatVersion": 1,
+    "generator": "scripts/build-data-examples.mjs",
+    "source": "local bare Git clone",
+    "remote": "https://github.com/quirq-ai/xo-space.git",
+    "branchRef": "refs/heads/main",
+    "headSha": "577850bfe9363b04e17c012ebe2c014df9490bc1",
+    "treeSha": "c55981e07e0a5ae470f51f0191d92731eaa6b729",
+    "capturedAt": "2026-10-18T19:56:47.367Z",
+    "firstParentBoundarySha": "e15c064b6e933ce2bbffe51a7e96110b14fd783d",
+    "commitCount": 20,
+    "headFileCount": 796,
+    "historicalPathCount": 4,
+    "changedFileCount": 184,
+    "binaryChangeCount": 0,
+    "completeHeadTree": true,
+    "completeCommitDiffs": true,
+    "diff": {
+      "parent": "first",
+      "renameThreshold": "50%",
+      "algorithm": "myers",
+      "indentHeuristic": false
+    }
+  }
+}

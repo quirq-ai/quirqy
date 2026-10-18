@@ -143,9 +143,7 @@ export class DataGuide {
       this.el.querySelector('#guide-index-caption').textContent = view === 'tree' && scene.indexLayout
         ? `${indexLayout.nodes.length.toLocaleString()} present files · ${indexLayout.folders.length.toLocaleString()} folders including root`
         : `${scene.renderedCount.toLocaleString()} of ${model.nodes.length.toLocaleString()} loaded files mapped`;
-      this.el.querySelector('#guide-source-note').textContent = model.repository.source === 'demo'
-        ? 'This view is a synthetic sample. No GitHub data has been requested for it.'
-        : `${model.commits.length} commits loaded. ${model.coverage.label}. Full limits and omissions are listed under Data coverage on the right.`;
+      this.el.querySelector('#guide-source-note').textContent = `${model.repository.source === 'example' ? 'Preloaded repository snapshot. ' : ''}${model.commits.length} commits loaded. ${model.coverage.label}. Full limits and omissions are listed under Data coverage on the right.`;
     }
     if (view !== 'tree') this.refreshStructureMembership();
     const rootIndex = view === 'tree' && Boolean(scene.indexLayout);

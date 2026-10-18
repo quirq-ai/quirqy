@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildModel, stateAt } from './model.js';
-import { createDemoDataset } from './demo.js';
+import { createRepositoryFixture } from './test-fixtures/repository.js';
 import { buildMolecularTree, molecularTreeState } from './molecule-layout.js';
 import { buildFolderEnclosures } from './molecule-enclosures.js';
 
@@ -63,7 +63,7 @@ function verify(graph, structure, enclosures) {
 }
 
 test('current demo enclosures fit padded file/folder spheres and nest inside their parents', () => {
-  const model = buildModel(createDemoDataset()), graph = buildMolecularTree(model);
+  const model = buildModel(createRepositoryFixture()), graph = buildMolecularTree(model);
   const structure = stateFor(model, graph, model.commits.length - 1);
   const enclosures = buildFolderEnclosures(graph, structure);
   verify(graph, structure, enclosures);
@@ -170,7 +170,7 @@ test('reserved camera contents work without state counters and calls never mutat
 
 
 test('tight fit beats an independent volume grid and leaves no removable uniform margin', () => {
-  const model = buildModel(createDemoDataset()), graph = buildMolecularTree(model);
+  const model = buildModel(createRepositoryFixture()), graph = buildMolecularTree(model);
   const structure = stateFor(model, graph, model.commits.length - 1);
   const enclosure = buildFolderEnclosures(graph, structure).find(record => record.folder === 'app');
   const atoms = [...structure.atoms, ...structure.backboneAtoms].filter(atom => atom.folder === 'app');

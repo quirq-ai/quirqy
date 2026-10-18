@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createTreeLayout, createTreePose, treeLengthScale, treePoint, leafSizing, leafScale, trunkRadius } from './tree-layout.js';
-import { createDemoDataset } from './demo.js';
+import { createRepositoryFixture } from './test-fixtures/repository.js';
 import { createLeafGeometry } from './tree-scene.js';
 import { buildModel, stateAt } from './model.js';
 
 test('growth tree uses exactly the mapped file identities and connected directory hierarchy', () => {
-  const model = buildModel(createDemoDataset());
+  const model = buildModel(createRepositoryFixture());
   const layout = createTreeLayout(model);
   assert.equal(layout.nodes.length, model.nodes.length);
   assert.equal(new Set(layout.nodes.map(node => node.id)).size, model.nodes.length);
@@ -26,7 +26,7 @@ test('growth tree uses exactly the mapped file identities and connected director
 });
 
 test('base attachment layout and byte normalization are independent of the history cursor', () => {
-  const model = buildModel(createDemoDataset());
+  const model = buildModel(createRepositoryFixture());
   const initial = createTreeLayout(model);
   const anchors = Object.fromEntries(initial.nodes.map(node => [node.id, node.position]));
   for (const index of [-1, 7, 12, 0, model.commits.length - 1]) {
@@ -59,7 +59,7 @@ test('each forward commit thickens trunk and cursor rewinds reproduce the exact 
 });
 
 test('the tree cap preserves changed identities and never invents leaves', () => {
-  const model = buildModel(createDemoDataset());
+  const model = buildModel(createRepositoryFixture());
   const layout = createTreeLayout(model, { maxNodes: 20, maxFolders: 3 });
   const ids = new Set(model.nodes.map(node => node.id));
   assert.equal(layout.nodes.length, 20);
@@ -159,7 +159,7 @@ test('bending keeps every child branch and leaf twig attached to the posed paren
 });
 
 test('cursor seeks preserve byte-based leaf areas and reproduce poses without mutating layout', () => {
-  const model = buildModel(createDemoDataset());
+  const model = buildModel(createRepositoryFixture());
   const layout = createTreeLayout(model), before = JSON.stringify(layout);
   const poses = new Map();
   for (const index of [4, 21, -1, 7, 4, -1, 21]) {
