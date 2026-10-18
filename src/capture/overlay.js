@@ -1,6 +1,6 @@
 /** Composite frame painter: WebGL view + Quirq logo + live equation / lab HUD. */
 
-const LOGO_URL = '/quirq-logo.svg';
+import { DEFAULT_LOGO_URL, getLogoUrl, subscribeLogo } from '../branding/logo-preference.js';
 const MAX_EDGE = 1920; // keep encode cost manageable on retina displays
 
 export function createOverlayPainter() {
@@ -16,11 +16,31 @@ export function createOverlayPainter() {
   let logoReady = false;
   let locked = false;
 
-  const img = new Image();
-  img.decoding = 'async';
-  img.onload = () => { logo = img; logoReady = true; };
-  img.onerror = () => { logoReady = false; };
-  img.src = LOGO_URL;
+  let logoSource = null, logoVersion = 0;
+  function syncLogo() {
+    const source = getLogoUrl();
+    if (source === logoSource) return;
+    logoSource = source;
+    logoReady = false;
+    const version = ++logoVersion;
+    const load = url => {
+      const image = new Image();
+      image.decoding = 'async';
+      image.onload = () => {
+        if (version !== logoVersion) return;
+        logo = image;
+        logoReady = true;
+      };
+      image.onerror = () => {
+        if (version === logoVersion && url !== DEFAULT_LOGO_URL) load(DEFAULT_LOGO_URL);
+      };
+      image.src = url;
+    };
+    load(source);
+  }
+  // Preload while the recorder is idle so the next capture uses the selected logo.
+  const unsubscribeLogo = subscribeLogo(syncLogo);
+  syncLogo();
 
   function fitSize(srcW, srcH) {
     let w = Math.max(2, srcW | 0);
@@ -57,6 +77,7 @@ export function createOverlayPainter() {
    * @param {object} hud
    */
   function paint(src, hud = {}) {
+    syncLogo();
     if (!locked) lockFrom(src);
     const w = canvas.width;
     const h = canvas.height;
@@ -83,7 +104,9 @@ export function createOverlayPainter() {
     const pad = Math.max(16, Math.round(w * 0.018));
     const logoSize = Math.max(36, Math.round(w * 0.045));
     if (logoReady && logo) {
-      try { ctx.drawImage(logo, pad, pad, logoSize, logoSize); } catch { /* ignore */ }
+      const scale = logoSize / Math.max(logo.naturalWidth, logo.naturalHeight);
+      const width = logo.naturalWidth * scale, height = logo.naturalHeight * scale;
+      try { ctx.drawImage(logo, pad + (logoSize - width) / 2, pad + (logoSize - height) / 2, width, height); } catch { /* ignore */ }
     }
 
     ctx.textBaseline = 'top';
@@ -178,7 +201,14 @@ export function createOverlayPainter() {
     return canvas;
   }
 
-  return { canvas, paint, lockFrom, unlock, ready: () => logoReady };
+  function dispose() {
+    unsubscribeLogo();
+    logoVersion += 1;
+    logo = null;
+    logoReady = false;
+  }
+
+  return { canvas, paint, lockFrom, unlock, ready: () => logoReady, dispose };
 }
 
 function roundRect(ctx, x, y, w, h, r) {

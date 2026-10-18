@@ -1,0 +1,79 @@
+.brand-logo-button {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 38px;
+  height: 38px;
+  margin: -4px;
+  padding: 3px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+.brand-logo-button:hover { background: rgba(140, 170, 255, 0.08); border-color: var(--panel-border); }
+.brand-logo-button:focus-visible { outline: 2px solid var(--accent-cool); outline-offset: 3px; }
+.brand-logo-edit {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--panel-border);
+  border-radius: 50%;
+  background: var(--bg);
+  color: var(--text-dim);
+  font: 11px/12px system-ui, sans-serif;
+  opacity: 0.7;
+}
+.brand-logo-button:hover .brand-logo-edit,
+.brand-logo-button:focus-visible .brand-logo-edit { color: var(--text); opacity: 1; }
+.brand-mark, .load-logo { object-fit: contain; }
+.brand-logo-button.has-custom-logo .brand-mark { filter: none; }
+
+#logo-editor {
+  width: min(400px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  padding: 24px;
+  overflow: auto;
+  border: 1px solid rgba(140, 170, 255, 0.22);
+  border-radius: 20px;
+  color: var(--text);
+  background: #0c1220;
+  box-shadow: 0 24px 90px rgba(0, 0, 0, 0.5);
+  font: inherit;
+}
+#logo-editor::backdrop { background: rgba(1, 3, 10, 0.7); backdrop-filter: blur(5px); }
+.logo-editor-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 8px; }
+.logo-editor-header h2 { font-size: 20px; letter-spacing: -0.02em; }
+.logo-editor-close {
+  display: grid; place-items: center; width: 32px; height: 32px; flex: none;
+  border: 0; border-radius: 8px; background: transparent; color: var(--text-dim); font-size: 25px; cursor: pointer;
+}
+.logo-editor-close:hover { color: var(--text); background: rgba(140, 170, 255, 0.08); }
+#logo-editor-description { color: var(--text-dim); font-size: 13px; line-height: 1.6; }
+.logo-editor-preview {
+  display: grid; place-items: center; height: 140px; margin: 20px 0 16px;
+  border: 1px solid var(--panel-border); border-radius: 14px; background: #050914;
+  background-image: linear-gradient(45deg, #111827 25%, transparent 25%), linear-gradient(-45deg, #111827 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #111827 75%), linear-gradient(-45deg, transparent 75%, #111827 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+}
+.logo-editor-preview img { width: 96px; height: 96px; object-fit: contain; }
+#logo-editor .logo-editor-upload { width: 100%; padding: 11px; border-color: rgba(134, 183, 255, 0.4); color: var(--accent-cool); }
+.logo-editor-formats { margin-top: 9px; text-align: center; color: var(--text-dim); font-size: 11px; line-height: 1.5; }
+#logo-editor-status { min-height: 20px; margin-top: 12px; font-size: 12px; line-height: 1.5; color: var(--live); }
+#logo-editor-status[data-state="error"] { color: #ff9d9d; }
+.logo-editor-actions { display: flex; justify-content: space-between; gap: 12px; margin-top: 18px; }
+#logo-editor .btn { min-height: 38px; }
+#logo-editor .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+#logo-editor button:focus-visible { outline: 2px solid var(--accent-cool); outline-offset: 3px; }
+@media (max-width: 900px) {
+  .brand-logo-button { width: 34px; height: 34px; }
+}
+@media (max-width: 400px) {
+  #logo-editor { padding: 20px; }
+}
