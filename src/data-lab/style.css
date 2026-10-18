@@ -25,7 +25,8 @@ body[data-mode="data"] #app { background: var(--bg); }
 #data-repository-url:focus, #data-file-search:focus { border-color: rgba(255,190,110,.45); }
 #data-repository-url::placeholder, #data-file-search::placeholder { color: var(--text-dim); opacity: .65; }
 .data-source-tools { display: flex; align-items: center; gap: 7px; padding: 0 16px 5px; font-size: 10.5px; color: var(--text-dim); }
-.data-source-tools .btn { margin-left: auto; }
+.data-sample-choices { padding-top: 2px; padding-bottom: 8px; }
+.data-sample-choices .btn { flex: 1; min-width: 0; min-height: 30px; font-size: 10px; white-space: nowrap; }
 #data-history-limit, #data-speed { background: rgba(30,40,64,.6); border: 1px solid var(--panel-border); border-radius: 7px; color: var(--text); padding: 4px 6px; font-size: 10.5px; color-scheme: dark; cursor: pointer; }
 .data-repo-meta { display: flex; flex-wrap: wrap; gap: 3px 8px; padding: 4px 18px 1px; font-size: 11px; overflow-wrap: anywhere; }
 #data-branch { width: 100%; color: var(--text-dim); font: 9.5px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace; }
