@@ -1,0 +1,97 @@
+/* Floating glass panels share small, discoverable grab handles. */
+html body .panel-drag-grip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  min-width: 28px;
+  height: 26px;
+  margin-left: auto;
+  padding: 0 6px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: #a0b2cb;
+  font: inherit;
+  font-size: 12px;
+  letter-spacing: 0;
+  cursor: grab;
+  touch-action: none;
+}
+html body .panel-drag-grip:hover { border-color: rgba(220, 236, 255, .16); background: rgba(210, 230, 255, .07); color: #e5f1ff; }
+html body :is(.panel-drag-grip, .panel-dock-grip):focus-visible { outline: 2px solid #b8d8f4; outline-offset: 2px; }
+html body :is(#data-guide, #data-panel) .list-title.panel-drag-handle { cursor: grab; gap: 8px; }
+html body :is(#data-guide, #data-panel) .list-title .panel-drag-grip { display: inline-flex; order: 1; font-size: 16px; line-height: 1; }
+html body #data-guide-collapse,
+html body #data-panel .data-sheet-close { order: 2; }
+html body #data-guide .list-title { padding-top: 9px; padding-bottom: 7px; }
+
+html body :is(#timebar, #math-timebar, #data-timebar).panel-dock {
+  padding-top: 28px;
+  z-index: 40;
+}
+html body #data-timebar.panel-dock {
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  width: min(680px, calc(100vw - 32px));
+}
+html body .panel-dock > .panel-dock-grip {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  color: #b4c6df;
+  background: transparent;
+  cursor: grab;
+  touch-action: none;
+}
+html body .panel-dock-grip > span {
+  display: block;
+  width: 30px;
+  height: 3px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, rgba(196, 218, 245, .25), rgba(224, 239, 255, .6), rgba(196, 218, 245, .25));
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .08);
+  transition: width 150ms ease, background-color 150ms ease;
+}
+html body .panel-dock-grip:hover > span,
+html body .panel-dock-grip:focus-visible > span { width: 38px; background-color: rgba(224, 239, 255, .5); }
+html body .panel-float.is-dragging { z-index: 80; }
+html body .panel-float.is-dragging :is(.panel-drag-handle, .panel-drag-grip, .panel-dock-grip) { cursor: grabbing; }
+
+/* Leave a clear lane for the centered dock on compact desktop layouts. */
+@media (min-width: 901px) and (max-width: 1440px) {
+  html body #data-panel.panel {
+    max-height: calc(100dvh - var(--data-timebar-height, 82px) - 100px);
+  }
+}
+@media (min-width: 1201px) {
+  html body #data-guide-body { max-height: calc(100dvh - 204px); }
+}
+@media (min-width: 901px) and (max-width: 1200px) {
+  html body #data-guide-body { max-height: calc(100dvh - 264px); }
+}
+@media (max-width: 900px) {
+  html body #data-timebar.panel-dock { width: calc(100vw - 20px); }
+  html body :is(#data-panel, #data-guide).panel:not(.is-user-positioned) {
+    bottom: calc(var(--data-timebar-height, 136px) + 24px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  html body :is(#data-panel, #data-guide).panel {
+    max-height: calc(100dvh - var(--data-timebar-height, 136px) - 170px);
+  }
+  html body #data-guide-body { max-height: calc(100dvh - var(--data-timebar-height, 136px) - 214px); }
+  html body.is-mobile[data-mode="math"] #equation-panel.panel:not(.is-user-positioned) {
+    bottom: calc(var(--math-timebar-height, 148px) + 24px + env(safe-area-inset-bottom, 0px));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html body .panel-dock-grip > span { transition: none; }
+}

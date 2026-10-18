@@ -68,6 +68,8 @@ Click the navbar logo to upload a PNG, JPG, WebP, or SVG (up to 5 MB), or reset 
 
 Side panels and playback bars share a liquid-glass appearance. Choose **Opacity** beside the playback controls (or beside Time speed in Equation Lab) to adjust the surface from 20–100%, keeping text and controls fully visible. The setting is shared across labs, saved in this browser, and can be reset to the default.
 
+Drag either Data Lab sidebar by its header, or move the centered timeline dock using its top grab handle. Positions are remembered separately for desktop and mobile. Double-click a handle to restore the default position; focused handles also support Arrow keys (Shift for larger steps) and Home to reset.
+
 Open the app, then switch instruments with the tabs in the top-left (or open a
 section URL directly). Press **H** at any
 time for a context-aware help card, **S** for a PNG snapshot, and **V** to record up to

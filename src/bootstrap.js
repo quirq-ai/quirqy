@@ -2,11 +2,14 @@
 import { modeFromLocation } from './nav/routes.js';
 import { mountLogoEditor } from './branding/logo-editor.js';
 import { mountPanelAppearance } from './ui/panel-appearance.js';
+import { mountFloatingLayout } from './ui/floating-layout.js';
 
 const disposeLogoEditor = mountLogoEditor();
 const disposePanelAppearance = mountPanelAppearance();
+const disposeFloatingLayout = mountFloatingLayout();
 if (import.meta.hot) import.meta.hot.dispose(() => {
   disposeLogoEditor();
+  disposeFloatingLayout();
   disposePanelAppearance();
 });
 
