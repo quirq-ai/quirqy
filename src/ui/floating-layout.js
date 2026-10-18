@@ -6,6 +6,56 @@ export function mountFloatingLayout() {
   const panels = new Map();
   const watched = new Map();
   const dockIds = ['data-timebar', 'timebar', 'math-timebar'];
+  let dataControls = null;
+
+  function restoreDataControls() {
+    if (!dataControls) return;
+    const { moves, header, dock, group } = dataControls;
+    dataControls = null;
+    // Restore the actual controls so their listeners and focus behavior survive.
+    for (const { node, placeholder, label } of moves) {
+      placeholder.replaceWith(node);
+      if (label === null) node.removeAttribute('aria-label');
+      else node.setAttribute('aria-label', label);
+    }
+    group.remove();
+    header.classList.remove('data-status-header');
+    dock.classList.remove('data-actions-dock');
+    document.body.classList.remove('data-dock-layout');
+  }
+
+  function attachDataControls() {
+    const header = document.querySelector('#data-panel > .list-title');
+    const dock = document.getElementById('data-timebar');
+    if (dataControls) {
+      if (dataControls.header === header && dataControls.dock === dock && dataControls.group.isConnected) return;
+      restoreDataControls();
+    }
+    const view = dock?.querySelector(':scope > .glass-opacity-trigger');
+    const capture = document.getElementById('btn-snap');
+    const help = document.getElementById('btn-help');
+    const status = document.getElementById('sim-date');
+    if (!header || !view || !capture || !help || !status) return;
+
+    const group = document.createElement('div');
+    group.className = 'data-dock-actions';
+    group.setAttribute('role', 'group');
+    group.setAttribute('aria-label', 'Capture and help');
+    const moves = [capture, help, status].map(node => {
+      const placeholder = document.createComment(`${node.id} original position`);
+      node.before(placeholder);
+      return { node, placeholder, label: node.getAttribute('aria-label') };
+    });
+    capture.setAttribute('aria-label', 'Save scene image');
+    help.setAttribute('aria-label', 'Help');
+    group.append(capture, help);
+    view.after(group);
+    header.insertBefore(status, header.querySelector('button'));
+    header.classList.add('data-status-header');
+    dock.classList.add('data-actions-dock');
+    document.body.classList.add('data-dock-layout');
+    dataControls = { moves, header, dock, group };
+  }
 
   function release(element, entry) {
     entry.dispose?.();
@@ -61,6 +111,7 @@ export function mountFloatingLayout() {
       updateHeight();
       panels.set(dock, { dispose, resize, grip });
     }
+    attachDataControls();
   }
 
   // Panels mount asynchronously. Observe only direct children, never scene updates.
@@ -71,6 +122,7 @@ export function mountFloatingLayout() {
     bodyObserver.disconnect();
     for (const observer of watched.values()) observer.disconnect();
     watched.clear();
+    restoreDataControls();
     for (const [element, entry] of panels) release(element, entry);
     for (const id of dockIds) document.documentElement.style.removeProperty(`--${id}-height`);
   };

@@ -95,3 +95,55 @@ html body .panel-float.is-dragging :is(.panel-drag-handle, .panel-drag-grip, .pa
 @media (prefers-reduced-motion: reduce) {
   html body .panel-dock-grip > span { transition: none; }
 }
+
+/* Data Lab keeps capture/help beside View and the source status in its header. */
+html body[data-mode="data"].data-dock-layout #topbar > .top-actions { display: none; }
+html body[data-mode="data"] #help-overlay .help-card {
+  max-height: 80dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+html body #data-panel > .data-status-header { gap: 7px; }
+html body #data-panel > .data-status-header .panel-drag-grip { margin-left: 0; }
+html body #data-panel > .data-status-header #sim-date {
+  flex: 1;
+  min-width: 0;
+  max-width: none;
+  gap: 5px;
+  padding: 5px 7px;
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: nowrap;
+  overflow: hidden;
+}
+html body #data-panel #sim-date #date-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+html body #data-panel #sim-date .live-badge { flex: none; font-size: 8px; letter-spacing: .05em; }
+html body #data-timebar .data-dock-actions { display: flex; align-items: center; flex: none; gap: 6px; }
+html body #data-timebar .data-dock-actions .tbtn {
+  display: inline-grid !important;
+  place-items: center;
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  padding: 0;
+}
+@media (max-width: 900px) {
+  html body #data-timebar.data-actions-dock {
+    grid-template-columns: 30px 38px 30px minmax(0, 1fr) auto auto;
+    column-gap: 6px;
+  }
+  html body #data-timebar.data-actions-dock > :where(#data-prev, #data-play, #data-next, .data-speed, .glass-opacity-trigger, .data-dock-actions) { grid-row: 2; }
+  html body #data-timebar.data-actions-dock > .data-speed { grid-column: 4; }
+  html body #data-timebar.data-actions-dock > .glass-opacity-trigger { grid-column: 5; }
+  html body #data-timebar.data-actions-dock > .data-dock-actions { grid-column: 6; }
+  html body #data-timebar .data-dock-actions .tbtn { width: 32px; min-width: 32px; height: 38px; }
+}
+@media (max-width: 360px) {
+  html body #data-timebar.data-actions-dock { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  html body #data-timebar.data-actions-dock > :is(#data-prev, #data-play, #data-next, .data-speed) { justify-self: center; }
+  html body #data-timebar.data-actions-dock > .glass-opacity-trigger { grid-row: 3; grid-column: 1 / span 2; justify-self: end; }
+  html body #data-timebar.data-actions-dock > .data-dock-actions { grid-row: 3; grid-column: 3 / span 2; justify-self: start; }
+  html body #data-timebar .data-dock-actions .tbtn { width: 38px; min-width: 38px; }
+}
