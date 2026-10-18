@@ -1,4 +1,4 @@
-// A fictional, deterministic repository. This is not Observatory's Git history.
+// A fictional, deterministic repository. This is not quirq observatory's Git history.
 // Include code, configuration, documentation and media so each file encoding
 // can be explored in the sample without changing its counts or timeline.
 export function createDemoDataset() {
@@ -77,7 +77,7 @@ export function createDemoDataset() {
     coverage: {
       label: 'Synthetic demo · 22 fictional commits · 6 directories',
       limitations: [
-        'All repository names, authors, commits and line counts in this demo are synthetic. This is not Observatory history.',
+        'All repository names, authors, commits and line counts in this demo are synthetic. This is not quirq observatory history.',
         'Motion represents changed files. It does not represent program execution or software quality.',
       ],
     },

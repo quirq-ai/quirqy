@@ -1,6 +1,6 @@
-/** Composite frame painter: WebGL view + XO logo + live equation / lab HUD. */
+/** Composite frame painter: WebGL view + Quirq logo + live equation / lab HUD. */
 
-const LOGO_URL = '/xo-logo.svg';
+const LOGO_URL = '/quirq-logo.svg';
 const MAX_EDGE = 1920; // keep encode cost manageable on retina displays
 
 export function createOverlayPainter() {
@@ -90,17 +90,22 @@ export function createOverlayPainter() {
     ctx.fillStyle = '#d7dfef';
     ctx.font = `600 ${Math.max(15, Math.round(w * 0.018))}px Inter, system-ui, sans-serif`;
     const textX = pad + logoSize + 12;
-    ctx.fillText('Observatory', textX, pad + 2);
+    const brand = 'quirq observatory';
+    let headerRight = textX + ctx.measureText(brand).width;
+    ctx.fillText(brand, textX, pad + 2);
     ctx.fillStyle = '#8b96ad';
     ctx.font = `500 ${Math.max(11, Math.round(w * 0.012))}px Inter, system-ui, sans-serif`;
-    ctx.fillText(hud.title || 'XO', textX, pad + Math.round(logoSize * 0.55));
+    const title = hud.title || 'quirq observatory';
+    headerRight = Math.max(headerRight, textX + ctx.measureText(title).width);
+    ctx.fillText(title, textX, pad + Math.round(logoSize * 0.55));
 
     if (hud.recSec != null) {
       const label = `REC ${hud.recSec.toFixed(1)}s / ${(hud.recMaxSec ?? 10).toFixed(0)}s`;
       ctx.font = `700 ${Math.max(12, Math.round(w * 0.013))}px Inter, system-ui, sans-serif`;
       const tw = ctx.measureText(label).width;
       const bx = w - pad - tw - 28;
-      const by = pad + 4;
+      // Move the badge below the heading when a narrow capture cannot fit both.
+      const by = headerRight + 12 > bx ? pad + logoSize + 12 : pad + 4;
       ctx.fillStyle = 'rgba(40, 12, 16, 0.75)';
       roundRect(ctx, bx, by, tw + 28, 28, 8);
       ctx.fill();

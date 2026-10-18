@@ -1,4 +1,4 @@
-// Data Lab uses Observatory's stage and HUD, with its own repository state.
+// Data Lab uses quirq observatory's stage and HUD, with its own repository state.
 import './style.css';
 import { createStage } from '../scene/setup.js';
 import { createDemoDataset } from './demo.js';
@@ -11,7 +11,7 @@ import { DataGuide } from './guide.js';
 
 export function mountDataLab() {
   document.body.dataset.mode = 'data';
-  document.title = 'Observatory · Data Lab';
+  document.title = 'quirq observatory · Data Lab';
   for (const tab of document.querySelectorAll('#tab-switch a')) {
     tab.classList.toggle('active', tab.id === 'tab-data');
   }

@@ -161,7 +161,7 @@ export function createDataTrace({ sampleHz = 10 } = {}) {
 /** Build a compact HUD description from a lab snapshot. */
 export function hudFromSnapshot(snap, recSec, recMaxSec) {
   if (!snap) {
-    return { title: 'Observatory', status: '', lines: [], points: [], recSec, recMaxSec };
+    return { title: 'quirq observatory', status: '', lines: [], points: [], recSec, recMaxSec };
   }
   const lines = [];
   if (snap.mode === 'math') {
@@ -210,7 +210,7 @@ export function hudFromSnapshot(snap, recSec, recMaxSec) {
   });
 
   return {
-    title: snap.name || snap.mode || 'Observatory',
+    title: snap.name || snap.mode || 'quirq observatory',
     status: snap.status || '',
     lines,
     points,

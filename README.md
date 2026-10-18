@@ -1,7 +1,7 @@
 <div align="center">
-  <img src="public/xo-logo.svg" width="72" alt="XO" />
+  <img src="public/quirq-logo.svg" width="72" alt="quirq observatory" />
 
-  # Observatory
+  # quirq observatory
 
   **An instrument for scientific curiosity.** Pose a question, run it in real physics, and keep the trace.
 
@@ -13,9 +13,9 @@
 
 ---
 
-## What Observatory is
+## What quirq observatory is
 
-Observatory is a browser-based workbench for exploring how things move. It began as a
+quirq observatory is a browser-based workbench for exploring how things move. It began as a
 real-ephemeris solar system and grew into a general tool for turning a "what if" into a
 running experiment you can watch, measure, and record.
 
@@ -28,7 +28,7 @@ The idea is simple: **curiosity, experiment, trace.**
 2. **Experiment.** You set it up with real physics and drive it in real time. Every
    input is a live control, so you can perturb the system while it runs and see the
    consequence immediately.
-3. **Trace.** Observatory records what happened: motion trails, a scrubbable timeline,
+3. **Trace.** quirq observatory records what happened: motion trails, a scrubbable timeline,
    git-style version commits of the whole experiment, fitted equations for data you
    paste in, live numeric readouts, and PNG snapshots. A trace is evidence you can go
    back to, compare against, and share.
@@ -52,6 +52,8 @@ Three **instruments** share one engine (renderer, camera, trails, HUD):
 ---
 
 ## Quick start
+
+This edition is maintained on the `quirq-observatory` branch. The `v0` tag preserves the original Observatory remote baseline.
 
 Requires Node.js 18 or newer.
 
@@ -256,7 +258,7 @@ shared set of capture mechanisms so an experiment leaves evidence behind.
   Checkout restores any version exactly. Up to 40 commits persist in the browser via
   localStorage. This is the lab-notebook layer: branch an idea, compare two runs, come
   back tomorrow.
-- **Data fit.** Paste a dataset (`[t,] x [, y [, z]]`) and Observatory plots it colored
+- **Data fit.** Paste a dataset (`[t,] x [, y [, z]]`) and quirq observatory plots it colored
   from early to late with a tracer replaying the path, then runs a least-squares search
   over model families (lines, polynomials, sinusoids, damped sinusoids, exponentials) and
   reports a candidate equation per axis with its R-squared. One click overlays the fit on
@@ -267,7 +269,7 @@ shared set of capture mechanisms so an experiment leaves evidence behind.
 - **PNG snapshots.** Press S in any tab to download a clean render (the HUD is DOM and
   stays out of the frame), named for what it captured.
 - **Trace video.** Press V (or the record button) to capture up to 10 seconds of the live
-  view with the XO logo and live equation / lab readouts burned into the frame. While
+  view with the quirq logo and live equation / lab readouts burned into the frame. While
   recording, every particle / ray / body is sampled into a data trace. On stop the app
   downloads the video plus JSON/CSV traces and opens an expected-vs-actual results table.
 
@@ -275,7 +277,7 @@ shared set of capture mechanisms so an experiment leaves evidence behind.
 
 ## Scientific accuracy and methods
 
-Observatory is meant to be trustworthy enough to reason with, so the methods are explicit.
+quirq observatory is meant to be trustworthy enough to reason with, so the methods are explicit.
 
 | Subsystem | Method | Source / basis |
 | --- | --- | --- |
@@ -331,7 +333,7 @@ src/
     routes.js          Path ↔ instrument map, history sync, popstate
   capture/
     recorder.js        Composite MediaRecorder, 10s cap, WebM/MP4 + data exports
-    overlay.js         XO logo + live equation/lab HUD painter
+    overlay.js         quirq logo + live equation/lab HUD painter
     datatrace.js       Per-point expected vs actual sampling
   sim/               Time and celestial mechanics
     constants.js       Units, scene scale, unit conversions

@@ -1,16 +1,16 @@
-// Path routes for Observatory instruments.
+// Path routes for quirq observatory instruments.
 // Each section has a stable URL so it can be bookmarked and shared.
 
 export const ROUTES = [
-  { mode: 'data', path: '/data', title: 'Observatory · Data Lab', aliases: ['/data-lab'] },
-  { mode: 'spm', path: '/spm', title: 'Observatory · SPM Mooring', aliases: ['/mooring'] },
-  { mode: 'solar', path: '/', title: 'Observatory · Solar System', aliases: ['/solar'] },
-  { mode: 'math', path: '/equation', title: 'Observatory · Equation Lab', aliases: ['/math', '/equations'] },
-  { mode: 'earth', path: '/earth', title: 'Observatory · Earth Lab', aliases: [] },
-  { mode: 'light', path: '/light', title: 'Observatory · Light Lab', aliases: ['/optics'] },
-  { mode: 'gravity', path: '/gravity', title: 'Observatory · Gravity Lab', aliases: [] },
-  { mode: 'photo', path: '/photo', title: 'Observatory · Photo Lab', aliases: ['/photosynthesis', '/photoelectric'] },
-  { mode: 'fractal', path: '/fractals', title: 'Observatory · Fractals Lab', aliases: ['/fractal'] },
+  { mode: 'data', path: '/data', title: 'quirq observatory · Data Lab', aliases: ['/data-lab'] },
+  { mode: 'spm', path: '/spm', title: 'quirq observatory · SPM Mooring', aliases: ['/mooring'] },
+  { mode: 'solar', path: '/', title: 'quirq observatory · Solar System', aliases: ['/solar'] },
+  { mode: 'math', path: '/equation', title: 'quirq observatory · Equation Lab', aliases: ['/math', '/equations'] },
+  { mode: 'earth', path: '/earth', title: 'quirq observatory · Earth Lab', aliases: [] },
+  { mode: 'light', path: '/light', title: 'quirq observatory · Light Lab', aliases: ['/optics'] },
+  { mode: 'gravity', path: '/gravity', title: 'quirq observatory · Gravity Lab', aliases: [] },
+  { mode: 'photo', path: '/photo', title: 'quirq observatory · Photo Lab', aliases: ['/photosynthesis', '/photoelectric'] },
+  { mode: 'fractal', path: '/fractals', title: 'quirq observatory · Fractals Lab', aliases: ['/fractal'] },
 ];
 
 const byMode = Object.fromEntries(ROUTES.map((r) => [r.mode, r]));

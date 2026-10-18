@@ -597,14 +597,14 @@ async function init() {
       if (!blob) return;
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = `observatory-${captureTag()}.png`;
+      a.download = `quirq-observatory-${captureTag()}.png`;
       a.click();
       setTimeout(() => URL.revokeObjectURL(a.href), 5000);
     }, 'image/png');
   }
   document.getElementById('btn-snap').addEventListener('click', snapshot);
 
-  // Trace video: composite WebGL + XO logo + live equation/lab HUD.
+  // Trace video: composite WebGL + quirq logo + live equation/lab HUD.
   // Also samples per-point data traces; on stop downloads video + JSON/CSV
   // and opens expected-vs-actual results.
   const btnRecord = document.getElementById('btn-record');
@@ -644,14 +644,14 @@ async function init() {
 
   const recorder = createRecorder({
     sourceCanvas: renderer.domElement,
-    getFilename: () => `observatory-${captureTag()}`,
+    getFilename: () => `quirq-observatory-${captureTag()}`,
     getSnapshot: getTraceSnapshot,
     onStateChange: (rec) => {
       btnRecord.classList.toggle('recording', rec);
       btnRecord.textContent = rec ? '⏹' : '⏺';
       btnRecord.title = rec
         ? 'Stop recording (V)'
-        : 'Record trace video with XO HUD + data, max 10s (V)';
+        : 'Record trace video with quirq observatory HUD + data, max 10s (V)';
       btnRecord.setAttribute('aria-pressed', rec ? 'true' : 'false');
       recBadge.classList.toggle('on', rec);
       if (!rec) recBadge.textContent = '● REC';

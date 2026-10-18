@@ -1,4 +1,4 @@
-/** Canvas video capture with XO/logo HUD overlay and per-point data traces.
+/** Canvas video capture with Quirq/logo HUD overlay and per-point data traces.
  * Hard-capped at 10 seconds. On stop: downloads video + JSON/CSV traces and
  * returns a report for the results panel (expected vs actual).
  */
@@ -56,7 +56,7 @@ export function createRecorder({
   let videoTrack = null;
   let autoStop = null;
   let startedAt = 0;
-  let basename = 'observatory-trace';
+  let basename = 'quirq-observatory-trace';
   let recording = false;
 
   function isRecording() {

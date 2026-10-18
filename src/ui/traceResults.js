@@ -89,7 +89,7 @@ export class TraceResultsPanel {
 
   redownload(kind) {
     if (!this.report) return;
-    const base = (this.report.meta && this.report.meta.filename) || 'observatory-trace';
+    const base = (this.report.meta && this.report.meta.filename) || 'quirq-observatory-trace';
     if (kind === 'json') {
       const blob = new Blob([JSON.stringify(this.report, null, 2)], { type: 'application/json' });
       const a = document.createElement('a');
