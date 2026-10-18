@@ -1,10 +1,12 @@
 // A fictional, deterministic repository. This is not Observatory's Git history.
+// Include code, configuration, documentation and media so each file encoding
+// can be explored in the sample without changing its counts or timeline.
 export function createDemoDataset() {
   const groups = {
-    app: ['bootstrap.js', 'router.js', 'shell.js', 'navigation.js', 'state.js', 'commands.js', 'shortcuts.js', 'views.js'],
-    components: ['button.js', 'panel.js', 'slider.js', 'card.js', 'badge.js', 'dialog.js', 'tooltip.js', 'menu.js'],
+    app: ['bootstrap.js', 'router.js', 'shell.js', 'navigation.js', 'state.js', 'README.md', 'shortcuts.js', 'views.js'],
+    components: ['button.js', 'panel.js', 'slider.js', 'card.js', 'badge.js', 'dialog.js', 'tooltip.js', 'icons.svg'],
     engine: ['clock.js', 'integrator.js', 'vector.js', 'sampler.js', 'cache.js', 'worker.js', 'validation.js', 'legacy.js'],
-    data: ['presets.js', 'schema.js', 'loader.js', 'fixtures.js', 'transforms.js', 'catalog.js', 'parse.js', 'units.js'],
+    data: ['presets.json', 'schema.js', 'loader.js', 'fixtures.json', 'transforms.js', 'catalog.json', 'parse.js', 'units.json'],
     styles: ['base.css', 'tokens.css', 'panels.css', 'layout.css', 'forms.css', 'charts.css', 'dark.css', 'legacy.css'],
     tests: ['clock.test.js', 'integrator.test.js', 'loader.test.js', 'schema.test.js', 'router.test.js', 'vector.test.js', 'render.test.js', 'fixtures.js'],
   };
@@ -26,8 +28,8 @@ export function createDemoDataset() {
     ['Validate incoming experiment data', [modify('data/schema.js', 68, 12), modify('data/loader.js', 29, 9), modify('tests/schema.test.js', 57, 3)]],
     ['Improve the integration step', [modify('engine/integrator.js', 54, 31), modify('engine/vector.js', 12, 6), modify('tests/integrator.test.js', 36, 4)]],
     ['Add a reusable resize observer', [add('components/resize.js', 62), modify('components/panel.js', 11, 7), modify('styles/layout.css', 24, 10)]],
-    ['Expand the preset catalog', [modify('data/presets.js', 94, 4), modify('data/catalog.js', 23, 6), modify('data/fixtures.js', 38, 0)]],
-    ['Add keyboard navigation coverage', [add('tests/keyboard.test.js', 81), modify('app/shortcuts.js', 37, 11), modify('components/menu.js', 16, 5)]],
+    ['Expand the preset catalog', [modify('data/presets.json', 94, 4), modify('data/catalog.json', 23, 6), modify('data/fixtures.json', 38, 0)]],
+    ['Add keyboard navigation coverage', [add('tests/keyboard.test.js', 81), modify('app/shortcuts.js', 37, 11), modify('components/icons.svg', 16, 5)]],
     ['Replace the legacy engine shim', [remove('engine/legacy.js', 93), modify('engine/worker.js', 33, 14), modify('app/bootstrap.js', 9, 18)]],
     ['Introduce trace sampling', [add('engine/trace.js', 114), modify('engine/sampler.js', 45, 19), modify('data/transforms.js', 18, 6)]],
     ['Improve loading and error feedback', [modify('components/badge.js', 17, 4), modify('components/dialog.js', 28, 10), modify('data/loader.js', 41, 15)]],
@@ -35,7 +37,7 @@ export function createDemoDataset() {
     ['Persist the selected workspace', [add('app/persistence.js', 74), modify('app/state.js', 26, 9), modify('app/bootstrap.js', 13, 4)]],
     ['Add trace regression tests', [add('tests/trace.test.js', 96), modify('tests/fixtures.js', 33, 0), modify('engine/trace.js', 21, 7)]],
     ['Remove the old theme overrides', [remove('styles/legacy.css', 138), modify('styles/dark.css', 41, 22), modify('styles/base.css', 12, 19)]],
-    ['Clarify units in the data pipeline', [modify('data/units.js', 32, 8), modify('data/parse.js', 26, 11), modify('data/transforms.js', 17, 6), modify('tests/loader.test.js', 24, 3)]],
+    ['Clarify units in the data pipeline', [modify('data/units.json', 32, 8), modify('data/parse.js', 26, 11), modify('data/transforms.js', 17, 6), modify('tests/loader.test.js', 24, 3)]],
     ['Tune worker scheduling', [modify('engine/worker.js', 51, 28), modify('engine/cache.js', 27, 13), modify('engine/clock.js', 16, 7), modify('tests/clock.test.js', 31, 4)]],
     ['Add a compact activity chart', [add('components/activity.js', 127), modify('styles/charts.css', 53, 14), modify('app/views.js', 22, 5)]],
     ['Align form controls', [modify('components/slider.js', 29, 17), modify('components/tooltip.js', 13, 6), modify('styles/forms.css', 36, 21)]],

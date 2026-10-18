@@ -1,15 +1,14 @@
-import { CHANGE_COLORS, FILE_KINDS } from './encoding.js';
+import { CHANGE_COLORS } from './encoding.js';
+import { FILE_ATOM_KINDS } from './molecule-layout.js';
 
 const hex = value => `#${value.toString(16).padStart(6, '0')}`;
 const icons = {
   trunk: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 22 3-7V3h4v12l3 7ZM11 11 5 5l-1 2 7 8m2-7 6-5 1 2-7 7" fill="#ad8a61"/><path d="M12 5v16" stroke="#e2c39a" stroke-width=".7"/></svg>',
   branch: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21 13 10l8-7M8 15 5 8m8 2-1-8M9 14l12-3" fill="none" stroke="#ad8a61" stroke-width="2" stroke-linecap="round"/><path d="m5 8-3-2m10-2 2-2m6 10 3 2" fill="none" stroke="#c5ad82" stroke-width="1"/></svg>',
+  roots: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7v12h4M3 12h4" fill="none" stroke="#9fabc0" stroke-width="1"/><path d="M2 2h5l2 2h5v5H2Z" fill="#c6a575"/><path d="M8 10h4l2 1.5h7V16H8Z" fill="#c6a575"/><path d="M9 18h8l3 3v2H9Z" fill="#91afc4"/><path d="M17 18v3h3" fill="none" stroke="#cbdbe7" stroke-width=".7"/></svg>',
   leaf: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21C2 10 8 3 21 3 21 15 14 22 4 21Z" fill="#7ea27a"/><path d="M4 21 19 5M9 16l-1-6m5 2 6 1" fill="none" stroke="#c9ddab" stroke-width=".8"/></svg>',
-  core: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 22 9 18 21 6 21 2 9Z" fill="#b5a482"/><path d="m12 2-6 19L22 9H2l16 12Z" fill="none" stroke="#f1ddac" stroke-width=".7"/></svg>',
-  folder: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 5 2 8-7 6-9-3-4-9Z" fill="#85b8dd"/><path d="m12 3 3 19M2 10l18-2-14 11Z" fill="none" stroke="#cbdff3" stroke-width=".7"/></svg>',
-  code: '<span class="guide-sphere" aria-hidden="true"></span>',
-  data: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 1 10 11-10 11L2 12Z" fill="#85b8dd"/><path d="m12 1 1 11-1 11L2 12Z" fill="#c2d9e9"/><path d="m2 12 11 0 9 0M12 1l1 11-1 11" fill="none" stroke="#5a819e" stroke-width=".7"/></svg>',
-  document: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 10 5v11l-10 5-10-5V7Z" fill="#85b8dd"/><path d="M2 7 12 2 22 7 12 12Z" fill="#c2d9e9"/><path d="M12 12v11l10-5V7Z" fill="#587e9b"/></svg>',
+  atom: '<span class="guide-atom" aria-hidden="true"></span>',
+  carbon: '<span class="guide-atom guide-carbon" aria-hidden="true">C</span>',
 };
 
 /** Native left-side reading guide and navigation for the actual mapped hierarchy. */
@@ -27,33 +26,30 @@ export class DataGuide {
     this.el.innerHTML = `
       <div class="list-title"><span>Scene guide</span><button type="button" id="data-guide-collapse" aria-label="Collapse scene guide" aria-expanded="true" aria-controls="data-guide-body">−</button></div>
       <div id="data-guide-body">
-        <p class="lab-note guide-intro">A fixed map of files and folders.<br>Commit history brings it to life.</p>
-        <div class="section-title">Reading the shapes</div>
-        <dl class="guide-key" id="guide-shape-key">
-          <div><dt><span class="guide-icon">${icons.core}</span>Repository core</dt><dd>The whole project</dd></div>
-          <div><dt><span class="guide-icon">${icons.folder}</span>Folder hub</dt><dd>A directory and its children</dd></div>
-          ${FILE_KINDS.map(kind => `<div><dt><span class="guide-icon">${icons[kind.id]}</span>${kind.label}</dt><dd>${kind.description}</dd></div>`).join('')}
-        </dl>
-        <p class="lab-note guide-relations" id="guide-relations"><span class="guide-connection" aria-hidden="true"></span>Lines connect folders to their contents. Colors group top-level folders.</p>
+        <p class="lab-note guide-intro">Each folder is one carbon atom; each file is one attached N, O, H or S atom.</p>
+        <div class="section-title">Reading the structure</div>
+        <dl class="guide-key" id="guide-shape-key"></dl>
+        <div id="guide-atom-types"><div class="section-title">File elements</div><div class="guide-atom-key">${FILE_ATOM_KINDS.map(kind => `<div><span class="data-element-symbol" style="--atom-color:${hex(kind.color)}">${kind.element}</span><span>${kind.label}<small>${kind.elementName}</small></span></div>`).join('')}</div></div>
+        <p class="lab-note guide-relations" id="guide-relations"></p>
         <p class="lab-note guide-size-note" id="guide-size-note" hidden></p>
         <div class="section-title">Changes in this commit</div>
         <div class="guide-changes">
           ${[['added', 'Added / copied'], ['modified', 'Modified'], ['renamed', 'Renamed'], ['removed', 'Removed']].map(([key, label]) => `<span><i style="--change-color:${hex(CHANGE_COLORS[key])}"></i>${label}</span>`).join('')}
         </div>
-        <p class="lab-note guide-motion">A short moving trace reaches each animated file. Faint wireframes are absent at this step; a bright halo marks a hovered or selected file.</p>
-        <div class="section-title">Repository index</div>
+        <p class="lab-note guide-motion">Commit colors highlight changed atoms. Faint wireframes mark absent files; a halo marks hover or selection.</p>
+        <div class="section-title" id="guide-index-title">Repository index</div>
         <p class="lab-note guide-count-note" id="guide-index-caption"></p>
         <nav id="guide-index" aria-label="Focus a repository folder"></nav>
-        <p class="lab-note guide-count-note">Click a name to focus. Counts show present / mapped files; amber dots mark changes.</p>
+        <p class="lab-note guide-count-note" id="guide-count-explanation">Click a name to focus. Counts show present / mapped files; amber dots mark changes.</p>
         <details class="eq-history guide-loading"><summary class="section-title">How data becomes a scene</summary>
           <ol>
             <li><strong>Read GitHub.</strong> Fetch the default branch, pin its latest commit, and read that commit’s file tree.</li>
             <li><strong>Read changes.</strong> Load recent commits and their file changes, following the first parent through merges.</li>
-            <li id="guide-map-step"><strong>Build the map.</strong> Give files stable identities and arrange their folders in 3D.</li>
-            <li id="guide-replay-step"><strong>Replay.</strong> Move oldest to newest. Presence and names change; positions stay fixed.</li>
+            <li id="guide-map-step"><strong>Build the structure.</strong> Make one atom per folder and file. Connect folders to their parents, and files to their folders.</li>
+            <li id="guide-replay-step"><strong>Replay.</strong> Add or remove file atoms. Renames keep the same identity and update the folder and file-type color.</li>
           </ol>
-          <p class="lab-note" id="guide-encoding-note">Shapes follow file extensions. Size varies gently with known file size at the loaded snapshot; it does not measure importance. Connections describe containment, not code dependencies or execution.</p>
-          <p class="lab-note">Deep folders may be grouped under a visible ancestor. Large commits may animate only some changed files; the inspector lists every loaded change.</p>
+          <p class="lab-note" id="guide-encoding-note">Connections encode repository containment; a folder can have any number of files. Color and sphere size identify the assigned file element; byte size is shown in the inspector. Historical wireframes are excluded from current counts.</p>
+          <p class="lab-note" id="guide-coverage-note">Up to 500 files are mapped. All their ancestor folders remain visible; the inspector lists every loaded file and change.</p>
           <p class="lab-note" id="guide-source-note"></p>
         </details>
       </div>`;
@@ -115,35 +111,59 @@ export class DataGuide {
     const changedModel = this.model !== model;
     const changedScene = this.scene !== scene;
     const changedView = this.view !== view;
-    if (changedModel || changedScene || changedView) {
-      const focusedPath = changedModel ? null : this.focusedPath;
-      const expandedPaths = changedModel ? [] : [...this.rows.values()].filter(row => row.expand?.getAttribute('aria-expanded') === 'true').map(row => row.path);
+    const indexLayout = view === 'tree' ? scene.indexLayout || scene.layout : scene.layout;
+    const changedIndex = view === 'tree' && this.indexLayout !== indexLayout;
+    if (changedModel || changedScene || changedView || changedIndex) {
+      const focusedElement = document.activeElement;
+      const focusedFolder = focusedElement?.dataset.guideFolder;
+      const focusedExpand = focusedElement?.dataset.guideExpand;
+      const scroll = this.el.querySelector('#guide-index').scrollTop;
+      if (changedModel) this.expansionState = new Map();
+      else {
+        this.expansionState ||= new Map();
+        for (const row of this.rows.values()) {
+          if (row.expand) this.expansionState.set(row.path, row.expand.getAttribute('aria-expanded') === 'true');
+        }
+      }
+      this.focusedPath = changedModel ? null : this.focusedPath;
       this.view = view;
       this.model = model;
       this.scene = scene;
-      this.focusedPath = focusedPath;
+      this.indexLayout = indexLayout;
       this.buildIndex();
-      for (const path of expandedPaths) {
+      for (const [path, open] of this.expansionState) {
         const row = this.rows.get(path);
-        if (row?.children) { row.children.hidden = false; row.expand.setAttribute('aria-expanded', 'true'); row.expand.textContent = '▾'; }
+        if (row?.children) { row.children.hidden = !open; row.expand.setAttribute('aria-expanded', String(open)); row.expand.textContent = open ? '▾' : '▸'; }
       }
-      this.renderLegend();
-      this.el.querySelector('#guide-index-caption').textContent = `${scene.renderedCount.toLocaleString()} of ${model.nodes.length.toLocaleString()} loaded files mapped`;
+      if (focusedFolder !== undefined) this.rows.get(focusedFolder)?.focus.focus({ preventScroll: true });
+      if (focusedExpand !== undefined) this.rows.get(focusedExpand)?.expand?.focus({ preventScroll: true });
+      this.el.querySelector('#guide-index').scrollTop = changedModel ? 0 : scroll;
+      if (changedModel || changedScene || changedView) this.renderLegend();
+      this.el.querySelector('#guide-index-caption').textContent = view === 'tree' && scene.indexLayout
+        ? `${indexLayout.nodes.length.toLocaleString()} present files · ${indexLayout.folders.length.toLocaleString()} folders including root`
+        : `${scene.renderedCount.toLocaleString()} of ${model.nodes.length.toLocaleString()} loaded files mapped`;
       this.el.querySelector('#guide-source-note').textContent = model.repository.source === 'demo'
         ? 'This view is a synthetic sample. No GitHub data has been requested for it.'
         : `${model.commits.length} commits loaded. ${model.coverage.label}. Full limits and omissions are listed under Data coverage on the right.`;
     }
+    if (view !== 'tree') this.refreshStructureMembership();
+    const rootIndex = view === 'tree' && Boolean(scene.indexLayout);
     const active = new Set(frame.activeIds), changed = new Set(frame.changedIds);
     for (const row of this.rows.values()) {
       const present = row.ids.filter(id => active.has(id)).length;
       const changes = row.ids.filter(id => changed.has(id)).length;
-      row.count.textContent = `${present}/${row.ids.length}`;
+      row.count.textContent = rootIndex ? String(present) : `${present}/${row.ids.length}`;
       row.marker.hidden = !changes;
-      row.marker.title = `${changes} mapped files changed in this commit`;
-      row.focus.setAttribute('aria-label', `Focus ${row.path || model.repository.name}: ${present} of ${row.ids.length} mapped files present, ${changes} changed`);
+      row.marker.title = `${changes} ${rootIndex ? 'present' : 'mapped'} files changed in this commit`;
+      row.focus.setAttribute('aria-label', rootIndex
+        ? `Focus ${row.path || model.repository.name}: ${present} files present, ${changes} changed`
+        : `${row.historical ? 'Historical folder. ' : ''}Focus ${row.path || model.repository.name}: ${present} of ${row.ids.length} mapped files present, ${changes} changed`);
     }
-    if (selectedId && (selectedId !== this.selectedId || changedScene || changedView)) {
-      this.focusedPath = scene.nodes.get(selectedId)?.node.folder ?? null;
+    const selectedFolder = view !== 'tree'
+      ? scene.structure?.nodes.find(node => node.id === selectedId)?.folder
+      : (scene.indexNodes || scene.nodes).get(selectedId)?.node.folder;
+    if (selectedId && (selectedId !== this.selectedId || selectedFolder !== this.selectedFolder || changedScene || changedView)) {
+      this.focusedPath = selectedFolder ?? null;
       // Reveal the selected file's mapped folder without replacing any buttons.
       let path = this.focusedPath;
       while (path) {
@@ -154,6 +174,7 @@ export class DataGuide {
       }
     }
     this.selectedId = selectedId;
+    this.selectedFolder = selectedFolder;
     this.markFocus();
   }
 
@@ -162,17 +183,23 @@ export class DataGuide {
     const $ = selector => this.el.querySelector(selector);
     $('.guide-intro').textContent = tree
       ? 'One repository, growing through the same commit history.'
-      : 'A fixed map of files and folders. Commit history brings it to life.';
+      : 'Each folder is one carbon atom; each file is one attached N, O, H or S atom.';
+    $('#guide-atom-types').hidden = tree;
+    $('#guide-index-title').textContent = tree ? 'Root directory index' : 'Repository index';
+    $('#guide-count-explanation').textContent = tree
+      ? 'Click a name here to focus its directory row. Counts include present files inside collapsed folders; amber dots mark changes.'
+      : 'Click a name to focus. Counts show present / mapped files; amber dots mark changes.';
+    this.el.querySelector('.guide-intro + .section-title').textContent = tree ? 'Reading the shapes' : 'Reading the structure';
     $('#guide-shape-key').innerHTML = tree
       ? `<div><dt><span class="guide-icon">${icons.trunk}</span>Repository trunk</dt><dd>Grows taller and thicker with each loaded commit</dd></div>
          <div><dt><span class="guide-icon">${icons.branch}</span>Folder branches</dt><dd>More present leaves lengthen and bend a limb</dd></div>
-         <div><dt><span class="guide-icon">${icons.leaf}</span>File leaves</dt><dd>One leaf for each mapped file</dd></div>`
-      : `<div><dt><span class="guide-icon">${icons.core}</span>Repository core</dt><dd>The whole project</dd></div>
-         <div><dt><span class="guide-icon">${icons.folder}</span>Folder hub</dt><dd>A directory and its children</dd></div>
-         ${FILE_KINDS.map(kind => `<div><dt><span class="guide-icon">${icons[kind.id]}</span>${kind.label}</dt><dd>${kind.description}</dd></div>`).join('')}`;
+         <div><dt><span class="guide-icon">${icons.leaf}</span>File leaves</dt><dd>One leaf for each mapped file</dd></div>
+         <div><dt><span class="guide-icon">${icons.roots}</span>Directory outline</dt><dd>Folder and file rows connected to their actual parents</dd></div>`
+      : `<div><dt><span class="guide-icon">${icons.carbon}</span>Folder carbon · C</dt><dd>Exactly one graphite carbon atom for each folder</dd></div>
+         <div><dt><span class="guide-icon">${icons.atom}</span>File atom</dt><dd>Exactly one N, O, H or S atom for each mapped file</dd></div>`;
     $('#guide-relations').innerHTML = tree
-      ? 'Branches follow the folder hierarchy. Length and droop respond to the number of present mapped leaves; removals lighten the limb.'
-      : '<span class="guide-connection" aria-hidden="true"></span>Lines connect folders to their contents. Colors group top-level folders.';
+      ? 'Below the ground line, an indented directory outline shows the loaded paths at this commit, like a shell tree in 3D. Click folders in the scene to expand or collapse them; click file rows to inspect them.'
+      : '<span class="guide-connection" aria-hidden="true"></span>Folder carbons bond to their actual parent. Every file atom bonds directly to its folder’s carbon.';
     const sizeNote = $('#guide-size-note');
     sizeNote.hidden = !tree;
     if (tree) {
@@ -181,26 +208,38 @@ export class DataGuide {
       sizeNote.textContent = `Leaf area follows snapshot bytes, with limits for readability. Empty files use the minimum size; unknown sizes use a muted fallback. ${known.toLocaleString()} known · ${(nodes.length - known).toLocaleString()} unknown.`;
     }
     $('.guide-motion').textContent = tree
-      ? 'Commit effects adds change colors and motion: step forward to grow new leaves and let removed leaves fall. Jumps and backward steps settle immediately. Faint wireframes mark absent files; a bright halo marks hover or selection.'
-      : 'A short moving trace reaches each animated file. Faint wireframes are absent at this step; a bright halo marks a hovered or selected file.';
+      ? 'Commit effects adds change colors and motion: step forward to grow new leaves and let removed leaves fall. Jumps and backward steps settle immediately. Above ground, faint wireframes mark absent files; a bright halo marks hover or selection. The directory outline includes only present files.'
+      : 'Additions add one atom; removals take it away. Renames move the same atom into its current folder. Faint wireframes and dim index rows are historical; a halo marks hover or selection.';
     $('#guide-map-step').innerHTML = tree
-      ? '<strong>Grow the hierarchy.</strong> Give files stable identities. Recursively branch their folders; leaves follow the growing limbs.'
-      : '<strong>Build the map.</strong> Give files stable identities and arrange their folders in 3D.';
+      ? '<strong>Build both hierarchies.</strong> The directory outline places each present file inside its actual folder and connects each folder to its parent. Above ground, mapped files become leaves on growing limbs.'
+      : '<strong>Build the structure.</strong> Make one atom per folder and file. Connect folders to their parents, and files to their folders.';
     $('#guide-replay-step').innerHTML = tree
       ? '<strong>Replay growth.</strong> Each loaded commit adds height and thickness. Additions grow, removals fall, and lighter branches lift back up.'
-      : '<strong>Replay.</strong> Move oldest to newest. Presence and names change; positions stay fixed.';
+      : '<strong>Replay.</strong> Add or remove file atoms. Renames keep the same identity and update the folder and file-type color.';
+    $('#guide-coverage-note').textContent = tree
+      ? 'The directory outline contains every present loaded file and ancestor folder, including collapsed entries. Large folders show their children in pages. The canopy maps up to 500 leaves and may group deep folders. GitHub loading limits are listed under Data coverage.'
+      : 'Up to 500 files are mapped. All their ancestor folders remain visible; the inspector lists every loaded file and change.';
     $('#guide-encoding-note').textContent = tree
       ? 'Trunk height and thickness show progress through the loaded history. Branch weight is a visual metaphor for present mapped leaf counts, not bytes or code quality. File identities survive renames; their positions follow the growing limbs. Leaf areas use known file sizes at the loaded snapshot, held constant during replay. Historical byte sizes are not inferred from lines added or deleted. Areas are relative to the median known positive file size, limited to 0.16–6.25 times that area. Empty files use the minimum; unknown sizes use a muted 0.65 fallback.'
-      : 'Shapes follow file extensions. Size varies gently with known file size at the loaded snapshot; it does not measure importance. Connections describe containment, not code dependencies or execution.';
+      : 'Connections encode repository containment; a folder can have any number of files. Color and sphere size identify the assigned file element; byte size is shown in the inspector. Historical wireframes are excluded from current counts.';
   }
 
   buildIndex() {
     this.rows.clear();
     const container = this.el.querySelector('#guide-index');
     container.replaceChildren();
-    const folders = this.scene.layout.folders;
+    const layout = this.indexLayout || this.scene.layout;
+    const folders = layout.folders;
+    const sceneFolders = this.view === 'tree' ? this.scene.indexFolders || this.scene.folders : this.scene.folders;
+    const childrenByParent = new Map();
+    for (const folder of folders) {
+      const siblings = childrenByParent.get(folder.parent) || [];
+      siblings.push(folder);
+      childrenByParent.set(folder.parent, siblings);
+    }
     const append = (folder, parent) => {
       const wrapper = document.createElement('div');
+      wrapper.className = 'guide-index-folder';
       const line = document.createElement('div');
       line.className = 'guide-index-row';
       const focus = document.createElement('button');
@@ -210,15 +249,16 @@ export class DataGuide {
       focus.title = folder.path || this.model.repository.fullName;
       const swatch = document.createElement('span');
       swatch.className = 'dot';
-      swatch.style.background = folder.path ? `#${this.scene.folders.get(folder.path).color.getHexString()}` : '#b5a482';
-      const name = document.createElement('span'); name.className = 'row-name'; name.textContent = folder.path ? folder.name : this.model.repository.name;
+      const color = sceneFolders.get(folder.path)?.color;
+      swatch.style.background = folder.path && color ? `#${color.getHexString()}` : '#b5a482';
+      const name = document.createElement('span'); name.className = 'row-name'; name.textContent = folder.path ? folder.name || folder.path.split('/').at(-1) : this.model.repository.name;
       const marker = document.createElement('i'); marker.className = 'guide-change-dot'; marker.setAttribute('aria-hidden', 'true');
       const count = document.createElement('span'); count.className = 'guide-index-count'; count.setAttribute('aria-hidden', 'true');
       focus.append(swatch, name, marker, count); line.append(focus); wrapper.append(line); parent.append(wrapper);
-      const ids = this.scene.layout.nodes.filter(node => !folder.path || node.folder === folder.path || node.folder.startsWith(`${folder.path}/`)).map(node => node.id);
-      const row = { path: folder.path, focus, count, marker, ids };
+      const ids = layout.nodes.filter(node => !folder.path || node.folder === folder.path || node.folder.startsWith(`${folder.path}/`)).map(node => node.id);
+      const row = { path: folder.path, wrapper, focus, count, marker, ids };
       this.rows.set(folder.path, row);
-      const children = folders.filter(child => child.parent === folder.path);
+      const children = childrenByParent.get(folder.path) || [];
       if (children.length) {
         const expand = document.createElement('button'); expand.type = 'button'; expand.className = 'guide-expand'; expand.dataset.guideExpand = folder.path;
         expand.textContent = folder.path ? '▸' : '▾'; expand.setAttribute('aria-expanded', String(!folder.path)); expand.setAttribute('aria-label', `Expand or collapse ${folder.path || 'repository'} folders`);
@@ -230,6 +270,27 @@ export class DataGuide {
     };
     const root = folders.find(folder => folder.path === '');
     if (root) append(root, container);
+  }
+
+  refreshStructureMembership() {
+    const structure = this.scene.structure;
+    if (!structure) return;
+    for (const row of this.rows.values()) row.ids = [];
+    for (const node of structure.nodes) {
+      let path = node.folder;
+      while (true) {
+        this.rows.get(path)?.ids.push(node.id);
+        if (!path) break;
+        path = path.includes('/') ? path.slice(0, path.lastIndexOf('/')) : '';
+      }
+    }
+    const activeFolders = new Set(structure.folderIds || structure.folders.map(folder => folder.path));
+    for (const row of this.rows.values()) {
+      row.historical = !activeFolders.has(row.path);
+      row.wrapper.classList.toggle('historical', row.historical);
+      row.wrapper.hidden = row.historical && this.scene.options?.ghosts === false;
+      row.focus.title = `${row.path || this.model.repository.fullName}${row.historical ? ' · historical folder' : ''}`;
+    }
   }
 
   markFocus() {

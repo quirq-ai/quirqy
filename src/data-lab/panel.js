@@ -1,5 +1,6 @@
 import { makePanelDraggable } from '../ui/dragPanel.js';
 import { activityInsights } from './model.js';
+import { FILE_ATOM_KINDS, fileAtomKind } from './molecule-layout.js';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
 const fmt = value => Number(value || 0).toLocaleString();
@@ -27,7 +28,7 @@ export class DataPanel {
     this.el.setAttribute('aria-label', 'Data Lab controls');
     this.el.innerHTML = `
       <div class="list-title">Data Lab <button class="data-sheet-close" type="button" aria-label="Close Data Lab controls">×</button></div>
-      <p class="lab-note" id="data-view-intro">Folders hold their place in space. Follow the traces to see which files each commit changes.</p>
+      <p class="lab-note" id="data-view-intro">One folder, one carbon atom. Each file is one element atom bonded directly to its folder.</p>
       <div class="section-title">Repository <span class="lab-hint" id="data-source-kind"></span></div>
       <form id="data-source-form" aria-label="Load a public GitHub repository">
         <div class="data-source-row"><label class="data-sr-only" for="data-repository-url">Public GitHub repository URL</label><input id="data-repository-url" type="url" placeholder="https://github.com/owner/repo" autocomplete="off" spellcheck="false" required><button class="btn tiny primary" id="data-load" type="submit">Load</button></div>
@@ -37,8 +38,13 @@ export class DataPanel {
       <p class="lab-note" id="data-status" role="status" aria-live="polite"></p>
       <div class="section-title">View</div>
       <div class="seg data-view-switch" role="group" aria-label="Repository visualization"><button type="button" data-view="structure" class="active" aria-pressed="true">Structure</button><button type="button" data-view="tree" aria-pressed="false">Growth tree</button></div>
-      <div class="kick-row eq-actions data-view-actions"><button class="btn tiny" id="data-frame" type="button">Frame view</button><button class="btn tiny" id="data-focus" type="button" disabled>Focus file</button></div>
-      <div class="data-view-toggles"><label class="setting"><input type="checkbox" data-option="links" checked> <span id="data-links-label">Connections</span></label><label class="setting"><input type="checkbox" data-option="labels" checked> Folder labels</label><label class="setting"><input type="checkbox" data-option="ghosts" checked> Historical files</label><label class="setting"><input type="checkbox" data-option="activity" checked> <span id="data-activity-label">Activity traces</span></label></div>
+      <div class="kick-row eq-actions data-view-actions"><button class="btn tiny" id="data-frame" type="button">Frame view</button><button class="btn tiny" id="data-frame-roots" type="button" title="Frame the 3D directory outline beneath the tree" hidden>Frame roots</button><button class="btn tiny" id="data-focus" type="button" disabled>Focus file</button></div>
+      <div class="data-view-toggles"><label class="setting"><input type="checkbox" data-option="links" checked> <span id="data-links-label">Bonds</span></label><label class="setting"><input type="checkbox" data-option="labels" checked> Folder labels</label><label class="setting"><input type="checkbox" data-option="ghosts" checked> Historical files</label><label class="setting"><input type="checkbox" data-option="activity" checked> <span id="data-activity-label">Commit effects</span></label><label class="setting" id="data-roots-option" hidden><input type="checkbox" data-option="roots" checked> Show roots</label></div>
+      <section id="data-structure" class="data-structure" aria-label="Current repository structure">
+        <div class="data-structure-summary"><span><b id="data-structure-folders"></b> folder carbons</span><span><b id="data-structure-atoms"></b> file atoms</span></div>
+        <p class="lab-note" id="data-structure-scope"><span id="data-structure-connections"></span></p>
+        <details class="data-structure-details"><summary>File elements in the repository</summary><div id="data-structure-composition"></div><p class="lab-note">Counts cover present mapped files and their folder carbons, including the repository root. Historical wireframes are excluded.</p></details>
+      </section>
       <div class="section-title">Current commit</div>
       <div class="data-commit">
         <div id="data-commit-message"></div>
@@ -104,6 +110,7 @@ export class DataPanel {
     on(this.$('#data-source-form'), 'submit', event => { event.preventDefault(); invoke('onLoad', this.$('#data-repository-url').value.trim(), Number(this.$('#data-history-limit').value)); });
     on(this.$('#data-demo'), 'click', () => invoke('onDemo'));
     on(this.$('#data-frame'), 'click', () => invoke('onFrame'));
+    on(this.$('#data-frame-roots'), 'click', () => invoke('onFrameRoots'));
     on(this.$('#data-focus'), 'click', () => { if (this.isRendered(this.state?.selectedId)) invoke('onFocusFile', this.state.selectedId); });
     on(this.$('#data-clear-selection'), 'click', () => invoke('onSelectFile', null));
     on(this.$('#data-export'), 'click', () => invoke('onExport'));
@@ -200,11 +207,14 @@ export class DataPanel {
     const viewChanged = previous?.view !== state.view || previous?.mappedIds !== state.mappedIds;
     const frameChanged = modelChanged || previous?.index !== state.index;
     const selectionChanged = modelChanged || previous?.selectedId !== state.selectedId;
-    if (modelChanged) { this.filePage = 0; this.folder = ''; this.renderRepository(); this.renderDirectories(); this.renderCoverage(); }
+    if (modelChanged) { this.filePage = 0; this.folder = ''; this.renderRepository(); this.renderCoverage(); }
     if (frameChanged) { this.renderCommit(); this.renderPatterns(); }
     if (viewChanged || !previous) this.renderView();
+    if (frameChanged || viewChanged || previous?.structure !== state.structure) this.renderStructure();
+    if (modelChanged || viewChanged || (frameChanged && state.view !== 'tree')) this.renderDirectories();
     if (frameChanged || selectionChanged || viewChanged) { this.renderChanges(); this.renderSelected(); this.renderFiles(); }
     this.$('#data-focus').disabled = !this.isRendered(state.selectedId);
+    this.$('[data-option="roots"]').checked = state.rootsVisible !== false;
     if (selectionChanged && this.pendingSelectionScroll) this.showSelectedInPanel();
     this.pendingSelectionScroll = false;
     const play = this.$('#data-play');
@@ -223,7 +233,9 @@ export class DataPanel {
     const shortSha = this.shortSha(state.frame.commit?.sha);
     this.$('#data-time-label').textContent = state.index < 0 ? `Baseline · ${state.model.commits.length} commits loaded` : `${state.index + 1} / ${state.model.commits.length} · ${shortSha}`;
     this.$('#data-time-date').textContent = state.frame.commit ? formatDate(state.frame.commit.date) : 'Before the first loaded commit';
-    this.$('#data-rendered-count').textContent = `${fmt(state.renderedCount ?? state.model.nodes.length)} of ${fmt(state.model.nodes.length)} ${state.view === 'tree' ? 'leaves' : 'file shapes'} rendered. All loaded files remain searchable here.`;
+    this.$('#data-rendered-count').textContent = state.view === 'tree' && state.rootLayout
+      ? `${fmt(state.renderedCount)} canopy leaves mapped. The directory outline contains all ${fmt(state.rootLayout.nodes.length)} present loaded files; expand folders to browse their paths. All loaded files remain searchable here.`
+      : `${fmt(state.renderedCount ?? state.model.nodes.length)} of ${fmt(state.model.nodes.length)} ${state.view === 'tree' ? 'leaves' : 'file atoms'} rendered. All loaded files remain searchable here.`;
   }
 
   renderView() {
@@ -234,10 +246,24 @@ export class DataPanel {
       button.setAttribute('aria-pressed', String(active));
     }
     this.$('#data-view-intro').textContent = tree
-      ? 'Each loaded commit grows the tree taller and thicker. Folders with more present leaves stretch outward and droop under their weight.'
-      : 'Folders hold their place in space. Follow the traces to see which files each commit changes.';
-    this.$('#data-links-label').textContent = tree ? 'File stems' : 'Connections';
-    this.$('#data-activity-label').textContent = tree ? 'Commit effects' : 'Activity traces';
+      ? 'Each loaded commit grows the tree taller and thicker. Below ground, a 3D directory outline shows the exact folders and files at this point in history.'
+      : 'One folder, one carbon atom. Each file is one element atom bonded directly to its folder.';
+    this.$('#data-links-label').textContent = tree ? 'File stems' : 'Bonds';
+    this.$('#data-activity-label').textContent = 'Commit effects';
+    this.$('#data-roots-option').hidden = !tree;
+    this.$('#data-frame-roots').hidden = !tree;
+    this.$('#data-structure').hidden = tree;
+  }
+
+  renderStructure() {
+    const structure = this.state.structure;
+    const section = this.$('#data-structure');
+    section.hidden = this.state.view === 'tree' || !structure;
+    if (section.hidden) return;
+    this.$('#data-structure-atoms').textContent = fmt(structure.atomCount);
+    this.$('#data-structure-folders').textContent = fmt(structure.moleculeCount);
+    this.$('#data-structure-connections').textContent = `${fmt(structure.folderBondCount)} parent–child folder bonds`;
+    this.$('#data-structure-composition').innerHTML = FILE_ATOM_KINDS.map(kind => `<div class="data-structure-kind"><span class="data-element-symbol" style="--atom-color:#${kind.color.toString(16).padStart(6, '0')}" title="${esc(kind.elementName)}">${esc(kind.element)}</span><span>${esc(kind.label)}</span><b>${fmt(structure.typeCounts[kind.id])}</b></div>`).join('');
   }
 
   shortSha(sha) {
@@ -291,7 +317,7 @@ export class DataPanel {
 
   replaceContent(node, markup) {
     const active = document.activeElement;
-    const focusKey = node.contains(active) ? ['fileId', 'focusId', 'commitIndex'].find(key => active?.dataset[key] !== undefined) : null;
+    const focusKey = node.contains(active) ? ['fileId', 'focusId', 'commitIndex', 'directory', 'directoryFilter'].find(key => active?.dataset[key] !== undefined) : null;
     const focusValue = focusKey ? active.dataset[focusKey] : null;
     const scroll = node.scrollTop;
     node.innerHTML = markup;
@@ -325,14 +351,22 @@ export class DataPanel {
     const rendered = this.isRendered(file.id);
     const changes = model.commits.map((commit, index) => ({ ...commit, index })).filter(commit => commit.changes.some(change => change.id === file.id));
     const historyWasOpen = this.$('#data-selected .data-file-history')?.open;
+    const kind = this.state.view !== 'tree' ? fileAtomKind(file.path) : null;
+    const currentFolder = file.path.includes('/') ? file.path.slice(0, file.path.lastIndexOf('/')) : '(root)';
+    const atomRows = kind ? `<div class="stat-k">File category</div><div class="stat-v">${esc(kind.label)}</div><div class="stat-k">File element</div><div class="stat-v data-file-element">${esc(kind.element)} · ${esc(kind.elementName)}</div><div class="stat-k">Current folder</div><div class="stat-v data-folder-path">${esc(currentFolder)}</div>` : '';
     const history = changes.length ? `<details class="data-file-history" ${historyWasOpen ? 'open' : ''}><summary>File activity · ${changes.length} commits</summary>${changes.map(commit => `<button type="button" data-commit-index="${commit.index}" aria-current="${commit.index === this.state.index}" title="${esc(commit.message)}"><code>${esc(this.shortSha(commit.sha))}</code><span>${esc(commit.message.split('\n')[0])}</span></button>`).join('')}</details>` : '';
-    this.replaceContent(this.$('#data-selected'), `<div class="data-selected-path">${esc(file.path)}</div><div class="stat-grid"><div class="stat-k">At this point</div><div class="stat-v">${file.exists ? 'Present' : 'Not present'}</div><div class="stat-k">Current change</div><div class="stat-v">${esc(file.status)}</div><div class="stat-k">Commits touching file</div><div class="stat-v">${fmt(changes.length)}</div><div class="stat-k">Snapshot size</div><div class="stat-v">${file.size != null ? `${fmt(file.size)} bytes` : 'Unknown'}</div></div>${historical.length ? `<div class="data-history-paths"><span>Other paths for this file</span>${historical.map(path => `<code>${esc(path)}</code>`).join('')}</div>` : ''}${rendered ? '' : '<p class="lab-note" style="padding:0 0 8px">Outside the displayed subset; data remains available here.</p>'}<button class="btn tiny" type="button" data-focus-id="${esc(file.id)}" ${rendered ? '' : 'disabled'}>Focus in scene</button>${history}`);
+    this.replaceContent(this.$('#data-selected'), `<div class="data-selected-path">${esc(file.path)}</div><div class="stat-grid"><div class="stat-k">At this point</div><div class="stat-v">${file.exists ? 'Present' : 'Not present'}</div><div class="stat-k">Current change</div><div class="stat-v">${esc(file.status)}</div><div class="stat-k">Commits touching file</div><div class="stat-v">${fmt(changes.length)}</div>${atomRows}<div class="stat-k">Snapshot size</div><div class="stat-v">${file.size != null ? `${fmt(file.size)} bytes` : 'Unknown'}</div></div>${historical.length ? `<div class="data-history-paths"><span>Other paths for this file</span>${historical.map(path => `<code>${esc(path)}</code>`).join('')}</div>` : ''}${rendered ? '' : '<p class="lab-note" style="padding:0 0 8px">Outside the displayed subset; data remains available here.</p>'}<button class="btn tiny" type="button" data-focus-id="${esc(file.id)}" ${rendered ? '' : 'disabled'}>Focus in scene</button>${history}`);
   }
 
   renderFiles() {
     if (!this.state?.frame) return;
     const query = this.search.trim().toLowerCase();
-    const files = this.state.frame.files.filter(file => (!this.folder || file.directory === this.folder) && (!query || file.path.toLowerCase().includes(query) || file.aliases.some(path => path.toLowerCase().includes(query))));
+    const inFolder = file => {
+      if (!this.folder) return true;
+      if (this.state.view === 'tree') return file.directory === this.folder;
+      return this.folder === '(root)' ? !file.path.includes('/') : file.path.startsWith(`${this.folder}/`);
+    };
+    const files = this.state.frame.files.filter(file => inFolder(file) && (!query || file.path.toLowerCase().includes(query) || file.aliases.some(path => path.toLowerCase().includes(query))));
     const pages = Math.max(1, Math.ceil(files.length / PAGE_SIZE));
     this.filePage = Math.max(0, Math.min(this.filePage, pages - 1));
     const shown = files.slice(this.filePage * PAGE_SIZE, (this.filePage + 1) * PAGE_SIZE);
@@ -345,7 +379,10 @@ export class DataPanel {
   }
 
   renderDirectories() {
-    this.$('#data-directories').innerHTML = this.state.model.directories.map(directory => `<div class="data-directory-row"><button class="data-directory-name" type="button" data-directory="${esc(directory.path)}" title="Focus ${esc(directory.path)} in the scene">${esc(directory.path)}<span>${fmt(directory.count)}</span></button><button class="data-clear" type="button" data-directory-filter="${esc(directory.path)}" aria-label="Show files in ${esc(directory.path)}">Files</button></div>`).join('') || '<p class="lab-note">No directories loaded.</p>';
+    const directories = this.state.view !== 'tree' && this.state.structure
+      ? this.state.structure.folders.map(folder => ({ path: folder.path || '(root)', count: folder.path ? folder.totalCount : folder.directCount }))
+      : this.state.model.directories;
+    this.replaceContent(this.$('#data-directories'), directories.map(directory => `<div class="data-directory-row"><button class="data-directory-name" type="button" data-directory="${esc(directory.path)}" title="Focus ${esc(directory.path)} in the scene">${esc(directory.path)}<span>${fmt(directory.count)}</span></button><button class="data-clear" type="button" data-directory-filter="${esc(directory.path)}" aria-label="Show files in ${esc(directory.path)}">Files</button></div>`).join('') || '<p class="lab-note">No directories loaded.</p>');
   }
 
   renderPatterns() {

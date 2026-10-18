@@ -4,6 +4,8 @@ import { CHANGE_COLORS } from './encoding.js';
 import { stableHash } from './layout.js';
 import { createTreeLayout, createTreePose, trunkRadius } from './tree-layout.js';
 import { stateAt } from './model.js';
+import { RepositoryRoots } from './root-scene.js';
+import { createRootLayout } from './root-layout.js';
 
 const DURATION = 1.6;
 const UP = new THREE.Vector3(0, 1, 0);
@@ -123,6 +125,23 @@ export class TreeScene extends RepositoryScene {
   constructor(stage, callbacks = {}) {
     super(stage, callbacks);
     this.group.name = 'Data Lab · Growth tree';
+    this.options.roots = true;
+    this.roots = new RepositoryRoots(stage);
+    this.group.add(this.roots.group);
+    this.selectionInRoots = false;
+    this.lastHit = null;
+    // A folder is toggled on a single click. The shared double-click handler
+    // would toggle it a third time; use double-click only to focus the outline.
+    this.renderer.domElement.removeEventListener('dblclick', this._doubleClick);
+    this._doubleClick = event => {
+      const hit = this._hit(event);
+      if (hit?.kind === 'file') this.focusNode(hit.id);
+      else if (hit?.kind === 'folder') {
+        if (hit.root) this.focusRootFolder(hit.path);
+        else super.focusFolder(hit.path);
+      }
+    };
+    this.renderer.domElement.addEventListener('dblclick', this._doubleClick);
     for (const [name, geometry] of Object.entries(this.geometries)) if (name !== 'pick') { geometry.dispose(); delete this.geometries[name]; }
     this.geometries.leaf = createLeafGeometry();
     const veinPoints = Array.from({ length: 19 }, (_, index) => {
@@ -134,12 +153,13 @@ export class TreeScene extends RepositoryScene {
     this.fallingLeaves = [];
     this.index = null;
     this.trunkRadius = trunkRadius(-1);
-    this.renderer.domElement.setAttribute('aria-label', 'Three-dimensional repository growth tree. Each leaf is a file, each branch a folder. Drag to orbit, scroll to zoom, click a leaf to inspect, double-click to focus.');
+    this.renderer.domElement.setAttribute('aria-label', 'Three-dimensional repository growth tree. Each leaf is a file. Below ground, an indented directory outline shows actual folders and files. Click folders to expand or collapse, click files or leaves to inspect. Drag to orbit, scroll to zoom, double-click a file to focus.');
   }
 
   setModel(model) {
     this._clearWorld();
     this.model = model;
+    this.roots.setModel(model);
     this.layout = createTreeLayout(model);
     this.extent = this.layout.extent;
     this.center = asVector(this.layout.center);
@@ -171,12 +191,19 @@ export class TreeScene extends RepositoryScene {
       setBranchRadius(geometry, this.trunkRadius * folder.branchWeight);
       if (folder.path) this._label(folder.path, position.clone().add(new THREE.Vector3(0, 3.2, 0)), `#${color.getHexString()}`, folder.path);
     }
-    this._label(model.repository?.name || 'Repository', new THREE.Vector3(0, -44, 0), '#b7a88b', '');
+    this._label(model.repository?.name || 'Repository', new THREE.Vector3(0, -38, 0), '#b7a88b', '');
 
-    const ground = new THREE.Mesh(new THREE.PlaneGeometry(150, 150), new THREE.MeshBasicMaterial({ color: 0x17251c, map: this.dot, transparent: true, opacity: 0.42, depthWrite: false }));
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(150, 150), new THREE.MeshBasicMaterial({ color: 0x17251c, map: this.dot, transparent: true, opacity: 0.18, depthWrite: false, side: THREE.DoubleSide }));
     ground.rotation.x = -Math.PI / 2;
     ground.position.y = -40.3;
     this.world.add(ground);
+    // A fine soil contour separates growth above from exact paths below without
+    // hiding the underground geometry behind an opaque ground plane.
+    const contour = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(Array.from({ length: 128 }, (_, index) => {
+      const angle = index / 128 * Math.PI * 2;
+      return new THREE.Vector3(Math.cos(angle) * 50, -40.25, Math.sin(angle) * 30);
+    })), new THREE.LineBasicMaterial({ color: 0x8f7955, transparent: true, opacity: 0.28, depthWrite: false }));
+    this.world.add(contour);
 
     for (const node of this.layout.nodes) {
       const folder = this.folders.get(node.folder);
@@ -218,9 +245,13 @@ export class TreeScene extends RepositoryScene {
     // Fit the complete loaded history once. Moving the camera on every commit
     // would cancel the apparent growth and fight the user's orbit/zoom gestures.
     this.cameraPoints = [];
+    this.rootCameraPoints = [];
     for (let cursor = -1; cursor < model.commits.length; cursor++) {
       const pose = createTreePose(this.layout, { index: cursor, commitCount: model.commits.length, activeIds: stateAt(model, cursor).activeIds });
       this.cameraPoints.push(...pose.nodes.map(node => asVector(node.position)), ...pose.folders.flatMap(folder => folder.curve.map(asVector)));
+      const frame = stateAt(model, cursor);
+      const roots = createRootLayout(model, { activeIds: frame.activeIds, paths: Object.fromEntries(frame.files.map(file => [file.id, file.path])) });
+      for (const x of [roots.bounds.min[0], roots.bounds.max[0]]) for (const y of [roots.bounds.min[1], roots.bounds.max[1]]) for (const z of [roots.bounds.min[2], roots.bounds.max[2]]) this.rootCameraPoints.push(new THREE.Vector3(x, y, z));
     }
     const bounds = new THREE.Box3().setFromPoints(this.cameraPoints);
     this.center = bounds.getCenter(new THREE.Vector3());
@@ -267,6 +298,7 @@ export class TreeScene extends RepositoryScene {
     this.index = nextIndex;
     this.commitCount = commitCount ?? this.model?.commits.length ?? 0;
     this.frameKey = frameKey;
+    this.roots.setFrame({ activeIds: this.activeIds, paths: this.paths, changedIds: this.changedIds, statuses: this.statuses, selectedId, frameKey });
     if (selectedId !== undefined) this.select(selectedId);
     this.update(0);
   }
@@ -334,7 +366,10 @@ export class TreeScene extends RepositoryScene {
   }
 
   setOptions(options = {}) {
+    const previousRoots = this.options.roots;
     Object.assign(this.options, options);
+    this.roots?.setOptions(this.options);
+    if (previousRoots !== this.options.roots && this.layout) this.resetView();
     // Branches carry directory structure; Links controls fine file stems only.
     this.linkGroup.visible = this.options.links;
     this.grid.visible = false;
@@ -415,6 +450,7 @@ export class TreeScene extends RepositoryScene {
       this.selectionLabelElement.textContent = this.paths[highlighted.node.id] || highlighted.node.path;
     }
     this._updateLabels();
+    this.roots.update?.(dt);
   }
 
   _flyTo(target, distance, immediate = false, direction = null) {
@@ -441,18 +477,134 @@ export class TreeScene extends RepositoryScene {
     const ray = new THREE.Vector3(0.16, 0.095, 1).normalize();
     const right = new THREE.Vector3().crossVectors(UP, ray).normalize();
     const up = new THREE.Vector3().crossVectors(ray, right);
-    const points = this.cameraPoints || [...this.layout.nodes.map(node => asVector(node.position)), ...this.layout.trunk.map(asVector)];
+    const canopy = this.cameraPoints || [...this.layout.nodes.map(node => asVector(node.position)), ...this.layout.trunk.map(asVector)];
+    const rootBounds = this.roots?.getBounds();
+    const currentRoots = rootBounds && !rootBounds.isEmpty() ? this._boundsPoints(rootBounds) : [];
+    const points = this.options.roots ? [...canopy, ...(this.rootCameraPoints || []), ...currentRoots] : canopy;
+    this.center = new THREE.Box3().setFromPoints(points).getCenter(new THREE.Vector3());
     const halfWidth = Math.max(14, ...points.map(point => Math.abs(point.clone().sub(this.center).dot(right)))) + 8;
     const halfHeight = Math.max(20, ...points.map(point => Math.abs(point.clone().sub(this.center).dot(up)))) + 7;
     const depth = Math.max(4, ...points.map(point => Math.abs(point.clone().sub(this.center).dot(ray))));
     const tangent = Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2));
     const distance = Math.max(halfWidth / (tangent * availableWidth / height), halfHeight / (tangent * availableHeight / height)) + depth * 0.45;
+    this.controls.maxDistance = Math.max(650, distance * 1.2);
     this._flyTo(this.center, distance, immediate, ray);
+  }
+
+  get indexLayout() { return this.roots?.layout || this.layout; }
+  get indexFolders() { return this.roots?.folders || this.folders; }
+  get indexNodes() { return this.roots?.files || this.nodes; }
+  get mappedNodes() {
+    return this.options.roots ? new Map([...this.nodes, ...(this.roots?.files || [])]) : this.nodes;
+  }
+
+  select(id) {
+    this.selectedId = this.nodes.has(id) || this.roots?.files.has(id) ? id : null;
+    if (this.lastHit?.id === id) this.selectionInRoots = Boolean(this.lastHit.root);
+    else if (id && !this.nodes.has(id)) this.selectionInRoots = true;
+    this.roots?.select(this.selectedId);
+  }
+
+  _hit(event) {
+    const rect = this.renderer.domElement.getBoundingClientRect();
+    this.pointer.set((event.clientX - rect.left) / rect.width * 2 - 1, -(event.clientY - rect.top) / rect.height * 2 + 1);
+    this.raycaster.setFromCamera(this.pointer, this.camera);
+    let nearest = this.roots?.hit(this.raycaster) || null;
+    for (const hit of this.raycaster.intersectObjects(this.pickables || [], false)) {
+      const data = hit.object.userData;
+      if (data.kind !== 'folder' && !this.activeIds.has(data.id) && !this.options.ghosts) continue;
+      if (!nearest || hit.distance < nearest.distance) nearest = { ...data, distance: hit.distance, root: false };
+      break;
+    }
+    this.lastHit = nearest;
+    this.roots?.setHovered(nearest?.root ? nearest : null);
+    return nearest;
+  }
+
+  _clearHover() {
+    super._clearHover();
+    this.lastHit = null;
+    this.roots?.setHovered(null);
+  }
+
+  focusNode(id) {
+    if (this.options.roots && this.roots?.files.has(id) && (this.selectionInRoots || !this.nodes.has(id))) {
+      this.roots.revealFile(id);
+      const rootPosition = this.roots.getNodePosition(id);
+      if (rootPosition) {
+        this.select(id);
+        const node = this.roots.files.get(id).node;
+        const bounds = this.roots.getFolderBounds(node.parentPath);
+        if (bounds && !bounds.isEmpty()) this._frameRootsBounds(bounds);
+        return;
+      }
+    }
+    super.focusNode(id);
+  }
+
+  focusFolder(path) {
+    if (this.lastHit?.root && this.lastHit.path === path) {
+      if (this.lastHit.pagerDelta) this.roots.changePage(path, this.lastHit.pagerDelta);
+      else if (this.lastHit.toggle) this.roots.toggleFolder(path);
+      else { this.focusRootFolder(path); return; }
+      this.focusRoots();
+    } else super.focusFolder(path);
+  }
+
+  focusRootFolder(path) {
+    if (!this.options.roots) { super.focusFolder(path); return; }
+    this.roots?.revealFolder(path);
+    const bounds = path ? this.roots?.getFolderBounds(path) : this.roots?.getBounds();
+    if (!bounds || bounds.isEmpty()) return;
+    this._frameRootsBounds(bounds);
+  }
+
+  focusRoots() {
+    if (!this.options.roots) return;
+    const bounds = this.roots?.getBounds();
+    if (bounds && !bounds.isEmpty()) this._frameRootsBounds(bounds);
+  }
+
+  _boundsPoints(bounds) {
+    const points = [];
+    for (const x of [bounds.min.x, bounds.max.x]) for (const y of [bounds.min.y, bounds.max.y]) for (const z of [bounds.min.z, bounds.max.z]) points.push(new THREE.Vector3(x, y, z));
+    return points;
+  }
+
+  _frameRootsBounds(bounds) {
+    const width = this.renderer.domElement.clientWidth || window.innerWidth;
+    const height = this.renderer.domElement.clientHeight || window.innerHeight;
+    const availableWidth = Math.max(270, width - (width > 1100 ? 660 : width > 900 ? 610 : width > 700 ? 555 : 36));
+    const availableHeight = Math.max(250, height - (width > 700 ? 210 : 290));
+    const ray = new THREE.Vector3(0.10, 0.025, 1).normalize();
+    const right = new THREE.Vector3().crossVectors(UP, ray).normalize();
+    const up = new THREE.Vector3().crossVectors(ray, right);
+    const center = bounds.getCenter(new THREE.Vector3());
+    const points = this._boundsPoints(bounds).map(point => point.sub(center));
+    const halfWidth = Math.max(10, ...points.map(point => Math.abs(point.dot(right)))) + 3;
+    const halfHeight = Math.max(8, ...points.map(point => Math.abs(point.dot(up)))) + 3;
+    const depth = Math.max(1, ...points.map(point => Math.abs(point.dot(ray))));
+    const tangent = Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2));
+    const distance = Math.max(halfWidth / (tangent * availableWidth / height), halfHeight / (tangent * availableHeight / height)) + depth;
+    this.controls.maxDistance = Math.max(650, distance * 1.2);
+    this._flyTo(center, distance, false, ray);
+  }
+
+  getRootScreenPoint(id) { return this.roots?.getRootNodeScreenPoint(id); }
+
+  dispose() {
+    if (this.disposed) return;
+    this.roots?.dispose();
+    super.dispose();
+    this.poseTransition = null;
+    this.poseTarget = null;
+    this.rootCameraPoints = [];
+    this.cameraPoints = [];
   }
 
   getNodeScreenPoint(id) {
     const record = this.nodes.get(id);
-    if (!record) return null;
+    if (!record) return this.options.roots ? this.roots?.getRootNodeScreenPoint(id) : null;
     this.camera.updateMatrixWorld();
     const point = record.center.clone().project(this.camera);
     const rect = this.renderer.domElement.getBoundingClientRect();

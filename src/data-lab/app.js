@@ -4,7 +4,7 @@ import { createStage } from '../scene/setup.js';
 import { createDemoDataset } from './demo.js';
 import { loadRepository } from './github.js';
 import { buildModel, stateAt } from './model.js';
-import { RepositoryScene } from './scene.js';
+import { MoleculeScene } from './molecule-scene.js';
 import { TreeScene } from './tree-scene.js';
 import { DataPanel } from './panel.js';
 import { DataGuide } from './guide.js';
@@ -22,15 +22,16 @@ export function mountDataLab() {
   let playing = false, speed = 1, stepTime = 0, previousTime = 0, raf;
   let requestId = 0, requestController = null, disposed = false, scene;
   let view = 'structure';
-  const options = { links: true, labels: true, ghosts: true, activity: true };
+  const options = { links: true, labels: true, ghosts: true, activity: true, roots: true };
   document.body.dataset.dataView = view;
 
   const panel = new DataPanel({
     onLoad: importRepository,
     onDemo: showDemo,
     onFrame: () => scene.resetView(),
+    onFrameRoots: () => { options.roots = true; scene.setOptions({ roots: true }); renderPanel(); scene.focusRoots?.(); },
     onFocusFile: id => { selectFile(id); scene.focusNode(id); },
-    onFocusFolder: path => scene.focusFolder(path === '(root)' ? '' : path),
+    onFocusFolder: path => focusDirectory(path === '(root)' ? '' : path),
     onSelectFile: selectFile,
     onCommit: next => { setPlaying(false); setIndex(next); },
     onPlay: togglePlayback,
@@ -38,25 +39,25 @@ export function mountDataLab() {
     onNext: () => { setPlaying(false); setIndex(index + 1); },
     onSpeed: next => { speed = next; stepTime = 0; renderPanel(); },
     onView: switchView,
-    onOptions: next => { Object.assign(options, next); scene.setOptions(options); },
+    onOptions: next => { Object.assign(options, next); scene.setOptions(options); renderPanel(); },
     onExport: exportData,
   });
   const stage = createStage(document.getElementById('app'));
-  scene = new RepositoryScene(stage, { onSelect: selectFile });
+  scene = new MoleculeScene(stage, { onSelect: selectFile });
   const guide = new DataGuide({
     onOverview: () => scene.resetView(),
-    onFocusFolder: path => scene.focusFolder(path),
+    onFocusFolder: focusDirectory,
   });
 
   const topDate = document.getElementById('date-text');
   const liveBadge = document.getElementById('live-badge');
   const attribution = document.getElementById('attribution');
-  attribution.textContent = 'GitHub repository hierarchy · Drag to orbit · Scroll to zoom · Double-click to focus · H for help';
+  attribution.textContent = 'Repository atoms · Drag to orbit · Scroll to zoom · Double-click to focus · H for help';
   const help = document.getElementById('help-overlay');
   help.innerHTML = `<div class="help-card" role="dialog" aria-modal="true" aria-labelledby="data-help-title">
     <button class="panel-close" type="button" aria-label="Close help">×</button>
     <h2 id="data-help-title">Data Lab</h2>
-    <p class="help-sub">Two views share one repository and commit timeline. Structure keeps a fixed map of folders and files. Growth tree grows taller and thicker with each loaded commit; branches lengthen and droop as more leaves appear.</p>
+    <p class="help-sub">Two views share one repository and commit timeline. Structure shows exactly one carbon atom per folder and one typed atom per file. Each folder connects to its parent, and each file connects directly to its folder. File elements are nitrogen for code, oxygen for data, hydrogen for documents, and sulfur for media. Growth tree grows taller and thicker with each loaded commit; branches lengthen and droop as more leaves appear. Below ground, a computer-style directory outline shows the exact folder-to-folder and folder-to-file paths in the selected commit, with indented rows and right-angle connectors.</p>
     <div class="help-grid"><span>Drag / scroll</span><span>Orbit / zoom the scene</span>
     <span>Click</span><span>Select a file and inspect its history</span>
     <span>Double-click</span><span>Focus a file or folder</span>
@@ -65,7 +66,7 @@ export function mountDataLab() {
     <span>F</span><span>Frame the repository</span>
     <span>S</span><span>Save a scene image</span>
     <span>H / Escape</span><span>Open / close help</span></div>
-    <p class="help-tip">File identities remain stable through renames. In Growth tree, leaves follow the growing limbs. Step forward to see additions grow, removals fall, and lighter branches lift; seeking restores the chosen state. Branch weight follows present mapped leaf counts. Leaf area uses known snapshot bytes, with size limits for readability. Public history follows the sampled first-parent chain. The scene guide explains each view and its coverage.</p>
+    <p class="help-tip">In Structure, click a colored atom to inspect its file, or a carbon atom to focus its folder and direct contents. Use Frame view to return to the full repository. One folder always means one carbon, including the repository root. All files connect directly to their folder carbon; folders can have as many connections as their contents require. A moved file keeps its identity and reconnects to its current folder. Element assignments encode file types. Counts cover present mapped files and their folders; historical ghosts are excluded. In Growth tree, leaves follow the growing limbs. Step forward to see additions grow, removals fall, and lighter branches lift; seeking restores the chosen state. Branch weight follows present mapped leaf counts. Leaf area uses known snapshot bytes, with size limits for readability. Use Frame roots to inspect the directory outline beneath the tree. Click a folder to expand or collapse it, and click a file row to inspect the same file as its canopy leaf. The outline includes every present loaded file and its actual ancestor folders; large folders page their entries for readability. Public history follows the sampled first-parent chain. The scene guide explains each view and its coverage.</p>
     </div>`;
   const helpButton = document.getElementById('btn-help');
   let previousFocus = null;
@@ -99,7 +100,7 @@ export function mountDataLab() {
 
   function renderPanel() {
     if (!model || !frame) return;
-    panel.setState({ model, frame, index, selectedId, playing, speed, view, renderedCount: scene.renderedCount, mappedIds: scene.nodes });
+    panel.setState({ model, frame, index, selectedId, playing, speed, view, structure: scene.structure, renderedCount: scene.renderedCount, rootLayout: scene.roots?.layout, rootsVisible: scene.options.roots !== false, mappedIds: scene.mappedNodes || scene.nodes });
     guide.setState({ model, frame, scene, selectedId, view });
     topDate.textContent = index < 0 ? 'Before sampled history' : `${frame.commit.sha.slice(0, 7)} · ${index + 1}/${model.commits.length}`;
     liveBadge.textContent = model.repository.source === 'demo' ? 'SAMPLE' : playing ? 'REPLAY' : 'GITHUB';
@@ -127,7 +128,7 @@ export function mountDataLab() {
     document.body.dataset.dataView = view;
     scene = view === 'tree'
       ? new TreeScene(stage, { onSelect: selectFile })
-      : new RepositoryScene(stage, { onSelect: selectFile });
+      : new MoleculeScene(stage, { onSelect: selectFile });
     scene.setOptions(options);
     if (model) {
       scene.setModel(model);
@@ -136,7 +137,7 @@ export function mountDataLab() {
     stepTime = 0;
     attribution.textContent = view === 'tree'
       ? 'Repository growth tree · Drag to orbit · Scroll to zoom · Double-click to focus · H for help'
-      : 'GitHub repository hierarchy · Drag to orbit · Scroll to zoom · Double-click to focus · H for help';
+      : 'Repository atoms · Drag to orbit · Scroll to zoom · Double-click to focus · H for help';
     renderPanel();
   }
   function setIndex(next) {
@@ -155,6 +156,14 @@ export function mountDataLab() {
   function togglePlayback() {
     if (!playing && index === model.commits.length - 1) setIndex(-1);
     setPlaying(!playing);
+  }
+  function focusDirectory(path) {
+    if (scene.focusRootFolder) {
+      options.roots = true;
+      scene.setOptions({ roots: true });
+      renderPanel();
+      scene.focusRootFolder(path);
+    } else scene.focusFolder(path);
   }
   function selectFile(id) {
     if (id !== null && !model?.nodes.some(node => node.id === id)) return;
