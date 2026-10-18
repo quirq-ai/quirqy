@@ -98,6 +98,8 @@ export class DataPanel {
     this.toggle.setAttribute('aria-expanded', 'false');
     document.body.append(this.el, this.timebar, this.toggle);
     this.$ = selector => this.el.querySelector(selector) || this.timebar.querySelector(selector);
+    // Keep ownership when the shared View popover presents these controls.
+    this.viewSwitch = this.el.querySelector('.data-view-switch');
     this.removeDrag = makePanelDraggable(this.el, { handleSelector: '.list-title', storageKey: 'observatory-data-panel-pos' });
     this.bind();
     this.clampFrame = requestAnimationFrame(() => this.clampPosition());
@@ -120,9 +122,11 @@ export class DataPanel {
     on(this.$('#data-speed'), 'change', event => invoke('onSpeed', Number(event.target.value)));
     on(this.$('#data-scrub'), 'input', event => invoke('onCommit', Number(event.target.value)));
     on(this.el, 'change', event => { if (event.target.dataset.option) invoke('onOptions', { [event.target.dataset.option]: event.target.checked }); });
-    on(this.el, 'click', event => {
+    on(this.viewSwitch, 'click', event => {
       const view = event.target.closest('[data-view]');
       if (view) invoke('onView', view.dataset.view);
+    });
+    on(this.el, 'click', event => {
       const commit = event.target.closest('[data-commit-index]');
       if (commit) invoke('onCommit', Number(commit.dataset.commitIndex));
       const file = event.target.closest('[data-file-id]');
@@ -242,7 +246,7 @@ export class DataPanel {
 
   renderView() {
     const tree = this.state.view === 'tree';
-    for (const button of this.el.querySelectorAll('[data-view]')) {
+    for (const button of this.viewSwitch.querySelectorAll('[data-view]')) {
       const active = button.dataset.view === (tree ? 'tree' : 'structure');
       button.classList.toggle('active', active);
       button.setAttribute('aria-pressed', String(active));

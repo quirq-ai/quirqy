@@ -124,3 +124,66 @@ html body #data-timebar #data-speed { min-height: 36px; border-radius: 10px; pad
 @media (prefers-reduced-motion: reduce) {
   html body .glass-opacity-trigger { transition: none; }
 }
+
+/* Data Lab keeps scene selection and glass appearance together in the dock. */
+html body #data-timebar .glass-view-trigger .glass-opacity-text { display: inline; }
+html body .glass-view-trigger .glass-opacity-value { display: none; }
+html body #glass-appearance-popover .glass-opacity-section { border: 0; margin: 0; padding: 0; }
+html body #glass-appearance-popover .glass-opacity-summary { display: none; }
+html body #glass-appearance-popover.glass-view-popover .glass-popover-heading { margin-bottom: 16px; }
+html body #glass-appearance-popover .glass-view-options .data-view-switch {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0;
+  margin: 0;
+}
+html body #glass-appearance-popover .glass-view-options button,
+html body #glass-appearance-popover.glass-view-popover .glass-opacity-summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 11px;
+  border: 1px solid rgba(211, 230, 252, .13);
+  border-radius: 11px;
+  background: rgba(187, 213, 240, .045);
+  color: #c5d3e7;
+  font-weight: 500;
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 1.3;
+  text-align: left;
+  cursor: pointer;
+  list-style: none;
+}
+html body #glass-appearance-popover .glass-view-options button:hover,
+html body #glass-appearance-popover .glass-opacity-summary:hover {
+  background: rgba(202, 226, 250, .1);
+  border-color: rgba(225, 239, 255, .26);
+  color: #f3f8ff;
+}
+html body #glass-appearance-popover .glass-view-options button[aria-pressed="true"] {
+  color: #f0d1a2;
+  border-color: rgba(236, 192, 125, .36);
+  background: linear-gradient(140deg, rgba(228, 183, 113, .13), rgba(228, 183, 113, .035));
+}
+html body #glass-appearance-popover .glass-view-icon {
+  display: inline-flex;
+  flex: none;
+  color: inherit;
+}
+.glass-view-icon svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
+.glass-view-check { margin-left: auto; color: #f0d1a2; font-size: 13px; }
+.glass-view-options button[aria-pressed="false"] .glass-view-check { visibility: hidden; }
+html body #glass-appearance-popover.glass-view-popover .glass-opacity-section { margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(220, 235, 255, .1); }
+.glass-opacity-summary::-webkit-details-marker { display: none; }
+.glass-opacity-summary-value { margin-left: auto; color: #a7b7cd; font-size: 11px; font-variant-numeric: tabular-nums; }
+.glass-opacity-chevron { font-size: 16px; line-height: 1; transition: transform 150ms ease; }
+.glass-opacity-section[open] .glass-opacity-chevron { transform: rotate(180deg); }
+html body #glass-appearance-popover.glass-view-popover .glass-opacity-content { padding: 20px 4px 2px; }
+html body #glass-appearance-popover .glass-opacity-summary:focus-visible { outline: 2px solid #a8ceff; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  .glass-opacity-chevron { transition: none; }
+}

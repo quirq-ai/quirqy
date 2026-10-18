@@ -66,7 +66,7 @@ npm run preview   # serve the production build
 
 Click the navbar logo to upload a PNG, JPG, WebP, or SVG (up to 5 MB), or reset to the default. Custom logos are saved in this browser for this site and used in the navbar, loading screen, favicon, and recording overlay. This preference does not require login and does not sync across browsers, devices, or accounts.
 
-Side panels and playback bars share a liquid-glass appearance. Choose **Opacity** beside the playback controls (or beside Time speed in Equation Lab) to adjust the surface from 20–100%, keeping text and controls fully visible. The setting is shared across labs, saved in this browser, and can be reset to the default.
+Side panels and playback bars share a liquid-glass appearance. In Data Lab, open **View** beside playback speed to choose **Structure**, **Growth Tree**, or **Opacity**. The scene choices live in this dock menu. In other labs, choose **Opacity** beside the playback controls (or beside Time speed in Equation Lab). Adjust the surface from 20–100%, keeping text and controls fully visible. The opacity setting is shared across labs, saved in this browser, and can be reset to the default.
 
 Drag either Data Lab sidebar by its header, or move the centered timeline dock using its top grab handle. Positions are remembered separately for desktop and mobile. Double-click a handle to restore the default position; focused handles also support Arrow keys (Shift for larger steps) and Home to reset.
 
