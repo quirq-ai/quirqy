@@ -4,28 +4,49 @@ html body .repository-dock-apps {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-left: 4px;
-  padding-left: 10px;
-  border-left: 1px solid var(--glass-divider);
+  margin: 0;
+  padding: 0;
+  border: 0;
 }
-html body .repository-dock-apps .repository-app-link {
+/* Links and the appearance button share one tile and caption layout. */
+html body :is(#data-timebar, #activity-timebar) .repository-dock-actions .repository-app-tile {
   position: relative;
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
   flex: none;
-  width: 44px;
-  height: 44px;
+  gap: 6px;
+  width: 54px;
+  min-width: 54px;
+  height: 62px;
+  min-height: 62px;
+  margin: 0;
+  padding: 2px 0;
   border: 0;
   border-radius: 13px;
+  background: none;
+  box-shadow: none;
   color: #effcff;
   text-decoration: none;
+  cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
+html body :is(#data-timebar, #activity-timebar) .repository-app-tile .repository-app-label {
+  display: block;
+  color: #c2d0e1;
+  font: 500 10px/12px 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  letter-spacing: .01em;
+  text-align: center;
+  white-space: nowrap;
+}
+html body :is(#data-timebar, #activity-timebar) .repository-app-tile:is([aria-current="page"], [aria-expanded="true"]) .repository-app-label { color: #f0f5fc; }
 html body .repository-app-icon {
   display: grid;
   place-items: center;
   width: 40px;
   height: 40px;
+  flex: none;
   border: 1px solid rgba(220, 246, 255, .25);
   border-radius: 12px;
   background:
@@ -33,6 +54,12 @@ html body .repository-app-icon {
     linear-gradient(150deg, #247d86, #104255 80%);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), inset 0 -1px 3px rgba(0, 0, 0, .22), 0 3px 7px rgba(0, 0, 0, .25);
   transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+html body [data-repository-app="opacity"] .repository-app-icon {
+  color: #f1f3ff;
+  background:
+    radial-gradient(ellipse at 22% 0, rgba(224, 230, 255, .42), transparent 65%),
+    linear-gradient(150deg, #7589ba, #3b4974 80%);
 }
 html body [data-repository-app="activity"] .repository-app-icon {
   color: #fff5df;
@@ -49,7 +76,7 @@ html body .repository-app-icon svg {
   stroke-linejoin: round;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .22));
 }
-html body .repository-app-link[aria-current="page"] .repository-app-icon {
+html body .repository-app-tile:is([aria-current="page"], [aria-expanded="true"]) .repository-app-icon {
   border-color: rgba(235, 250, 255, .72);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .32), 0 0 0 2px rgba(222, 241, 255, .10), 0 3px 9px rgba(0, 0, 0, .28);
 }
@@ -92,9 +119,9 @@ html body .repository-app-link:focus-visible:not([data-tooltip-dismissed]) .repo
   opacity: 1;
   transform: translateX(-50%);
 }
-html body .repository-app-link:focus-visible .repository-app-icon { transform: translateY(-2px); }
+html body .repository-app-tile:focus-visible .repository-app-icon { transform: translateY(-2px); }
 @media (hover: hover) {
-  html body .repository-app-link:hover .repository-app-icon { transform: translateY(-3px); border-color: rgba(245, 253, 255, .7); }
+  html body .repository-app-tile:hover .repository-app-icon { transform: translateY(-3px); border-color: rgba(245, 253, 255, .7); }
   html body .repository-app-link:hover:not([data-tooltip-dismissed]) .repository-app-tooltip { visibility: visible; opacity: 1; transform: translateX(-50%); }
 }
 @media (max-width: 900px) {
@@ -113,5 +140,5 @@ html body .repository-app-link:focus-visible .repository-app-icon { transform: t
 }
 @media (prefers-reduced-motion: reduce) {
   html body .repository-app-icon, html body .repository-app-tooltip { transition: none; }
-  html body .repository-app-link:is(:hover, :focus-visible) .repository-app-icon { transform: none; }
+  html body .repository-app-tile:is(:hover, :focus-visible) .repository-app-icon { transform: none; }
 }

@@ -121,9 +121,7 @@ html body :is(#data-panel, #activity-panel) > .repository-status-header #sim-dat
 }
 html body :is(#data-panel, #activity-panel) #sim-date #date-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 html body :is(#data-panel, #activity-panel) #sim-date .live-badge { flex: none; font-size: 8px; letter-spacing: .05em; }
-html body :is(#data-timebar, #activity-timebar) .repository-dock-actions { display: flex; align-items: center; flex: none; gap: 6px; }
-html body :is(#data-timebar, #activity-timebar) .repository-dock-actions .glass-opacity-trigger { min-height: 40px; }
-html body :is(#data-timebar, #activity-timebar) .repository-dock-actions .glass-opacity-text { display: inline; }
+html body :is(#data-timebar, #activity-timebar) .repository-dock-actions { display: flex; align-items: center; flex: none; gap: 8px; }
 html body :is(#data-timebar, #activity-timebar) .repository-dock-actions .glass-opacity-value { display: none; }
 @media (max-width: 900px) {
   html body :is(#data-timebar, #activity-timebar).repository-actions-dock {

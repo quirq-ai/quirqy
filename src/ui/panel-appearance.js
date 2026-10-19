@@ -7,6 +7,7 @@ import { REPOSITORY_LABS } from './repository-labs.js';
 const STORAGE_KEY = 'quirq-observatory.panel-opacity.v1';
 const DEFAULT_OPACITY = 62;
 const ICON = '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m10 2 8 4-8 4-8-4 8-4Z"/><path d="m2 10 8 4 8-4M2 14l8 4 8-4"/></svg>';
+const OPACITY_APP_ICON = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 0 0 16V4Z" fill="currentColor" fill-opacity=".5" stroke="none"/><path d="M12 4v16"/></svg>';
 
 function readOpacity(raw) {
   try {
@@ -117,12 +118,16 @@ export function mountPanelAppearance() {
     if (!host || host.querySelector(':scope > .glass-opacity-trigger')) return;
     const button = document.createElement('button');
     button.type = 'button';
-    button.className = 'glass-opacity-trigger';
+    const dockApp = host.classList.contains('repository-dock-actions');
+    button.className = `glass-opacity-trigger${dockApp ? ' repository-app-tile' : ''}`;
+    if (dockApp) button.dataset.repositoryApp = 'opacity';
     button.setAttribute('aria-haspopup', 'dialog');
     button.setAttribute('aria-controls', popover.id);
     button.setAttribute('popovertarget', popover.id);
     button.setAttribute('aria-expanded', 'false');
-    button.innerHTML = `${ICON}<span class="glass-opacity-text">Opacity</span><span class="glass-opacity-value"></span>`;
+    button.innerHTML = dockApp
+      ? `<span class="repository-app-icon" aria-hidden="true">${OPACITY_APP_ICON}</span><span class="glass-opacity-text repository-app-label">Opacity</span><span class="glass-opacity-value" hidden></span>`
+      : `${ICON}<span class="glass-opacity-text">Opacity</span><span class="glass-opacity-value"></span>`;
     if (after) after.after(button);
     else host.append(button);
     triggers.add(button);
