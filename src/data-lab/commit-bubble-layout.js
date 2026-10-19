@@ -5,18 +5,19 @@ const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
  * reserve room for surrounding controls; the caller constrains the bubble size
  * to that rectangle before measuring. `side` describes the bubble's position
  * relative to the portrait, and `tail` is an offset along the facing edge.
+ * Set allowSide=false when a tall reading panel needs a clear author row above it.
  */
-export function placeCommitBubble({ x, y, width, height, bubbleWidth, bubbleHeight, bounds = {} }) {
+export function placeCommitBubble({ x, y, width, height, bubbleWidth, bubbleHeight, bounds = {}, allowSide = true }) {
   const { left: minX = 12, top: minY = 12, right = width - 12, bottom = height - 12 } = bounds;
   let left, top, side;
   const rightX = x + 34;
   const leftX = x - 34 - bubbleWidth;
 
-  if (width > 600 && rightX >= minX && rightX + bubbleWidth <= right) {
+  if (allowSide && width > 600 && rightX >= minX && rightX + bubbleWidth <= right) {
     left = rightX;
     top = y + 18 - bubbleHeight;
     side = 'right';
-  } else if (width > 600 && leftX >= minX && leftX + bubbleWidth <= right) {
+  } else if (allowSide && width > 600 && leftX >= minX && leftX + bubbleWidth <= right) {
     left = leftX;
     top = y + 18 - bubbleHeight;
     side = 'left';

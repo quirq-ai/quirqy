@@ -2,7 +2,27 @@ const SVG_NS = 'http://www.w3.org/2000/svg';
 const SURFACES = '.panel, #glass-appearance-popover';
 const MAX_MAP_SIZE = 512;
 const ROOT_TOKENS = ['--glass-blur', '--glass-saturation', '--glass-refraction-index', '--glass-reflection'];
+const ownedSurfaces = new Map();
+const mountedManagers = new Set();
 let nextFilterId = 0;
+
+/** Register a surface whose owner controls its lifecycle, including nested scene labels. */
+export function registerGlassSurface(element) {
+  ownedSurfaces.set(element, (ownedSurfaces.get(element) || 0) + 1);
+  for (const manager of mountedManagers) manager.register(element);
+  let released = false;
+  return () => {
+    if (released) return;
+    released = true;
+    const owners = ownedSurfaces.get(element) - 1;
+    if (owners > 0) {
+      ownedSurfaces.set(element, owners);
+      return;
+    }
+    ownedSurfaces.delete(element);
+    for (const manager of mountedManagers) manager.release(element);
+  };
+}
 
 function svgElement(name, attributes = {}) {
   const element = document.createElementNS(SVG_NS, name);
@@ -111,7 +131,7 @@ export function mountGlassRefraction() {
   }
 
   function register(element) {
-    if (surfaces.has(element)) return;
+    if (disposed || !sizes || surfaces.has(element)) return;
     const filter = svgElement('filter', {
       id: `quirq-glass-lens-${++nextFilterId}`, filterUnits: 'userSpaceOnUse',
       x: -32, y: -32, 'color-interpolation-filters': 'sRGB',
@@ -140,6 +160,14 @@ export function mountGlassRefraction() {
     surfaces.delete(element);
   }
 
+  function release(element) {
+    const surface = surfaces.get(element);
+    if (surface) unregister(element, surface);
+  }
+
+  const manager = { register, release };
+  mountedManagers.add(manager);
+
   if (supportsBackdropRefraction()) {
     definitions = svgElement('svg', { 'aria-hidden': 'true', focusable: 'false', width: 0, height: 0, 'data-glass-refraction': '' });
     definitions.style.cssText = 'position:fixed;width:0;height:0;pointer-events:none;overflow:hidden;';
@@ -147,8 +175,9 @@ export function mountGlassRefraction() {
     document.body.append(definitions);
     sizes = new ResizeObserver(entries => { for (const { target } of entries) resize(target); });
     document.querySelectorAll(SURFACES).forEach(register);
-    // All lab panels and the appearance popover mount under body. Observe only
-    // those additions, never the continuously changing labels inside the scene.
+    for (const element of ownedSurfaces.keys()) register(element);
+    // Discover ordinary lab panels under body. Nested scene surfaces register
+    // explicitly, without observing continuously changing scene labels.
     observer = new MutationObserver(records => {
       for (const { addedNodes } of records) {
         for (const node of addedNodes) {
@@ -157,7 +186,9 @@ export function mountGlassRefraction() {
           node.querySelectorAll(SURFACES).forEach(register);
         }
       }
-      for (const [element, surface] of surfaces) if (!element.isConnected) unregister(element, surface);
+      for (const [element, surface] of surfaces) {
+        if (!element.isConnected && !ownedSurfaces.has(element)) unregister(element, surface);
+      }
     });
     observer.observe(document.body, { childList: true });
   }
@@ -165,6 +196,7 @@ export function mountGlassRefraction() {
   function dispose() {
     if (disposed) return;
     disposed = true;
+    mountedManagers.delete(manager);
     observer?.disconnect();
     sizes?.disconnect();
     for (const [element, surface] of surfaces) unregister(element, surface);

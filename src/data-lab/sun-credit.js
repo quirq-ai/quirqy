@@ -2,6 +2,7 @@ import { Vector3 } from 'three';
 import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { normalizeAuthorProfile } from './author-profile.js';
 import { placeCommitBubble } from './commit-bubble-layout.js';
+import { registerGlassSurface } from '../ui/glass-refraction.js';
 
 /** A screen-facing credit anchored to the root, independent of scene picking. */
 export class SunCredit {
@@ -16,11 +17,13 @@ export class SunCredit {
     this.initials = this.element.querySelector('.data-sun-initials');
     this.name = this.element.querySelector('.data-sun-name');
     this.bubble = document.createElement('section');
-    this.bubble.className = 'data-commit-bubble';
+    this.bubble.className = 'panel data-commit-bubble';
     this.bubble.hidden = true;
+    this.bubble.style.visibility = 'hidden';
     this.bubble.setAttribute('aria-label', 'Current commit');
-    this.bubble.innerHTML = '<div class="data-bubble-scroll"><p class="data-bubble-message" tabindex="0"></p><details class="data-bubble-files"><summary><span class="data-bubble-file-count"></span><span class="data-bubble-lines"><span class="data-bubble-added"></span><span class="data-bubble-deleted"></span><span>lines</span></span></summary><div class="data-bubble-file-list"></div></details><p class="data-bubble-notice" hidden></p></div><footer class="data-bubble-footer"><code class="data-bubble-sha"></code><a class="data-bubble-link" target="_blank" rel="noopener noreferrer">View on GitHub <span aria-hidden="true">↗</span></a></footer>';
+    this.bubble.innerHTML = '<h2 class="list-title data-bubble-heading">Commit message</h2><div class="data-bubble-scroll"><p class="data-bubble-message" tabindex="0"></p><details class="data-bubble-files"><summary><span class="data-bubble-file-count"></span><span class="data-bubble-lines"><span class="data-bubble-added"></span><span class="data-bubble-deleted"></span><span>lines</span></span></summary><div class="data-bubble-file-list"></div></details><p class="data-bubble-notice" hidden></p></div><footer class="data-bubble-footer"><code class="data-bubble-sha"></code><a class="btn tiny data-bubble-link" target="_blank" rel="noopener noreferrer">View on GitHub <span aria-hidden="true">↗</span></a></footer>';
     this.element.append(this.bubble);
+    this.releaseGlass = registerGlassSurface(this.bubble);
     this.message = this.bubble.querySelector('.data-bubble-message');
     this.bubbleScroll = this.bubble.querySelector('.data-bubble-scroll');
     this.fileDetails = this.bubble.querySelector('.data-bubble-files');
@@ -199,6 +202,8 @@ export class SunCredit {
     const inView = z >= -1 && z <= 1 && Math.abs(x) <= 1 && Math.abs(y) <= 1;
     let screenX = (x * .5 + .5) * width, screenY = (-y * .5 + .5) * height;
     const bounds = this.playing ? null : this._bubbleBounds(width, height);
+    const compact = !this.playing && bounds.bottom - bounds.top < 260;
+    this.element.dataset.compact = String(compact);
     const docked = !this.playing && (this.detached || !inView || screenX < bounds.left + 22 || screenX > bounds.right - 22
       || screenY < bounds.top + 24 || screenY > bounds.bottom - 60);
     if (docked) {
@@ -214,15 +219,36 @@ export class SunCredit {
     this.element.hidden = !visible;
     if (!visible) { this.stopPulse(); return null; }
     if (!this.playing) {
-      const bubbleWidth = Math.min(306, bounds.right - bounds.left);
-      this.bubble.style.width = `${bubbleWidth}px`;
-      this.bubble.style.maxHeight = `${Math.max(120, bounds.bottom - bounds.top)}px`;
+      // CSS owns the shared preferred width. Screen bounds only constrain it;
+      // leave a clear lane for the author's portrait and caption when stacked.
+      this.element.style.setProperty('--bubble-available-width', `${Math.max(1, bounds.right - bounds.left)}px`);
+      this.bubble.style.setProperty('--bubble-available-height', `${Math.max(1, bounds.bottom - bounds.top - (compact ? 0 : 96))}px`);
+      const bubbleWidth = this.bubble.offsetWidth;
       const bubbleHeight = this.bubble.offsetHeight;
-      const placement = placeCommitBubble({ x: screenX, y: screenY, width, height, bubbleWidth, bubbleHeight, bounds });
+      let placement = placeCommitBubble({ x: screenX, y: screenY, width, height, bubbleWidth, bubbleHeight, bounds });
+      const overlaps = rect => placement.left < rect.right && placement.left + bubbleWidth > rect.left
+        && placement.top < rect.bottom && placement.top + bubbleHeight > rect.top;
+      const captionHalf = Math.min(96, this.element.querySelector('.data-sun-caption').offsetWidth / 2 || 96);
+      if (!compact && bubbleWidth && bubbleHeight && (overlaps({ left: screenX - 24, right: screenX + 24, top: screenY - 24, bottom: screenY + 24 })
+        || overlaps({ left: screenX - captionHalf, right: screenX + captionHalf, top: screenY + 24, bottom: screenY + 60 }))) {
+        // A full reading panel may not fit beside the projected root. Keep its
+        // author in a clear row above it instead of covering the portrait/name.
+        screenX = Math.max(bounds.left + bubbleWidth / 2, Math.min(screenX, bounds.right - bubbleWidth / 2));
+        screenY = bounds.top + 24;
+        placement = placeCommitBubble({ x: screenX, y: screenY, width, height, bubbleWidth, bubbleHeight, bounds, allowSide: false });
+        this.object.position.set(screenX / width * 2 - 1, 1 - screenY / height * 2, 0).unproject(camera);
+        this.object.parent?.worldToLocal(this.object.position);
+        this.element.dataset.docked = 'true';
+      }
+      this.bubble.style.visibility = bubbleWidth && bubbleHeight ? '' : 'hidden';
       this.bubble.style.left = `${placement.left - screenX}px`;
       this.bubble.style.top = `${placement.top - screenY}px`;
+      this.element.style.setProperty('--bubble-left', this.bubble.style.left);
+      this.element.style.setProperty('--bubble-top', this.bubble.style.top);
       this.bubble.dataset.side = placement.side;
       this.bubble.style.setProperty('--bubble-tail', `${placement.tail}px`);
+      if (compact) return { x: placement.left + bubbleWidth / 2, y: placement.top + bubbleHeight / 2,
+        half: bubbleWidth / 2, height: bubbleHeight / 2 + 12 };
       const left = Math.min(screenX - 96, placement.left);
       const right = Math.max(screenX + 96, placement.left + bubbleWidth);
       const top = Math.min(screenY - 24, placement.top);
@@ -256,6 +282,7 @@ export class SunCredit {
   dispose() {
     this.setCommit(null);
     this.listeners.abort();
+    this.releaseGlass();
     this.object.removeFromParent();
     this.element.remove();
   }

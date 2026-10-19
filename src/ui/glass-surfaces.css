@@ -5,6 +5,11 @@
  * The popover ID also keeps this shared treatment above lazily loaded lab CSS.
  */
 :root {
+  --lab-panel-width: 360px;
+  --glass-surface-rgb: 10, 17, 28;
+  --glass-text: #e2eaf4;
+  --glass-text-dim: #a0aec1;
+  --glass-heading: #acb9cb;
   --glass-opacity: .62;
   --glass-blur: 4.61px;
   --glass-saturation: 1.114;
@@ -18,16 +23,20 @@
   --glass-divider: rgba(209, 228, 248, .10);
 }
 
+@media (min-width: 901px) and (max-width: 1100px) {
+  :root { --lab-panel-width: 330px; }
+}
+
 html body :is(.panel, #glass-appearance-popover) {
-  --text: #e2eaf4;
-  --text-dim: #a0aec1;
+  --text: var(--glass-text);
+  --text-dim: var(--glass-text-dim);
   --panel-border: var(--glass-divider);
   color: var(--text);
   text-shadow: 0 1px 2px rgba(0, 4, 12, .44);
   background:
     radial-gradient(ellipse at 0 0, rgba(196, 222, 250, calc(var(--glass-opacity) * .10)), transparent 55%),
     linear-gradient(155deg, rgba(222, 239, 255, calc(var(--glass-opacity) * .08)), transparent 35%, rgba(113, 154, 192, calc(var(--glass-opacity) * .035)) 100%),
-    rgba(10, 17, 28, var(--glass-fill-alpha, var(--glass-opacity)));
+    rgba(var(--glass-surface-rgb), var(--glass-fill-alpha, var(--glass-opacity)));
   border: 1px solid var(--glass-edge);
   border-top-color: var(--glass-edge-bright);
   border-radius: var(--glass-radius);
@@ -52,7 +61,7 @@ html body .panel.panel-float.is-dragging {
 }
 
 html body :is(.panel, #glass-appearance-popover) .list-title {
-  color: #e2eaf4;
+  color: var(--text);
   font-size: 10px;
   font-weight: 650;
   letter-spacing: .15em;
@@ -60,7 +69,7 @@ html body :is(.panel, #glass-appearance-popover) .list-title {
 }
 
 html body :is(.panel, #glass-appearance-popover) .section-title {
-  color: #acb9cb;
+  color: var(--glass-heading);
   letter-spacing: .12em;
   opacity: 1;
 }
@@ -223,7 +232,7 @@ html body :is(.panel, #glass-appearance-popover) ::-webkit-scrollbar-track {
   html body :is(#data-panel, #activity-panel).panel > .list-title {
     background:
       linear-gradient(160deg, rgba(222, 239, 255, calc(var(--glass-opacity) * .065)), transparent 70%),
-      rgba(16, 25, 38, var(--glass-fill-alpha, var(--glass-opacity)));
+      rgba(var(--glass-surface-rgb), var(--glass-fill-alpha, var(--glass-opacity)));
     border-radius: calc(var(--glass-radius) - 1px) calc(var(--glass-radius) - 1px) 0 0;
     border-bottom: 1px solid var(--glass-divider);
     -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
@@ -246,7 +255,7 @@ html body :is(.panel, #glass-appearance-popover) ::-webkit-scrollbar-track {
     backdrop-filter: none;
   }
   html body :is(#data-panel, #activity-panel).panel > .list-title {
-    background: #101926;
+    background: rgb(var(--glass-surface-rgb));
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
@@ -259,7 +268,7 @@ html body :is(.panel, #glass-appearance-popover) ::-webkit-scrollbar-track {
     --glass-control-edge: rgba(230, 241, 255, .5);
     --glass-divider: rgba(225, 240, 255, .35);
     --glass-fill-alpha: 1;
-    background: #101926;
+    background: rgb(var(--glass-surface-rgb));
     border-color: #aec0d4;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
@@ -269,7 +278,7 @@ html body :is(.panel, #glass-appearance-popover) ::-webkit-scrollbar-track {
     opacity: 1;
   }
   html body :is(#data-panel, #activity-panel).panel > .list-title {
-    background: #101926;
+    background: rgb(var(--glass-surface-rgb));
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }

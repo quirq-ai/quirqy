@@ -97,3 +97,23 @@ test('placement is deterministic and leaves the measured input and bounds unchan
   assert.deepEqual(placeCommitBubble(input), result);
   assert.deepEqual(input, before);
 });
+
+
+test('a full panel can keep a clear author row on desktop without choosing a side', () => {
+  const input = { x: 460, y: 100, width: 1440, height: 900, bubbleWidth: 360, bubbleHeight: 520,
+    bounds: { left: 260, right: 1050, top: 76, bottom: 700 }, allowSide: false };
+  const result = placeCommitBubble(input);
+  assert.equal(result.side, 'below');
+  assert.ok(result.top >= input.y + 64);
+  assertWithinBounds(input, result);
+});
+
+test('a wide reading panel leaves the mobile author and dock clear', () => {
+  const input = { x: 187.5, y: 170, width: 375, height: 812, bubbleWidth: 351, bubbleHeight: 320,
+    bounds: { left: 12, right: 363, top: 146, bottom: 600 }, allowSide: false };
+  const result = placeCommitBubble(input);
+  assert.equal(result.side, 'below');
+  assert.equal(result.left, 12);
+  assert.ok(result.top >= input.y + 64);
+  assertWithinBounds(input, result);
+});
