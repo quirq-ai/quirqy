@@ -332,10 +332,11 @@ export async function mountActivityLab() {
   updatePanels();
   raf = requestAnimationFrame(tick);
   const startupRequest = request;
-  const shared = await restoreRepositorySession();
-  if (disposed) return;
-  if (request !== startupRequest) { $('#loading')?.remove(); return; }
-  const url = connectedRepository() || shared?.dataset?.repository?.url || DEFAULT_ACTIVITY_EXAMPLE_URL;
+  const preferredUrl = connectedRepository();
+  // Activity only needs the shared repository URL, not Data Lab's file cache.
+  // Restore legacy sessions in the background: another tab can hold an
+  // IndexedDB transaction indefinitely, but must never hide this scene.
+  const sharedSession = preferredUrl ? null : restoreRepositorySession();
   let restored = false;
   try {
     let cached = JSON.parse(localStorage.getItem(CACHE_KEY) || localStorage.getItem(LEGACY_CACHE_KEY));
@@ -346,14 +347,18 @@ export async function mountActivityLab() {
     }
   } catch { /* Invalid or unavailable cache is ignored. */ }
   if (!restored) {
-    const fallback = await getActivityExample(DEFAULT_ACTIVITY_EXAMPLE_URL);
+    const fallback = await getActivityExample(preferredUrl || DEFAULT_ACTIVITY_EXAMPLE_URL)
+      || await getActivityExample(DEFAULT_ACTIVITY_EXAMPLE_URL);
     if (disposed) return;
     if (request !== startupRequest) { $('#loading')?.remove(); return; }
     if (fallback) useDataset(fallback, false);
   }
   $('#loading')?.remove();
+  requestAnimationFrame(() => { if (!disposed) $('#tab-activity')?.scrollIntoView({ block: 'nearest', inline: 'nearest' }); });
+  const shared = await sharedSession;
+  // A delayed restore must not replace a repository the user selected meanwhile.
+  if (disposed || request !== startupRequest) return;
+  const url = connectedRepository() || shared?.dataset?.repository?.url || model?.dataset.repository.url || DEFAULT_ACTIVITY_EXAMPLE_URL;
   if (url !== model?.dataset.repository.url) await load(url);
   else if (model) connectRepository(model.dataset.repository.url);
-  if (disposed) return;
-  requestAnimationFrame(() => $('#tab-activity')?.scrollIntoView({ block: 'nearest', inline: 'nearest' }));
 }
