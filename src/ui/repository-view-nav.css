@@ -1,6 +1,7 @@
 /* App icons form the base; their original controls expand in the layer above. */
 html body :is(#data-timebar, #activity-timebar).panel-dock.repository-actions-dock.repository-parallel-controls {
   display: grid;
+  padding-top: 12px;
   grid-template-columns: 44px 44px minmax(0, 1fr);
   column-gap: 8px;
   row-gap: 12px;
@@ -148,4 +149,43 @@ html body #repository-opacity-range:focus-visible { outline: 2px solid var(--acc
   html body :is(#data-timebar, #activity-timebar).repository-parallel-controls .repository-opacity-back { width: 24px; }
   html body :is(#data-timebar, #activity-timebar) .repository-timeline-controls { grid-column: 1 / -1; grid-row: 2; }
   html body :is(#data-timebar, #activity-timebar) .repository-dock-apps { gap: 2px; }
+}
+
+/* The logo occupies the open center of the app row without moving its DOM or
+   changing the shared drag, editor, and animated disclosure behavior. */
+html body :is(#data-timebar, #activity-timebar).repository-parallel-controls:not(.is-dock-collapsed) > :is(.panel-dock-grip, .panel-dock-edit) {
+  position: relative;
+  top: auto;
+  left: auto;
+  grid-column: 1 / -1;
+  grid-row: 2;
+  justify-self: center;
+  align-self: center;
+  transform: none;
+}
+html body :is(#data-timebar, #activity-timebar).repository-parallel-controls:not(.is-dock-collapsed) > .panel-dock-edit {
+  transform: translateX(47px);
+}
+@media (max-width: 540px) {
+  /* Keep Edit close to the logo while leaving both groups of apps clear. */
+  html body :is(#data-timebar, #activity-timebar).panel-dock.repository-actions-dock.repository-parallel-controls {
+    grid-template-rows: auto 64px;
+  }
+  html body :is(#data-timebar, #activity-timebar).panel-dock.repository-actions-dock.repository-parallel-controls > :is(#repository-opacity-trigger, #repository-timeline-trigger, .repository-dock-actions, .panel-dock-grip) {
+    align-self: start;
+  }
+  html body :is(#data-timebar, #activity-timebar).repository-parallel-controls:not(.is-dock-collapsed) > .panel-dock-grip { width: 44px; }
+  html body :is(#data-timebar, #activity-timebar).repository-parallel-controls:not(.is-dock-collapsed) > .panel-dock-edit {
+    align-self: end;
+    height: 20px;
+    min-height: 20px;
+    transform: none;
+  }
+}
+@media (max-width: 374px) {
+  html body :is(#data-timebar, #activity-timebar).panel-dock.repository-actions-dock.repository-parallel-controls {
+    grid-template-columns: 36px 36px minmax(0, 1fr);
+  }
+  html body :is(#data-timebar, #activity-timebar).panel-dock .repository-app-tile { width: 36px; min-width: 36px; }
+  html body :is(#data-timebar, #activity-timebar) .repository-app-icon { width: 32px; height: 32px; border-radius: 10px; }
 }
