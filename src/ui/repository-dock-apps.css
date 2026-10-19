@@ -128,15 +128,42 @@ html body .repository-app-tile:focus-visible .repository-app-icon { transform: t
   html body.repository-apps-docked #topbar { padding-bottom: 10px; }
   html body.repository-apps-docked :is(#data-panel-toggle, #data-guide-toggle, #activity-panel-toggle, #activity-guide-toggle) { top: 64px; }
 }
-/* A separate actions row keeps generous icon targets on narrow phones. */
+/* Dock icons stay compact; the launcher keeps its readable app names. */
+html body :is(#data-timebar, #activity-timebar) .repository-app-tile {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  justify-content: center;
+  padding: 2px;
+  gap: 0;
+}
+html body :is(#data-timebar, #activity-timebar) .repository-app-tile :is(.repository-app-label, .glass-opacity-value) { display: none; }
+@media (max-width: 900px) {
+  html body.repository-apps-docked :is(#data-timebar, #activity-timebar).repository-actions-dock {
+    grid-template-columns: 44px 30px 38px 30px minmax(40px, 1fr) auto;
+    column-gap: 6px;
+  }
+  html body.repository-apps-docked :is(#data-timebar, #activity-timebar).repository-actions-dock > #repository-opacity-trigger { grid-row: 2; grid-column: 1; }
+  html body.repository-apps-docked :is(#data-timebar, #activity-timebar).repository-actions-dock > :is(#data-prev, #activity-prev) { grid-column: 2; }
+  html body.repository-apps-docked :is(#data-timebar, #activity-timebar).repository-actions-dock > :is(#data-play, #activity-play) { grid-column: 3; }
+  html body.repository-apps-docked :is(#data-timebar, #activity-timebar).repository-actions-dock > :is(#data-next, #activity-next) { grid-column: 4; }
+  html body.repository-apps-docked :is(#data-timebar, #activity-timebar).repository-actions-dock > :is(.data-speed, .activity-speed) { grid-column: 5; }
+  html body.repository-apps-docked :is(#data-timebar, #activity-timebar).repository-actions-dock > .repository-dock-actions { grid-column: 6; }
+}
 @media (max-width: 540px) {
   html body.repository-apps-docked :is(#data-timebar, #activity-timebar).repository-actions-dock {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: 44px 38px 38px minmax(0, 1fr);
+    column-gap: 2px;
     row-gap: 10px;
     padding-bottom: 17px;
   }
-  html body.repository-apps-docked :is(#data-timebar, #activity-timebar).repository-actions-dock > :is(.data-speed, .activity-speed) { grid-column: 5 / -1; }
-  html body.repository-apps-docked :is(#data-timebar, #activity-timebar).repository-actions-dock > .repository-dock-actions { grid-row: 3; grid-column: 1 / -1; justify-self: center; }
+  html body.repository-apps-docked :is(#data-timebar, #activity-timebar).repository-actions-dock > #repository-opacity-trigger { grid-row: 3; grid-column: 1; align-self: end; }
+  html body.repository-apps-docked :is(#data-timebar, #activity-timebar).repository-actions-dock > :is(#data-prev, #activity-prev) { grid-column: 1; }
+  html body.repository-apps-docked :is(#data-timebar, #activity-timebar).repository-actions-dock > :is(#data-play, #activity-play) { grid-column: 2; }
+  html body.repository-apps-docked :is(#data-timebar, #activity-timebar).repository-actions-dock > :is(#data-next, #activity-next) { grid-column: 3; }
+  html body.repository-apps-docked :is(#data-timebar, #activity-timebar).repository-actions-dock > :is(.data-speed, .activity-speed) { grid-column: 4; }
+  html body.repository-apps-docked :is(#data-timebar, #activity-timebar).repository-actions-dock > .repository-dock-actions { grid-row: 3; grid-column: 2 / -1; justify-self: end; }
 }
 @media (prefers-reduced-motion: reduce) {
   html body .repository-app-icon, html body .repository-app-tooltip { transition: none; }

@@ -1,7 +1,7 @@
 /* The selected lab's views stay with its app tiles as the dock moves. */
 html body :is(#data-timebar, #activity-timebar) .repository-dock-actions.repository-actions-with-views {
   display: grid;
-  grid-template-columns: 54px auto;
+  grid-template-columns: minmax(0, 1fr);
   column-gap: 8px;
   row-gap: 6px;
   align-items: start;
@@ -10,9 +10,9 @@ html body :is(#data-timebar, #activity-timebar) .repository-actions-with-views >
   grid-column: 1 / -1;
   grid-row: 1;
   min-width: 0;
+  width: 230px;
 }
-html body :is(#data-timebar, #activity-timebar) .repository-actions-with-views > .glass-opacity-trigger { grid-column: 1; grid-row: 2; }
-html body :is(#data-timebar, #activity-timebar) .repository-actions-with-views > .repository-dock-apps { grid-column: 2; grid-row: 2; }
+html body :is(#data-timebar, #activity-timebar) .repository-actions-with-views > .repository-dock-apps { grid-column: 1; grid-row: 2; justify-self: center; }
 html body :is(#data-timebar, #activity-timebar) .repository-view-nav,
 html body :is(#data-timebar, #activity-timebar) .repository-view-nav > .seg {
   display: flex;
@@ -53,4 +53,36 @@ html body :is(#data-timebar, #activity-timebar) .repository-actions-with-views .
 }
 @media (prefers-reduced-motion: reduce) {
   html body :is(#data-timebar, #activity-timebar) .repository-view-nav button { transition: none; }
+}
+
+/* Appearance replaces the scene choices without changing the dock's footprint. */
+html body :is(#data-timebar, #activity-timebar) .repository-view-nav { min-height: 32px; }
+html body :is(#data-timebar, #activity-timebar) .repository-view-nav > [hidden] { display: none !important; }
+html body :is(#data-timebar, #activity-timebar) .repository-opacity-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 32px;
+  padding: 0 7px;
+}
+html body :is(#data-timebar, #activity-timebar) .repository-opacity-back { width: 32px; height: 32px; padding: 0; }
+html body .repository-opacity-back svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+html body :is(#data-timebar, #activity-timebar) #repository-opacity-range {
+  display: block;
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  height: 28px;
+  margin: 0;
+  background: linear-gradient(to right, #c4dfff 0%, #c4dfff var(--glass-opacity-percent), rgba(196, 223, 255, .16) var(--glass-opacity-percent), rgba(196, 223, 255, .16) 100%) center / 100% 4px no-repeat;
+  box-shadow: none;
+}
+html body #repository-opacity-range::-webkit-slider-runnable-track { height: 4px; background: transparent; }
+html body #repository-opacity-range::-webkit-slider-thumb { width: 16px; height: 16px; margin-top: -6px; }
+html body #repository-opacity-range::-moz-range-track { height: 4px; background: transparent; }
+html body #repository-opacity-range::-moz-range-thumb { width: 16px; height: 16px; }
+html body #repository-opacity-range:focus-visible { outline: 2px solid var(--accent-cool); outline-offset: 2px; }
+@media (max-width: 900px) {
+  html body :is(#data-timebar, #activity-timebar) :is(.repository-view-nav, .repository-opacity-inline) { min-height: 36px; }
 }

@@ -16,7 +16,7 @@ function readOpacity(raw) {
   } catch { return DEFAULT_OPACITY; }
 }
 
-/** One appearance preference and popover shared by all instrument controls. */
+/** One appearance preference, inline in repository docks and a popover in other labs. */
 export function mountPanelAppearance() {
   const lifetime = new AbortController();
   const refraction = mountGlassRefraction();
@@ -57,6 +57,11 @@ export function mountPanelAppearance() {
     range.value = String(opacity);
     range.setAttribute('aria-valuetext', `${opacity} percent`);
     output.value = `${opacity}%`;
+    if (repositoryViews) {
+      repositoryViews.range.value = String(opacity);
+      repositoryViews.range.setAttribute('aria-valuetext', `${opacity} percent`);
+      repositoryViews.range.title = `Panel opacity: ${opacity}%`;
+    }
     for (const trigger of triggers) {
       if (!trigger.isConnected) { triggers.delete(trigger); continue; }
       trigger.querySelector('.glass-opacity-value').textContent = `${opacity}%`;
@@ -92,7 +97,12 @@ export function mountPanelAppearance() {
   }
 
   function syncExpanded() {
-    for (const trigger of triggers) trigger.setAttribute('aria-expanded', String(isOpen() && trigger === activeTrigger));
+    for (const trigger of triggers) {
+      const expanded = trigger.dataset.repositoryApp === 'opacity'
+        ? Boolean(repositoryViews?.open && repositoryViews.trigger === trigger)
+        : isOpen() && trigger === activeTrigger;
+      trigger.setAttribute('aria-expanded', String(expanded));
+    }
   }
   function close() {
     if (!isOpen()) return;
@@ -115,33 +125,64 @@ export function mountPanelAppearance() {
     range.focus({ preventScroll: true });
   }
 
+  function setRepositoryOpacity(open) {
+    if (!repositoryViews) return;
+    const { row, inline, range: inlineRange, trigger, rowHidden } = repositoryViews;
+    const restoreFocus = inline.contains(document.activeElement);
+    repositoryViews.open = open;
+    row.hidden = open || rowHidden;
+    inline.hidden = !open;
+    syncExpanded();
+    if (open) {
+      document.dispatchEvent(new CustomEvent('observatory:popover-open', { detail: inline.id }));
+      inlineRange.focus({ preventScroll: true });
+    } else if (restoreFocus && trigger?.isConnected) trigger.focus({ preventScroll: true });
+  }
+
   function addTrigger(host, after = null) {
     if (!host || host.querySelector(':scope > .glass-opacity-trigger')) return;
     const button = document.createElement('button');
     button.type = 'button';
-    const dockApp = host.classList.contains('repository-dock-actions');
+    const dockApp = REPOSITORY_LABS.some(lab => lab.dockId === host.id);
     button.className = `glass-opacity-trigger${dockApp ? ' repository-app-tile' : ''}`;
-    if (dockApp) button.dataset.repositoryApp = 'opacity';
-    button.setAttribute('aria-haspopup', 'dialog');
-    button.setAttribute('aria-controls', popover.id);
-    button.setAttribute('popovertarget', popover.id);
+    if (dockApp) { button.id = 'repository-opacity-trigger'; button.dataset.repositoryApp = 'opacity'; }
+    button.setAttribute('aria-controls', dockApp ? repositoryViews.inline.id : popover.id);
+    if (!dockApp) {
+      button.setAttribute('aria-haspopup', 'dialog');
+      button.setAttribute('popovertarget', popover.id);
+    }
     button.setAttribute('aria-expanded', 'false');
     button.innerHTML = dockApp
       ? `<span class="repository-app-icon" aria-hidden="true">${OPACITY_APP_ICON}</span><span class="glass-opacity-text repository-app-label">Opacity</span><span class="glass-opacity-value" hidden></span>`
       : `${ICON}<span class="glass-opacity-text">Opacity</span><span class="glass-opacity-value"></span>`;
-    if (after) after.after(button);
+    if (dockApp) {
+      host.insertBefore(button, host.querySelector(':scope > :not(.panel-dock-grip)'));
+      repositoryViews.trigger = button;
+    } else if (after) after.after(button);
     else host.append(button);
     triggers.add(button);
-    on(button, 'click', event => { event.preventDefault(); open(button); });
-    on(button, 'keydown', event => event.stopPropagation());
+    on(button, 'click', event => {
+      event.preventDefault();
+      if (dockApp) setRepositoryOpacity(!repositoryViews?.open);
+      else open(button);
+    });
+    on(button, 'keydown', event => {
+      event.stopPropagation();
+      if (dockApp && event.key === 'Escape') setRepositoryOpacity(false);
+    });
     render();
     return button;
   }
 
   function releaseRepositoryViews() {
     if (!repositoryViews) return;
-    const { row, placeholder, nav, actions } = repositoryViews;
+    const { row, rowHidden, placeholder, nav, actions, trigger, controller } = repositoryViews;
+    setRepositoryOpacity(false);
     repositoryViews = null;
+    controller.abort();
+    trigger?.remove();
+    triggers.delete(trigger);
+    row.hidden = rowHidden;
     if (placeholder.parentNode) placeholder.replaceWith(row);
     else row.remove();
     nav.remove();
@@ -163,11 +204,28 @@ export function mountPanelAppearance() {
     const nav = document.createElement('nav');
     nav.className = 'repository-view-nav';
     nav.setAttribute('aria-label', `${lab.mode === 'data' ? 'Data' : 'Activity'} views`);
-    // Move the whole group so the lab keeps its original listeners and pressed states.
-    nav.append(row);
+    const inline = document.createElement('div');
+    inline.id = 'repository-opacity-controls';
+    inline.className = 'repository-opacity-inline';
+    inline.hidden = true;
+    inline.setAttribute('role', 'group');
+    inline.setAttribute('aria-label', 'Panel opacity');
+    inline.innerHTML = `<button type="button" class="repository-opacity-back" aria-label="Back to views" title="Back to views"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m12 5-5 5 5 5"/></svg></button><input id="repository-opacity-range" type="range" min="0" max="100" step="1" aria-label="Panel opacity" />`;
+    const inlineRange = inline.querySelector('input');
+    const controller = new AbortController();
+    inlineRange.addEventListener('input', () => { opacity = Number(inlineRange.value); render(); }, { signal: controller.signal });
+    inlineRange.addEventListener('change', () => persist(), { signal: controller.signal });
+    inline.querySelector('button').addEventListener('click', () => setRepositoryOpacity(false), { signal: controller.signal });
+    inline.addEventListener('keydown', event => {
+      event.stopPropagation();
+      if (event.key === 'Escape') { event.preventDefault(); setRepositoryOpacity(false); }
+    }, { signal: controller.signal });
+    // Keep the actual group so switching appearance never resets scene state or handlers.
+    nav.append(row, inline);
     actions.prepend(nav);
     actions.classList.add('repository-actions-with-views');
-    repositoryViews = { panel, row, placeholder, nav, actions };
+    repositoryViews = { panel, row, rowHidden: row.hidden, placeholder, nav, actions, inline, range: inlineRange, controller, open: false, trigger: null };
+    render();
   }
 
   function attachControls() {
@@ -191,9 +249,7 @@ export function mountPanelAppearance() {
       const lab = REPOSITORY_LABS.find(lab => lab.dockId === id || lab.panelId === id);
       if (id === lab?.panelId) continue;
       if (id === lab?.dockId) {
-        const actions = container.querySelector('.repository-dock-actions');
-        const trigger = addTrigger(actions);
-        if (trigger) actions.insertBefore(trigger, actions.querySelector('.repository-dock-apps'));
+        if (repositoryViews?.actions.closest(`#${id}`) === container) addTrigger(container);
       } else if (id === 'equation-panel') {
         const row = container.querySelector('#eq-speed')?.previousElementSibling;
         if (row) { row.classList.add('glass-speed-heading'); addTrigger(row); }
@@ -217,6 +273,9 @@ export function mountPanelAppearance() {
     if (isOpen() && !popover.contains(event.target) && !event.target.closest('.glass-opacity-trigger')) close();
   });
   on(document, 'observatory:popover-open', event => { if (event.detail !== popover.id) close(); });
+  on(document, 'keydown', event => {
+    if (event.key === 'Escape' && repositoryViews?.open) setRepositoryOpacity(false);
+  });
   on(window, 'resize', positionPopover);
   if (window.visualViewport) on(window.visualViewport, 'resize', positionPopover);
   on(document, 'scroll', event => { if (!popover.contains(event.target)) positionPopover(); }, { capture: true });

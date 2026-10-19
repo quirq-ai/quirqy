@@ -24,6 +24,7 @@ export function mountAppsLauncher(host) {
   trigger.className = 'repository-app-tile repository-apps-trigger';
   trigger.dataset.repositoryApp = 'apps';
   trigger.setAttribute('aria-label', 'Apps');
+  trigger.title = 'Apps';
   trigger.setAttribute('aria-haspopup', 'dialog');
   trigger.setAttribute('aria-expanded', 'false');
   trigger.setAttribute('aria-controls', 'repository-apps-popover');
