@@ -5,6 +5,8 @@ import { mountGlassRefraction } from './glass-refraction.js';
 import { REPOSITORY_LABS } from './repository-labs.js';
 import { mountRepositoryTimeline } from './repository-timeline.js';
 import { mountRepositoryViewConnection } from './repository-view-connection.js';
+import { mountRepositoryGithub } from './repository-github.js';
+import './repository-github.css';
 
 const STORAGE_KEY = 'quirq-observatory.panel-opacity.v1';
 const DEFAULT_OPACITY = 62;
@@ -177,11 +179,12 @@ export function mountPanelAppearance() {
 
   function releaseRepositoryViews() {
     if (!repositoryViews) return;
-    const { row, placeholder, heading, nav, dock, trigger, timeline, connection, controller } = repositoryViews;
+    const { row, placeholder, heading, nav, dock, trigger, timeline, github, connection, controller } = repositoryViews;
     setRepositoryOpacity(false);
     repositoryViews = null;
     controller.abort();
     timeline.dispose();
+    github?.dispose();
     connection.dispose();
     trigger?.remove();
     triggers.delete(trigger);
@@ -201,7 +204,9 @@ export function mountPanelAppearance() {
       || !repositoryViews.placeholder.isConnected || !dock?.contains(repositoryViews.heading)
       || !dock.contains(repositoryViews.nav) || !repositoryViews.controls.contains(repositoryViews.inline)
       || !repositoryViews.controls.contains(repositoryViews.timeline.element) || !dock.contains(repositoryViews.timeline.trigger)
-      || !repositoryViews.nav.contains(repositoryViews.row))) releaseRepositoryViews();
+      || !repositoryViews.nav.contains(repositoryViews.row)
+      || (repositoryViews.github && (!repositoryViews.controls.contains(repositoryViews.github.element)
+        || !dock.contains(repositoryViews.github.trigger))))) releaseRepositoryViews();
     if (!panel || !actions || repositoryViews) return;
     const row = panel.querySelector(lab.viewSwitch);
     if (!row) return;
@@ -235,12 +240,14 @@ export function mountPanelAppearance() {
     }, { signal: controller.signal });
     // Keep both controls independent and preserve the actual scene buttons and handlers.
     nav.append(row);
+    const github = mountRepositoryGithub(dock, panel, lab.mode);
+    if (github) controls.append(github.element);
     controls.append(inline, timeline.element);
     heading.append(controls);
     dock.prepend(heading, nav);
     dock.classList.add('repository-parallel-controls');
     const connection = mountRepositoryViewConnection(dock, nav, actions.querySelector(`#tab-${lab.mode}`));
-    repositoryViews = { panel, row, placeholder, heading, controls, timeline, connection, nav, dock, actions, inline, range: inlineRange, controller, open: false, trigger: null };
+    repositoryViews = { panel, row, placeholder, heading, controls, timeline, github, connection, nav, dock, actions, inline, range: inlineRange, controller, open: false, trigger: null };
     render();
   }
 

@@ -211,7 +211,7 @@ export async function mountActivityLab() {
     const actorNames = model.actors.map(actor => actor.login).sort();
     $('#activity-author').innerHTML = '<option value="">Everyone</option>' + actorNames.map(login => `<option value="${esc(login)}">${esc(login)}</option>`).join('');
 
-    for (const button of panel.querySelectorAll('[data-example-url]')) button.setAttribute('aria-pressed', String(button.dataset.exampleUrl === dataset.repository.url));
+    for (const button of $('#activity-source-form').querySelectorAll('[data-example-url]')) button.setAttribute('aria-pressed', String(button.dataset.exampleUrl === dataset.repository.url));
     $('#date-text').textContent = dateText(dataset.fetchedAt).slice(0, 10);
     $('#live-badge').textContent = '● SNAPSHOT'; $('#live-badge').style.display = 'inline';
     $('#activity-coverage').innerHTML = `<p class="lab-note">Captured ${esc(dateText(dataset.fetchedAt))}. ${model.items.length} records and ${model.events.length} dated events loaded.</p><ul>${(dataset.limitations || []).map(text => `<li>${esc(text)}</li>`).join('')}</ul><p class="lab-note">Current statuses and contributor totals are snapshot values. This bounded sample is not the repository’s complete history.</p>`;
@@ -254,7 +254,7 @@ export async function mountActivityLab() {
   on($('#activity-source-form'), 'submit', event => { event.preventDefault(); load($('#activity-repository-url').value.trim()); });
   on($('#activity-refresh'), 'click', () => { if (model) load(model.dataset.repository.url, { refresh: true }); });
   on($('#activity-cancel'), 'click', () => { request++; controller?.abort(); controller = null; loading(false); status('Loading cancelled. Your current scene is unchanged.'); });
-  for (const button of panel.querySelectorAll('[data-example-url]')) on(button, 'click', () => load(button.dataset.exampleUrl));
+  for (const button of $('#activity-source-form').querySelectorAll('[data-example-url]')) on(button, 'click', () => load(button.dataset.exampleUrl));
   on(viewSwitch, 'click', event => { const button = event.target.closest('[data-view]'); if (button) switchView(button.dataset.view); });
   on(guide, 'click', event => { const button = event.target.closest('[data-kind]'); if (!button) return; const kind = button.dataset.kind; filters.kinds = filters.kinds.includes(kind) ? filters.kinds.filter(value => value !== kind) : [...filters.kinds, kind]; filters.historyKind = ''; filters.state = ''; $('#activity-state').value = ''; visibleLimit = 40; render(); });
   on($('#activity-show-historical'), 'change', event => {

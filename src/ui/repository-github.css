@@ -1,0 +1,120 @@
+/* The repository connection lives beside the other apps, using its original form. */
+html body :is(#data-timebar, #activity-timebar).panel-dock.repository-actions-dock.repository-parallel-controls > #repository-github-trigger {
+  grid-column: 2;
+  grid-row: 2;
+  align-self: center;
+}
+html body [data-repository-app="github"] .repository-app-icon {
+  color: #f3f5fa;
+  background:
+    radial-gradient(ellipse at 22% 0, rgba(224, 234, 251, .28), transparent 65%),
+    linear-gradient(150deg, #576477, #27313f 80%);
+}
+html body :is(#data-timebar, #activity-timebar) .repository-github-controls {
+  box-sizing: border-box;
+  min-width: 0;
+  width: 100%;
+  max-height: var(--repository-github-max-height, 280px);
+  padding: 12px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(201, 218, 239, .25) transparent;
+  border: 1px solid rgba(193, 213, 239, .22);
+  border-radius: 16px;
+  background: linear-gradient(155deg, rgba(149, 174, 209, .12), rgba(73, 93, 122, .035));
+  box-shadow: inset 0 1px 0 rgba(225, 237, 255, .08), 0 4px 14px rgba(0, 0, 0, .08);
+  text-align: left;
+}
+html body :is(#data-timebar, #activity-timebar) .repository-github-controls[hidden] { display: none !important; }
+html body :is(#data-timebar, #activity-timebar) .repository-github-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: -4px -4px 6px 0;
+}
+html body :is(#data-timebar, #activity-timebar) .repository-github-heading > .section-title {
+  margin: 0;
+  padding: 0;
+  color: #c0ccdc;
+  font-size: 9px;
+}
+html body :is(#data-timebar, #activity-timebar) .repository-github-close {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  min-height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  box-shadow: none;
+  color: #b4c2d5;
+  font: 400 19px/1 sans-serif;
+  cursor: pointer;
+}
+html body :is(#data-timebar, #activity-timebar) .repository-github-close:hover { color: #f3f7ff; background: rgba(208, 228, 255, .08); }
+html body :is(#data-timebar, #activity-timebar) .repository-github-close:focus-visible { outline: 2px solid var(--accent-cool); outline-offset: -2px; }
+html body :is(#data-timebar, #activity-timebar) .repository-github-controls :is(.data-repo-meta, .activity-repository-meta) {
+  margin: 0 0 10px;
+  padding: 0;
+  font-size: 12px;
+}
+html body :is(#data-timebar, #activity-timebar) .repository-github-controls :is(.data-repo-meta, .activity-repository-meta) a {
+  color: #dce8f7;
+  font-weight: 600;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+html body :is(#data-timebar, #activity-timebar) .repository-github-controls :is(.data-repo-meta, .activity-repository-meta) a:hover { text-decoration: underline; }
+html body :is(#data-timebar, #activity-timebar) .repository-github-controls :is(.data-source-row, .activity-source-row) {
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+  padding: 0 0 8px;
+}
+html body :is(#data-timebar, #activity-timebar) .repository-github-controls input[type="url"] {
+  flex: 1;
+  min-width: 0;
+  min-height: 34px;
+  border-radius: 8px;
+  font-family: inherit;
+  background: rgba(12, 20, 33, .5);
+}
+html body :is(#data-timebar, #activity-timebar) .repository-github-controls button[type="submit"] { flex: none; min-height: 34px; }
+html body :is(#data-timebar, #activity-timebar) .repository-github-controls :is(.data-source-tools, .data-example-choices, .activity-example-choices) {
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 0 8px;
+}
+html body :is(#data-timebar, #activity-timebar) .repository-github-controls :is(.data-example-choices, .activity-example-choices) .btn { padding-inline: 6px; font-size: 10px; }
+html body :is(#data-timebar, #activity-timebar) .repository-github-controls #data-examples-label { display: none; }
+html body :is(#data-timebar, #activity-timebar) .repository-github-controls :is(#data-status, #activity-status) {
+  margin: 0;
+  padding: 0;
+  font-size: 10px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+html body :is(#data-timebar, #activity-timebar) .repository-github-controls .activity-source-actions { padding: 6px 0 0; gap: 8px; }
+@media (max-width: 540px) {
+  html body :is(#data-timebar, #activity-timebar).panel-dock.repository-actions-dock.repository-parallel-controls > #repository-github-trigger {
+    grid-row: 4;
+    align-self: start;
+  }
+  html body :is(#data-timebar, #activity-timebar).repository-parallel-controls .repository-dock-heading :is(.repository-github-controls, .repository-opacity-inline, .repository-timeline-controls) {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+  html body :is(#data-timebar, #activity-timebar) .repository-github-controls { padding: 10px; }
+}
+
+/* Leave room for the labeled Opacity control when that presentation is active. */
+@media (min-width: 701px) {
+  html body :is(#data-timebar, #activity-timebar).panel-dock.repository-actions-dock.repository-parallel-controls:has(> #repository-opacity-trigger .repository-opacity-copy) {
+    grid-template-columns: 112px 44px minmax(0, 1fr);
+  }
+}

@@ -109,7 +109,7 @@ export class DataPanel {
     const on = (node, type, callback) => node.addEventListener(type, callback, { signal: this.listeners.signal });
     const invoke = (name, ...args) => this.hooks[name]?.(...args);
     on(this.$('#data-source-form'), 'submit', event => { event.preventDefault(); invoke('onLoad', this.$('#data-repository-url').value.trim(), Number(this.$('#data-history-limit').value)); });
-    for (const button of this.el.querySelectorAll('[data-example-url]')) {
+    for (const button of this.$('#data-source-form').querySelectorAll('[data-example-url]')) {
       on(button, 'click', () => {
         const url = button.dataset.exampleUrl;
         this.$('#data-repository-url').value = url;
@@ -330,7 +330,7 @@ export class DataPanel {
     this.$('#data-branch').textContent = `${repository.branch || 'default branch'} · ${this.shortSha(repository.headSha)}`;
     this.$('#data-file-count').textContent = fmt(this.state.model.nodes.length);
     if (url) this.$('#data-repository-url').value = url;
-    for (const button of this.el.querySelectorAll('[data-example-url]')) {
+    for (const button of this.$('#data-source-form').querySelectorAll('[data-example-url]')) {
       const active = url?.toLowerCase().replace(/\/$/, '') === button.dataset.exampleUrl;
       button.classList.toggle('active', active);
       button.setAttribute('aria-pressed', String(active));
