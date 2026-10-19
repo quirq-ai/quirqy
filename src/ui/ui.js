@@ -554,7 +554,7 @@ export class UI {
       this.el.help.innerHTML = `
         <div class="help-card">
           <button class="panel-close" title="Close">×</button>
-          <h2>quirq observatory</h2>
+          <h2>Quirqy</h2>
           <p class="help-sub">A real-ephemeris solar system. Tap a body or open Bodies to explore. Pinch and drag to orbit.</p>
           <div class="help-grid">
             <span>Bodies</span><span>pick a planet or moon</span>
@@ -586,7 +586,7 @@ export class UI {
       <span>O / L / G</span><span>toggle orbits / labels / grid</span>
       <span>E</span><span>physics lab (N-body experiments)</span>
       <span>S</span><span>snapshot PNG</span>
-      <span>V</span><span>record video + data trace (max 10s, quirq observatory HUD)</span>
+      <span>V</span><span>record video + data trace (max 10s, Quirqy HUD)</span>
       <span>Tabs</span><span>SPM / Solar / Equation / Earth / Light / Gravity / Photo / Fractals</span>
       <span>H</span><span>this help</span>`;
     const mathGrid = `
@@ -595,7 +595,7 @@ export class UI {
       <span>R</span><span>reverse time</span>
       <span>Timeline</span><span>drag the scrubber to any recorded moment</span>
       <span>S</span><span>snapshot PNG</span>
-      <span>V</span><span>record video + data trace (max 10s, quirq observatory HUD)</span>
+      <span>V</span><span>record video + data trace (max 10s, Quirqy HUD)</span>
       <span>Data fit</span><span>paste a dataset, plot it, guess its equation</span>
       <span>Superposition</span><span>freeze equations as layers; same-type layers add</span>
       <span>Commit</span><span>version-control the lab state, git-style, with thumbnails</span>
@@ -618,7 +618,7 @@ export class UI {
       <span>Drag / scroll</span><span>orbit and zoom</span>
       <span>Click a layer</span><span>inspect core, mantle, crust, fields</span>
       <span>S</span><span>snapshot PNG</span>
-      <span>V</span><span>record video + data trace (max 10s, quirq observatory HUD)</span>
+      <span>V</span><span>record video + data trace (max 10s, Quirqy HUD)</span>
       <span>Esc</span><span>reframe the view</span>
       <span>H</span><span>this help</span>`;
     const lightGrid = `
@@ -628,7 +628,7 @@ export class UI {
       <span>Presets</span><span>Snell, TIR, prism, lens, mirror, rainbow</span>
       <span>Sliders</span><span>every optical parameter is live</span>
       <span>S</span><span>snapshot PNG</span>
-      <span>V</span><span>record video + data trace (max 10s, quirq observatory HUD)</span>
+      <span>V</span><span>record video + data trace (max 10s, Quirqy HUD)</span>
       <span>Esc</span><span>reframe the bench</span>
       <span>H</span><span>this help</span>`;
     const gravityGrid = `
@@ -639,7 +639,7 @@ export class UI {
       <span>Quantum gravity</span><span>bounce, running G, Yukawa, foam, Hawking, Schrödinger-Newton</span>
       <span>Exponent n</span><span>live force law F ∝ 1/rⁿ (classical)</span>
       <span>S</span><span>snapshot PNG</span>
-      <span>V</span><span>record video + data trace (max 10s, quirq observatory HUD)</span>
+      <span>V</span><span>record video + data trace (max 10s, Quirqy HUD)</span>
       <span>Esc</span><span>reframe the view</span>
       <span>H</span><span>this help</span>`;
     const photoGrid = `
@@ -648,7 +648,7 @@ export class UI {
       <span>Photoelectric</span><span>metal cathode, λ, intensity, retarding V</span>
       <span>Photosynthesis</span><span>pigment mix, action spectrum, O₂ rate</span>
       <span>S</span><span>snapshot PNG</span>
-      <span>V</span><span>record video + data trace (max 10s, quirq observatory HUD)</span>
+      <span>V</span><span>record video + data trace (max 10s, Quirqy HUD)</span>
       <span>Esc</span><span>reframe the bench</span>
       <span>H</span><span>this help</span>`;
     const fractalGrid = `
@@ -660,7 +660,7 @@ export class UI {
       <span>3D Ray</span><span>Mandelbulb + quaternion Julia DE</span>
       <span>IFS</span><span>Barnsley fern, Sierpiński, dragon, maple</span>
       <span>S</span><span>snapshot PNG</span>
-      <span>V</span><span>record video (max 10s, quirq observatory HUD)</span>
+      <span>V</span><span>record video (max 10s, Quirqy HUD)</span>
       <span>Esc</span><span>reframe the stage</span>
       <span>H</span><span>this help</span>`;
     const sub = math
@@ -693,7 +693,7 @@ export class UI {
                 : fractal
                   ? 'Try it: open Mandelbrot · seahorse, scroll deep into a filament, then click to probe. Switch to Mandelbulb and drag to orbit the power-8 surface.'
                   : 'Try it: open the physics lab (E), switch to N-body and press "Halt Earth" to watch it fall into the Sun. Or make Jupiter a star and see the outer system reorganize.';
-    const title = math ? 'Equation Lab' : spm ? 'SPM Mooring' : earth ? 'Earth Lab' : light ? 'Light Lab' : gravity ? 'Gravity Lab' : photo ? 'Photo Lab' : fractal ? 'Fractals Lab' : 'quirq observatory';
+    const title = math ? 'Equation Lab' : spm ? 'SPM Mooring' : earth ? 'Earth Lab' : light ? 'Light Lab' : gravity ? 'Gravity Lab' : photo ? 'Photo Lab' : fractal ? 'Fractals Lab' : 'Quirqy';
     const grid = math ? mathGrid : spm ? spmGrid : earth ? earthGrid : light ? lightGrid : gravity ? gravityGrid : photo ? photoGrid : fractal ? fractalGrid : solarGrid;
     this.el.help.innerHTML = `
       <div class="help-card">

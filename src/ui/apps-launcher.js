@@ -38,7 +38,7 @@ export function mountAppsLauncher(host) {
   popover.setAttribute('popover', 'auto');
   popover.setAttribute('role', 'dialog');
   popover.setAttribute('aria-labelledby', 'repository-apps-title');
-  popover.innerHTML = '<div class="repository-apps-heading"><h2 id="repository-apps-title">Apps</h2><button type="button" class="glass-popover-close" aria-label="Close apps">×</button></div><nav class="repository-apps-grid" aria-label="Observatory labs"></nav>';
+  popover.innerHTML = '<div class="repository-apps-heading"><h2 id="repository-apps-title">Apps</h2><button type="button" class="glass-popover-close" aria-label="Close apps">×</button></div><nav class="repository-apps-grid" aria-label="Quirqy labs"></nav>';
   const grid = popover.querySelector('nav');
   const routes = ROUTES.filter(route => !REPOSITORY_LABS.some(lab => lab.mode === route.mode))
     .sort((a, b) => Number(b.mode === 'solar') - Number(a.mode === 'solar'));

@@ -1,498 +1,251 @@
-<div align="center">
-  <img src="public/quirq-logo.svg" width="72" alt="quirq observatory" />
+# Quirqy
 
-  # quirq observatory
+<img src="public/quirq-logo.svg" width="72" alt="Quirqy logo" />
 
-  **An instrument for scientific curiosity.** Pose a question, run it in real physics, and keep the trace.
+**Explore repositories, their history, and the people around them in interactive 3D.**
 
-  ![three.js](https://img.shields.io/badge/three.js-0.170-1f6feb)
-  ![vite](https://img.shields.io/badge/vite-6-8957e5)
-  ![no framework](https://img.shields.io/badge/UI-vanilla%20ES%20modules-3fb950)
-  ![license](https://img.shields.io/badge/license-see%20credits-8b949e)
-</div>
+Quirqy builds on Observatory's shared 3D engine and liquid-glass interface. Its primary repository apps are **Data Lab** for files and commit history, and **Activity Lab** for pull requests, issues, reviews, comments, forks, and contributors. Scientific instruments remain available through the dock's **Apps** launcher.
 
----
+This project is maintained on the `quirq` branch of [quirq-ai/quirqy](https://github.com/quirq-ai/quirqy). Every page centers on a meaningful 3D visualization; panels and timelines support the scene.
 
-## What quirq observatory is
+The existing `v0` tag preserves the original remote baseline, and `v0.1` marks an earlier checkpoint. The `quirq` branch contains the subsequent work documented here.
 
-quirq observatory is a browser-based workbench for exploring how things move. It began as a
-real-ephemeris solar system and grew into a general tool for turning a "what if" into a
-running experiment you can watch, measure, and record.
+## Run locally
 
-The idea is simple: **curiosity, experiment, trace.**
-
-1. **Curiosity.** You have a question. What does the sky look like on the day Halley
-   returns in 2061? What happens to Earth's orbit if the Sun loses half its mass? How
-   does a Lorenz attractor fall apart as you turn down the forcing? What tension does a
-   mooring chain carry when a 30 m/s wind hits the buoy?
-2. **Experiment.** You set it up with real physics and drive it in real time. Every
-   input is a live control, so you can perturb the system while it runs and see the
-   consequence immediately.
-3. **Trace.** quirq observatory records what happened: motion trails, a scrubbable timeline,
-   git-style version commits of the whole experiment, fitted equations for data you
-   paste in, live numeric readouts, and PNG snapshots. A trace is evidence you can go
-   back to, compare against, and share.
-
-It is not a game and not a screensaver. It is closer to a telescope and a lab notebook
-in the same window: an accurate model you can point at a question, plus the machinery to
-capture what you see.
-
-Three **instruments** share one engine (renderer, camera, trails, HUD):
-
-| Instrument | Domain | The question it answers |
-| --- | --- | --- |
-| **Solar System** | Celestial mechanics | Where is everything, really, on any date? What if gravity were different? |
-| **Equation Lab** | Dynamical systems, general math | How does an arbitrary equation move through space and time? |
-| **Earth Lab** | Geophysics and offshore engineering | What is Earth made of, and how does a real mooring behave under weather? |
-| **Light Lab** | Geometric optics | Where does each ray go, and what does Snell / Fresnel / dispersion do to it? |
-| **Gravity Lab** | Orbital mechanics + QG toys | What orbit is this particle on, and what if gravity were quantum-corrected? |
-| **Photo Lab** | Photons and biology | When does light eject electrons, and which colors drive photosynthesis? |
-| **Fractals Lab** | Complex dynamics + IFS | How does z ← zⁿ + c paint the plane, and what does a 3D bulb look like? |
-
----
-
-## Quick start
-
-This edition is maintained on the `quirq-observatory` branch. The `v0` tag preserves the original Observatory remote baseline.
-
-Requires Node.js 18 or newer.
+Use **Node.js 22 or newer**, npm, and a modern browser with WebGL support.
 
 ```bash
-npm install
-npm run dev       # dev server on http://localhost:5174
-npm run build     # production build to dist/
-npm run preview   # serve the production build
-```
-
-Data Lab starts with a preloaded snapshot of **quirq-ai/xo**. **Examples** contains only **quirq-ai/xo** and **quirq-ai/xo-space**, both cloned ahead of time and bundled with the app. Startup and example buttons load up to 50 recent first-parent commits without GitHub access (all 44 available commits for the pinned XO sample, 50 for XO Space); the snapshot date and pinned commit identify the captured version. URL imports default to 20 commits, with 8 or 12 available in **Import history**. Custom repository URLs still use the live GitHub loader. Refresh the bundled snapshots from the local clones with `npm run examples:refresh` (see the generator's `--help` for clone and output paths). In Structure, the root keeps the current commit author’s profile picture and name in both playback and pause. Playing adds a sun glow and a pulse for each commit transition. Pausing opens a message bubble with the commit message, ID, expandable changed files, line additions/deletions, and GitHub link. Author portraits and the paused message bubble belong to the Structure view. Live imports reuse GitHub’s author metadata; bundled examples include verified author mappings and local portraits. Unlinked authors or unavailable pictures use initials. Example refreshes preserve known SHA mappings; new, unmapped commits use initials until their GitHub author profiles are verified.
-
-Activity Lab (`/activity`) is a native 3D visualization of repository collaboration: pull requests, issues, reviews, comments, forks, and contributors. Constellation, Orbits, and Contributors use the same real records, with dated event playback, filtering, selection, and GitHub links. It shares Observatory’s stage, navigation, glass opacity/refraction, movable panels, dock, and connected repository with Data Lab; each lab retains its own data and timeline. Only XO and XO Space are bundled examples, captured from actual public GitHub API responses for instant loading. Refresh fetches current public metadata within documented sampling limits. Coverage notices distinguish loaded records from complete history; current statuses and contributor totals are snapshot values, not historical state or productivity measures. Browser caching is optional, and no credentials are required or stored.
-
-Click the navbar logo to upload a PNG, JPG, WebP, or SVG (up to 5 MB), or reset to the default. Custom logos are saved in this browser for this site and used in the navbar, loading screen, favicon, and recording overlay. This preference does not require login and does not sync across browsers, devices, or accounts.
-
-Side panels and playback bars share a liquid-glass appearance. In Data Lab, open **View** beside playback speed to choose **Structure**, **Growth Tree**, or **Opacity**. The scene choices live in this dock menu. In other labs, choose **Opacity** beside the playback controls (or beside Time speed in Equation Lab). Adjust the surface from 0–100%, keeping text and controls fully visible. At 0%, the tint disappears into clear glass; lower opacity also increases the simulated refraction around panel edges, while higher opacity adds softness. The opacity setting is shared across labs, saved in this browser, and can be reset to the default. Browsers without SVG backdrop refraction retain the changing blur and highlights. Reduced-transparency and high-contrast preferences keep panels solid for readability.
-
-Use the − / + control in either sidebar header to collapse or expand it on desktop. On mobile, the header control closes the sheet, which can be reopened from its page button. Drag either Data Lab sidebar by its header, or move the centered timeline dock using its top grab handle. Positions are remembered separately for desktop and mobile. Double-click a handle to restore the default position; focused handles also support Arrow keys (Shift for larger steps) and Home to reset.
-
-In Data Lab's Growth Tree, **Frame roots** enlarges the roots, shortens the canopy while retaining a broader bonsai-like trunk, and enables unrestricted 3D rotation. Every distinct loaded commit touching a file adds the same **repository-calibrated length step** to that file’s root. Baseline root spacing and growth scale with the repository’s loaded snapshot width; this calibration stays fixed throughout replay. The guide and controls show the current step in scene units. The added length follows file identity across renames and folder moves; rewinding restores the earlier value. Initial folder connections vary with the hierarchy, so the inspector reports **File touches** and **Added root length**. Compare added length within a repository and touch counts across repositories. Roots thicken gently as they lengthen, with thickness serving as a visual effect. Folder junctions and untouched roots stay fixed during touch-driven growth of an unchanged hierarchy. Growth does not push neighboring roots, and the ground stays flat. The base scales with visible file count and the full root footprint. Horizontal filenames remain near their tips; large repositories reveal more names as you zoom or focus a folder. Dot-prefixed files and folders, including their contents, are hidden from roots and their directory index; the underlying repository data and other views retain them. Drag to turn in any direction; Shift-drag horizontally or twist two fingers to roll sideways. Tall, narrow viewing areas initially frame the roots sideways for more detail. Tablet framing uses the space released by hidden side panels. **Frame view** (or **F**) emphasizes the canopy with smaller roots and restores upright orbit. Structure also uses upright orbit. Right-drag pans, the wheel or pinch zooms, and two-finger dragging pans. File and folder focus within roots retain the chosen orientation. Presentation scaling stays anchored at the trunk and does not change repository data or commit growth.
-
-Open the app, then switch instruments with the tabs in the top-left (or open a
-section URL directly). Press **H** at any
-time for a context-aware help card, **S** for a PNG snapshot, and **V** to record up to
-10 seconds of the current view as a WebM.
-
-| Section | URL |
-| --- | --- |
-| Solar System | `/` |
-| Equation Lab | `/equation` |
-| Earth Lab | `/earth` |
-| Light Lab | `/light` |
-| Gravity Lab | `/gravity` |
-| Photo Lab | `/photo` |
-| Fractals Lab | `/fractals` |
-
----
-
-## The seven instruments
-
-### 1. Solar System
-
-A real-ephemeris model of the solar system. Positions are computed live, so what you see
-matches the actual sky.
-
-- **All 8 planets, Pluto and Ceres** propagate from the JPL "Approximate Positions of the
-  Major Planets" Keplerian elements (Standish), including secular rates, solved with a
-  Newton-iterated Kepler equation. Valid 1800 to 2050, and degrades gracefully outside.
-- **21 major moons** with real semi-major axes, eccentricities, inclinations and periods,
-  in their parents' equatorial frames (Earth's Moon in the ecliptic frame, Triton
-  retrograde). Tidally locked moons keep their near face to the parent.
-- **Comet 1P/Halley** on its true retrograde e = 0.967 orbit, perihelion dates matching
-  1986 and 2061, with a coma and twin tails (blue ion, warm dust) that grow near the Sun.
-- **A 3,600-body asteroid belt** on individually propagated Keplerian orbits with Kirkwood
-  gaps at the 3:1, 5:2 and 7:3 Jupiter resonances, plus a 9,000-point Kuiper belt.
-- **Earth's rotation follows Greenwich Mean Sidereal Time**, so the day/night terminator
-  and the city-light night side match the real current time.
-- **Live readouts** via the vis-viva equation: heliocentric distance, orbital speed, and
-  distance to Earth update as bodies move.
-- **Graphics:** NASA-derived 8K Earth (day, night, clouds) and 2K planet maps, custom GLSL
-  (animated solar photosphere with granulation and limb darkening, Earth day/night
-  terminator with ocean specular, additive atmospheres, backlit Saturn rings with the
-  planet's real shadow), an HDR pipeline (ACES tone mapping, half-float MSAA target,
-  UnrealBloom, logarithmic depth buffer spanning nine orders of magnitude).
-
-**Physics lab (the "what if").** Switch from the ephemeris to a live N-body integration:
-the Sun, planets, Pluto, Ceres and Halley are seeded from their exact ephemeris state
-vectors and then move under real mutual gravity (symplectic leapfrog, adaptive substeps
-that shrink near close approaches, swept collision detection, momentum-conserving merges).
-Change the gravitational constant (0 to 10x), scale any body's mass (0.01x to 1000x), halt
-/ reverse / kick velocities, and watch the true consequence. One-click presets: Jupiter
-becomes a star, Sun x0.5, double G, halt Earth, reverse Venus. Every body reports live
-heliocentric position, velocity, net gravitational force, acceleration and its strongest
-attractor, and the numbers match analytic values (Earth reads about 3.5 x 10^22 N of solar
-pull).
-
-### 2. Equation Lab
-
-Type any equation and watch it move through space and time under the same cinematic
-pipeline (bloom, trails, free camera, live readouts). The trail is the time axis.
-
-- **Four equation classes:** parametric curves x(t), y(t), z(t); velocity fields
-  dx/dt = f(x, y, z, t) integrated with RK4; force fields a(x, v, t); and animated surfaces
-  z = f(x, y, t) with a height colormap.
-- **A safe expression compiler** (recursive-descent, whitelisted tokens only, null-prototype
-  lookup tables, arity checking) with implicit multiplication, so `10(y - x)` and
-  `a sin(b x + t)` both work. Errors show inline while the last good equation keeps running.
-- **Swarms of up to 200 particles** with rainbow trails make chaos visible: nearby starting
-  points diverging is the butterfly effect on screen. Parameters a, b, c, d are live sliders.
-- **Presets:** Lorenz, Aizawa, Thomas and Rossler attractors, Lissajous and torus knots,
-  Kepler orbits (the same inverse-square law as the solar tab), a charged particle in a
-  magnetic field, an anisotropic oscillator, and three animated surfaces.
-- **Superposition:** freeze any equation as a weighted layer and stack up to six. Same-type
-  layers combine: positions add for parametric curves (epicycles, beats, Fourier-style
-  composition), vector fields blend for velocity/force systems (Lorenz morphing into
-  Thomas), and heights add for surfaces (literal wave interference). Weights are live.
-
-### 3. Earth Lab
-
-- **A true-scale cutaway of Earth:** inner core, outer core, lower and upper mantle and
-  crust at PREM seismic-model radii, each clickable with detailed data (temperature,
-  density, pressure, composition, gravity profile), plus cards for the oceans, land,
-  atmosphere layers, the geodynamo magnetic field (drawn as tilted dipole field lines),
-  and the gravity profile inside the planet (it peaks at the core-mantle boundary).
-- **A real-time Single Point Mooring (SPM) simulation:** floating buoy, six chains at
-  60°, each from a surface stopper to a seabed pile. Defaults: buoy dia 12 m, buoy
-  weight 180 t, sea depth 30 m, stopper-pile 300 m, chain length 315 m, chain weight
-  250 kg/m. Required live outputs: **(1) touchdown point**, **(2) catenary angle at
-  stopper**, **(3) catenary angle at touchdown**, **(4) tension on the chain locked at
-  the stopper**. Buoy weight sets floating draft. Wind and sea forces push the buoy;
-  every input is variable. Quasi-static catenary each frame (grounded / suspended /
-  taut). Submerged chain weight is 0.87× the in-air weight.
-
-### 4. Light Lab
-
-A geometric-optics workbench that traces every ray bounce-by-bounce and reports the full
-event log. The point is not a pretty rainbow; it is the numbers behind each interaction.
-
-- **Ray tracer:** plane and spherical surfaces, mirrors, dielectrics and detectors. At every
-  hit: incidence and transmission angles, Fresnel R/T (unpolarized average of Rs, Rp),
-  total internal reflection when past the critical angle, optical path length and time of
-  flight (mm and ns).
-- **Cauchy dispersion:** n(λ) = A + B/λ² for BK7, fused silica, water, acrylic, sapphire and
-  diamond, so a prism or rainbow actually splits by wavelength with spectral colors.
-- **Ray-by-ray analysis:** a sortable table of every ray (λ, launch angle, hit count, residual
-  intensity, OPL, fate). Click a row or a ray in the 3D view to open the event inspector:
-  each bounce shows θi, θt, n1 to n2, Fresnel coefficients, intensity in/out, OPL, ToF and the
-  Snell residual `|n1 sin θi - n2 sin θt|`.
-- **Presets:** air to glass Snell demo (with live verification of the residual), total internal
-  reflection past θc, equilateral prism dispersion, biconvex BK7 lens (lensmaker focal mark,
-  spherical aberration visible on outer rays), concave spherical mirror (f = R/2), parallel
-  plate shift, diamond brilliance, Descartes water-drop rainbow (~42° primary bow), silica vs
-  BK7 comparison, and a dense white-beam stress test.
-- **Live controls:** fan angle, ray count, wavelength bands, lens radius and thickness, prism
-  apex, impact parameter, material. Everything rebuilds the fan immediately.
-
-### 5. Gravity Lab
-
-An orbital-mechanics sandbox with particle-by-particle analysis, plus pedagogical
-quantum-gravity toys. Leapfrog N-body for massive bodies and massless tracers; a live
-force-law exponent so you can break 1/r² on purpose; and six effective QG models.
-
-- **Integrator:** symplectic kick-drift-kick leapfrog in km, kg, s, with adaptive substeps.
-  Massive bodies feel each other; tracers feel the massive field only.
-- **Particle-by-particle analysis:** for every tracer, live r, v, specific energy ε, specific
-  angular momentum h, eccentricity e, semi-major a, periapsis / apoapsis, period, flight-path
-  angle, escape and circular speeds, and orbit kind (circular / elliptical / parabolic /
-  hyperbolic). Click a row or a mesh to open the inspector.
-- **Force-law exponent:** F ∝ 1/rⁿ with n live. The Inverse-square check preset reports the
-  log-log slope of acceleration vs radius; Broken force law shows Bertrand precession when
-  n ≠ 2.
-- **Classical presets:** LEO circular (period verify), elliptical family, escape fan,
-  inverse-square check, Earth-Moon, binary stars, gravity assist flyby, Roche limit rubble
-  pile, Kepler fans (T² ∝ a³ verify), and broken force law.
-- **Quantum gravity (pedagogical):** not a full theory; effective models you can poke:
-  - **Quantum bounce** (LQG-inspired): a = −GM/r² + GM ℓ_b²/r⁴; free-fall rebounds
-  - **Running G** (asymptotic safety): G(r) = G₀/(1+(ℓ/r)^α); UV softening
-  - **Massive graviton** (Yukawa): Φ ∝ e^{−r/λ}/r; screened far-field
-  - **Spacetime foam:** stochastic geodesic kicks that grow at small r
-  - **Hawking evaporation:** toy dM/dt = −κ/M²; orbits unbind as the hole shrinks
-  - **Schrödinger-Newton:** self-gravitating packet + Bohm-like quantum pressure
-- **Potential well:** a live mesh of Φ colored by depth; trails on tracers; Roche / scale rings.
-
-### 6. Photo Lab
-
-Two photon experiments side by side: Einstein's photoelectric effect and light-dependent
-photosynthesis.
-
-- **Photoelectric:** vacuum-tube cathode bench. Pick a metal (Cs through Pt), set λ and
-  intensity, and watch photons hit the plate. Electrons eject only when hf > φ; their
-  kinetic energy is K_max = hf − φ. Raise retarding voltage past the stopping potential
-  V_s = K_max/e to kill the photocurrent. Live Einstein readout and an I-V scan.
-- **Photosynthesis:** chloroplast with pigment mix (chlorophyll a/b, carotenoids). Slide
-  wavelength through the spectrum; green sits in the absorption trough so the relative
-  rate drops. Action-spectrum canvas shows absorbance vs photosynthetic rate; O₂ bubbles
-  mark productive absorption events.
-
-### 7. Fractals Lab
-
-A GPU-first fractal instrument with four families on one stage:
-
-- **Escape time:** Mandelbrot, Julia, Burning Ship, and Newton (z^3 - 1) on a shader plane.
-  Smooth continuous potential coloring, orbit traps (circle / line), live palettes, pan /
-  zoom (scroll and double-click), and a complex probe that reports iteration, smooth μ,
-  and |z|.
-- **Raymarch 3D:** Mandelbulb (power 8) and quaternion Julia with distance estimation,
-  soft AO, Fresnel rims, and drag-to-orbit / scroll-to-dolly.
-- **IFS attractors:** Barnsley fern, Sierpiński gasket, dragon curve, maple leaf as
-  additive point clouds with theoretical Hausdorff dimension readout.
-- **Light diffraction:** Koch snowflake aperture → Fraunhofer diffractal via 2D FFT
-  (I ∝ |ℱ{A}|²). Generation, λ scale, aperture/pattern/split views, Babinet complement.
-
-Curated destinations (seahorse valley, mini-set, Douady rabbit, Koch diffractal, …) ship as
-one-click presets; every parameter stays live.
-
----
-
-## Traces and information
-
-The point of an observatory is not just to look, but to record. Every instrument feeds a
-shared set of capture mechanisms so an experiment leaves evidence behind.
-
-- **Motion trails.** Fading, per-object rainbow trails show where everything has been.
-  In the physics lab they reveal divergence from the original orbits; in the Equation Lab
-  they are the fourth (time) axis; in the mooring they trace the buoy's watch circle.
-- **Timeline.** The Equation Lab records up to 600 state snapshots as it runs. Drag the
-  scrubber back to any moment; integrated systems restore their exact state and
-  re-integrate forward from there, so the timeline is a real rewind, not a replay.
-- **Version history (git-style commits).** A Commit button snapshots the entire lab state
-  (equation, parameters, superposition layers, pasted dataset, camera) with a rendered
-  thumbnail and an optional message. Commits chain to their parent with short hashes, show
-  a diff against the parent (changed expressions, parameter values, layer counts), and
-  Checkout restores any version exactly. Up to 40 commits persist in the browser via
-  localStorage. This is the lab-notebook layer: branch an idea, compare two runs, come
-  back tomorrow.
-- **Data fit.** Paste a dataset (`[t,] x [, y [, z]]`) and quirq observatory plots it colored
-  from early to late with a tracer replaying the path, then runs a least-squares search
-  over model families (lines, polynomials, sinusoids, damped sinusoids, exponentials) and
-  reports a candidate equation per axis with its R-squared. One click overlays the fit on
-  the data for comparison. Curiosity in, a hypothesis out.
-  - **Live numeric readouts.** Position, velocity, force, acceleration, orbital speed, chain
-  tension, catenary angle, ray θi/θt/Fresnel/OPL, and more, updated every frame in real units.
-  The visualization is never a substitute for the number.
-- **PNG snapshots.** Press S in any tab to download a clean render (the HUD is DOM and
-  stays out of the frame), named for what it captured.
-- **Trace video.** Press V (or the record button) to capture up to 10 seconds of the live
-  view with the quirq logo and live equation / lab readouts burned into the frame. While
-  recording, every particle / ray / body is sampled into a data trace. On stop the app
-  downloads the video plus JSON/CSV traces and opens an expected-vs-actual results table.
-
----
-
-## Scientific accuracy and methods
-
-quirq observatory is meant to be trustworthy enough to reason with, so the methods are explicit.
-
-| Subsystem | Method | Source / basis |
-| --- | --- | --- |
-| Planet positions | Keplerian elements with secular rates, Newton-iterated Kepler equation | JPL / Standish, "Approximate Positions of the Major Planets" |
-| Axial tilts and poles | Derived from IAU pole RA/Dec (angular-momentum pole for retrograde rotators) | IAU WGCCRE |
-| Earth rotation | Greenwich Mean Sidereal Time | IAU sidereal-time formula |
-| N-body gravity | Symplectic leapfrog (kick-drift-kick), adaptive substeps, swept collisions, momentum-conserving merges | Standard geometric integrator |
-| Orbital speeds | Vis-viva equation | Two-body energy |
-| ODE / force fields | Fixed-quality RK4 with per-frame substep cap | Classical fourth-order Runge-Kutta |
-| Data fit | Least-squares over model families, R-squared reported | Standard regression |
-| Mooring chains | Quasi-static catenary (grounded / suspended / taut), submerged weight | Standard catenary mooring analysis |
-| Waves | Linear (Airy) dispersion, three directional components; mean wave-drift force | Linear wave theory |
-| Earth interior | Layer radii and densities | PREM (Preliminary Reference Earth Model), IUGG values |
-| Ray optics | Snell's law, Fresnel R/T (unpolarized), TIR, Cauchy n(λ) = A + B/λ² | Hecht, Optics; Schott / standard glass catalogs |
-| Gravity sandbox | Symplectic leapfrog; orbital elements from h and e vectors; F ∝ 1/rⁿ | Vallado / Battin; Bertrand's theorem |
-| Photoelectric | Einstein K_max = hf − φ; stopping potential; photocurrent ∝ intensity above threshold | CODATA h, e, c; standard metal work functions |
-| Photosynthesis | Pigment absorbance (Gaussian peaks), quantum yield, action spectrum | Chlorophyll a/b and carotenoid in-vivo peaks |
-| Koch diffractal | Fraunhofer I ∝ |FFT2(aperture)|² of Koch snowflake mask | Uozumi et al.; Babinet complement option |
-
-Numbers are checked against known values where possible. For example, the default mooring
-case (30 m depth, 300 m span, 315 m chain at 250 kg/m) reproduces the analytic catenary
-solution to within rounding: about 10.5 t stopper tension at about 68 degrees, touchdown
-about 270 m from the pile. Floating draft includes the vertical chain loads at the stoppers
-(buoy mass plus suspended chain weight).
-
-## Deliberate approximations
-
-Being honest about the model is part of being useful for analysis.
-
-- **Two-body Kepler propagation** in the solar tab: no planet-planet perturbations, no
-  precession beyond JPL secular rates. Halley's period is fixed at the 1986-to-2061
-  interval, so earlier apparitions drift by weeks.
-- **Fixed lunar nodes and phases** (real lunar nodes precess on an 18.6-year cycle).
-- **Planet rotation phases** (except Earth's GMST) carry arbitrary epoch offsets; meridians
-  are not aligned to IAU W0.
-- **Scaled view mode** exaggerates body sizes for visibility and spreads moon orbits to
-  clear the inflated parent radius; distances are never distorted, and true-scale mode
-  shows honest geometry.
-- **Equation Lab and mooring** run in their own scaled scenes; the mooring is quasi-static
-  (per-frame catenary equilibrium), not a full dynamic cable model.
-
----
-
-## Architecture
-
-Vanilla ES modules, no UI framework. `main.js` wires the modules together and owns the
-single render loop; each tab hides the others and runs its own update.
-
-```
-src/
-  main.js            Orchestrator: tabs, routes, render loop, picking, snapshots, physics-lab glue
-  nav/
-    routes.js          Path ↔ instrument map, history sync, popstate
-  capture/
-    recorder.js        Composite MediaRecorder, 10s cap, WebM/MP4 + data exports
-    overlay.js         quirq logo + live equation/lab HUD painter
-    datatrace.js       Per-point expected vs actual sampling
-  sim/               Time and celestial mechanics
-    constants.js       Units, scene scale, unit conversions
-    clock.js           Simulation clock (rate, pause, date jump)
-    kepler.js          Kepler solver, element propagation, vis-viva
-    nbody.js           Symplectic-leapfrog N-body integrator, collisions
-  data/
-    bodies.js          Astronomical dataset: elements, physical data, moons, poles
-  scene/               three.js scene and rendering
-    setup.js           Renderer, camera, composer (bloom), starfield
-    sun.js             Animated photosphere, corona, lens flare
-    bodies3d.js        Planet/moon meshes, orbits, labels, per-frame update
-    comet.js           Halley nucleus, coma, ion + dust tails
-    asteroids.js       Instanced belt + Kuiper point cloud
-    materials.js       Custom GLSL (earth, atmosphere, rings, sun)
-    trails.js          Reusable fading trail system (shared by all tabs)
-  math/                Equation Lab engine
-    expr.js            Safe expression compiler (tokenize, parse, codegen)
-    presets.js         Curated equation presets
-    mathlab.js         Particle integration, surfaces, timeline, superposition
-    datafit.js         Least-squares curve fitting
-  earth/               Earth Lab
-    earthdata.js       PREM layers, oceans, atmosphere, field, gravity data
-    earthlab.js        Cutaway planet + SPM scene
-    mooring.js         Catenary solver + buoy dynamics + wave field
-  light/               Light Lab
-    optics.js          Snell, Fresnel, Cauchy dispersion, multi-bounce ray tracer
-    presets.js         Optical-bench presets (prism, lens, TIR, rainbow, ...)
-    lightlab.js        Bench scene, colored rays, detector, picking
-  gravity/             Gravity Lab
-    grav.js            Leapfrog N-body, orbital elements, tunable F ∝ 1/r^n
-    quantum.js         Pedagogical QG effective models (bounce, running G, ...)
-    presets.js         Classical + quantum-gravity presets
-    gravitylab.js      Potential well, tracers, trails, picking
-  photo/               Photo Lab
-  fractal/             Fractals Lab
-    photoPhysics.js    Einstein PE, work functions, pigment absorbance, action spectrum
-    photolab.js        Cathode tube + chloroplast scenes, photon/electron/O2 particles
-  camera/
-    focus.js           Fly-to and follow-along camera controller
-  textures/
-    procedural.js      Canvas-generated textures for unmapped bodies
-  ui/                  HUD panels (DOM, not WebGL)
-    ui.js              Top bar, body list, info panel, time controls, help, keys
-    lab.js             Physics-lab (N-body experiment) panel
-    equationPanel.js   Equation editor, presets, timeline, commits, data fit
-    earthPanel.js      Interior explorer + mooring workbench
-    lightPanel.js      Optics presets, live params, ray-by-ray table + event log
-    gravityPanel.js    Classical + QG presets, live params, particle table
-    photoPanel.js      PE metals + I-V; photosynthesis mix + action spectrum
-```
-
-**Scene conventions (important when adding anything):**
-
-- Solar tab: 1 AU = 1000 scene units; ecliptic frame maps to scene axes as
-  (x_ecl, z_ecl, -y_ecl) to preserve handedness.
-- Equation Lab: math coordinates are z-up and map to the scene as (x, y, z) -> (X, -Z, Y).
-- Earth Lab planet: 1 scene unit = 100 km. Earth Lab mooring: 1 scene unit = 1 m.
-- Light Lab: 1 scene unit = 1 mm on the optical bench (XY working plane).
-- Gravity Lab: physics in km; each preset sets `sceneScale` (km to scene units).
-- Keep all physics in real units (km, kg, s, N, m, mm, nm) and convert to scene units only at the
-  render boundary.
-
----
-
-## Contributing
-
-Contributions are welcome, whether that is a new equation preset, another celestial body,
-a mooring improvement, a bug fix, or a correction to a physical constant. This is a science
-tool first, so accuracy and honesty about the model matter as much as clean code.
-
-### Getting set up
-
-```bash
-git clone https://github.com/sharmasuraj0123/solar-claude.git
-cd solar-claude
-npm install
+git clone --branch quirq https://github.com/quirq-ai/quirqy.git
+cd quirqy
+npm ci
 npm run dev
 ```
 
-There is no test runner or linter wired up yet. The bar for a change is: **`npm run build`
-passes, the app runs with a clean console, and you have driven the affected feature in the
-browser to confirm it behaves.**
+Open [Data Lab](http://localhost:5174/data) or [Activity Lab](http://localhost:5174/activity). The default development port is `5174`; Vite prints the actual address if that port is occupied. Opening `/` opens the Solar System.
 
-### Ways to extend
+```bash
+npm run build       # Production files in dist/
+npm run preview     # Preview the production build, normally on port 5174
+npm test
+```
 
-- **Add a celestial body:** add an entry to `src/data/bodies.js` following the documented
-  shape (Keplerian elements as `[value at J2000, rate per century]`, physical data, poles
-  from IAU RA/Dec, optional moons). The scene, orbit line, label and picking are generated
-  automatically.
-- **Add an equation preset:** add to `src/math/presets.js` with a `type`
-  (`parametric` | `ode` | `force` | `surface`), the expressions, parameter ranges, initial
-  conditions and a camera framing. The editor, sliders and integrator pick it up.
-- **Add a mooring scenario or Earth data:** parameters live in `src/earth/mooring.js`
-  (`MooringSim.params`) and the interior/field/atmosphere dataset in
-  `src/earth/earthdata.js`.
-- **Add an optics preset:** add to `src/light/presets.js` with a `build(params)` that
-  returns surfaces, elements, angles/wavelengths (and optional `bundle` y-offsets or
-  `forceReflectOn` bounce list). The panel, tracer and detector pick it up.
-- **Add a gravity preset:** add to `src/gravity/presets.js` with bodies in km/kg/s and a
-  `sceneScale`. Optional `verify(sim)` chip runs against analytic Kepler / force-law checks.
+No application backend, environment file, GitHub token, or account setup is required. Live repository imports need network access to GitHub; the bundled example datasets load without a GitHub request.
 
-### Accuracy bar
+## Start exploring
 
-- **Cite the source for any physical number** you add or change, in a comment or the PR.
-  If it is a measured or standard value (a radius, a mass, an orbital element, a material
-  property), say where it came from.
-- **Verify quantitatively** when you touch a solver. Compare against an analytic result, a
-  published value, or a known limiting case, and note the comparison in the PR. "It looks
-  right" is not enough for a tool people reason with.
-- **If you find a wrong number, that is a valid and valuable contribution.** Open an issue
-  or PR with the correct value and its source.
+1. Open **Data** or **Activity** in the dock.
+2. Choose the preloaded **quirq-ai/xo** or **quirq-ai/xo-space** example, or enter a public repository URL such as `https://github.com/owner/repository` and choose **Load**.
+3. Select a scene view above the dock's app row. Use **Timeline** to show or hide playback controls, step through records, scrub, or change speed.
+4. Click a scene item to inspect it. Use **Frame view** or **F** to return to the whole scene; **H** opens that lab's help.
+5. Read **Data coverage** before interpreting a sample or exporting it.
 
-### Code style
+The selected repository is shared between Data and Activity. The two labs use separate datasets and independent timelines. Data imports pin the repository's default branch to one commit. Branch, file, and query URLs are not accepted.
 
-- Vanilla ES modules and three.js 0.170. No framework, no build magic beyond Vite.
-- Match the surrounding code: small focused modules, real units in the physics layer,
-  scene-unit conversion only at the edges, and comments that explain the *why* (especially
-  the coordinate frames and any non-obvious physics or numerical choice).
-- Keep the render loop lean. Heavy work should be throttled, cached, or spread across
-  frames the way the asteroid belt and water mesh already are.
+## Data Lab
 
-### Pull requests
+Data Lab turns repository hierarchy and sampled first-parent commit history into two views:
 
-1. Branch off `main`.
-2. Keep the change focused; unrelated cleanups belong in their own PR.
-3. In the description, say what you changed, how you verified it (build, console, the
-   in-browser behavior you drove), and cite sources for any new physical constants.
-4. Screenshots or a short clip help a lot for anything visual.
+- **Structure:** folders are carbon-like anchors and files are colored atoms, with file categories explained in the Scene guide. Files connect to their actual folders. While playing, folder marbles become enclosures around their contents and travelling current marks the current commit. Pausing restores the folder marbles and visible pathways. Brightness builds with loaded commit touches and rewinds with the timeline.
+- **Growth tree:** directories form branches, files form leaves, and additions and removals animate through history. Branch weight follows mapped file counts. Leaf area uses known snapshot byte sizes with readability limits; historical byte sizes are not invented.
 
-### Reporting issues
+The Structure root shows the current commit author's portrait and name. During playback it glows; when paused, a wide glass message panel shows **only the commit title**, the commit ID, expandable changed files, line additions/deletions, and a GitHub link. Click the author's photo or name to collapse or reopen this panel. Unknown or unavailable portraits use initials.
 
-Useful reports include what you expected, what happened, the instrument and any parameter
-values, and console output if there was an error. For scientific corrections, include the
-authoritative source.
+**Frame roots** in Growth tree enlarges the root system and shortens the canopy around the same ground junction. Roots follow the real directory hierarchy. Every distinct loaded commit touching a file adds the same repository-calibrated length step, retained through renames and rewound with playback. The inspector reports touches and added length; compare added length within one repository and touch counts across repositories. Thickness is a visual effect. Dot-prefixed files and folders are hidden from roots, while the underlying dataset and other views retain them.
 
----
+Root focus enables unrestricted rotation and sideways roll: **Shift-drag horizontally** or **twist two fingers**. **Frame view / F** restores upright orbit and canopy framing. Search files, focus a folder, inspect a selected file, and use **Data coverage → Export loaded data** to download the loaded metadata as JSON.
 
-## Credits
+These visual encodings describe loaded repository structure and changes, not runtime dependencies, code quality, or individual productivity. The scene may map fewer files than the loaded dataset; the panel reports coverage and mapped counts.
 
-- **Ephemerides:** E.M. Standish, "Keplerian Elements for Approximate Positions of the
-  Major Planets" (JPL / NASA).
-- **Interior model:** PREM (Dziewonski and Anderson, 1981) and IUGG reference values.
-- **Textures:** [Solar System Scope](https://www.solarsystemscope.com/textures/)
-  (CC BY 4.0), based on NASA imagery.
-- **Engine:** [three.js](https://threejs.org/) and [Vite](https://vitejs.dev/).
-- **Brand:** the XO mark.
+## Activity Lab
 
-Texture assets are CC BY 4.0 (see Solar System Scope). Application code has no license
-declared yet; if you intend to reuse it, open an issue to confirm terms.
+Activity Lab visualizes actual public GitHub collaboration records in three arrangements:
+
+| View | Arrangement |
+| --- | --- |
+| **Constellation** | Records grouped by activity type |
+| **Orbits** | Records arranged around the repository |
+| **Contributors** | Related participation grouped around contributors |
+
+All three views use the same records, filters, and dated event timeline. Select a body or an Activity index entry to inspect it and follow its GitHub link; double-click a body to focus it. Search by title, number, or contributor, filter activity types, and choose an individual contributor.
+
+**Pull request and issue clusters retain their total size**, including closed and merged history, while only open work is visible by default. To reveal loaded closed or merged records, select **only Pull requests** or **only Issues** in the Scene guide and enable **Show historical**. This toggle affects that selected category. It does not resize its cluster. Where a complete repository count is unavailable, **≥** marks a loaded lower bound; no bodies are invented for records that were not loaded.
+
+Contributors receive the largest area and portrait circles, with GitHub handles and space reserved for readable portraits and labels. Verified example portraits are bundled; other available profile photos load from GitHub, with initials as a fallback.
+
+**Refresh from GitHub** fetches a newer bounded sample. **Data coverage → Export snapshot** downloads the loaded metadata as JSON.
+
+Playback reveals records at their returned timestamps and sampled issue events. Current statuses, titles, ownership, and contributor counts describe the fetched snapshot, not a reconstructed historical state. Contributors without historical timestamps stay visible during replay. Contribution counts are GitHub's aggregate commit counts, not collaboration scores or productivity measures.
+
+## Dock, panels, and appearance
+
+The repository apps share one dock and glass-panel system:
+
+- **Logo in the middle of the bottom app row:** drag it to move the dock; click to smoothly collapse everything to the logo, then click again to expand. Controls keep their state. Reduced-motion preferences remove the transition.
+- **Edit beside the logo (under it on narrow screens):** upload a PNG, JPG, WebP, or SVG up to 5 MB, or reset the default logo. Uploads are rasterized to a bounded PNG with transparency retained. The logo is shared by the dock, loading screen, favicon, and the legacy recording overlay.
+- **Data, Activity, and Apps:** switch repository labs or open the other 3D instruments. Repository pages keep the top bar clear; scene choices appear above the dock's apps.
+- **Timeline and Opacity:** independent controls in the dock. Panel opacity ranges from **0–100%** while text and controls remain readable. Clearer glass increases simulated edge refraction; more opaque glass adds softness. Browsers without SVG backdrop refraction retain blur and highlights. Reduced-transparency and high-contrast preferences use solid surfaces.
+- **Floating sidebars:** drag their headers and use the header's **− / +** control to collapse or expand. On narrow screens, page buttons reopen the corresponding sheets.
+- **Position shortcuts:** focused drag handles support Arrow keys, **Shift + Arrow** for larger steps, and **Home** to reset. Double-click a handle to restore its default position. Dock and panel positions are remembered separately for desktop and mobile.
+
+Glass panels and the commit message panel share appearance tokens. The current user-facing appearance control is opacity; developers can adjust shared colors and material rules in `src/ui/glass-surfaces.css`.
+
+### Repository scene controls
+
+| Action | Control |
+| --- | --- |
+| Orbit / pan | Drag / right-drag |
+| Zoom | Wheel or pinch |
+| Inspect | Click a scene item |
+| Focus an activity | Double-click an Activity body |
+| Play / pause | Space |
+| Previous / next commit or activity event | Left / Right Arrow |
+| Frame scene | F |
+| Help | H |
+| Close help | Escape |
+| PNG scene snapshot in Data Lab | S |
+
+Shortcuts defer to focused inputs and controls. Root-focus rotation in Data Lab has the additional gestures described above.
+
+## Bundled examples and live-import limits
+
+**XO and XO Space are the only bundled repository examples.** They are captured snapshots, not live clones at runtime. Choosing an example loads checked-in JSON and known local portraits without contacting the GitHub API.
+
+| Example | Data snapshot | Data history | Activity snapshot |
+| --- | --- | --- | --- |
+| `quirq-ai/xo` | 2026-10-18, pinned `b61bc4c` | 44 first-parent commits | 2026-10-18 |
+| `quirq-ai/xo-space` | 2026-10-18, pinned `577850b` | 50 first-parent commits | 2026-10-18 |
+
+The example's capture time, pinned commit, and limitations are available in the dataset and coverage UI. Startup normally opens XO; a saved repository session can restore the previous selection. New GitHub activity does not appear in a bundled snapshot until it is refreshed.
+
+Live Data imports offer **8, 12, or 20 recent first-parent commits**, defaulting to 20. The loader retains at most **2,500 paths** and **200 changed files per commit**, prioritizing sampled changes. Merge changes are compared with the first parent; side-branch commits are not replayed separately. GitHub tree truncation, omitted paths, partial diffs, and submodule limitations are reported under Data coverage.
+
+Live Activity imports make at most **20 public API requests**. Source limits are:
+
+| Source | Maximum requested |
+| --- | --- |
+| Recently updated pull requests, all states | 20 |
+| Issue/PR listing, all states | 50 |
+| Issue-only search results, all states | 50 |
+| Open pull requests / open issues | 50 each |
+| Conversation comments / inline review comments | 30 each |
+| Newest forks | 20 |
+| Contributors | 30 |
+| Issue workflow events | 50 |
+| Reviews | 30 per PR for up to 8 loaded PRs |
+
+These are source-page limits, not a promise of complete history or a single final item count: sources are merged and deduplicated, and issue events can supply related records. Public API access and search can be limited or denied. Partial Activity results identify unavailable sources; previously usable data remains available where possible. Use the bundled examples when GitHub is unavailable.
+
+### Refresh Data's bundled snapshots
+
+Normal users do **not** need Git or the local clones to open examples. Maintainers rebuilding the Data snapshots need Git and two bare clones outside the app repository:
+
+```bash
+mkdir -p ../.workspace-cache/observatory-examples
+git clone --bare --depth=64 --single-branch --branch main https://github.com/quirq-ai/xo.git ../.workspace-cache/observatory-examples/xo.git
+git clone --bare --depth=64 --single-branch --branch main https://github.com/quirq-ai/xo-space.git ../.workspace-cache/observatory-examples/xo-space.git
+npm run examples:refresh
+```
+
+For existing clones, fetch first:
+
+```bash
+git -C ../.workspace-cache/observatory-examples/xo.git fetch --depth=64 origin main:refs/heads/main
+git -C ../.workspace-cache/observatory-examples/xo-space.git fetch --depth=64 origin main:refs/heads/main
+npm run examples:refresh
+```
+
+The generator reads Git objects without checking out or executing repository code. If it reports a shallow first-parent boundary, deepen that clone and rerun. Use `npm run examples:refresh -- --help` for custom cache/output paths, a 1–50 commit limit, pinned refs, and a reproducible capture timestamp.
+
+Verified author mappings live in `src/data-lab/examples/author-profiles.json`. Unmapped commits use initials until their GitHub identity is verified. This script refreshes **Data snapshots only**. Activity examples are separate captured public API datasets in `src/activity-lab/examples/`; the Activity **Refresh from GitHub** button updates the browser's loaded snapshot, not those source files.
+
+## Storage and privacy
+
+Quirqy runs in your browser. Imports use public GitHub reads without credentials or tokens; imported repository code is never executed. Retained repository datasets contain metadata, such as paths, commit messages, authors, change counts, and collaboration records, rather than source blobs.
+
+Browser storage is best-effort:
+
+- **Data:** IndexedDB caches metadata snapshots, with a small localStorage pointer for the current selection. Defaults allow four cache entries and 8 MiB total; an individual saved snapshot is limited to 4 MiB.
+- **Activity:** the last complete loaded snapshot is cached in localStorage when its serialized size fits the application's limit.
+- **Preferences:** the connected repository URL, logo, panel opacity, view choices, and floating positions are stored locally. If storage is unavailable, features retain in-memory state where supported.
+
+There is **no login or account-based synchronization**. A custom logo or saved session belongs to this browser and site origin; another device, browser, port, or deployed origin has its own storage. Clearing the site's browser data removes these preferences and caches. GitHub API requests and non-bundled profile pictures still make network requests. The app does not install an offline service worker.
+
+## Other 3D instruments
+
+Open these through **Apps** in the repository dock or by their direct URLs. Their old top-navbar links are hidden; their routes and implementations remain available.
+
+| Instrument | Route | What it explores |
+| --- | --- | --- |
+| Solar System | `/` | Keplerian planetary motion, moons, Halley, belts, and an interactive N-body experiment |
+| Equation Lab | `/equation` | Parametric curves, ODE/force fields, surfaces, swarms, superposition, data fitting, and saved experiment versions |
+| SPM Mooring | `/spm` | Buoy motion, chains, weather inputs, catenary shape, and tension |
+| Earth Lab | `/earth` | Earth layers, composition, atmosphere, magnetic field, and interior gravity |
+| Light Lab | `/light` | Ray tracing, refraction, Fresnel reflection, dispersion, mirrors, and lenses |
+| Gravity Lab | `/gravity` | Orbital mechanics, N-body particles, tunable force laws, and pedagogical quantum-gravity models |
+| Photo Lab | `/photo` | Photoelectric effect and a simplified photosynthesis model |
+| Fractals Lab | `/fractals` | Escape-time fractals, 3D raymarched fractals, IFS, and diffraction patterns |
+
+The scientific instruments retain their original numerical methods: JPL approximate planetary elements, leapfrog N-body integration, RK4 equation integration, quasi-static catenary mooring, and Snell/Fresnel/Cauchy optics. These are models with deliberate approximations. For example, solar ephemerides omit full planetary perturbations, the mooring is not a full dynamic cable model, and quantum-gravity modes are pedagogical effective models.
+
+### Capture availability
+
+- **Data Lab:** **S** downloads a PNG scene render. The camera/recording button is not part of its dock.
+- **Activity Lab:** exports the loaded activity snapshot as JSON. It does not currently expose screenshot or video recording.
+- **Scientific instruments:** the existing runtime retains PNG capture with **S** and canvas video recording with **V**, up to **10 seconds**, where the browser supports `MediaRecorder` and canvas capture. It records the rendered canvas plus its custom logo/readout overlay, not the entire browser window or arbitrary DOM panels. Available video formats depend on browser support. The legacy recorder also exports sampled JSON/CSV traces; trace support varies by instrument.
+
+The repository labs use separate runtimes and do not inherit the legacy video recorder.
+
+## Deploy
+
+```bash
+npm ci
+npm run build
+```
+
+Publish **`dist/`** to a static host. Configure unknown application routes to serve `index.html` so direct visits to `/data`, `/activity`, and the instrument routes work. Serve existing assets normally.
+
+The current app uses root-relative routes and asset URLs; deploy at the site's root. Hosting under a subdirectory requires route and asset-path changes. No backend or application environment variables are required. `PORT` optionally changes the local Vite development/preview port. `npm run preview` is for checking a build locally.
+
+## Development
+
+Quirqy uses vanilla JavaScript ES modules, **three.js 0.170**, and **Vite 6**.
+
+| Path | Responsibility |
+| --- | --- |
+| `src/bootstrap.js` | Shared UI startup and runtime selection |
+| `src/data-lab/` | Repository import, commit model, Structure/Growth tree scenes, controls, and examples |
+| `src/activity-lab/` | Public collaboration loader, activity model, 3D views, contributor portraits, and examples |
+| `src/repository/` | Shared repository connection and persisted Data session |
+| `src/ui/` | Glass material, movable panels, dock apps/disclosure/motion, timelines, and legacy panels |
+| `src/branding/` | Local logo preference and editor |
+| `src/nav/routes.js` | Stable route map |
+| `src/main.js` | Scientific instrument runtime and render loop |
+| `src/scene/`, `src/camera/` | Shared rendering and camera tools |
+| `src/sim/`, `src/math/`, `src/earth/`, `src/spm/`, `src/light/`, `src/gravity/`, `src/photo/`, `src/fractal/` | Scientific engines and scenes |
+| `src/capture/` | Legacy canvas video, overlays, and sampled traces |
+| `scripts/build-data-examples.mjs` | Reproducible Data metadata snapshots from bare clones |
+
+Read [AGENTS.md](AGENTS.md) before changing the interface. Every page must remain a meaningful 3D visualization, with Data Lab as the shared visual reference. Activity Lab is about collaboration and community records, not a substitute commit/file-history scene.
+
+Branch from `quirq`, keep changes focused, and run:
+
+```bash
+npm test
+npm run build
+```
+
+For UI changes, also exercise the affected flow in a browser at desktop and narrow widths. Preserve keyboard access, reduced-motion behavior, shared glass styling, and truthful data-coverage notices. Keep generated builds, node_modules, and local clone caches out of commits.
+
+When changing a scientific solver or physical constant, cite its source and compare the result with an analytic solution, published value, or known limiting case. Pull requests should explain the behavior change and relevant validation.
+
+## Credits and license
+
+Quirqy continues the [original Observatory project](https://github.com/sharmasuraj0123/observatory).
+
+- **Planetary elements:** E. M. Standish, JPL/NASA, “Keplerian Elements for Approximate Positions of the Major Planets.”
+- **Earth interior:** PREM (Dziewonski and Anderson, 1981) and IUGG reference values.
+- **Textures:** [Solar System Scope](https://www.solarsystemscope.com/textures/), CC BY 4.0, based on NASA imagery.
+- **Engine and tooling:** [three.js](https://threejs.org/) and [Vite](https://vitejs.dev/).
+- **Brand:** the Quirq/XO mark. Repository records and profile images retain their source attribution.
+
+Texture assets are CC BY 4.0 as noted above. **Application code has no license declared yet.** The texture license does not license the application code; contact the maintainers to confirm reuse terms.

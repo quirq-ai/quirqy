@@ -63,7 +63,7 @@ export function mountLogoEditor() {
       <h2 id="logo-editor-title">Your logo</h2>
       <button type="button" class="logo-editor-close" aria-label="Close logo editor">×</button>
     </div>
-    <p id="logo-editor-description">Make Observatory yours. Your logo stays saved in this browser.</p>
+    <p id="logo-editor-description">Make Quirqy yours. Your logo stays saved in this browser.</p>
     <div class="logo-editor-preview"><img alt="Current logo preview" /></div>
     <button type="button" class="btn logo-editor-upload" autofocus>Upload image</button>
     <input id="logo-upload" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden />
@@ -122,7 +122,7 @@ export function mountLogoEditor() {
     const custom = hasCustomLogo();
     for (const image of [...document.querySelectorAll('.brand-mark, .load-logo'), preview]) {
       image.src = url;
-      image.alt = custom ? 'Custom logo' : 'quirq observatory';
+      image.alt = custom ? 'Custom logo' : 'Quirqy';
       image.onerror = () => {
         image.onerror = null;
         image.src = DEFAULT_LOGO_URL;

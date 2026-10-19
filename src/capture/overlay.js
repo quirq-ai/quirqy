@@ -113,12 +113,12 @@ export function createOverlayPainter() {
     ctx.fillStyle = '#d7dfef';
     ctx.font = `600 ${Math.max(15, Math.round(w * 0.018))}px Inter, system-ui, sans-serif`;
     const textX = pad + logoSize + 12;
-    const brand = 'quirq observatory';
+    const brand = 'Quirqy';
     let headerRight = textX + ctx.measureText(brand).width;
     ctx.fillText(brand, textX, pad + 2);
     ctx.fillStyle = '#8b96ad';
     ctx.font = `500 ${Math.max(11, Math.round(w * 0.012))}px Inter, system-ui, sans-serif`;
-    const title = hud.title || 'quirq observatory';
+    const title = hud.title || 'Quirqy';
     headerRight = Math.max(headerRight, textX + ctx.measureText(title).width);
     ctx.fillText(title, textX, pad + Math.round(logoSize * 0.55));
 

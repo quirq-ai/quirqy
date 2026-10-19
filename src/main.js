@@ -597,7 +597,7 @@ async function init() {
       if (!blob) return;
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = `quirq-observatory-${captureTag()}.png`;
+      a.download = `quirqy-${captureTag()}.png`;
       a.click();
       setTimeout(() => URL.revokeObjectURL(a.href), 5000);
     }, 'image/png');
@@ -644,14 +644,14 @@ async function init() {
 
   const recorder = createRecorder({
     sourceCanvas: renderer.domElement,
-    getFilename: () => `quirq-observatory-${captureTag()}`,
+    getFilename: () => `quirqy-${captureTag()}`,
     getSnapshot: getTraceSnapshot,
     onStateChange: (rec) => {
       btnRecord.classList.toggle('recording', rec);
       btnRecord.textContent = rec ? '⏹' : '⏺';
       btnRecord.title = rec
         ? 'Stop recording (V)'
-        : 'Record trace video with quirq observatory HUD + data, max 10s (V)';
+        : 'Record trace video with Quirqy HUD + data, max 10s (V)';
       btnRecord.setAttribute('aria-pressed', rec ? 'true' : 'false');
       recBadge.classList.toggle('on', rec);
       if (!rec) recBadge.textContent = '● REC';

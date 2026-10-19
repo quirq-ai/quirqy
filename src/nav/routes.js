@@ -1,17 +1,17 @@
-// Path routes for quirq observatory instruments.
+// Path routes for Quirqy instruments.
 // Each section has a stable URL so it can be bookmarked and shared.
 
 export const ROUTES = [
-  { mode: 'data', path: '/data', title: 'quirq observatory · Data Lab', aliases: ['/data-lab'] },
-  { mode: 'activity', path: '/activity', title: 'quirq observatory · Activity Lab', aliases: ['/activity-lab'] },
-  { mode: 'spm', path: '/spm', title: 'quirq observatory · SPM Mooring', aliases: ['/mooring'] },
-  { mode: 'solar', path: '/', title: 'quirq observatory · Solar System', aliases: ['/solar'] },
-  { mode: 'math', path: '/equation', title: 'quirq observatory · Equation Lab', aliases: ['/math', '/equations'] },
-  { mode: 'earth', path: '/earth', title: 'quirq observatory · Earth Lab', aliases: [] },
-  { mode: 'light', path: '/light', title: 'quirq observatory · Light Lab', aliases: ['/optics'] },
-  { mode: 'gravity', path: '/gravity', title: 'quirq observatory · Gravity Lab', aliases: [] },
-  { mode: 'photo', path: '/photo', title: 'quirq observatory · Photo Lab', aliases: ['/photosynthesis', '/photoelectric'] },
-  { mode: 'fractal', path: '/fractals', title: 'quirq observatory · Fractals Lab', aliases: ['/fractal'] },
+  { mode: 'data', path: '/data', title: 'Quirqy · Data Lab', aliases: ['/data-lab'] },
+  { mode: 'activity', path: '/activity', title: 'Quirqy · Activity Lab', aliases: ['/activity-lab'] },
+  { mode: 'spm', path: '/spm', title: 'Quirqy · SPM Mooring', aliases: ['/mooring'] },
+  { mode: 'solar', path: '/', title: 'Quirqy · Solar System', aliases: ['/solar'] },
+  { mode: 'math', path: '/equation', title: 'Quirqy · Equation Lab', aliases: ['/math', '/equations'] },
+  { mode: 'earth', path: '/earth', title: 'Quirqy · Earth Lab', aliases: [] },
+  { mode: 'light', path: '/light', title: 'Quirqy · Light Lab', aliases: ['/optics'] },
+  { mode: 'gravity', path: '/gravity', title: 'Quirqy · Gravity Lab', aliases: [] },
+  { mode: 'photo', path: '/photo', title: 'Quirqy · Photo Lab', aliases: ['/photosynthesis', '/photoelectric'] },
+  { mode: 'fractal', path: '/fractals', title: 'Quirqy · Fractals Lab', aliases: ['/fractal'] },
 ];
 
 const byMode = Object.fromEntries(ROUTES.map((r) => [r.mode, r]));

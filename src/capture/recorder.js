@@ -56,7 +56,7 @@ export function createRecorder({
   let videoTrack = null;
   let autoStop = null;
   let startedAt = 0;
-  let basename = 'quirq-observatory-trace';
+  let basename = 'quirqy-trace';
   let recording = false;
 
   function isRecording() {

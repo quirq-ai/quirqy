@@ -1,4 +1,4 @@
-# Observatory project rules
+# Quirqy project rules
 
 ## Every page is a 3D visualization
 

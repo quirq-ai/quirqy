@@ -34,7 +34,7 @@ const countText = (value, exact = true) => `${exact ? '' : '≥'}${Number(value 
 
 export async function mountActivityLab() {
   document.body.dataset.mode = 'activity';
-  document.title = 'quirq observatory · Activity Lab';
+  document.title = 'Quirqy · Activity Lab';
   for (const tab of document.querySelectorAll('#tab-switch a')) tab.classList.toggle('active', tab.id === 'tab-activity');
   const $ = selector => document.querySelector(selector);
   const lifetime = new AbortController();
