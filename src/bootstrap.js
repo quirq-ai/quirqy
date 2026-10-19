@@ -31,8 +31,19 @@ if (import.meta.hot) import.meta.hot.dispose(() => {
 const mode = modeFromLocation();
 if (mode === 'data' || mode === 'activity') {
   const label = mode === 'activity' ? 'Activity Lab' : 'Data Lab';
-  const entry = mode === 'activity' ? import('./activity-lab/app.js') : import('./data-lab/app.js');
-  entry.then(module => mode === 'activity' ? module.mountActivityLab() : module.mountDataLab())
+  // Keep each import in its own loader: combining the imports in a conditional
+  // can make the production preload helper attach only one lab's stylesheet.
+  const loaders = {
+    activity: async () => {
+      const { mountActivityLab } = await import('./activity-lab/app.js');
+      return mountActivityLab();
+    },
+    data: async () => {
+      const { mountDataLab } = await import('./data-lab/app.js');
+      return mountDataLab();
+    },
+  };
+  loaders[mode]()
     .catch((error) => {
       console.error(`${label} could not start:`, error);
       document.getElementById('loading')?.remove();
