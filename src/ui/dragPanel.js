@@ -11,6 +11,7 @@ export function makePanelDraggable(el, {
   handleSelector = '.list-title, .panel-drag-handle',
   storageKey = null,
   addHint = true,
+  anchorPosition = false,
 } = {}) {
   if (!el) return;
   if (controllers.has(el)) return controllers.get(el);
@@ -86,7 +87,14 @@ export function makePanelDraggable(el, {
     try {
       const value = JSON.parse(localStorage.getItem(key));
       if (value && Number.isFinite(value.left) && Number.isFinite(value.top)) {
-        return { left: value.left, top: value.top };
+        const saved = { left: value.left, top: value.top };
+        // Docks retain their logo position even when saved while collapsed.
+        // Old top-left-only preferences remain valid for every panel.
+        if (anchorPosition && Number.isFinite(value.anchorX) && Number.isFinite(value.anchorY)) {
+          saved.anchorX = value.anchorX;
+          saved.anchorY = value.anchorY;
+        }
+        return saved;
       }
     } catch { /* A blocked or malformed preference must not prevent dragging. */ }
     return null;
@@ -102,7 +110,7 @@ export function makePanelDraggable(el, {
     } catch { /* Position still works for this session when storage is unavailable. */ }
   }
 
-  function applyPosition(left, top) {
+  function applyPosition(left, top, anchor = null) {
     const before = el.getBoundingClientRect();
     // Hidden sheets have no usable dimensions. ResizeObserver restores them
     // after opening, before a user can interact with an offscreen handle.
@@ -116,6 +124,11 @@ export function makePanelDraggable(el, {
     el.style.setProperty('transform', 'none', 'important');
     // Width changes can wrap contents, so clamp against the resulting height.
     const bounds = el.getBoundingClientRect();
+    if (anchorPosition && anchor && Number.isFinite(anchor.anchorX) && Number.isFinite(anchor.anchorY)) {
+      const handleBounds = handle.getBoundingClientRect();
+      left = anchor.anchorX - (handleBounds.left + handleBounds.width / 2 - bounds.left);
+      top = anchor.anchorY - (handleBounds.top + handleBounds.height / 2 - bounds.top);
+    }
     position = {
       left: Math.round(Math.max(EDGE_GAP, Math.min(left, window.innerWidth - bounds.width - EDGE_GAP))),
       top: Math.round(Math.max(EDGE_GAP, Math.min(top, window.innerHeight - bounds.height - EDGE_GAP))),
@@ -123,6 +136,11 @@ export function makePanelDraggable(el, {
     el.style.setProperty('left', `${position.left}px`, 'important');
     el.style.setProperty('top', `${position.top}px`, 'important');
     el.classList.add('is-user-positioned');
+    if (anchorPosition) {
+      const handleBounds = handle.getBoundingClientRect();
+      position.anchorX = handleBounds.left + handleBounds.width / 2;
+      position.anchorY = handleBounds.top + handleBounds.height / 2;
+    }
   }
 
   function refresh() {
@@ -139,7 +157,7 @@ export function makePanelDraggable(el, {
       if (!remembered.has(mobile)) remembered.set(mobile, readPosition());
       position = remembered.get(mobile);
     }
-    if (position && !gesture) applyPosition(position.left, position.top);
+    if (position && !gesture) applyPosition(position.left, position.top, position);
   }
 
   function scheduleRefresh() {
@@ -295,6 +313,28 @@ export function makePanelDraggable(el, {
     if (originalDraggable === null) el.removeAttribute('data-draggable');
     else el.setAttribute('data-draggable', originalDraggable);
     controllers.delete(el);
+  };
+  // A dock can change its footprint without changing the user's grab point.
+  // Keep this on the existing controller so the resize observer and subsequent
+  // drags use the new width instead of restoring the last expanded/collapsed one.
+  dispose.reflowAroundAnchor = (update, anchor = handle) => {
+    if (disposed) return;
+    cancelGesture();
+    const before = anchor.getBoundingClientRect();
+    update();
+    preferredWidth = null;
+    restoreStyles(originalStyles.filter(([name]) => name === 'width' || name === 'max-width'));
+    const bounds = el.getBoundingClientRect();
+    const after = anchor.getBoundingClientRect();
+    if (!before.width || !before.height || !bounds.width || !bounds.height) {
+      scheduleRefresh();
+      return;
+    }
+    applyPosition(
+      before.left + before.width / 2 - (after.left + after.width / 2 - bounds.left),
+      before.top + before.height / 2 - (after.top + after.height / 2 - bounds.top),
+    );
+    savePosition();
   };
   controllers.set(el, dispose);
   return dispose;

@@ -1,4 +1,5 @@
 import { makePanelDraggable } from './dragPanel.js';
+import { mountDockDisclosure } from './dock-disclosure.js';
 import './floating-layout.css';
 import { REPOSITORY_LABS } from './repository-labs.js';
 import { mountRepositoryDockApps } from './repository-dock-apps.js';
@@ -66,8 +67,10 @@ export function mountFloatingLayout() {
   }
 
   function release(element, entry) {
+    entry.disclosure?.();
     entry.dispose?.();
     entry.resize?.disconnect();
+    entry.edit?.remove();
     if (entry.grip) {
       entry.grip.querySelector('.panel-dock-logo').onerror = null;
       entry.grip.remove();
@@ -107,8 +110,6 @@ export function mountFloatingLayout() {
       const grip = document.createElement('button');
       grip.type = 'button';
       grip.className = 'panel-dock-grip';
-      grip.setAttribute('aria-label', 'Move timeline dock');
-      grip.title = 'Drag logo to move · Arrow keys to move · Home or double-click to reset';
       const logo = document.createElement('img');
       logo.className = 'panel-dock-logo';
       logo.alt = '';
@@ -117,9 +118,21 @@ export function mountFloatingLayout() {
       grip.append(logo);
       applyDockLogo(grip);
       dock.prepend(grip);
+      const edit = document.createElement('button');
+      edit.type = 'button';
+      edit.className = 'panel-dock-edit';
+      edit.textContent = 'Edit';
+      edit.setAttribute('data-logo-editor-trigger', '');
+      edit.setAttribute('aria-label', 'Edit logo');
+      edit.setAttribute('aria-haspopup', 'dialog');
+      edit.setAttribute('aria-controls', 'logo-editor');
+      edit.setAttribute('aria-expanded', 'false');
+      edit.title = 'Edit logo';
+      grip.after(edit);
       const dispose = makePanelDraggable(dock, {
-        handleSelector: '.panel-dock-grip', storageKey: `observatory-${id}-pos`, addHint: false,
+        handleSelector: '.panel-dock-grip', storageKey: `observatory-${id}-pos`, addHint: false, anchorPosition: true,
       });
+      const disclosure = mountDockDisclosure(dock, grip, dispose);
       // Reserve enough room above the dock for nearby side panels.
       const updateHeight = () => {
         const height = dock.getBoundingClientRect().height;
@@ -131,7 +144,7 @@ export function mountFloatingLayout() {
       const resize = new ResizeObserver(updateHeight);
       resize.observe(dock);
       updateHeight();
-      panels.set(dock, { dispose, resize, grip });
+      panels.set(dock, { dispose, resize, grip, edit, disclosure });
     }
     attachRepositoryControls();
   }

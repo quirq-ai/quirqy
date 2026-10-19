@@ -75,14 +75,28 @@ export function mountAppsLauncher(host) {
     if (!isOpen()) return;
     if (!trigger.isConnected) { close({ restoreFocus: false }); return; }
     const anchor = trigger.getBoundingClientRect();
-    const bounds = popover.getBoundingClientRect();
+    if (!anchor.width || !anchor.height) { close({ restoreFocus: false }); return; }
+    // Leave the whole dock clear, including the logo above the app buttons.
+    // Otherwise the first app can intercept a click intended to collapse it.
+    const dock = trigger.closest('.panel-dock')?.getBoundingClientRect() || anchor;
     const viewport = window.visualViewport;
     const width = viewport?.width || window.innerWidth;
     const height = viewport?.height || window.innerHeight;
     const offsetX = viewport?.offsetLeft || 0, offsetY = viewport?.offsetTop || 0;
+    const safeTop = offsetY + 12, safeBottom = offsetY + height - 12;
+    const aboveEdge = Math.min(dock.top - 12, safeBottom);
+    const belowEdge = Math.max(dock.bottom + 12, safeTop);
+    const aboveSpace = Math.max(0, aboveEdge - safeTop);
+    const belowSpace = Math.max(0, safeBottom - belowEdge);
+    // Measure afresh so a previous constrained opening never pins the height.
+    popover.style.maxHeight = `${Math.max(0, height - 24)}px`;
+    popover.style.maxWidth = `${Math.max(1, width - 24)}px`;
+    const naturalHeight = popover.getBoundingClientRect().height;
+    const above = aboveSpace >= naturalHeight || (belowSpace < naturalHeight && aboveSpace >= belowSpace);
+    popover.style.maxHeight = `${Math.floor(above ? aboveSpace : belowSpace)}px`;
+    const bounds = popover.getBoundingClientRect();
     const left = Math.max(offsetX + 12, Math.min(anchor.right - bounds.width, offsetX + width - bounds.width - 12));
-    const above = anchor.top - bounds.height - 12;
-    const top = Math.max(offsetY + 12, Math.min(above >= offsetY + 12 ? above : anchor.bottom + 12, offsetY + height - bounds.height - 12));
+    const top = above ? aboveEdge - bounds.height : belowEdge;
     popover.style.left = `${Math.round(left)}px`;
     popover.style.top = `${Math.round(top)}px`;
   }

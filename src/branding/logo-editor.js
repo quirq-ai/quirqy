@@ -85,7 +85,7 @@ export function mountLogoEditor() {
 
   function editorTrigger(event) {
     const trigger = event.target instanceof Element ? event.target.closest(triggerSelector) : null;
-    // The dock logo is exclusively a drag handle, even if its markup changes.
+    // The dock logo controls movement and collapse; editing has its own button.
     return trigger && !trigger.closest('.panel-dock-grip') && !trigger.disabled ? trigger : null;
   }
 
@@ -141,7 +141,7 @@ export function mountLogoEditor() {
   const unsubscribe = subscribeLogo(applyLogo);
   applyLogo();
 
-  // Repository docks mount after bootstrap, so their Edit app uses delegation.
+  // Dock Edit buttons mount after bootstrap, so their clicks use delegation.
   listen(document, 'click', event => {
     const trigger = editorTrigger(event);
     if (!trigger || dialog.open) return;
