@@ -7,6 +7,11 @@ const TAU = Math.PI * 2;
 const packings = new Map([[1, [[0, 0]]]]);
 const settledPackings = new Map();
 const touchValue = value => Math.max(0, Number(value) || 0);
+const scaleValue = value => {
+  const scale = Number(value);
+  if (!Number.isFinite(scale) || scale <= 0) throw new RangeError('Root rope radial scale must be positive and finite.');
+  return scale;
+};
 
 function packing(count) {
   if (packings.has(count)) return packings.get(count);
@@ -50,11 +55,11 @@ function packingState(touches) {
   return state;
 }
 
-/** Physical envelope of equally thin vines; touches add vines, never their caliber. */
-export function rootRopeRadius(touches = 0) {
+/** Physical envelope: touches choose vine count; radialScale controls their shared caliber. */
+export function rootRopeRadius(touches = 0, radialScale = 1) {
   const count = touchValue(touches);
   if (!Number.isFinite(count)) throw new RangeError('Root rope touches must be finite.');
-  return packingState(count).outerRadius + ROOT_VINE_RADIUS;
+  return (packingState(count).outerRadius + ROOT_VINE_RADIUS) * scaleValue(radialScale);
 }
 
 /**
@@ -68,17 +73,18 @@ export function createRootRopeBatch(edges, { pointed = false, sides = 6, segment
   let vertexCount = 0, indexCount = 0;
   for (const edge of edges) {
     const touches = touchValue(edge.touches), maximum = Math.ceil(Math.max(touches, touchValue(edge.maxTouches ?? touches)));
+    const radialScale = scaleValue(edge.radialScale ?? 1);
     if (!Number.isFinite(maximum)) throw new RangeError('Root rope capacity must be finite.');
     edge.curve.updateArcLengths();
     const capacity = maximum + 1;
     const length = edge.curve.getLength();
-    const divisions = Math.max(4, Math.ceil(segments ?? (maximum ? Math.max(16, (Math.max(length * 2, edge.maxLength || 0) + rootRopeRadius(maximum) * 4) / pitch * samplesPerTurn) : 16)));
+    const divisions = Math.max(4, Math.ceil(segments ?? (maximum ? Math.max(16, (Math.max(length * 2, edge.maxLength || 0) + rootRopeRadius(maximum, radialScale) * 4) / pitch * samplesPerTurn) : 16)));
     const verticesPerVine = (divisions + 1) * (sides + 1), indicesPerVine = divisions * sides * 6;
     const range = {
       key: edge.key, vertexStart: vertexCount, vertexCount: verticesPerVine * capacity,
       faceStart: indexCount / 3, faceEnd: (indexCount + indicesPerVine * capacity) / 3,
       capacity, maxTouches: maximum, segments: divisions, sides, pointed, pitch,
-      touches: NaN, vineCount: 0, radius: ROOT_VINE_RADIUS, distanceOffset: NaN,
+      touches: NaN, vineCount: 0, radius: ROOT_VINE_RADIUS, distanceOffset: NaN, radialScale: NaN,
       color: new THREE.Color(-1, -1, -1), curveSignature: new Float64Array(12).fill(NaN),
       bounds: new THREE.Box3(), centerBounds: new THREE.Box3(), vines: [],
       axisCenters: new Float64Array((divisions + 1) * 3),
@@ -131,7 +137,7 @@ export function createRootRopeBatch(edges, { pointed = false, sides = 6, segment
   };
   for (const edge of edges) {
     const range = ranges.get(edge.key);
-    setRootRopeShape(batch, range, edge.curve, touchValue(edge.touches), edge.distanceOffset ?? edge.phaseOffset ?? 0);
+    setRootRopeShape(batch, range, edge.curve, touchValue(edge.touches), edge.distanceOffset ?? edge.phaseOffset ?? 0, edge.radialScale ?? 1);
     setRootRopeColor(batch, range, edge.color);
   }
   finishRootRopeUpdate(batch);
@@ -166,10 +172,11 @@ function taper(fraction) {
   return 1 - 0.94 * u * u * (3 - 2 * u);
 }
 
-/** Fifth argument is accumulated WORLD ARC DISTANCE, not an angle. */
-export function setRootRopeShape(batch, range, curve, touchesFloat, distanceOffset = 0) {
+/** Fifth argument is WORLD ARC DISTANCE; radialScale changes caliber, not vine count. */
+export function setRootRopeShape(batch, range, curve, touchesFloat, distanceOffset = 0, radialScale = 1) {
   if (!batch || !range) return;
   const touches = touchValue(touchesFloat);
+  const scale = scaleValue(radialScale);
   if (!Number.isFinite(touches) || touches > range.maxTouches) throw new RangeError(`Root rope ${range.key} exceeds its reserved history capacity.`);
   const controls = [curve.v0, curve.v1, curve.v2, curve.v3];
   let curveChanged = false;
@@ -177,7 +184,7 @@ export function setRootRopeShape(batch, range, curve, touchesFloat, distanceOffs
     const p = controls[i], offset = i * 3;
     if (range.curveSignature[offset] !== p.x || range.curveSignature[offset + 1] !== p.y || range.curveSignature[offset + 2] !== p.z) curveChanged = true;
   }
-  if (!curveChanged && touches === range.touches && distanceOffset === range.distanceOffset) return;
+  if (!curveChanged && touches === range.touches && distanceOffset === range.distanceOffset && scale === range.radialScale) return;
   const { center, tangent, normal, binormal } = batch.scratch;
   const { segments, sides } = range;
   if (curveChanged) {
@@ -225,7 +232,7 @@ export function setRootRopeShape(batch, range, curve, touchesFloat, distanceOffs
       continue;
     }
     range.vineCount++;
-    const [x, y] = offsets[vine.index];
+    const x = offsets[vine.index][0] * scale, y = offsets[vine.index][1] * scale;
     vine.offset[0] = x; vine.offset[1] = y;
     for (let ring = 0; ring <= segments; ring++) {
       const fraction = ring / segments * growth, offset = ring * 3;
@@ -242,7 +249,7 @@ export function setRootRopeShape(batch, range, curve, touchesFloat, distanceOffs
       const nx = (x * cos - y * sin) * spread, ny = (x * sin + y * cos) * spread;
       center.addScaledVector(normal, nx).addScaledVector(binormal, ny);
       center.toArray(range.vineCenters, offset);
-      range.vineProfiles[ring] = profile;
+      range.vineProfiles[ring] = profile * scale;
     }
     for (let ring = 0; ring <= segments; ring++) {
       const offset = ring * 3;
@@ -277,7 +284,7 @@ export function setRootRopeShape(batch, range, curve, touchesFloat, distanceOffs
   const updatedVines = range.initialized ? Math.max(previousVineCount, range.vineCount) : range.capacity;
   batch.positionRanges.push({ start: range.vertexStart * 3, count: updatedVines * range.vines[0].vertexCount * 3 });
   range.initialized = true;
-  range.touches = touches; range.radius = outerRadius + ROOT_VINE_RADIUS; range.distanceOffset = distanceOffset;
+  range.touches = touches; range.radius = (outerRadius + ROOT_VINE_RADIUS) * scale; range.distanceOffset = distanceOffset; range.radialScale = scale;
   range.endDistance = distanceOffset + range.length; range.curve = curve;
   batch.positionDirty = true;
 }

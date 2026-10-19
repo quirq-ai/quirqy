@@ -1,5 +1,6 @@
 import { CHANGE_COLORS } from './encoding.js';
 import { FILE_ATOM_KINDS } from './molecule-layout.js';
+import { ROOT_LENGTH_PER_TOUCH } from './root-length-layout.js';
 
 const hex = value => `#${value.toString(16).padStart(6, '0')}`;
 const icons = {
@@ -174,6 +175,7 @@ export class DataGuide {
     }
     this.selectedId = selectedId;
     this.selectedFolder = selectedFolder;
+    this.updateRootGrowthReadout();
     this.markFocus();
   }
 
@@ -194,11 +196,11 @@ export class DataGuide {
       ? `<div><dt><span class="guide-icon">${icons.trunk}</span>Repository trunk</dt><dd>The repository root, growing taller and thicker with each commit</dd></div>
          <div><dt><span class="guide-icon">${icons.branch}</span>Folder branches</dt><dd>More present leaves lengthen and bend a limb</dd></div>
          <div><dt><span class="guide-icon">${icons.leaf}</span>File leaves</dt><dd>One leaf for each mapped file</dd></div>
-         <div><dt><span class="guide-icon">${icons.roots}</span>Directory roots</dt><dd>Thin vines spiral into growing ropes along exact folder and file paths</dd></div>`
+         <div><dt><span class="guide-icon">${icons.roots}</span>Directory roots</dt><dd>Exact folder junctions; each file root gains a fixed step per commit touch</dd></div>`
       : `<div><dt><span class="guide-icon">${icons.carbon}</span>Folder · C</dt><dd>Its small marble becomes an enclosing boundary while playing; pause restores it</dd></div>
          <div><dt><span class="guide-icon">${icons.atom}</span>File atom</dt><dd>One N, O, H or S atom per file, visible in both modes</dd></div>`;
     $('#guide-relations').innerHTML = tree
-      ? 'The trunk is the repository root. The base area grows with the number of visible files and expands further to fit the folder structure. Thin strands meet at folder junctions in the fully expanded hierarchy. Folder names sit beside junctions; file names stay just below tapered tips. Sibling filenames align in nearby rows. When the screen or viewing angle crowds the roots, shallow ground relief adds room below the trunk, their highest point. They flatten when the view has enough room. Click a name to focus its folder or inspect its file.'
+      ? 'The trunk is the repository root. The flat base scales with the visible file count and fits the full root footprint. Connections meet at the exact folder junctions in the current hierarchy. Each file starts with a connection to its own folder, then gains length through commit touches. Initial root spacing and the step per touch scale with the repository’s snapshot width, fixed through replay. Folder junctions stay fixed during this growth. Folder names sit beside junctions; file names stay near their tips in nearby rows. Click a name to focus its folder or inspect its file.'
       : '<span class="guide-connection" aria-hidden="true"></span>Each enclosure fits its folder’s current files. The root keeps its small marble, and folder levels preserve the actual hierarchy.';
     const sizeNote = $('#guide-size-note');
     sizeNote.hidden = !tree;
@@ -208,20 +210,30 @@ export class DataGuide {
       sizeNote.textContent = `Leaf area follows snapshot bytes, with limits for readability. Empty files use the minimum size; unknown sizes use a muted fallback. ${known.toLocaleString()} known · ${(nodes.length - known).toLocaleString()} unknown.`;
     }
     $('.guide-motion').textContent = tree
-      ? 'Roots begin with one initial strand. Each loaded commit touch grows one new vine along the route, spiraling in the same direction into a twisted rope: 1, 2, 3, 4 vines. Shared folders gain one vine per commit touching any descendant. The bundles thicken gradually; compact paths make only the room their growing girth needs. Rewinding removes later vines and restores the earlier shape. Above ground, new leaves grow and removed leaves fall.'
+      ? 'Each file touch adds the same calibrated length step within this repository. Renames retain growth; rewinding restores the earlier length. Above ground, new leaves grow and removed leaves fall.'
       : 'Loaded commit touches build brightness up to this cursor. Playing shows current as folder marbles become enclosures. Pause restores small marbles and pathways, freezing current. Wireframes mark absent files; a halo marks selection.';
     $('#guide-map-step').innerHTML = tree
       ? '<strong>Build both hierarchies.</strong> The trunk begins the root hierarchy. Every present file connects to its actual folder, and every folder connects to its parent. Above ground, mapped files become leaves on growing limbs.'
       : '<strong>Build the structure.</strong> Keep folders at repository depth and connect files to their own folders. Each non-root folder switches between a carbon marble and its enclosure.';
     $('#guide-replay-step').innerHTML = tree
-      ? '<strong>Replay growth.</strong> Each loaded commit grows the tree and adds a vine to touched root paths. New leaves grow, removed leaves fall, and lighter branches lift back up.'
+      ? '<strong>Replay growth.</strong> Each distinct loaded commit touching a file adds the repository’s calibrated length step to its root. Rewinding restores its earlier length. Above ground, new leaves grow, removed leaves fall, and lighter branches lift back up.'
       : '<strong>Replay.</strong> Add or remove file atoms; renames retain their identity. Each loaded commit touch adds brightness to that file and its folder path. Rewinding restores the touch counts at that commit.';
     $('#guide-coverage-note').textContent = tree
-      ? 'Roots display every present loaded file and ancestor folder. Names identify junctions and tapered ends. Large repositories reveal names as space becomes available; zoom or focus a folder to read more. All file roots remain present, including those whose names do not fit at the current zoom. The canopy maps up to 500 leaves. GitHub loading limits are listed under Data coverage.'
+      ? 'Roots display every present loaded file and ancestor folder except dot-prefixed entries and their contents. Names identify junctions and tapered ends. Large repositories reveal names as space becomes available; zoom or focus a folder to read more. All file roots remain present, including those whose names do not fit at the current zoom. The canopy maps up to 500 leaves. GitHub loading limits are listed under Data coverage.'
       : 'Up to 500 files are mapped. All their ancestor folders remain visible; the inspector lists every loaded file and change.';
     $('#guide-encoding-note').textContent = tree
-      ? 'Trunk height and thickness show progress through the loaded history. Branch weight is a visual metaphor for present mapped leaf counts, not bytes or code quality. File identities survive renames; their positions follow the growing limbs. Leaf areas use known file sizes at the loaded snapshot, held constant during replay. Each root bundle contains one initial strand plus one thin vine per loaded commit touch. Vines spiral in the same direction around the route. File vines count touches to the current folder attachment; a cross-folder move starts a new attachment while retaining file identity. Every ancestor folder keeps its cumulative vines, including earlier touches from files that have since moved or disappeared, while that folder remains present. Several changed descendants add only one vine to their shared folder in a commit. Root paths stay compact, expanding only enough to separate thicker bundles. Horizontal sibling names share nearby rows. On narrow screens or crowded viewing angles, the ground and roots bend slightly downward away from the trunk. A wider view, zoom, or folder focus lets the surface flatten as space becomes available. This adapts to the current view without changing the hierarchy, commit counts, or vine counts. Filenames remain attached to their tips without guide-line extensions. Historical byte sizes are not inferred from lines added or deleted. Areas are relative to the median known positive file size, limited to 0.16–6.25 times that area. Empty files use the minimum; unknown sizes use a muted 0.65 fallback.'
+      ? 'Trunk height and thickness show progress through the loaded history. Branch weight is a visual metaphor for present mapped leaf counts, not bytes or code quality. File identities survive renames; their positions follow the growing limbs. Leaf areas use known file sizes at the loaded snapshot, held constant during replay. Every distinct loaded commit touching a file adds the same length step within this repository. Baseline root spacing and growth are calibrated to the loaded repository snapshot’s width, and that calibration stays fixed throughout replay. The count follows file identity across renames and folder moves. Initial connections vary with the hierarchy, so compare added length within a repository rather than total root length. Use touch counts when comparing different repositories. Thickness is a gentle visual effect of length, not another activity count. For an unchanged hierarchy, folder junctions and untouched file roots keep their positions. Growth does not push neighboring roots or bend the ground; the base stays flat while zooming and rotating. File names remain attached to their actual tips, with no guide-line extensions. Historical byte sizes are not inferred from lines added or deleted. Areas are relative to the median known positive file size, limited to 0.16–6.25 times that area. Empty files use the minimum; unknown sizes use a muted 0.65 fallback.'
       : 'During playback, each non-root enclosure replaces its folder’s marble and fits current contents. Pause restores the small marble. The root keeps the current commit author’s portrait and name. Playing adds a sun glow; pausing opens a message bubble with the commit, changed files, line totals, and GitHub link. Initials stand in for unavailable pictures. Connections encode containment. Color and sphere size identify the assigned file element; byte size is shown in the inspector. Historical wireframes are excluded from current counts.';
+  }
+
+  updateRootGrowthReadout() {
+    if (this.view !== 'tree') return;
+    const layout = this.scene?.roots?.layout || this.scene?.indexLayout;
+    const step = layout?.lengthGrowth?.lengthPerTouch ?? layout?.proportions?.lengthPerTouch ?? ROOT_LENGTH_PER_TOUCH;
+    const formatted = Number(step).toLocaleString(undefined, { maximumFractionDigits: 2 });
+    const text = `Here, each file touch adds ${formatted} scene units. The step scales with the repository’s snapshot width and stays fixed during replay. Compare added length within this repository; use touch counts across repositories. Roots thicken gently with length. Renames retain growth, and rewinding restores it. Above ground, new leaves grow and removed leaves fall.`;
+    const note = this.el.querySelector('.guide-motion');
+    if (note.textContent !== text) note.textContent = text;
   }
 
   updateRootReadability() {

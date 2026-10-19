@@ -6,7 +6,6 @@ import { createTreeLayout, createTreePose, trunkRadius } from './tree-layout.js'
 import { stateAt } from './model.js';
 import { RepositoryRoots } from './root-scene.js';
 import { createRootLayout } from './root-layout.js';
-import { rootSurfaceHeight, measureRootSurfaceCrowding, createRootSurface, applyRootSurface } from './root-surface.js';
 
 const DURATION = 1.6;
 const GROUND_Y = -40;
@@ -157,7 +156,7 @@ export class TreeScene extends RepositoryScene {
     this.fallingLeaves = [];
     this.index = null;
     this.trunkRadius = trunkRadius(-1);
-    this.renderer.domElement.setAttribute('aria-label', 'Three-dimensional repository growth tree. Each leaf is a file. The trunk is the repository root. Below ground, visible folders and files branch into a fully expanded, balanced three-dimensional hierarchy. Dot-prefixed files and folders and their contents are hidden from roots. Folder names sit beside junctions and file names below tapered root ends. Each root begins with one strand. Every commit touch adds one thin vine winding in the same direction around that path. The twisted ropes thicken with activity, using compact paths and gentle ground relief. The base grows with the visible file count and folder spacing. Horizontal filenames align near their tips. In large repositories, zoom or focus a folder to reveal more names without overlap. When root tips become crowded, the ground curves slightly downward and their names stay at the tips. Click a folder name to focus its subtree, or a file name or leaf to inspect. Frame roots enlarges the roots, shortens the canopy while preserving a sturdier trunk, and enables free rotation and sideways roll with Shift-drag or a two-finger twist. Frame view emphasizes the canopy with smaller roots and upright orbit. Scroll to zoom, double-click a file to focus.');
+    this.renderer.domElement.setAttribute('aria-label', 'Three-dimensional repository growth tree. Each leaf is a file. The trunk is the repository root. Below ground, visible folders and files branch into a fully expanded, balanced three-dimensional hierarchy. Dot-prefixed files and folders and their contents are hidden from roots. Folder names sit beside junctions and file names below tapered root ends. Starting root length and growth per loaded commit touch scale with repository width. The growth increment stays fixed throughout the loaded history. Rope thickness grows gently with length as a natural detail. Folder junctions stay fixed and the ground stays flat. The base grows with the visible file count and root extent. Horizontal filenames stay near their tips; zoom or focus a folder to reveal more names without overlap. Click a folder name to focus its subtree, or a file name or leaf to inspect. Frame roots enlarges the roots, shortens the canopy while preserving a sturdier trunk, and enables free rotation and sideways roll with Shift-drag or a two-finger twist. Frame view emphasizes the canopy with smaller roots and upright orbit. Scroll to zoom, double-click a file to focus.');
   }
 
   setModel(model) {
@@ -262,7 +261,7 @@ export class TreeScene extends RepositoryScene {
       const pose = createTreePose(this.layout, { index: cursor, commitCount: model.commits.length, activeIds: stateAt(model, cursor).activeIds });
       this.cameraPoints.push(...pose.nodes.map(node => asVector(node.position)), ...pose.folders.flatMap(folder => folder.curve.map(asVector)));
       const frame = stateAt(model, cursor);
-      const roots = createRootLayout(model, { activeIds: frame.activeIds, paths: Object.fromEntries(frame.files.map(file => [file.id, file.path])) });
+      const roots = createRootLayout(model, { repositoryWidth: this.roots.repositoryWidth, activeIds: frame.activeIds, paths: Object.fromEntries(frame.files.map(file => [file.id, file.path])) });
       for (const x of [roots.bounds.min[0], roots.bounds.max[0]]) for (const y of [roots.bounds.min[1], roots.bounds.max[1]]) for (const z of [roots.bounds.min[2], roots.bounds.max[2]]) this.rootCameraPoints.push(new THREE.Vector3(x, y, z));
     }
     const bounds = new THREE.Box3().setFromPoints(this.cameraPoints);
@@ -533,12 +532,9 @@ export class TreeScene extends RepositoryScene {
 
   _updateGroundSurface() {
     if (!this.ground || !this.groundContour) return;
-    const surface = this.options.roots !== false
-      ? this.roots?.surfaceDisplay || this.roots?.surface || FLAT_GROUND
-      : FLAT_GROUND;
-    const baseSize = this.roots?.baseLayout?.base || FLAT_GROUND;
+    const baseSize = this.roots?.layout?.base || this.roots?.baseLayout?.base || FLAT_GROUND;
     const radiusX = baseSize.radiusX, radiusZ = baseSize.radiusZ;
-    const signature = `${surface.height || 0}|${radiusX}|${radiusZ}|${surface.radiusX || 50}|${surface.radiusZ || 30}|${surface.depthWeight ?? 0.2}|${surface.active !== false}`;
+    const signature = `${radiusX}|${radiusZ}`;
     if (signature === this.groundSurfaceSignature) return;
     this.groundSurfaceSignature = signature;
     for (const [geometry, base] of [
@@ -551,7 +547,7 @@ export class TreeScene extends RepositoryScene {
         // The soft soil texture is square; its contour has the original 50:30 ellipse.
         const z = base[offset + 2] * radiusZ / (geometry === this.ground.geometry ? 50 : 30);
         position.array[offset] = x;
-        position.array[offset + 1] = base[offset + 1] + rootSurfaceHeight(surface, x, z);
+        position.array[offset + 1] = base[offset + 1];
         position.array[offset + 2] = z;
       }
       position.needsUpdate = true;
@@ -649,6 +645,7 @@ export class TreeScene extends RepositoryScene {
   focusNode(id) {
     if (this.options.roots && this.roots?.files.has(id) && (this.selectionInRoots || !this.nodes.has(id))) {
       this._setFrameMode('roots');
+      this.roots.labels.setFocusFolder(null);
       const rootPosition = this.roots.files.get(id)?.position.clone();
       if (rootPosition) {
         this.select(id);
@@ -674,11 +671,13 @@ export class TreeScene extends RepositoryScene {
     this._setFrameMode('roots');
     const bounds = path ? this.roots?.getFolderBounds(path) : this.roots?.getBounds();
     if (!bounds || bounds.isEmpty()) return;
+    this.roots.labels.setFocusFolder(path);
     this._frameRootsBounds(bounds, false, path);
   }
 
   focusRoots() {
     if (!this.options.roots) return;
+    this.roots.labels.setFocusFolder(null);
     this.selectionInRoots = true;
     this._setFrameMode('roots');
     const bounds = this.roots?.getBounds();
@@ -709,7 +708,12 @@ export class TreeScene extends RepositoryScene {
     // the user's orientation, including sideways roll.
     if (overview) this.camera.up.set(portrait ? 1 : 0, portrait ? 0 : 1, 0);
     const denseRoots = this.roots.baseLayout.fileCount > 160;
-    const ray = overview ? new THREE.Vector3(0, denseRoots ? 1.15 : 0.32, 1) : this.camera.position.clone().sub(this.controls.target);
+    // Wider repositories now have deeper tiers. Lower the overview angle with
+    // that pinned scale so their depth reads below the ground, not through it.
+    // Portrait framing keeps a steeper view to separate sideways filename rows.
+    const depthScale = this.roots.baseLayout.proportions?.scale || 1;
+    const elevation = denseRoots ? (portrait ? 1.15 : Math.max(0.32, 1.15 / depthScale)) : 0.32;
+    const ray = overview ? new THREE.Vector3(0, elevation, 1) : this.camera.position.clone().sub(this.controls.target);
     if (ray.lengthSq() < 1e-8) ray.set(0, 0.32, 1);
     ray.normalize();
     const right = this._cameraRight(ray), up = new THREE.Vector3().crossVectors(ray, right).normalize();
@@ -741,7 +745,7 @@ export class TreeScene extends RepositoryScene {
         for (let index = 0; index < 48; index++) {
           const angle = index / 48 * Math.PI * 2;
           const x = Math.cos(angle) * layout.base.radiusX, z = Math.sin(angle) * layout.base.radiusZ;
-          add([x, layout.groundY + rootSurfaceHeight(layout.surface, x, z), z]);
+          add([x, layout.groundY, z]);
         }
       }
       if (!points.length) points.push(...this._boundsPoints(bounds).map(point => this._presentationPoint(point, 'roots')));
@@ -758,29 +762,9 @@ export class TreeScene extends RepositoryScene {
         .addScaledVector(up, distance * tangent * (top - bottom) / height);
       return { distance, target, position: target.clone().addScaledVector(ray, distance) };
     };
-    // Zooming can relieve crowding and flatten the surface. Solve that target
-    // pose together with framing so the chosen file does not move offscreen
-    // after the camera arrives. This only runs on an explicit focus action.
-    const probe = this.camera.clone();
-    const canonical = this.roots.growthLayout;
-    let surface = this.roots.surfaceDisplay || this.roots.surface || FLAT_GROUND;
-    let pose = fit(this.roots.layout || canonical);
-    for (let iteration = 0; iteration < 8; iteration++) {
-      probe.position.copy(pose.position);
-      probe.up.copy(this.camera.up);
-      probe.lookAt(pose.target);
-      probe.updateMatrixWorld(true);
-      const points = canonical.nodes.map(node => {
-        const projected = this._presentationPoint(asVector(node.position), 'roots').project(probe);
-        return { x: (projected.x * .5 + .5) * width, y: (-projected.y * .5 + .5) * height,
-          visible: projected.z >= -1 && projected.z <= 1, textWidth: this.roots.labelWidths.get(node.id) || 70 };
-      });
-      const crowding = measureRootSurfaceCrowding(points, { width, height, labelOrientation: 'horizontal' });
-      const next = createRootSurface(this.roots.baseLayout, { viewportWidth: width, crowding });
-      pose = fit(applyRootSurface(canonical, next));
-      if (Math.abs(next.height - surface.height) < .01) break;
-      surface = next;
-    }
+    // Roots have a fixed data pose. Framing never changes their length, bends
+    // the ground, or shifts neighboring paths to make labels fit.
+    const pose = fit(this.roots.layout || this.roots.growthLayout);
     this.controls.maxDistance = Math.max(650, pose.distance * 1.25);
     if (this.reducedMotion) {
       this.camera.position.copy(pose.position); this.controls.target.copy(pose.target);

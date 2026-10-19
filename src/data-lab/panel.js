@@ -2,10 +2,12 @@ import { makePanelDraggable } from '../ui/dragPanel.js';
 import { activityInsights } from './model.js';
 import { DEFAULT_REPOSITORY_COMMIT_LIMIT } from './github.js';
 import { FILE_ATOM_KINDS, fileAtomKind } from './molecule-layout.js';
-import { rootMembershipKey } from './root-activity.js';
+import { ROOT_LENGTH_PER_TOUCH } from './root-length-layout.js';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
 const fmt = value => Number(value || 0).toLocaleString();
+const fmtLength = value => Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 2 });
+const rootGrowthStep = layout => layout?.lengthGrowth?.lengthPerTouch ?? layout?.proportions?.lengthPerTouch ?? ROOT_LENGTH_PER_TOUCH;
 const formatDate = value => {
   const parsed = new Date(value);
   return Number.isNaN(parsed.getTime()) ? 'Date unavailable' : new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(parsed);
@@ -284,7 +286,7 @@ export class DataPanel {
       button.setAttribute('aria-pressed', String(active));
     }
     this.$('#data-view-intro').textContent = tree
-      ? 'Each root starts with one initial strand. Every commit touch adds a thin vine, spiraling in the same direction to form a twisted rope. Shared folders gain one vine per touching commit.'
+      ? `Each file touch adds ${fmtLength(rootGrowthStep(this.state.rootLayout))} scene units here, calibrated to this repository’s snapshot width and fixed through replay. Renames retain growth; roots thicken gently with length.`
       : 'Play turns folder marbles into enclosures while the commit author lights the root. Pause restores pathways and opens the author’s commit bubble.';
     this.$('#data-links-label').textContent = tree ? 'File stems' : 'Bonds';
     this.$('#data-links-label').title = tree ? '' : 'Show or hide pathways and current. Playing shows current only; pause restores pathways.';
@@ -364,16 +366,14 @@ export class DataPanel {
     const historyWasOpen = this.$('#data-selected .data-file-history')?.open;
     const kind = this.state.view !== 'tree' ? fileAtomKind(file.path) : null;
     const touchesSoFar = this.state.activity?.fileTouches?.get(file.id) ?? changes.filter(commit => commit.index <= this.state.index).length;
-    const attachment = file.path.includes('/') ? file.path.slice(0, file.path.lastIndexOf('/')) : '';
-    const strandTouches = this.state.activity?.membershipTouches?.get(rootMembershipKey(attachment, file.id)) || 0;
-    const folderTouches = this.state.activity?.folderTouches?.get(attachment) || 0;
-    const folderVineRows = !kind && file.exists && attachment ? `<div class="stat-k" title="Commits touching any file beneath ${esc(attachment)}, once per commit">Folder strand touches</div><div class="stat-v data-root-folder-touches">${fmt(folderTouches)}</div><div class="stat-k" title="One initial strand plus one vine per folder touch">Folder vines</div><div class="stat-v data-root-folder-vines">${fmt(folderTouches + 1)}</div>` : '';
+    const hasRoot = !kind && file.exists && this.state.rootLayout?.nodes.some(node => node.id === file.id);
+    const lengthPerTouch = rootGrowthStep(this.state.rootLayout);
     const touchRows = kind ? `<div class="stat-k" title="Commit touches through the selected point in the loaded history">Touches so far</div><div class="stat-v data-file-touches">${fmt(touchesSoFar)}</div>`
-      : file.exists ? `<div class="stat-k" title="Loaded commits touching this file in its current folder; a cross-folder move starts a new attachment">File strand touches</div><div class="stat-v data-root-touches">${fmt(strandTouches)}</div><div class="stat-k" title="One initial strand plus one vine per file attachment touch">File vines</div><div class="stat-v data-root-file-vines">${fmt(strandTouches + 1)}</div>` : '';
+      : file.exists ? `<div class="stat-k" title="Distinct loaded commits touching this file through the selected point; retained across renames and folder moves">File touches</div><div class="stat-v data-root-touches">${fmt(touchesSoFar)}</div>${hasRoot ? `<div class="stat-k" title="${fmtLength(lengthPerTouch)} scene units per touch, calibrated to this repository’s snapshot width and fixed through replay. Compare added length within this repository; use File touches across repositories">Added root length</div><div class="stat-v data-root-added-length">+${fmtLength(touchesSoFar * lengthPerTouch)} scene units</div>` : ''}` : '';
     const currentFolder = file.path.includes('/') ? file.path.slice(0, file.path.lastIndexOf('/')) : '(root)';
     const atomRows = kind ? `<div class="stat-k">File category</div><div class="stat-v">${esc(kind.label)}</div><div class="stat-k">File element</div><div class="stat-v data-file-element">${esc(kind.element)} · ${esc(kind.elementName)}</div><div class="stat-k">Current folder</div><div class="stat-v data-folder-path">${esc(currentFolder)}</div>` : '';
     const history = changes.length ? `<details class="data-file-history" ${historyWasOpen ? 'open' : ''}><summary>File activity · ${changes.length} commits</summary>${changes.map(commit => `<button type="button" data-commit-index="${commit.index}" aria-current="${commit.index === this.state.index}" title="${esc(commit.message)}"><code>${esc(this.shortSha(commit.sha))}</code><span>${esc(commit.message.split('\n')[0])}</span></button>`).join('')}</details>` : '';
-    this.replaceContent(this.$('#data-selected'), `<div class="data-selected-path">${esc(file.path)}</div><div class="stat-grid"><div class="stat-k">At this point</div><div class="stat-v">${file.exists ? 'Present' : 'Not present'}</div><div class="stat-k">Current change</div><div class="stat-v">${esc(file.status)}</div>${touchRows}${folderVineRows}<div class="stat-k">${kind ? 'Touches in loaded history' : 'Commits touching file'}</div><div class="stat-v">${fmt(changes.length)}</div>${atomRows}<div class="stat-k">Snapshot size</div><div class="stat-v">${file.size != null ? `${fmt(file.size)} bytes` : 'Unknown'}</div></div>${historical.length ? `<div class="data-history-paths"><span>Other paths for this file</span>${historical.map(path => `<code>${esc(path)}</code>`).join('')}</div>` : ''}${rendered ? '' : '<p class="lab-note" style="padding:0 0 8px">Outside the displayed subset; data remains available here.</p>'}<button class="btn tiny" type="button" data-focus-id="${esc(file.id)}" ${rendered ? '' : 'disabled'}>Focus in scene</button>${history}`);
+    this.replaceContent(this.$('#data-selected'), `<div class="data-selected-path">${esc(file.path)}</div><div class="stat-grid"><div class="stat-k">At this point</div><div class="stat-v">${file.exists ? 'Present' : 'Not present'}</div><div class="stat-k">Current change</div><div class="stat-v">${esc(file.status)}</div>${touchRows}<div class="stat-k">${kind ? 'Touches in loaded history' : 'Commits touching file'}</div><div class="stat-v">${fmt(changes.length)}</div>${atomRows}<div class="stat-k">Snapshot size</div><div class="stat-v">${file.size != null ? `${fmt(file.size)} bytes` : 'Unknown'}</div></div>${historical.length ? `<div class="data-history-paths"><span>Other paths for this file</span>${historical.map(path => `<code>${esc(path)}</code>`).join('')}</div>` : ''}${rendered ? '' : '<p class="lab-note" style="padding:0 0 8px">Outside the displayed subset; data remains available here.</p>'}<button class="btn tiny" type="button" data-focus-id="${esc(file.id)}" ${rendered ? '' : 'disabled'}>Focus in scene</button>${history}`);
   }
 
   renderFiles() {

@@ -1,71 +1,56 @@
-/* Scene choices sit quietly beneath the brand; the 3D canvas stays the focus. */
-html body.repository-views-top #topbar {
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  padding: 14px 20px 8px;
+/* The selected lab's views stay with its app tiles as the dock moves. */
+html body :is(#data-timebar, #activity-timebar) .repository-dock-actions.repository-actions-with-views {
+  display: grid;
+  grid-template-columns: 54px auto;
+  column-gap: 8px;
+  row-gap: 6px;
+  align-items: start;
 }
-html body #topbar .repository-view-nav,
-html body #topbar .repository-view-nav > .seg {
+html body :is(#data-timebar, #activity-timebar) .repository-actions-with-views > .repository-view-nav {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  min-width: 0;
+}
+html body :is(#data-timebar, #activity-timebar) .repository-actions-with-views > .glass-opacity-trigger { grid-column: 1; grid-row: 2; }
+html body :is(#data-timebar, #activity-timebar) .repository-actions-with-views > .repository-dock-apps { grid-column: 2; grid-row: 2; }
+html body :is(#data-timebar, #activity-timebar) .repository-view-nav,
+html body :is(#data-timebar, #activity-timebar) .repository-view-nav > .seg {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 0;
   margin: 0;
   padding: 0;
   border: 0;
   background: none;
   box-shadow: none;
 }
-html body #topbar .repository-view-nav { max-width: 100%; }
-html body #topbar .repository-view-nav button {
+html body :is(#data-timebar, #activity-timebar) .repository-actions-with-views .repository-view-nav button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex: none;
-  min-height: 36px;
+  min-height: 32px;
   margin: 0;
-  padding: 0 10px;
+  padding: 0 7px;
   border: 0;
   border-radius: 5px;
   background: none;
   box-shadow: none;
-  color: #a4afbe;
-  font: 500 12px/1.3 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  letter-spacing: .01em;
+  color: #aebdce;
+  font: 500 11px/1.3 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  letter-spacing: 0;
   white-space: nowrap;
   cursor: pointer;
   transition: color 150ms ease;
   -webkit-tap-highlight-color: transparent;
 }
-html body #topbar .repository-view-nav button:hover { color: #f0f4fa; }
-html body #topbar .repository-view-nav button[aria-pressed="true"] { color: #efd7b4; }
-html body #topbar .repository-view-nav button:focus-visible { outline: 2px solid var(--accent-cool); outline-offset: -2px; }
-html body.repository-views-top :is(#data-panel-toggle, #data-guide-toggle, #activity-panel-toggle, #activity-guide-toggle) {
-  top: calc(var(--repository-header-height, 91px) + 12px);
-}
-@media (min-width: 901px) {
-  html body.repository-views-top :is(#data-panel, #activity-panel, #data-guide, #activity-guide):not(.is-user-positioned) {
-    top: calc(var(--repository-header-height, 91px) + 12px);
-    max-height: calc(100dvh - var(--repository-header-height, 91px) - 36px);
-  }
-}
-@media (min-width: 901px) and (max-width: 1440px) {
-  html body.repository-views-top :is(#data-panel, #activity-panel):not(.is-user-positioned) {
-    max-height: calc(100dvh - var(--repository-header-height, 91px) - var(--repository-timebar-height, 82px) - 36px);
-  }
-}
+html body :is(#data-timebar, #activity-timebar) .repository-actions-with-views .repository-view-nav button:hover { color: #f0f4fa; background: none; box-shadow: none; }
+html body :is(#data-timebar, #activity-timebar) .repository-actions-with-views .repository-view-nav button[aria-pressed="true"] { color: #efd7b4; background: none; box-shadow: none; }
+html body :is(#data-timebar, #activity-timebar) .repository-actions-with-views .repository-view-nav button:focus-visible { outline: 2px solid var(--accent-cool); outline-offset: -2px; }
 @media (max-width: 900px) {
-  html body.repository-views-top #topbar { padding: 10px 12px 6px; gap: 2px; }
-  html body #topbar .repository-view-nav,
-  html body #topbar .repository-view-nav > .seg { gap: 2px; }
-  html body #topbar .repository-view-nav button { min-height: 40px; padding: 0 8px; }
-}
-@media (max-width: 540px) {
-  html body #topbar .repository-view-nav,
-  html body #topbar .repository-view-nav > .seg { gap: 0; }
-  html body #topbar .repository-view-nav button { padding: 0 7px; font-size: 11px; letter-spacing: 0; }
+  html body :is(#data-timebar, #activity-timebar) .repository-actions-with-views .repository-view-nav button { min-height: 36px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  html body #topbar .repository-view-nav button { transition: none; }
+  html body :is(#data-timebar, #activity-timebar) .repository-view-nav button { transition: none; }
 }

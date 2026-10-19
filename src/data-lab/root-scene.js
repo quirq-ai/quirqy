@@ -1,8 +1,7 @@
 import * as THREE from 'three';
 import { createRootLayout } from './root-layout.js';
-import { createRootWarpLayout } from './root-warp.js';
-import { MAX_ROOT_SURFACE_HEIGHT, createRootSurface, measureRootSurfaceCrowding, rootSurfaceHeight, rootSurfaceGradient, applyRootSurface } from './root-surface.js';
-import { buildRootActivityHistory, rootActivityAt, rootMembershipKey, rootPathGrowth } from './root-activity.js';
+import { createRootLengthLayout } from './root-length-layout.js';
+import { buildRootActivityHistory, rootActivityAt, rootMembershipKey } from './root-activity.js';
 import { RootLabels } from './root-labels.js';
 import { ROOT_VINE_RADIUS, rootRopeRadius, createRootRopeBatch, setRootRopeShape, setRootRopeColor, finishRootRopeUpdate } from './root-rope-geometry.js';
 import { CHANGE_COLORS, FOLDER_COLORS } from './encoding.js';
@@ -14,8 +13,16 @@ const STRAND_COLOR = new THREE.Color(0xb0926f);
 const SELECTED_COLOR = new THREE.Color(0xe1eefc);
 const ease = value => value * value * (3 - 2 * value);
 const curvePoints = curve => [curve.v0, curve.v1, curve.v2, curve.v3];
+// Two twisted strands give the roots a natural surface. Their count does not
+// encode activity: added length is the quantitative signal, caliber is subtle.
+const ROPE_PACKING = 1;
+const naturalCaliber = (baseLength, addedLength) => (1 + Math.max(0, addedLength) / Math.max(16, baseLength || 0)) ** 0.12;
+const growthCounts = (layout, activity) => ({
+  fileTouches: new Map(layout.nodes.map(node => [node.id, activity.fileTouches.get(node.id) || 0])),
+  folderTouches: new Map(layout.folders.map(folder => [folder.path, activity.folderTouches.get(folder.path) || 0])),
+});
 
-/** File activity grows the whole ancestral route; flexible roots make room around it. */
+/** Each file touch adds a fixed length; folder junctions stay rooted in place. */
 export class RepositoryRoots {
   constructor(stage) {
     this.stage = stage;
@@ -41,6 +48,10 @@ export class RepositoryRoots {
   setModel(model) {
     this._clear();
     this.model = model;
+    this.labels.setFocusFolder(null);
+    // Calibrate once from the head snapshot: replay must never change the
+    // physical meaning of a touch as files are added, removed, or renamed.
+    this.repositoryWidth = createRootLayout(model).footprint.width;
     this.activityHistory = buildRootActivityHistory(model);
     this.maximumActivity = rootActivityAt(this.activityHistory, model.commits.length - 1);
     this.selectedId = null; this.hovered = null;
@@ -52,7 +63,7 @@ export class RepositoryRoots {
 
   setFrame({ activeIds, visibleIds, paths = {}, changedIds, statuses = {}, selectedId, index, duration = 1.6, animate = false } = {}) {
     if (!this.model || this.disposed) return;
-    if (!animate) this._settleThickness();
+    if (!animate) this._settleGrowth();
     const active = toSet(activeIds ?? visibleIds ?? this.activeIds);
     const currentPaths = paths instanceof Map ? Object.fromEntries(paths) : paths;
     const nextIndex = Number.isFinite(index) ? Math.floor(index) : this.index ?? this.model.commits.length - 1;
@@ -70,25 +81,23 @@ export class RepositoryRoots {
       : null;
     if (layoutChanged) {
       this.signature = signature;
-      this.baseLayout = createRootLayout(this.model, { activeIds: active, paths: currentPaths, groundY: -40 });
+      this.baseLayout = createRootLayout(this.model, { activeIds: active, paths: currentPaths, groundY: -40, repositoryWidth: this.repositoryWidth });
       this._build(this.baseLayout, previousShapes);
     }
     this.index = nextIndex;
     this.activityState = rootActivityAt(this.activityHistory, nextIndex);
     const canAnimate = Boolean(animate && adjacent && this.options.activity && !this.motionPreference?.matches);
     if (layoutChanged || previousIndex !== nextIndex) {
-      this.pathGrowth = rootPathGrowth(this.baseLayout, this.activityState);
-      const fileRadii = new Map([...this.pathGrowth.fileTouches].map(([key, touches]) => [key, rootRopeRadius(touches)]));
-      const folderRadii = new Map([...this.pathGrowth.folderTouches].map(([key, touches]) => [key, rootRopeRadius(touches)]));
-      this.growthLayout = createRootWarpLayout(this.baseLayout, { fileRadii, folderRadii, baseRadius: ROOT_VINE_RADIUS, compact: true });
-      this._refreshSurface(true, !canAnimate);
-      this._updateSurfaceLayout();
-      // Commit targets remain unbent. Responsive presentation is applied only
-      // when rendering, so resizing cannot advance or restart a growing vine.
-      const warped = this.growthLayout;
+      this.pathGrowth = growthCounts(this.baseLayout, this.activityState);
+      this.growthLayout = createRootLengthLayout(this.baseLayout, { fileTouches: this.pathGrowth.fileTouches });
+      this.layout = this.growthLayout;
+      this.bounds.set(asVector(this.layout.bounds.min), asVector(this.layout.bounds.max));
+      // Geometry and ground never react to the camera. Zoom only changes which
+      // labels have room; activity length remains stable at every viewing angle.
+      this.surface = this.surfaceDisplay = { ...this.layout.base, height: 0, active: false };
       const targets = new Map([
-        ...warped.folders.map(folder => [`folder:${folder.path}`, folder]),
-        ...warped.nodes.map(node => [`membership:${rootMembershipKey(node.folder, node.id)}`, node]),
+        ...this.layout.folders.map(folder => [`folder:${folder.path}`, folder]),
+        ...this.layout.nodes.map(node => [`membership:${rootMembershipKey(node.folder, node.id)}`, node]),
       ]);
       // Parents precede children so a new strand can begin at its moving junction.
       const ordered = [...this.strands].sort((a, b) => (a.kind === 'file' ? a.node.depth : a.depth) - (b.kind === 'file' ? b.node.depth : b.depth));
@@ -98,9 +107,13 @@ export class RepositoryRoots {
         const target = targets.get(record.edgeKey);
         const previous = previousShapes?.get(record.edgeKey);
         record.touchCount = (record.kind === 'file' ? this.pathGrowth.fileTouches.get(record.node.id) : this.pathGrowth.folderTouches.get(record.path)) || 0;
-        record.radiusTarget = rootRopeRadius(record.touchCount);
+        record.baseLength = target.baseLength || 0;
+        record.addedLength = target.addedLength || 0;
+        record.lengthPerTouch = this.layout.lengthGrowth.lengthPerTouch;
+        record.lengthTarget = target.length ?? makeCurve(target.curve).getLength();
+        record.radiusTarget = rootRopeRadius(ROPE_PACKING, naturalCaliber(record.baseLength, record.addedLength));
         record.touchesFrom = previous?.touches ?? record.displayTouches ?? 0;
-        record.vineCountTarget = record.touchCount + 1;
+        record.vineCountTarget = ROPE_PACKING + 1;
         record.growthTarget = target.curve.map(asVector);
         record.growthFrom = previous?.points || (record.growthCurrent || curvePoints(record.curve)).map(point => point.clone());
         if (canAnimate && layoutChanged && !previous) {
@@ -129,39 +142,19 @@ export class RepositoryRoots {
     const colorFor = path => new THREE.Color(FOLDER_COLORS[Math.max(0, topPaths.indexOf(path.split('/')[0])) % FOLDER_COLORS.length]);
     // Future counts reserve buffer capacity only. The displayed pose still uses
     // the selected history prefix in setFrame; untouched roots stay untouched.
-    const maximumGrowth = rootPathGrowth(layout, this.maximumActivity);
-    const capacityGrowthLayout = createRootWarpLayout(layout, {
-      fileRadii: new Map([...maximumGrowth.fileTouches].map(([id, touches]) => [id, rootRopeRadius(touches)])),
-      folderRadii: new Map([...maximumGrowth.folderTouches].map(([path, touches]) => [path, rootRopeRadius(touches)])),
-      baseRadius: ROOT_VINE_RADIUS, compact: true,
-    });
-    const maximumSurface = createRootSurface(layout, { height: MAX_ROOT_SURFACE_HEIGHT });
-    const capacityLayout = applyRootSurface(capacityGrowthLayout, maximumSurface);
-    const folderLengths = new Map(capacityLayout.folders.map((folder, i) => [folder.path, Math.max(makeCurve(folder.curve).getLength(), makeCurve(capacityGrowthLayout.folders[i].curve).getLength())]));
-    const fileLengths = new Map(capacityLayout.nodes.map((node, i) => [node.id, Math.max(makeCurve(node.curve).getLength(), makeCurve(capacityGrowthLayout.nodes[i].curve).getLength())]));
+    const capacityLayout = createRootLengthLayout(layout, { fileTouches: this.maximumActivity.fileTouches });
+    const folderLengths = new Map(capacityLayout.folders.map(folder => [folder.path, makeCurve(folder.curve).getLength()]));
+    const fileLengths = new Map(capacityLayout.nodes.map(node => [node.id, makeCurve(node.curve).getLength()]));
     if (previousShapes?.size) {
-      // A hierarchy change can replace a wide fan with a compact grid. Surviving
-      // strands still animate from their old pose, which may be longer than any
-      // target pose; reserve that pose at both responsive surface extremes too.
-      const previousRecord = (record, key) => {
-        const previous = previousShapes.get(key);
-        if (!previous) return record;
-        const curve = previous.points.map(point => point.toArray());
-        return { ...record, curve, points: curve, position: [...curve[3]] };
-      };
-      const previousLayout = {
-        ...layout,
-        folders: layout.folders.map(folder => previousRecord(folder, `folder:${folder.path}`)),
-        nodes: layout.nodes.map(node => previousRecord(node, `membership:${rootMembershipKey(node.folder, node.id)}`)),
-      };
-      const previousBentLayout = applyRootSurface(previousLayout, maximumSurface);
-      for (const [records, bentRecords, lengths, key] of [
-        [previousLayout.folders, previousBentLayout.folders, folderLengths, 'path'],
-        [previousLayout.nodes, previousBentLayout.nodes, fileLengths, 'id'],
-      ]) for (let index = 0; index < records.length; index++) {
-        const record = records[index];
-        lengths.set(record[key], Math.max(lengths.get(record[key]) || 0,
-          makeCurve(record.curve).getLength(), makeCurve(bentRecords[index].curve).getLength()));
+      // Membership changes can reflow the base hierarchy. Reserve the surviving
+      // edge's old pose too, so the transition never exceeds its geometry budget.
+      for (const [records, lengths, key, edgeKey] of [
+        [layout.folders, folderLengths, 'path', record => `folder:${record.path}`],
+        [layout.nodes, fileLengths, 'id', record => `membership:${rootMembershipKey(record.folder, record.id)}`],
+      ]) for (const record of records) {
+        const previous = previousShapes.get(edgeKey(record));
+        if (previous) lengths.set(record[key], Math.max(lengths.get(record[key]) || 0,
+          new THREE.CubicBezierCurve3(...previous.points).getLength()));
       }
     }
     const folderEdges = [], fileEdges = [];
@@ -170,7 +163,7 @@ export class RepositoryRoots {
       const record = { ...folder, kind: 'folder', visible: true, position: asVector(folder.position), color, strandColor: STRAND_COLOR.clone().lerp(color, 0.35), curve: makeCurve(folder.curve), edgeKey: `folder:${folder.path}`, touchCount: 0, radius: ROOT_VINE_RADIUS, radiusTarget: ROOT_VINE_RADIUS };
       this.folders.set(folder.path, record);
       // The existing trunk is the sole repository root; folders are junctions.
-      if (folder.path) folderEdges.push({ key: folder.path, curve: record.curve, color: record.strandColor, touches: 0, maxTouches: this.maximumActivity.folderTouches.get(folder.path) || 0, maxLength: folderLengths.get(folder.path) });
+      if (folder.path) folderEdges.push({ key: folder.path, curve: record.curve, color: record.strandColor, touches: ROPE_PACKING, maxTouches: ROPE_PACKING, maxLength: folderLengths.get(folder.path) });
     }
     const count = layout.nodes.length;
     if (count) {
@@ -184,7 +177,7 @@ export class RepositoryRoots {
         const color = STRAND_COLOR.clone().lerp(folder.color, 0.4);
         const curve = makeCurve(node.curve);
         const membershipKey = rootMembershipKey(node.folder, node.id);
-        fileEdges.push({ key: node.id, curve, color, touches: 0, maxTouches: this.maximumActivity.membershipTouches.get(membershipKey) || 0, maxLength: fileLengths.get(node.id) });
+        fileEdges.push({ key: node.id, curve, color, touches: ROPE_PACKING, maxTouches: ROPE_PACKING, maxLength: fileLengths.get(node.id) });
         matrix.makeTranslation(position.x, position.y, position.z);
         this.tipPicks.setMatrixAt(index, matrix);
         this.tipIds.push(node.id);
@@ -217,8 +210,8 @@ export class RepositoryRoots {
         this.strands.push(record);
       }
     }
-    // A faint centerline preserves the hierarchy at overview zoom; individual
-    // three-dimensional vines form the visible rope as activity accumulates.
+    // A faint centerline preserves the hierarchy at overview zoom; two fine
+    // spiraling strands give the length-driven roots a natural surface.
     const linePositions = [], lineColors = [];
     for (const record of this.strands) {
       const points = record.curve.getPoints(20);
@@ -257,26 +250,16 @@ export class RepositoryRoots {
   _renderShape(record) {
     const source = record.growthCurrent, points = curvePoints(record.curve);
     if (!source) return;
-    const surface = this.surfaceDisplay;
-    const start = source[0], end = source[3];
-    const startDrop = rootSurfaceHeight(surface, start.x, start.z);
-    const endDrop = rootSurfaceHeight(surface, end.x, end.z);
-    const [startX, startZ] = rootSurfaceGradient(surface, start.x, start.z);
-    const [endX, endZ] = rootSurfaceGradient(surface, end.x, end.z);
     let moved = false;
     for (let i = 0; i < 4; i++) {
-      const point = source[i];
-      // Transform endpoint tangents with the same Jacobian as the ground.
-      const drop = i === 0 ? startDrop : i === 3 ? endDrop : i === 1
-        ? startDrop + startX * (point.x - start.x) + startZ * (point.z - start.z)
-        : endDrop + endX * (point.x - end.x) + endZ * (point.z - end.z);
-      const y = point.y + drop;
-      if (points[i].x !== point.x || points[i].y !== y || points[i].z !== point.z) moved = true;
-      points[i].set(point.x, y, point.z);
+      if (!points[i].equals(source[i])) moved = true;
+      points[i].copy(source[i]);
     }
     const parent = record.kind === 'file' ? record.folder : this.folders.get(record.parent);
     record.ropeStartDistance = parent?.ropeEndDistance || 0;
-    setRootRopeShape(record.batch, record.range, record.curve, record.displayTouches, record.ropeStartDistance);
+    const addedLength = record.kind === 'file' ? record.displayTouches * record.lengthPerTouch : 0;
+    record.radialScale = naturalCaliber(record.baseLength, addedLength);
+    setRootRopeShape(record.batch, record.range, record.curve, ROPE_PACKING, record.ropeStartDistance, record.radialScale);
     record.ropeEndDistance = record.ropeStartDistance + record.curve.getLength();
     record.radius = record.range.radius;
     record.vineCount = record.range.vineCount;
@@ -311,7 +294,7 @@ export class RepositoryRoots {
     this.shapeDirty = false;
   }
 
-  _settleThickness() {
+  _settleGrowth() {
     if (!this.transition) return;
     for (const record of this.transition.records) this._setShape(record, 1);
     this.transition = null; this._finishGeometry();
@@ -381,65 +364,14 @@ export class RepositoryRoots {
     Object.assign(this.options, options);
     this.group.visible = this.options.roots !== false;
     if (!this.group.visible) this.hovered = null;
-    if (!this.options.activity) this._settleThickness();
+    if (!this.options.activity) this._settleGrowth();
     this._updateColors();
-  }
-
-  _refreshSurface(force = false, immediate = false) {
-    if (!this.growthLayout) return false;
-    this.camera.updateMatrixWorld();
-    this.group.updateWorldMatrix(true, false);
-    const canvas = this.stage.renderer.domElement;
-    const width = canvas.clientWidth || window.innerWidth;
-    const height = canvas.clientHeight || window.innerHeight;
-    const signature = `${width}:${height}:${this.labels.compact}:${this.camera.matrixWorld.elements.join(',')}:${this.camera.projectionMatrix.elements.join(',')}:${this.group.matrixWorld.elements.join(',')}`;
-    if (!force && signature === this.surfaceSignature) return false;
-    this.surfaceSignature = signature;
-    // Responsive labels can change their measured width after a resize.
-    this.labelWidths = new Map(this.labels.files.map(record => [record.key, record.textWidth]));
-    this.surfaceProjection ||= new THREE.Vector3();
-    // Always probe the unbent data pose. Measuring the already bent roots would
-    // make curvature feed back into its own crowding estimate while orbiting.
-    const points = (this.labels.focusMode ? this.growthLayout.nodes : []).map(node => {
-      const projected = this.surfaceProjection.fromArray(node.position).applyMatrix4(this.group.matrixWorld).project(this.camera);
-      return { id: node.id, x: (projected.x * .5 + .5) * width, y: (-projected.y * .5 + .5) * height,
-        visible: projected.z >= -1 && projected.z <= 1, textWidth: this.labelWidths.get(node.id) || 70 };
-    }).filter(point => point.visible);
-    this.surfaceCrowding = measureRootSurfaceCrowding(points, { width, height, labelOrientation: 'horizontal' });
-    this.surface = createRootSurface(this.baseLayout, { viewportWidth: width, crowding: this.surfaceCrowding });
-    if (!this.surfaceDisplay || immediate || this.motionPreference?.matches) {
-      const changed = this.surfaceDisplay?.height !== this.surface.height;
-      this.surfaceDisplay = this.surface;
-      return changed;
-    }
-    return false;
-  }
-
-  _advanceSurface(dt) {
-    if (!this.surface || !this.surfaceDisplay) return false;
-    const from = this.surfaceDisplay.height, target = this.surface.height;
-    if (from === target) return false;
-    const amount = this.motionPreference?.matches ? 1 : 1 - Math.exp(-Math.max(0, Number(dt) || 0) * 12);
-    let height = from + (target - from) * amount;
-    if (Math.abs(height - target) < .01) height = target;
-    if (height === from) return false;
-    this.surfaceDisplay = { ...this.surface, height };
-    return true;
-  }
-
-  _updateSurfaceLayout() {
-    this.layout = applyRootSurface(this.growthLayout, this.surfaceDisplay);
-    this.bounds.set(asVector(this.layout.bounds.min), asVector(this.layout.bounds.max));
   }
 
   update(dt = 0) {
     if (this.disposed || !this.layout) return;
-    const refreshed = this._refreshSurface();
-    const advanced = this._advanceSurface(dt);
-    const surfaceChanged = refreshed || advanced;
-    if (surfaceChanged) this._updateSurfaceLayout();
     if (this.transition) {
-      if (this.motionPreference?.matches || !this.options.activity) this._settleThickness();
+      if (this.motionPreference?.matches || !this.options.activity) this._settleGrowth();
       else {
         this.transition.elapsed = Math.min(this.transition.duration, this.transition.elapsed + Math.max(0, Number(dt) || 0));
         const amount = ease(this.transition.elapsed / this.transition.duration);
@@ -447,9 +379,6 @@ export class RepositoryRoots {
         if (this.transition.elapsed >= this.transition.duration) this.transition = null;
         this._finishGeometry();
       }
-    } else if (surfaceChanged) {
-      for (const record of this.orderedStrands || []) this._renderShape(record);
-      this._finishGeometry();
     }
     this.labels.update({ visible: this.options.roots, labels: this.options.labels, hovered: this.hovered, selectedId: this.selectedId });
   }

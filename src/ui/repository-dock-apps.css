@@ -125,8 +125,8 @@ html body .repository-app-tile:focus-visible .repository-app-icon { transform: t
   html body .repository-app-link:hover:not([data-tooltip-dismissed]) .repository-app-tooltip { visibility: visible; opacity: 1; transform: translateX(-50%); }
 }
 @media (max-width: 900px) {
-  html body.repository-apps-docked:not(.repository-views-top) #topbar { padding-bottom: 10px; }
-  html body.repository-apps-docked:not(.repository-views-top) :is(#data-panel-toggle, #data-guide-toggle, #activity-panel-toggle, #activity-guide-toggle) { top: 64px; }
+  html body.repository-apps-docked #topbar { padding-bottom: 10px; }
+  html body.repository-apps-docked :is(#data-panel-toggle, #data-guide-toggle, #activity-panel-toggle, #activity-guide-toggle) { top: 64px; }
 }
 /* A separate actions row keeps generous icon targets on narrow phones. */
 @media (max-width: 540px) {

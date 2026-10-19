@@ -315,3 +315,57 @@ test('ground counts and adaptive threshold use current non-dot membership only',
   assert.deepEqual(renamed.nodes, []);
   assertBaseEncloses(renamed);
 });
+
+test('bundled xo and xo-space have width-proportional baseline tiers with unchanged XZ packing', () => {
+  const cases = [];
+  for (const name of ['xo', 'xo-space']) {
+    const snapshot = JSON.parse(readFileSync(new URL(`./examples/${name}.json`, import.meta.url), 'utf8'));
+    const model = buildModel(snapshot), frame = stateAt(model, model.commits.length - 1);
+    const options = { activeIds: frame.activeIds, paths: new Map(frame.files.map(file => [file.id, file.path])) };
+    const layout = createRootLayout(model, options);
+    const reference = createRootLayout(model, { ...options, repositoryWidth: 160 });
+    assert.deepEqual(layout.footprint, reference.footprint);
+    assert.deepEqual(layout.base, reference.base);
+    assert.equal(layout.fileCount, reference.fileCount);
+    assert.equal(layout.folderCount, reference.folderCount);
+    for (let index = 0; index < layout.rows.length; index++) {
+      const row = layout.rows[index], old = reference.rows[index];
+      assert.equal(row.position[1], layout.groundY - row.depth * layout.tierHeight);
+      for (let control = 0; control < 4; control++) for (const axis of [0, 2]) {
+        assert.equal(row.curve[control][axis], old.curve[control][axis]);
+      }
+    }
+    assert.equal(layout.proportions.repositoryWidth, layout.footprint.width);
+    assert.equal(layout.tierHeight, layout.proportions.tierHeight);
+    assertExactEdges(layout);
+    assertBaseEncloses(layout);
+    cases.push(layout);
+  }
+  const [xo, space] = cases;
+  assert.equal(xo.tierHeight, 16);
+  assert.equal(xo.proportions.lengthPerTouch, 6);
+  assert.equal(space.footprint.width, 634.4);
+  assert.equal(space.tierHeight, 63.44);
+  assert.equal(space.proportions.lengthPerTouch, 23.79);
+  assert.ok(space.bounds.min[1] < -500);
+});
+
+test('a pinned head width keeps historical tier and growth units stable when membership changes', () => {
+  const model = make(Array.from({ length: 420 }, (_, index) => `packages/p${index % 12}/src/file${index}.js`));
+  const head = createRootLayout(model);
+  assert.ok(head.footprint.width > 160);
+  const earlyIds = model.nodes.slice(0, 8).map(node => node.id);
+  const early = createRootLayout(model, { activeIds: earlyIds, repositoryWidth: head.footprint.width });
+  const unpinned = createRootLayout(model, { activeIds: earlyIds });
+  assert.ok(early.footprint.width < head.footprint.width);
+  assert.deepEqual(early.proportions, head.proportions);
+  assert.equal(early.tierHeight, head.tierHeight);
+  assert.equal(unpinned.tierHeight, 16);
+  assert.deepEqual(early.footprint, unpinned.footprint);
+  assert.deepEqual(early.base, unpinned.base);
+  assert.ok(early.rows.every(row => row.position[1] === early.groundY - row.depth * early.tierHeight));
+  assertExactEdges(early);
+  for (const width of [NaN, -4, Infinity]) {
+    assert.deepEqual(createRootLayout(model, { repositoryWidth: width }).proportions, head.proportions);
+  }
+});

@@ -242,3 +242,61 @@ test('partial uploads retain changes to separate edges until the renderer consum
   assert.equal(position.version, version, 'unchanged frames must not trigger buffer uploads');
   finite(batch); batch.geometry.dispose();
 });
+
+
+test('proportional radial scaling preserves the twisted bundle count and exact rewind', () => {
+  const curve = cubic([[0, 0, 0], [4, -8, 3], [-5, -18, 7], [2, -32, -4]]);
+  const batch = createRootRopeBatch([{ ...edge('root', curve, 1, 1), radialScale: 1 }], { pointed: true });
+  const range = batch.ranges.get('root'), uuid = batch.geometry.uuid;
+  const baselinePositions = batch.geometry.attributes.position.array.slice();
+  const baselineNormals = batch.geometry.attributes.normal.array.slice();
+  const baselineCenters = batch.centers.slice(), baselineProfiles = batch.profiles.slice();
+  const offset = [...range.vines[0].offset];
+  const indices = batch.geometry.index.array.slice();
+  for (const scale of [1.05, 1.12, 1.43, 2]) {
+    setRootRopeShape(batch, range, curve, 1, 0, scale); finishRootRopeUpdate(batch);
+    assert.equal(range.vineCount, 2);
+    assert.equal(range.capacity, 2);
+    assert.equal(range.radialScale, scale);
+    near(range.radius, rootRopeRadius(1) * scale, 1e-12);
+    near(rootRopeRadius(1, scale), range.radius, 1e-12);
+    near(range.vines[0].offset[0], offset[0] * scale, 1e-12);
+    near(range.vines[0].offset[1], offset[1] * scale, 1e-12);
+    for (const vine of range.vines) for (let ring = 0; ring <= range.segments; ring++) {
+      const vertex = vine.vertexStart + ring * (range.sides + 1);
+      const center = at(batch.centers, vertex), axis = at(range.axisCenters, ring);
+      const before = at(baselineCenters, vertex);
+      near(center.distanceTo(axis), before.distanceTo(axis) * scale, 4e-6);
+      near(batch.profiles[vertex], baselineProfiles[vertex] * scale, 2e-7);
+    }
+    assertCaliber(batch, range); finite(batch);
+    assert.equal(batch.geometry.uuid, uuid);
+    assert.deepEqual(batch.geometry.index.array, indices);
+  }
+  const version = batch.geometry.attributes.position.version;
+  setRootRopeShape(batch, range, curve, 1, 0, 2); finishRootRopeUpdate(batch);
+  assert.equal(batch.geometry.attributes.position.version, version, 'the same scale must not upload unchanged buffers');
+  setRootRopeShape(batch, range, curve, 1, 0, 1); finishRootRopeUpdate(batch);
+  assert.deepEqual(batch.geometry.attributes.position.array, baselinePositions);
+  assert.deepEqual(batch.geometry.attributes.normal.array, baselineNormals);
+  assert.deepEqual(batch.centers, baselineCenters);
+  assert.deepEqual(batch.profiles, baselineProfiles);
+  for (const invalid of [0, -1, NaN, Infinity]) {
+    assert.throws(() => setRootRopeShape(batch, range, curve, 1, 0, invalid), /positive and finite/);
+    assert.throws(() => rootRopeRadius(1, invalid), /positive and finite/);
+  }
+  batch.geometry.dispose();
+});
+
+test('a fixed bundle can start thickened and retain finite normals while its curve grows from a point', () => {
+  const points = [[2, -40, 3], [2, -40, 3], [2, -40, 3], [2, -40, 3]];
+  const curve = cubic(points);
+  const batch = createRootRopeBatch([{ ...edge('root', curve, 1, 1), radialScale: 1.2 }], { pointed: true });
+  const range = batch.ranges.get('root');
+  near(range.radius, rootRopeRadius(1, 1.2), 1e-12);
+  assert.equal(range.vineCount, 2); finite(batch);
+  mutate(curve, [[2, -40, 3], [4, -45, 5], [-1, -58, 8], [3, -73, 4]]);
+  setRootRopeShape(batch, range, curve, 1, 17.25, 1.3); finishRootRopeUpdate(batch);
+  assert.equal(range.vineCount, 2); assertCaliber(batch, range); finite(batch);
+  batch.geometry.dispose();
+});

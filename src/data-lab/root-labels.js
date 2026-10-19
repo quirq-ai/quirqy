@@ -21,6 +21,7 @@ export class RootLabels {
     this.textMetrics = document.createElement('canvas').getContext('2d');
     this.enabled = false;
     this.focusMode = false;
+    this.focusedPath = null;
     this.compact = false;
     this.signature = null;
     this.obstacles = [];
@@ -29,14 +30,23 @@ export class RootLabels {
 
   setFocusMode(enabled) {
     const next = Boolean(enabled);
+    if (!next) this.setFocusFolder(null);
     if (next === this.focusMode) return;
     this.focusMode = next;
     for (const record of this.records) this._styleName(record);
     this.signature = null;
   }
 
+  setFocusFolder(path) {
+    const next = path || null;
+    if (next === this.focusedPath) return;
+    this.focusedPath = next;
+    this.signature = null;
+  }
+
   setLayout(folders, files) {
     this.clear();
+    if (this.focusedPath && !folders.has(this.focusedPath)) this.setFocusFolder(null);
     for (const [path, source] of folders) {
       // The visible trunk already names the repository root.
       if (!path) continue;
@@ -124,7 +134,7 @@ export class RootLabels {
     }
     this.obstacles = this._screenObstacles(width, height);
     const obstacleSignature = this.obstacles.map(box => `${box.left},${box.top},${box.width},${box.height}`).join(';');
-    const signature = `${width}:${height}:${obstacleSignature}:${this.focusMode}:${selectedId || ''}:${hovered?.kind || ''}:${hovered?.id || hovered?.path || ''}:${this.camera.matrixWorld.elements.join(',')}:${this.camera.projectionMatrix.elements.join(',')}:${this.group.matrixWorld.elements.join(',')}`;
+    const signature = `${width}:${height}:${obstacleSignature}:${this.focusMode}:${this.focusedPath || ''}:${selectedId || ''}:${hovered?.kind || ''}:${hovered?.id || hovered?.path || ''}:${this.camera.matrixWorld.elements.join(',')}:${this.camera.projectionMatrix.elements.join(',')}:${this.group.matrixWorld.elements.join(',')}`;
     if (signature !== this.signature) {
       this.signature = signature;
       for (const record of this.records) {
@@ -140,7 +150,12 @@ export class RootLabels {
         record.visible = contextual && !record.occludedByHud && finite(record.x) && finite(record.y) && this.projected.z >= -1 && this.projected.z <= 1
           && record.x >= -10 && record.x <= width + 10 && record.y >= -10 && record.y <= height;
         record.object.visible = record.visible;
-        record.priority = record.key === selectedId || (record.kind === hovered?.kind && record.key === (hovered.id || hovered.path)) ? 100 : 0;
+        const inFocusedFolder = this.focusMode && this.focusedPath
+          && (record.path === this.focusedPath || record.path.startsWith(`${this.focusedPath}/`));
+        // Reserve readable names for the folder the user is inspecting before
+        // unrelated branches; selected and hovered files still take precedence.
+        record.priority = record.key === selectedId || (record.kind === hovered?.kind && record.key === (hovered.id || hovered.path))
+          ? 100 : inFocusedFolder ? 50 : 0;
       }
       this._placeNames(width, height);
     }

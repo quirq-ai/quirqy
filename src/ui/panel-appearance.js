@@ -140,42 +140,34 @@ export function mountPanelAppearance() {
 
   function releaseRepositoryViews() {
     if (!repositoryViews) return;
-    const { row, placeholder, nav, resize } = repositoryViews;
+    const { row, placeholder, nav, actions } = repositoryViews;
     repositoryViews = null;
-    resize.disconnect();
     if (placeholder.parentNode) placeholder.replaceWith(row);
     else row.remove();
     nav.remove();
-    document.body.classList.remove('repository-views-top');
-    document.documentElement.style.removeProperty('--repository-header-height');
+    actions.classList.remove('repository-actions-with-views');
   }
 
   function attachRepositoryViews() {
     const lab = REPOSITORY_LABS.find(lab => document.getElementById(lab.panelId));
     const panel = lab && document.getElementById(lab.panelId);
-    const topbar = document.getElementById('topbar');
-    if (repositoryViews && (repositoryViews.panel !== panel || repositoryViews.topbar !== topbar
+    const actions = lab && document.getElementById(lab.dockId)?.querySelector('.repository-dock-actions');
+    if (repositoryViews && (repositoryViews.panel !== panel || repositoryViews.actions !== actions
       || !repositoryViews.placeholder.isConnected || !repositoryViews.nav.isConnected
-      || !repositoryViews.nav.contains(repositoryViews.row))) releaseRepositoryViews();
-    if (!panel || !topbar || repositoryViews) return;
+      || !actions?.contains(repositoryViews.nav) || !repositoryViews.nav.contains(repositoryViews.row))) releaseRepositoryViews();
+    if (!panel || !actions || repositoryViews) return;
     const row = panel.querySelector(lab.viewSwitch);
     if (!row) return;
-    const placeholder = document.createComment('Repository views are presented beneath the Observatory brand.');
+    const placeholder = document.createComment('Repository views are presented above the dock apps.');
     row.before(placeholder);
     const nav = document.createElement('nav');
     nav.className = 'repository-view-nav';
-    nav.setAttribute('aria-label', 'Scene view');
-    // Keep the original group and buttons, including the lab's listeners and pressed states.
+    nav.setAttribute('aria-label', `${lab.mode === 'data' ? 'Data' : 'Activity'} views`);
+    // Move the whole group so the lab keeps its original listeners and pressed states.
     nav.append(row);
-    topbar.append(nav);
-    document.body.classList.add('repository-views-top');
-    const updateHeight = () => {
-      document.documentElement.style.setProperty('--repository-header-height', `${Math.ceil(topbar.getBoundingClientRect().height)}px`);
-    };
-    const resize = new ResizeObserver(updateHeight);
-    resize.observe(topbar);
-    updateHeight();
-    repositoryViews = { panel, row, placeholder, nav, topbar, resize };
+    actions.prepend(nav);
+    actions.classList.add('repository-actions-with-views');
+    repositoryViews = { panel, row, placeholder, nav, actions };
   }
 
   function attachControls() {
@@ -186,7 +178,7 @@ export function mountPanelAppearance() {
       triggers.delete(trigger);
     }
     attachRepositoryViews();
-    for (const id of ['topbar', 'timebar', 'math-timebar', 'equation-panel', ...REPOSITORY_LABS.flatMap(lab => [lab.panelId, lab.dockId])]) {
+    for (const id of ['timebar', 'math-timebar', 'equation-panel', ...REPOSITORY_LABS.flatMap(lab => [lab.panelId, lab.dockId])]) {
       const container = document.getElementById(id);
       if (!container) continue;
       if (!observed.has(container)) {
@@ -197,11 +189,11 @@ export function mountPanelAppearance() {
         panelObservers.push(observer);
       }
       const lab = REPOSITORY_LABS.find(lab => lab.dockId === id || lab.panelId === id);
-      if (id === 'topbar' || id === lab?.panelId) continue;
+      if (id === lab?.panelId) continue;
       if (id === lab?.dockId) {
         const actions = container.querySelector('.repository-dock-actions');
         const trigger = addTrigger(actions);
-        if (trigger) actions.prepend(trigger);
+        if (trigger) actions.insertBefore(trigger, actions.querySelector('.repository-dock-apps'));
       } else if (id === 'equation-panel') {
         const row = container.querySelector('#eq-speed')?.previousElementSibling;
         if (row) { row.classList.add('glass-speed-heading'); addTrigger(row); }

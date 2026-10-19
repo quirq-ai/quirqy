@@ -4,6 +4,7 @@ import { softDotTexture } from '../scene/setup.js';
 import { radialSpriteTexture } from '../textures/procedural.js';
 import { createContributorPortrait } from './contributor-portrait.js';
 import { placeContributorCards } from './contributor-screen-layout.js';
+import { encloseContributorCards, displaceConstellationClusters } from './constellation-enclosure.js';
 import { createActivityLayout, activityFrameBounds, activityClusterVisible, activityRadius, activityHash, ACTIVITY_KIND_COLORS, ACTIVITY_KIND_LABELS, REPOSITORY_NODE_ID } from './scene-layout.js';
 
 export { ACTIVITY_KIND_COLORS, ACTIVITY_KIND_LABELS } from './scene-layout.js';
@@ -305,7 +306,7 @@ export class ActivityScene {
       object.raycast = () => {};
       object.userData = { kind: cluster.kind, role: 'capacity-envelope', total: cluster.total, loaded: cluster.loaded };
       this.guideGroup.add(object);
-      this.decorations.push({ line: object, cluster });
+      this.decorations.push({ line: object, cluster, basePosition: object.position.clone(), baseQuaternion: object.quaternion.clone() });
     };
     for (const cluster of this.layout.clusters) {
       const label = textLabel('', cluster.color, cluster.actor ? 10 : 11);
@@ -314,28 +315,33 @@ export class ActivityScene {
       this.clusterLabels.push({ cluster, label });
       // These quiet translucent volumes describe capacity, not extra entities.
       // In particular, an all-closed category retains its complete envelope.
+      // Portraits and their full names face the camera; their enclosing circle
+      // follows the same plane, while activity capacity keeps its 3D volumes.
+      const portraitEnclosure = this.view === 'constellation' && cluster.kind === 'contributor';
       const geometry = cluster.envelope === 'band'
         ? new THREE.TorusGeometry(cluster.orbitRadius, cluster.tubeRadius, 12, 128)
-        : new THREE.SphereGeometry(cluster.radius, 32, 20);
+        : portraitEnclosure ? new THREE.CircleGeometry(cluster.radius, 128) : new THREE.SphereGeometry(cluster.radius, 32, 20);
       const material = new THREE.MeshBasicMaterial({ color: cluster.color, transparent: true, opacity: cluster.actor ? .014 : .027,
-        side: THREE.BackSide, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
+        side: portraitEnclosure ? THREE.DoubleSide : THREE.BackSide, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
       this.dataGeometries.add(geometry); this.dataMaterials.add(material);
       const shell = new THREE.Mesh(geometry, material);
       if (cluster.envelope === 'band') shell.rotation.set(Math.PI / 2 - cluster.tilt, -cluster.rotation, 0, 'YXZ');
       else shell.position.fromArray(cluster.position);
       addDecoration(shell, cluster);
       this.envelopes.push({ cluster, object: shell });
-      if (cluster.radius > 0) for (const plane of ['xy', 'xz']) {
+      if (cluster.radius > 0) for (const plane of portraitEnclosure ? ['xy'] : ['xy', 'xz']) {
         const points = Array.from({ length: 129 }, (_, index) => {
           const angle = index / 128 * Math.PI * 2;
           const point = plane === 'xy' ? [Math.cos(angle), Math.sin(angle), 0] : [Math.cos(angle), 0, Math.sin(angle)];
-          return vec(cluster.position).add(vec(point).multiplyScalar(cluster.radius));
+          return vec(point).multiplyScalar(cluster.radius);
         });
         const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
         const lineMaterial = new THREE.LineBasicMaterial({ color: cluster.color, transparent: true,
           opacity: cluster.actor ? .13 : plane === 'xy' ? .26 : .16, depthWrite: false });
         this.dataGeometries.add(lineGeometry); this.dataMaterials.add(lineMaterial);
-        addDecoration(new THREE.Line(lineGeometry, lineMaterial), cluster);
+        const outline = new THREE.Line(lineGeometry, lineMaterial);
+        outline.position.fromArray(cluster.position);
+        addDecoration(outline, cluster);
       }
     }
     for (const ring of this.layout.rings) {
@@ -511,7 +517,18 @@ export class ActivityScene {
 
   frame(immediate = false) {
     if (this.disposed) return;
+    this.focusedConstellation = null; this.contributorScreenSignature = null;
     this.frameBounds = activityFrameBounds(this.layout, this.visibleKinds);
+    const contributor = this.layout?.clusters.find(cluster => cluster.kind === 'contributor');
+    if (this.view === 'constellation' && this.constellationEnclosure && contributor && activityClusterVisible(contributor, this.visibleKinds)) {
+      // Frame the actual expanded guide and translated categories, not their
+      // smaller original anchors. Count/state filtering still preserves capacity.
+      this.frameBounds = [{ position: [0, 0, 0], radius: 9 }, ...this.layout.clusters
+        .filter(cluster => activityClusterVisible(cluster, this.visibleKinds)).map(cluster => {
+          const displayed = cluster === contributor ? this.constellationEnclosure : this.constellationPlacements.get(cluster.id);
+          return { position: displayed?.position || cluster.bounds.position, radius: (displayed?.worldRadius || cluster.bounds.radius) + 5 };
+        })];
+    }
     const records = this.frameBounds.map(bound => ({ position: vec(bound.position), radius: bound.radius }));
     this.camera.up.set(0, 1, 0);
     const direction = this.view === 'orbits' ? new THREE.Vector3(.2, .78, 1) : new THREE.Vector3(.12, .18, 1);
@@ -521,6 +538,11 @@ export class ActivityScene {
   focus(id) {
     const record = this.nodes.get(id);
     if (!record || !this.visibleIds.has(id)) return;
+    // A close-up inspects the already arranged map. Repacking whole categories
+    // against the magnified camera would move the target we are flying toward.
+    this.focusedConstellation = this.view === 'constellation' && !record.portrait
+      ? { positions: new Map([...this.nodes].map(([key, node]) => [key, node.renderPosition.clone()])) } : null;
+    this.contributorScreenSignature = null;
     const ray = this.camera.position.clone().sub(this.controls.target).normalize();
     if (Math.abs(ray.y) > .97) ray.set(.1, .6, 1).normalize();
     this._flyTo(this._pose([{ position: record.renderPosition, radius: Math.max(9, record.radius * 4.2) }], ray));
@@ -676,7 +698,7 @@ export class ActivityScene {
   _spaceContributorCards() {
     const viewport = this._viewport();
     const dock = document.getElementById('activity-timebar')?.getBoundingClientRect();
-    const signature = [this.view, this.selectedId, [...this.visibleIds].join(','), dock?.x, dock?.y, dock?.width, dock?.height, ...Object.values(viewport), ...this.camera.matrixWorld.elements,
+    const signature = [this.view, this.selectedId, [...this.visibleKinds].sort().join(','), [...this.visibleIds].join(','), dock?.x, dock?.y, dock?.width, dock?.height, ...Object.values(viewport), ...this.camera.matrixWorld.elements,
       ...this.camera.projectionMatrix.elements, ...[...this.nodes.values()].filter(record => record.tag).map(record => record.tag.element.offsetWidth)].join('|');
     if (!this.layoutTransition && signature === this.contributorScreenSignature) return;
     this.contributorScreenSignature = this.layoutTransition ? null : signature;
@@ -686,11 +708,12 @@ export class ActivityScene {
       return { x: (point.x * .5 + .5) * viewport.width, y: (-point.y * .5 + .5) * viewport.height, z: point.z };
     };
     const cards = [], activityCards = [], obstacles = [], projected = new Map();
+    const anchor = record => this.focusedConstellation?.positions.get(record.item.id) || record.position;
     if (dock?.width && dock.height) obstacles.push({ x: dock.x + dock.width / 2, y: dock.y + dock.height / 2, width: dock.width + 8, height: dock.height + 8 });
     for (const record of this.nodes.values()) {
-      const center = project(record.position);
+      const position = anchor(record), center = project(position);
       if (center.z < -1 || center.z > 1) continue;
-      const edge = project(record.position.clone().addScaledVector(right, record.mesh.scale.x * (record.portrait ? 1.085 : 1.65)));
+      const edge = project(position.clone().addScaledVector(right, record.mesh.scale.x * (record.portrait ? 1.085 : 1.65)));
       const pixels = Math.max(1, Math.hypot(edge.x - center.x, edge.y - center.y));
       if (!record.portrait) {
         projected.set(record.item.id, { center, pixels, footer: 0 });
@@ -721,19 +744,23 @@ export class ActivityScene {
     // take away the screen space needed to read a visible person's name.
     const placementBounds = { left: viewport.left, right: viewport.right, top: viewport.top,
       bottom: Math.min(viewport.bottom, dock?.y > viewport.height * .65 ? dock.y - 20 : viewport.bottom) };
-    const placed = placeContributorCards(cards, { ...placementBounds, gap: 16, obstacles, priorityId: this.selectedId });
+    const placed = placeContributorCards(cards, { ...(this.focusedConstellation ? {} : placementBounds), gap: 16,
+      obstacles: this.focusedConstellation ? [...obstacles, ...activityCards] : obstacles, priorityId: this.selectedId });
     const portraitBounds = cards.filter(card => this.visibleIds.has(card.id)).map(card => ({ ...card, ...placed.get(card.id) }));
     const intersectsPortrait = card => portraitBounds.some(other => Math.abs(card.x - other.x) < (card.width + other.width) / 2 + 5
       && Math.abs(card.y - other.y) < (card.height + other.height) / 2 + 5);
     // People get the first claim on readable screen space. Only activity bodies
     // that collide with a portrait/name move aside; their links follow them.
-    const displaced = activityCards.filter(intersectsPortrait), fixed = activityCards.filter(card => !intersectsPortrait(card));
+    const clusterOffsets = this.focusedConstellation ? null
+      : this._layoutConstellationEnclosure(cards.map(card => ({ ...card, ...placed.get(card.id) })), viewport, project, right);
+    const displaced = clusterOffsets || this.focusedConstellation ? [] : activityCards.filter(intersectsPortrait);
+    const fixed = activityCards.filter(card => !intersectsPortrait(card));
     const activityPlaced = placeContributorCards(displaced, { ...placementBounds, gap: 5,
       obstacles: [...obstacles, ...portraitBounds, ...fixed], priorityId: this.selectedId });
     let changed = false;
     for (const record of this.nodes.values()) {
       const old = record.renderPosition.clone();
-      record.renderPosition.copy(record.position);
+      record.renderPosition.copy(anchor(record));
       if (record.portrait) {
         const target = placed.get(record.item.id), original = projected.get(record.item.id);
         if (target && original) record.renderPosition.set(target.x / viewport.width * 2 - 1,
@@ -746,6 +773,7 @@ export class ActivityScene {
         const tagY = point.y + (original?.pixels || 0) + 5;
         record.tag.position.set(point.x / viewport.width * 2 - 1, 1 - tagY / viewport.height * 2, point.z).unproject(this.camera);
       }
+      if (!record.portrait && clusterOffsets?.has(record.item.kind)) record.renderPosition.add(clusterOffsets.get(record.item.kind));
       if (!record.portrait && activityPlaced.has(record.item.id)) {
         const target = activityPlaced.get(record.item.id), original = projected.get(record.item.id);
         record.renderPosition.set(target.x / viewport.width * 2 - 1, 1 - target.y / viewport.height * 2, original.center.z).unproject(this.camera);
@@ -763,6 +791,87 @@ export class ActivityScene {
     if (selected) this.selectionRing.position.copy(selected.renderPosition);
   }
 
+  _layoutConstellationEnclosure(cards, viewport, project, right) {
+    // Restore original anchors before every solve, including after view/filter
+    // changes. Growing the circle must never accumulate translation or scale.
+    for (const { line, basePosition, baseQuaternion } of this.decorations) {
+      line.position.copy(basePosition); line.quaternion.copy(baseQuaternion); line.scale.setScalar(1);
+    }
+    for (const { cluster, label } of this.clusterLabels) label.position.fromArray(cluster.position)
+      .add(new THREE.Vector3(0, cluster.labelOnly ? 4 : cluster.radius + 4.5, 0));
+    this.constellationEnclosure = null; this.constellationPlacements = new Map();
+    const contributor = this.view === 'constellation' && this.layout.clusters.find(cluster => cluster.kind === 'contributor');
+    if (!contributor || !activityClusterVisible(contributor, this.visibleKinds)) return null;
+    const original = project(vec(contributor.position));
+    if (original.z < -1 || original.z > 1) return null;
+    const edge = project(vec(contributor.position).addScaledVector(right, contributor.radius));
+    const minimumCircle = { x: original.x, y: original.y, radius: Math.hypot(edge.x - original.x, edge.y - original.y) };
+    const enclosure = encloseContributorCards(cards, { minimumCircle, padding: 14 });
+    const unproject = (x, y, z) => new THREE.Vector3(x / viewport.width * 2 - 1, 1 - y / viewport.height * 2, z).unproject(this.camera);
+    const center = unproject(enclosure.x, enclosure.y, original.z);
+    const radius = center.distanceTo(unproject(enclosure.x + enclosure.radius, enclosure.y, original.z));
+    this.constellationEnclosure = { ...enclosure, z: original.z, position: center.toArray(), worldRadius: radius };
+    for (const { line, cluster } of this.decorations) if (cluster === contributor) {
+      line.position.copy(center); line.quaternion.copy(this.camera.quaternion); line.scale.setScalar(radius / contributor.radius);
+    }
+    const caption = this.clusterLabels.find(entry => entry.cluster === contributor)?.label;
+    if (caption) caption.position.copy(unproject(enclosure.x, enclosure.y - enclosure.radius - 13, original.z));
+
+    const focal = viewport.height / (2 * Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2)));
+    // Conservative circular silhouette of a perspective-projected sphere. The
+    // center offset and major axis account for categories away from the optical
+    // axis; just projecting one radius would miss their outer edge after orbit.
+    const silhouette = (position, radius) => {
+      const local = position.clone().applyMatrix4(this.camera.matrixWorldInverse);
+      const depth = -local.z, radial = Math.hypot(local.x, local.y);
+      const denominator = Math.max(1, depth * depth - radius * radius);
+      return focal * (radius * Math.sqrt(Math.max(0, depth * depth + radial * radial - radius * radius))
+        + radius * radius * radial / Math.max(1, depth)) / denominator;
+    };
+    const neighbors = this.layout.clusters.filter(cluster => cluster !== contributor && activityClusterVisible(cluster, this.visibleKinds)).map(cluster => {
+      const position = vec(cluster.position), local = position.clone().applyMatrix4(this.camera.matrixWorldInverse);
+      const point = project(position);
+      if (point.z < -1 || point.z > 1) return null;
+      // A close-up can put the camera inside a category's capacity volume. Move
+      // that whole volume farther along its sightline before moving it sideways.
+      const depth = -local.z, safeDepth = Math.max(depth, cluster.radius * 3);
+      if (safeDepth > depth) { local.multiplyScalar(safeDepth / Math.max(1, depth)); position.copy(local.applyMatrix4(this.camera.matrixWorld)); }
+      return { cluster, anchor: project(position), position, radius: silhouette(position, cluster.radius) + 3 };
+    }).filter(Boolean);
+    const sun = project(new THREE.Vector3());
+    const sunEdge = project(right.clone().multiplyScalar(7));
+    const repositorySize = labelSize(this.repositoryLabel);
+    const repositoryName = project(this.repositoryLabel.getWorldPosition(new THREE.Vector3()));
+    const repositoryFootprint = Math.hypot(repositoryName.x - sun.x, repositoryName.y - sun.y)
+      + Math.hypot(repositorySize.width / 2 + 8, repositorySize.height / 2 + 8);
+    const obstacles = sun.z >= -1 && sun.z <= 1 ? [{ x: sun.x, y: sun.y,
+      radius: Math.max(Math.hypot(sunEdge.x - sun.x, sunEdge.y - sun.y) + 8, repositoryFootprint) }] : [];
+    let placement = new Map();
+    // Translation changes a sphere's perspective silhouette slightly. Re-solve
+    // from the same anchors with conservative radii until the full volumes clear.
+    for (let pass = 0; pass < 24; pass++) {
+      placement = displaceConstellationClusters(neighbors.map(item => ({ id: item.cluster.id, x: item.anchor.x, y: item.anchor.y, radius: item.radius })), { enclosure, obstacles, gap: 18 });
+      let grew = false;
+      for (const item of neighbors) {
+        const target = placement.get(item.cluster.id), position = unproject(target.x, target.y, item.anchor.z);
+        const needed = silhouette(position, item.cluster.radius) + 3;
+        if (needed > item.radius + .01) { item.radius = needed + .25; grew = true; }
+      }
+      if (!grew) break;
+    }
+    const offsets = new Map();
+    for (const item of neighbors) {
+      const target = placement.get(item.cluster.id), position = unproject(target.x, target.y, item.anchor.z);
+      const offset = position.clone().sub(vec(item.cluster.position));
+      offsets.set(item.cluster.kind, offset);
+      this.constellationPlacements.set(item.cluster.id, { ...target, position: position.toArray(), offset: offset.toArray(), worldRadius: item.cluster.radius });
+      for (const { line, cluster, basePosition } of this.decorations) if (cluster === item.cluster) line.position.copy(basePosition).add(offset);
+      const label = this.clusterLabels.find(entry => entry.cluster === item.cluster)?.label;
+      if (label) label.position.add(offset);
+    }
+    return offsets;
+  }
+
   _clearGuidesAndLinks() {
     for (const label of this.clusterLabels) { label.label.element.remove(); label.label.removeFromParent(); }
     this.clusterLabels = [];
@@ -774,6 +883,8 @@ export class ActivityScene {
       group.clear();
     }
     this.links = []; this.decorations = []; this.envelopes = [];
+    this.constellationEnclosure = null; this.constellationPlacements = new Map();
+    this.focusedConstellation = null; this.contributorScreenSignature = null;
   }
 
   _clearData() {

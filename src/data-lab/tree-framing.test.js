@@ -1,29 +1,33 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import * as THREE from 'three';
 import { TreeScene } from './tree-scene.js';
 import { createRepositoryFixture } from './test-fixtures/repository.js';
 import { buildModel, stateAt } from './model.js';
 import { createRootLayout } from './root-layout.js';
-import { createRootWarpLayout } from './root-warp.js';
-import { buildRootActivityHistory, rootActivityAt, rootPathGrowth } from './root-activity.js';
-import { ROOT_VINE_RADIUS, rootRopeRadius } from './root-rope-geometry.js';
-import { MAX_ROOT_SURFACE_HEIGHT, createRootSurface, measureRootSurfaceCrowding, applyRootSurface } from './root-surface.js';
+import { createRootLengthLayout } from './root-length-layout.js';
+import { buildRootActivityHistory, rootActivityAt } from './root-activity.js';
+import { rootRopeRadius } from './root-rope-geometry.js';
 import { createTreeLayout, createTreePose, trunkRadius } from './tree-layout.js';
 
-function fixture(width, height, reducedMotion) {
-  const model = buildModel(createRepositoryFixture());
-  const frame = stateAt(model, model.commits.length - 1);
-  const baseLayout = createRootLayout(model, { activeIds: frame.activeIds, paths: new Map(frame.files.map(file => [file.id, file.path])) });
+function fixture(width, height, reducedMotion, dataset = createRepositoryFixture(), index) {
+  const model = buildModel(dataset);
+  const head = stateAt(model, model.commits.length - 1);
+  const headLayout = createRootLayout(model, { activeIds: head.activeIds, paths: new Map(head.files.map(file => [file.id, file.path])) });
+  const repositoryWidth = headLayout.footprint.width;
+  const frame = stateAt(model, index ?? head.index);
+  // Replay uses the pinned repository width, so its tier height and per-touch
+  // growth stay comparable when the historical file membership changes.
+  const baseLayout = frame.index === head.index ? headLayout : createRootLayout(model, {
+    activeIds: frame.activeIds, paths: new Map(frame.files.map(file => [file.id, file.path])), repositoryWidth,
+  });
   const activity = rootActivityAt(buildRootActivityHistory(model), frame.index);
-  const growth = rootPathGrowth(baseLayout, activity);
-  const fileRadii = new Map([...growth.fileTouches].map(([id, touches]) => [id, rootRopeRadius(touches)]));
-  const folderRadii = new Map([...growth.folderTouches].map(([path, touches]) => [path, rootRopeRadius(touches)]));
-  const growthLayout = createRootWarpLayout(baseLayout, { fileRadii, folderRadii, baseRadius: ROOT_VINE_RADIUS, compact: true });
-  // Reproduce the failure: focus begins in a bent overview, but the tighter
-  // camera will make the surface recompute from the unbent projected names.
-  const surfaceDisplay = createRootSurface(baseLayout, { height: MAX_ROOT_SURFACE_HEIGHT });
-  const layout = applyRootSurface(growthLayout, surfaceDisplay);
+  const growth = { fileTouches: activity.fileTouches, folderTouches: activity.folderTouches };
+  const layout = createRootLengthLayout(baseLayout, { fileTouches: growth.fileTouches });
+  const fileRadii = new Map(layout.nodes.map(node => [node.id,
+    rootRopeRadius(1, (1 + node.addedLength / Math.max(16, node.baseLength)) ** .12)]));
+  const folderRadii = new Map(layout.folders.map(folder => [folder.path, rootRopeRadius(1)]));
   const scene = Object.create(TreeScene.prototype);
   scene.camera = new THREE.PerspectiveCamera(42, width / height, .05, 8e6);
   const ray = new THREE.Vector3(0, .32, 1).normalize();
@@ -37,13 +41,13 @@ function fixture(width, height, reducedMotion) {
   scene.reducedMotion = reducedMotion;
   scene.presentationTarget = { canopy: .24, roots: 1 };
   scene.roots = {
-    baseLayout, growthLayout, layout, surfaceDisplay,
+    baseLayout, growthLayout: layout, layout,
     // Representative monospace metrics for the actual sample filenames.
-    labelWidths: new Map(growthLayout.nodes.map(node => [node.id, node.path.split('/').pop().length * 7])),
+    labelWidths: new Map(layout.nodes.map(node => [node.id, node.path.split('/').pop().length * 7])),
     files: new Map(layout.nodes.map(node => [node.id, { radiusTarget: fileRadii.get(node.id) }])),
     folders: new Map(layout.folders.map(folder => [folder.path, { radiusTarget: folderRadii.get(folder.path) }])),
   };
-  return { scene, model, growth, width, height };
+  return { scene, model, growth, width, height, frame, repositoryWidth };
 }
 
 function project(point, camera, width, height) {
@@ -51,20 +55,9 @@ function project(point, camera, width, height) {
   return { x: (screen.x + 1) * width / 2, y: (1 - screen.y) * height / 2, visible: screen.z >= -1 && screen.z <= 1 };
 }
 
-// This is the post-arrival responsive calculation, independent of the framing
-// solver. A camera aimed only at the old bent bounds fails these assertions.
-function settledRoots({ scene, width, height }) {
-  const points = scene.roots.growthLayout.nodes.map(node => ({
-    ...project(node.position, scene.camera, width, height), textWidth: scene.roots.labelWidths.get(node.id),
-  }));
-  const crowding = measureRootSurfaceCrowding(points, { width, height, labelOrientation: 'horizontal' });
-  const surface = createRootSurface(scene.roots.baseLayout, { viewportWidth: width, crowding });
-  return { layout: applyRootSurface(scene.roots.growthLayout, surface), surface };
-}
-
-function focusAndCheck(context, path, fileId = null, expectSurfaceRelief = true) {
+function focusAndCheck(context, path, fileId = null) {
   const { scene, model, growth, width, height } = context;
-  const before = structuredClone({ model, growth, base: scene.roots.baseLayout, unbent: scene.roots.growthLayout });
+  const before = structuredClone({ model, growth, base: scene.roots.baseLayout, layout: scene.roots.layout, files: scene.roots.files, folders: scene.roots.folders });
   const originalUp = scene.camera.up.clone();
   const originalDirection = scene.camera.position.clone().sub(scene.controls.target).normalize();
   const originalQuaternion = scene.camera.quaternion.clone();
@@ -85,10 +78,7 @@ function focusAndCheck(context, path, fileId = null, expectSurfaceRelief = true)
   assert.ok(scene.camera.position.clone().sub(scene.controls.target).normalize().distanceTo(originalDirection) < 1e-12,
     'folder/file focus must retain viewing direction');
   assert.ok(scene.camera.quaternion.angleTo(originalQuaternion) < 1e-6, 'focus must retain camera orientation');
-  const settled = settledRoots(context);
-  assert.ok(settled.surface.height >= 0 && settled.surface.height <= MAX_ROOT_SURFACE_HEIGHT);
-  if (expectSurfaceRelief) assert.ok(settled.surface.height < MAX_ROOT_SURFACE_HEIGHT - .01, 'fixture must exercise surface flattening after focus');
-  const targets = settled.layout.nodes.filter(node => fileId ? node.id === fileId : node.folder === path || node.folder.startsWith(`${path}/`));
+  const targets = scene.roots.layout.nodes.filter(node => fileId ? node.id === fileId : node.folder === path || node.folder.startsWith(`${path}/`));
   const region = {
     left: width > 1200 ? 245 : 16,
     right: width - (width > 1100 ? 390 : width > 900 ? 360 : 16),
@@ -100,21 +90,21 @@ function focusAndCheck(context, path, fileId = null, expectSurfaceRelief = true)
     const screen = project(node.position, scene.camera, width, height);
     assert.ok(screen.visible, `${node.path}: tip must remain in the camera frustum`);
     // Labels choose their own left/right/above/below placement. Framing must
-    // retain the real anchor in the readable area after the ground responds.
+    // retain the real anchor in the readable area without changing its length.
     assert.ok(screen.x >= region.left + 2 && screen.x <= region.right - 2,
       `${node.path}: focused tip must remain between side panels (${screen.x})`);
     assert.ok(screen.y >= region.top + 2 && screen.y <= region.bottom - 2,
       `${node.path}: focused tip must remain below the header and above the timeline (${screen.y})`);
   }
-  assert.deepEqual({ model, growth, base: scene.roots.baseLayout, unbent: scene.roots.growthLayout }, before,
-    'focus must not alter repository data, touches, or the unbent hierarchy');
+  assert.deepEqual({ model, growth, base: scene.roots.baseLayout, layout: scene.roots.layout, files: scene.roots.files, folders: scene.roots.folders }, before,
+    'focus must not alter repository data, touches, fixed-length curves, or rope radii');
 }
 
-for (const [name, width, height, expectFolderRelief] of [['desktop', 1600, 1000, true], ['tablet', 768, 1024, false], ['mobile', 430, 932, true]]) {
-  for (const path of ['app', 'tests']) test(`${name}: ${path} folder tips remain in the readable region after responsive roots settle`, () => {
-    for (const reducedMotion of [true, false]) focusAndCheck(fixture(width, height, reducedMotion), path, null, expectFolderRelief);
+for (const [name, width, height] of [['desktop', 1600, 1000], ['tablet', 768, 1024], ['mobile', 430, 932]]) {
+  for (const path of ['app', 'tests']) test(`${name}: ${path} folder tips remain in the readable region after fixed-step growth`, () => {
+    for (const reducedMotion of [true, false]) focusAndCheck(fixture(width, height, reducedMotion), path);
   });
-  test(`${name}: a far-left root file remains visible after zoom flattens the ground`, () => {
+  test(`${name}: a far-left grown file remains visible without changing its geometry`, () => {
     for (const reducedMotion of [true, false]) {
       const context = fixture(width, height, reducedMotion);
       const file = context.scene.roots.growthLayout.nodes.find(node => node.path === 'app/README.md');
@@ -122,6 +112,16 @@ for (const [name, width, height, expectFolderRelief] of [['desktop', 1600, 1000,
       focusAndCheck(context, '', file.id);
     }
   });
+}
+
+function overviewPoints(layout) {
+  const roots = layout.rows.flatMap(record => record.curve);
+  // The file-count-sized ground is part of the framed content, and stays flat.
+  const ground = Array.from({ length: 48 }, (_, index) => {
+    const angle = index / 48 * Math.PI * 2;
+    return [Math.cos(angle) * layout.base.radiusX, layout.groundY, Math.sin(angle) * layout.base.radiusZ];
+  });
+  return [...roots, ...ground];
 }
 
 test('tablet roots overview uses the full pane when the permanent side panels are hidden', () => {
@@ -136,8 +136,8 @@ test('tablet roots overview uses the full pane when the permanent side panels ar
   // Portrait tablets arrange the tips in vertical rows so their horizontal
   // filenames have room, while still using the full panel-free content area.
   assert.deepEqual(scene.camera.up.toArray(), [1, 0, 0]);
-  const { layout } = settledRoots(context);
-  const points = layout.rows.flatMap(record => record.curve.map(point => project(point, scene.camera, width, height)));
+  const { layout } = scene.roots;
+  const points = overviewPoints(layout).map(point => project(point, scene.camera, width, height));
   const region = { left: 16, right: width - 16, top: 140, bottom: height - 220 };
   for (const point of points) {
     assert.ok(point.visible, 'the entire root hierarchy must remain in the tablet frustum');
@@ -149,6 +149,67 @@ test('tablet roots overview uses the full pane when the permanent side panels ar
   assert.ok(maxY - minY > (region.bottom - region.top) * .75, 'portrait framing must use the available height between controls');
   assert.ok(Math.abs((minX + maxX) / 2 - width / 2) < width * .08, 'hidden side panels must not push the repository off center');
   assert.equal(scene.controls.stopCalls, 1);
+});
+
+function checkRepositoryOverview(context) {
+  const { scene, width, height, model, growth } = context;
+  const { layout, baseLayout } = scene.roots;
+  const before = structuredClone({ model, growth, baseLayout, layout, files: scene.roots.files, folders: scene.roots.folders });
+  const bounds = new THREE.Box3(new THREE.Vector3(...layout.bounds.min), new THREE.Vector3(...layout.bounds.max));
+  scene._frameRootsBounds(bounds, true);
+  scene.camera.updateMatrixWorld(true);
+  assert.deepEqual(scene.camera.up.toArray(), width <= 900 && height > width ? [1, 0, 0] : [0, 1, 0]);
+  const region = {
+    left: width > 1200 ? 245 : 16,
+    right: width - (width > 1100 ? 390 : width > 900 ? 360 : 16),
+    top: width > 900 ? 100 : 140,
+    bottom: height - (width > 900 ? 120 : 220),
+  };
+  for (const position of overviewPoints(layout)) {
+    const point = project(position, scene.camera, width, height);
+    assert.ok(point.visible, 'repository roots and ground must stay inside the camera frustum');
+    assert.ok(point.x >= region.left && point.x <= region.right, `repository X=${point.x} must fit between side panels`);
+    assert.ok(point.y >= region.top && point.y <= region.bottom, `repository Y=${point.y} must fit between header and timeline`);
+  }
+  assert.deepEqual({ model, growth, baseLayout, layout, files: scene.roots.files, folders: scene.roots.folders }, before,
+    'overview framing must preserve all history, curve lengths, neighboring junctions, and proportional radii');
+  assert.equal(scene.controls.stopCalls, 1);
+}
+
+test('xo-space baseline and grown roots retain their pinned depth and fit the full hierarchy on desktop and mobile', () => {
+  const dataset = JSON.parse(readFileSync(new URL('./examples/xo-space.json', import.meta.url), 'utf8'));
+  const headIndex = dataset.commits.length - 1;
+  for (const [width, height] of [[1600, 1000], [430, 932]]) for (const index of [-1, headIndex]) {
+    const context = fixture(width, height, true, dataset, index);
+    const { layout, baseLayout } = context.scene.roots;
+    const expectedFiles = context.frame.files.filter(file => file.exists && !file.path.split('/').some(segment => segment.startsWith('.')));
+    assert.equal(layout.nodes.length, expectedFiles.length, 'every current non-dot file must participate in framing');
+    assert.equal(baseLayout.proportions.repositoryWidth, context.repositoryWidth);
+    assert.ok(baseLayout.proportions.tierHeight > 60, 'the large fixture must exercise the deeper proportional hierarchy');
+    assert.ok(layout.lengthGrowth.lengthPerTouch > 23, 'the large fixture must use its proportional per-touch increment');
+    assert.equal(layout.lengthGrowth.lengthPerTouch, baseLayout.proportions.lengthPerTouch);
+    if (index === headIndex) {
+      assert.equal(layout.nodes.length, 754);
+      assert.equal(layout.folders.length, 125);
+      assert.ok(layout.lengthGrowth.totalAddedLength > 0);
+    } else assert.equal(layout.lengthGrowth.totalAddedLength, 0);
+    checkRepositoryOverview(context);
+    const direction = context.scene.camera.position.clone().sub(context.scene.controls.target).normalize();
+    if (width > height) assert.ok(direction.y / direction.z < 0.4, 'deep roots must reveal their vertical hierarchy in a landscape overview');
+    else assert.ok(direction.y / direction.z > 1, 'portrait roots must keep enough perspective separation for sideways filename rows');
+  }
+});
+
+test('the small xo repository retains its original proportions and readable framing', () => {
+  const dataset = JSON.parse(readFileSync(new URL('./examples/xo.json', import.meta.url), 'utf8'));
+  for (const index of [-1, dataset.commits.length - 1]) {
+    const context = fixture(1600, 1000, true, dataset, index);
+    const { layout, baseLayout } = context.scene.roots;
+    assert.equal(baseLayout.proportions.scale, 1);
+    assert.equal(baseLayout.proportions.tierHeight, 16);
+    assert.equal(layout.lengthGrowth.lengthPerTouch, 6);
+    checkRepositoryOverview(context);
+  }
 });
 
 function presentationFixture() {

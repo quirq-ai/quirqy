@@ -1,8 +1,10 @@
+import { createRootProportions } from './root-proportions.js';
+export { ROOT_TIER_HEIGHT } from './root-proportions.js';
+
 const compare = (a, b) => a < b ? -1 : a > b ? 1 : 0;
 const parentOf = path => path.includes('/') ? path.slice(0, path.lastIndexOf('/')) : '';
 const depthOf = path => path ? path.split('/').length : 0;
 
-export const ROOT_TIER_HEIGHT = 16;
 const TIP_FOOTPRINT = 3.2;
 const SIBLING_GAP = 2.2;
 const MAX_WIDTH = 160;
@@ -168,8 +170,10 @@ function cubicBetween(start, end) {
  * `paths` maps stable file IDs to historical paths. Omitted activeIds uses pinned
  * head membership when supplied by the model. Curves contain four cubic Bezier
  * control points. Dense sibling groups pack in X/Z; Y always represents depth.
+ * repositoryWidth optionally pins the proportions across historical memberships;
+ * otherwise the current packed width determines vertical tiers and growth units.
  */
-export function createRootLayout(model, { activeIds, paths, groundY = -40 } = {}) {
+export function createRootLayout(model, { activeIds, paths, groundY = -40, repositoryWidth } = {}) {
   const ground = Number.isFinite(groundY) ? groundY : -40;
   const source = new Map((model.nodes || []).map(node => [node.id, node]));
   const active = activeIds === undefined
@@ -226,6 +230,9 @@ export function createRootLayout(model, { activeIds, paths, groundY = -40 } = {}
   // grow their ground footprint instead of compressing every local file slot.
   const scaleX = adaptive ? 1 : Math.min(1, MAX_WIDTH / rootFootprint.width);
   const scaleZ = adaptive ? 1 : Math.min(1, MAX_DEPTH / rootFootprint.depth);
+  const width = rootFootprint.width * scaleX, depth = rootFootprint.depth * scaleZ;
+  const proportions = createRootProportions(Number.isFinite(repositoryWidth) && repositoryWidth >= 0 ? repositoryWidth : width);
+  const tierHeight = proportions.tierHeight;
   const rows = [], pending = [root];
   while (pending.length) {
     const item = pending.pop();
@@ -234,7 +241,7 @@ export function createRootLayout(model, { activeIds, paths, groundY = -40 } = {}
     const children = entries.get(item);
     for (const child of children) {
       const offset = footprints.get(item).offsets.get(child);
-      child.position = [item.position[0] + offset[0] * scaleX, ground - child.depth * ROOT_TIER_HEIGHT, item.position[2] + offset[1] * scaleZ];
+      child.position = [item.position[0] + offset[0] * scaleX, ground - child.depth * tierHeight, item.position[2] + offset[1] * scaleZ];
     }
     for (let index = children.length - 1; index >= 0; index--) pending.push(children[index]);
   }
@@ -250,10 +257,9 @@ export function createRootLayout(model, { activeIds, paths, groundY = -40 } = {}
   }
 
   const maxDepth = Math.max(0, ...folders.map(folder => folder.depth), ...nodes.map(node => node.depth));
-  const width = rootFootprint.width * scaleX, depth = rootFootprint.depth * scaleZ;
   // Include the centered packing envelope as well as all curve controls. Camera
   // fitting therefore keeps the trunk centered even for an asymmetric repository.
-  const min = [-width / 2, ground - maxDepth * ROOT_TIER_HEIGHT, -depth / 2];
+  const min = [-width / 2, ground - maxDepth * tierHeight, -depth / 2];
   const max = [width / 2, ground, depth / 2];
   for (const item of rows) for (const point of item.curve) for (let axis = 0; axis < 3; axis++) {
     min[axis] = Math.min(min[axis], point[axis]);
@@ -267,7 +273,7 @@ export function createRootLayout(model, { activeIds, paths, groundY = -40 } = {}
     folders, nodes, rows, bounds: { min, max }, center, extent, maxDepth,
     fileCount: nodes.length, folderCount: folders.length,
     visibleFileCount: nodes.length, visibleFolderCount: folders.length,
-    groundY: ground, tierHeight: ROOT_TIER_HEIGHT,
+    groundY: ground, tierHeight, proportions,
     footprint: { width, depth, scaleX, scaleZ },
     base: baseForFootprint(nodes.length, min, max),
     readability: {
