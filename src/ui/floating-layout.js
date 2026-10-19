@@ -37,21 +37,18 @@ export function mountFloatingLayout() {
       restoreRepositoryControls();
     }
     const speed = dock?.querySelector(lab.speedSelector);
-    const help = document.getElementById('btn-help');
     const status = document.getElementById('sim-date');
-    if (!header || !speed || !help || !status || !REPOSITORY_LABS.every(app => document.getElementById(`tab-${app.mode}`))) return;
+    if (!header || !speed || !status || !REPOSITORY_LABS.every(app => document.getElementById(`tab-${app.mode}`))) return;
 
     const group = document.createElement('div');
     group.className = 'repository-dock-actions';
     group.setAttribute('role', 'group');
     group.setAttribute('aria-label', 'Dock actions');
-    const moves = [help, status].map(node => {
+    const moves = [status].map(node => {
       const placeholder = document.createComment(`${node.id} original position`);
       node.before(placeholder);
       return { node, placeholder, label: node.getAttribute('aria-label') };
     });
-    help.setAttribute('aria-label', 'Help');
-    group.append(help);
     const apps = mountRepositoryDockApps(group, lab.mode);
     speed.after(group);
     header.insertBefore(status, header.querySelector('button'));

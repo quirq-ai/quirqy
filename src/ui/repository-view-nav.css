@@ -39,9 +39,8 @@ html body #topbar .repository-view-nav button {
   -webkit-tap-highlight-color: transparent;
 }
 html body #topbar .repository-view-nav button:hover { color: #f0f4fa; }
-html body #topbar .repository-view-nav button:is([aria-pressed="true"], [aria-expanded="true"]) { color: #efd7b4; }
+html body #topbar .repository-view-nav button[aria-pressed="true"] { color: #efd7b4; }
 html body #topbar .repository-view-nav button:focus-visible { outline: 2px solid var(--accent-cool); outline-offset: -2px; }
-html body #topbar .repository-view-nav .glass-opacity-trigger :is(svg, .glass-opacity-value) { display: none; }
 html body.repository-views-top :is(#data-panel-toggle, #data-guide-toggle, #activity-panel-toggle, #activity-guide-toggle) {
   top: calc(var(--repository-header-height, 91px) + 12px);
 }

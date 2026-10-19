@@ -134,10 +134,8 @@ export function mountPanelAppearance() {
 
   function releaseRepositoryViews() {
     if (!repositoryViews) return;
-    const { row, placeholder, nav, trigger, resize } = repositoryViews;
+    const { row, placeholder, nav, resize } = repositoryViews;
     repositoryViews = null;
-    if (activeTrigger === trigger) { close(); activeTrigger = null; }
-    triggers.delete(trigger);
     resize.disconnect();
     if (placeholder.parentNode) placeholder.replaceWith(row);
     else row.remove();
@@ -160,11 +158,10 @@ export function mountPanelAppearance() {
     row.before(placeholder);
     const nav = document.createElement('nav');
     nav.className = 'repository-view-nav';
-    nav.setAttribute('aria-label', 'Scene view and appearance');
+    nav.setAttribute('aria-label', 'Scene view');
     // Keep the original group and buttons, including the lab's listeners and pressed states.
     nav.append(row);
     topbar.append(nav);
-    const trigger = addTrigger(nav);
     document.body.classList.add('repository-views-top');
     const updateHeight = () => {
       document.documentElement.style.setProperty('--repository-header-height', `${Math.ceil(topbar.getBoundingClientRect().height)}px`);
@@ -172,12 +169,18 @@ export function mountPanelAppearance() {
     const resize = new ResizeObserver(updateHeight);
     resize.observe(topbar);
     updateHeight();
-    repositoryViews = { panel, row, placeholder, nav, trigger, topbar, resize };
+    repositoryViews = { panel, row, placeholder, nav, topbar, resize };
   }
 
   function attachControls() {
+    // A replaced dock must not leave an open popover pointing to a detached button.
+    for (const trigger of triggers) {
+      if (trigger.isConnected) continue;
+      if (activeTrigger === trigger) { close(); activeTrigger = null; }
+      triggers.delete(trigger);
+    }
     attachRepositoryViews();
-    for (const id of ['topbar', 'timebar', 'math-timebar', 'equation-panel', ...REPOSITORY_LABS.map(lab => lab.panelId)]) {
+    for (const id of ['topbar', 'timebar', 'math-timebar', 'equation-panel', ...REPOSITORY_LABS.flatMap(lab => [lab.panelId, lab.dockId])]) {
       const container = document.getElementById(id);
       if (!container) continue;
       if (!observed.has(container)) {
@@ -189,12 +192,16 @@ export function mountPanelAppearance() {
       }
       const lab = REPOSITORY_LABS.find(lab => lab.dockId === id || lab.panelId === id);
       if (id === 'topbar' || id === lab?.panelId) continue;
-      if (id === 'equation-panel') {
+      if (id === lab?.dockId) {
+        const actions = container.querySelector('.repository-dock-actions');
+        const trigger = addTrigger(actions);
+        if (trigger) actions.prepend(trigger);
+      } else if (id === 'equation-panel') {
         const row = container.querySelector('#eq-speed')?.previousElementSibling;
         if (row) { row.classList.add('glass-speed-heading'); addTrigger(row); }
       } else {
         const midpoint = container.querySelector('.t-mid');
-        if (midpoint) addTrigger(container, lab ? container.querySelector(lab.speedSelector) : midpoint);
+        if (midpoint) addTrigger(container, midpoint);
       }
     }
   }
