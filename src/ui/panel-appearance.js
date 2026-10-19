@@ -4,6 +4,7 @@ import './repository-view-nav.css';
 import { mountGlassRefraction } from './glass-refraction.js';
 import { REPOSITORY_LABS } from './repository-labs.js';
 import { mountRepositoryTimeline } from './repository-timeline.js';
+import { mountRepositoryViewConnection } from './repository-view-connection.js';
 
 const STORAGE_KEY = 'quirq-observatory.panel-opacity.v1';
 const DEFAULT_OPACITY = 62;
@@ -176,16 +177,18 @@ export function mountPanelAppearance() {
 
   function releaseRepositoryViews() {
     if (!repositoryViews) return;
-    const { row, placeholder, heading, dock, trigger, timeline, controller } = repositoryViews;
+    const { row, placeholder, heading, nav, dock, trigger, timeline, connection, controller } = repositoryViews;
     setRepositoryOpacity(false);
     repositoryViews = null;
     controller.abort();
     timeline.dispose();
+    connection.dispose();
     trigger?.remove();
     triggers.delete(trigger);
     if (placeholder.parentNode) placeholder.replaceWith(row);
     else row.remove();
     heading.remove();
+    nav.remove();
     dock.classList.remove('repository-parallel-controls');
   }
 
@@ -196,7 +199,7 @@ export function mountPanelAppearance() {
     const actions = dock?.querySelector('.repository-dock-actions');
     if (repositoryViews && (repositoryViews.panel !== panel || repositoryViews.actions !== actions
       || !repositoryViews.placeholder.isConnected || !dock?.contains(repositoryViews.heading)
-      || !repositoryViews.heading.contains(repositoryViews.nav) || !repositoryViews.controls.contains(repositoryViews.inline)
+      || !dock.contains(repositoryViews.nav) || !repositoryViews.controls.contains(repositoryViews.inline)
       || !repositoryViews.controls.contains(repositoryViews.timeline.element) || !dock.contains(repositoryViews.timeline.trigger)
       || !repositoryViews.nav.contains(repositoryViews.row))) releaseRepositoryViews();
     if (!panel || !actions || repositoryViews) return;
@@ -212,6 +215,7 @@ export function mountPanelAppearance() {
     controls.className = 'repository-dock-tools';
     const nav = document.createElement('nav');
     nav.className = 'repository-view-nav';
+    nav.dataset.repositoryView = lab.mode;
     nav.setAttribute('aria-label', `${lab.mode === 'data' ? 'Data' : 'Activity'} views`);
     const inline = document.createElement('div');
     inline.id = 'repository-opacity-controls';
@@ -232,10 +236,11 @@ export function mountPanelAppearance() {
     // Keep both controls independent and preserve the actual scene buttons and handlers.
     nav.append(row);
     controls.append(inline, timeline.element);
-    heading.append(controls, nav);
-    dock.prepend(heading);
+    heading.append(controls);
+    dock.prepend(heading, nav);
     dock.classList.add('repository-parallel-controls');
-    repositoryViews = { panel, row, placeholder, heading, controls, timeline, nav, dock, actions, inline, range: inlineRange, controller, open: false, trigger: null };
+    const connection = mountRepositoryViewConnection(dock, nav, actions.querySelector(`#tab-${lab.mode}`));
+    repositoryViews = { panel, row, placeholder, heading, controls, timeline, connection, nav, dock, actions, inline, range: inlineRange, controller, open: false, trigger: null };
     render();
   }
 
