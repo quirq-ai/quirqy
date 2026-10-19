@@ -127,10 +127,9 @@ export function mountPanelAppearance() {
 
   function setRepositoryOpacity(open) {
     if (!repositoryViews) return;
-    const { row, inline, range: inlineRange, trigger, rowHidden } = repositoryViews;
+    const { inline, range: inlineRange, trigger } = repositoryViews;
     const restoreFocus = inline.contains(document.activeElement);
     repositoryViews.open = open;
-    row.hidden = open || rowHidden;
     inline.hidden = !open;
     syncExpanded();
     if (open) {
@@ -176,31 +175,34 @@ export function mountPanelAppearance() {
 
   function releaseRepositoryViews() {
     if (!repositoryViews) return;
-    const { row, rowHidden, placeholder, nav, actions, trigger, controller } = repositoryViews;
+    const { row, placeholder, heading, dock, trigger, controller } = repositoryViews;
     setRepositoryOpacity(false);
     repositoryViews = null;
     controller.abort();
     trigger?.remove();
     triggers.delete(trigger);
-    row.hidden = rowHidden;
     if (placeholder.parentNode) placeholder.replaceWith(row);
     else row.remove();
-    nav.remove();
-    actions.classList.remove('repository-actions-with-views');
+    heading.remove();
+    dock.classList.remove('repository-parallel-controls');
   }
 
   function attachRepositoryViews() {
     const lab = REPOSITORY_LABS.find(lab => document.getElementById(lab.panelId));
     const panel = lab && document.getElementById(lab.panelId);
-    const actions = lab && document.getElementById(lab.dockId)?.querySelector('.repository-dock-actions');
+    const dock = lab && document.getElementById(lab.dockId);
+    const actions = dock?.querySelector('.repository-dock-actions');
     if (repositoryViews && (repositoryViews.panel !== panel || repositoryViews.actions !== actions
-      || !repositoryViews.placeholder.isConnected || !repositoryViews.nav.isConnected
-      || !actions?.contains(repositoryViews.nav) || !repositoryViews.nav.contains(repositoryViews.row))) releaseRepositoryViews();
+      || !repositoryViews.placeholder.isConnected || !dock?.contains(repositoryViews.heading)
+      || !repositoryViews.heading.contains(repositoryViews.nav) || !repositoryViews.heading.contains(repositoryViews.inline)
+      || !repositoryViews.nav.contains(repositoryViews.row))) releaseRepositoryViews();
     if (!panel || !actions || repositoryViews) return;
     const row = panel.querySelector(lab.viewSwitch);
     if (!row) return;
     const placeholder = document.createComment('Repository views are presented above the dock apps.');
     row.before(placeholder);
+    const heading = document.createElement('div');
+    heading.className = 'repository-dock-heading';
     const nav = document.createElement('nav');
     nav.className = 'repository-view-nav';
     nav.setAttribute('aria-label', `${lab.mode === 'data' ? 'Data' : 'Activity'} views`);
@@ -210,7 +212,7 @@ export function mountPanelAppearance() {
     inline.hidden = true;
     inline.setAttribute('role', 'group');
     inline.setAttribute('aria-label', 'Panel opacity');
-    inline.innerHTML = `<button type="button" class="repository-opacity-back" aria-label="Back to views" title="Back to views"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m12 5-5 5 5 5"/></svg></button><input id="repository-opacity-range" type="range" min="0" max="100" step="1" aria-label="Panel opacity" />`;
+    inline.innerHTML = `<button type="button" class="repository-opacity-back" aria-label="Close opacity controls" title="Close opacity controls"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m12 5-5 5 5 5"/></svg></button><input id="repository-opacity-range" type="range" min="0" max="100" step="1" aria-label="Panel opacity" />`;
     const inlineRange = inline.querySelector('input');
     const controller = new AbortController();
     inlineRange.addEventListener('input', () => { opacity = Number(inlineRange.value); render(); }, { signal: controller.signal });
@@ -220,11 +222,12 @@ export function mountPanelAppearance() {
       event.stopPropagation();
       if (event.key === 'Escape') { event.preventDefault(); setRepositoryOpacity(false); }
     }, { signal: controller.signal });
-    // Keep the actual group so switching appearance never resets scene state or handlers.
-    nav.append(row, inline);
-    actions.prepend(nav);
-    actions.classList.add('repository-actions-with-views');
-    repositoryViews = { panel, row, rowHidden: row.hidden, placeholder, nav, actions, inline, range: inlineRange, controller, open: false, trigger: null };
+    // Keep both controls independent and preserve the actual scene buttons and handlers.
+    nav.append(row);
+    heading.append(inline, nav);
+    dock.prepend(heading);
+    dock.classList.add('repository-parallel-controls');
+    repositoryViews = { panel, row, placeholder, heading, nav, dock, actions, inline, range: inlineRange, controller, open: false, trigger: null };
     render();
   }
 
