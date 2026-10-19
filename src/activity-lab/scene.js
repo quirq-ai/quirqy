@@ -391,6 +391,10 @@ export class ActivityScene {
   setVisible(ids, { kinds } = {}) {
     if (this.disposed) return;
     this.visibleIds = new Set(ids || []);
+    if (this.focusedConstellation && (!this.visibleIds.has(this.focusedConstellation.id)
+      || (kinds !== undefined && [...new Set(kinds || [])].sort().join(',') !== [...this.visibleKinds].sort().join(',')))) {
+      this.focusedConstellation = null; this.contributorScreenSignature = null;
+    }
     if (kinds !== undefined) this.visibleKinds = new Set(kinds || []);
     if (this.hoveredId && !this.visibleIds.has(this.hoveredId)) this._clearHover();
     this._paint();
@@ -541,7 +545,7 @@ export class ActivityScene {
     // A close-up inspects the already arranged map. Repacking whole categories
     // against the magnified camera would move the target we are flying toward.
     this.focusedConstellation = this.view === 'constellation' && !record.portrait
-      ? { positions: new Map([...this.nodes].map(([key, node]) => [key, node.renderPosition.clone()])) } : null;
+      ? { id, positions: new Map([...this.nodes].map(([key, node]) => [key, node.renderPosition.clone()])) } : null;
     this.contributorScreenSignature = null;
     const ray = this.camera.position.clone().sub(this.controls.target).normalize();
     if (Math.abs(ray.y) > .97) ray.set(.1, .6, 1).normalize();
@@ -749,8 +753,8 @@ export class ActivityScene {
     const portraitBounds = cards.filter(card => this.visibleIds.has(card.id)).map(card => ({ ...card, ...placed.get(card.id) }));
     const intersectsPortrait = card => portraitBounds.some(other => Math.abs(card.x - other.x) < (card.width + other.width) / 2 + 5
       && Math.abs(card.y - other.y) < (card.height + other.height) / 2 + 5);
-    // People get the first claim on readable screen space. Only activity bodies
-    // that collide with a portrait/name move aside; their links follow them.
+    // Constellation moves neighboring categories with their entire envelopes.
+    // Other views move only colliding activity bodies; links follow either way.
     const clusterOffsets = this.focusedConstellation ? null
       : this._layoutConstellationEnclosure(cards.map(card => ({ ...card, ...placed.get(card.id) })), viewport, project, right);
     const displaced = clusterOffsets || this.focusedConstellation ? [] : activityCards.filter(intersectsPortrait);
