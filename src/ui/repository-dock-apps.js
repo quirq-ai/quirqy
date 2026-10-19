@@ -1,4 +1,5 @@
 import './repository-dock-apps.css';
+import { mountAppsLauncher } from './apps-launcher.js';
 
 const APPS = [
   { mode: 'data', label: 'Data Lab', name: 'Data', icon: '<path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9"/>' },
@@ -46,11 +47,13 @@ export function mountRepositoryDockApps(host, mode) {
   }, { signal: lifetime.signal });
   window.addEventListener('resize', () => links.forEach(positionTooltip), { signal: lifetime.signal });
   host.append(nav);
+  const disposeLauncher = mountAppsLauncher(nav);
   document.body.classList.add('repository-apps-docked');
   return {
     element: nav,
     links,
     dispose() {
+      disposeLauncher();
       lifetime.abort();
       for (const { link, placeholder, children, attributes } of moves) {
         link.replaceChildren(...children);

@@ -105,6 +105,7 @@ export function mountPanelAppearance() {
   function open(trigger) {
     if (isOpen() && activeTrigger === trigger) { close(); return; }
     activeTrigger = trigger;
+    document.dispatchEvent(new CustomEvent('observatory:popover-open', { detail: popover.id }));
     if (!isOpen()) {
       if (nativePopover) popover.showPopover({ source: trigger });
       else popover.hidden = false;
@@ -223,6 +224,7 @@ export function mountPanelAppearance() {
   on(document, 'pointerdown', event => {
     if (isOpen() && !popover.contains(event.target) && !event.target.closest('.glass-opacity-trigger')) close();
   });
+  on(document, 'observatory:popover-open', event => { if (event.detail !== popover.id) close(); });
   on(window, 'resize', positionPopover);
   if (window.visualViewport) on(window.visualViewport, 'resize', positionPopover);
   on(document, 'scroll', event => { if (!popover.contains(event.target)) positionPopover(); }, { capture: true });
