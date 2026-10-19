@@ -82,6 +82,24 @@ html body .panel-dock > .panel-dock-edit:hover {
   background: var(--glass-control-fill);
 }
 
+/* Only the decorative glass moves; the logo and live layout remain steady. */
+html body :is(#timebar, #math-timebar, #data-timebar, #activity-timebar).panel-dock.is-dock-animating {
+  background: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  pointer-events: none;
+}
+html body .panel-dock.is-dock-animating > .panel-dock-grip { pointer-events: auto; }
+html body .panel-dock > .dock-motion-surface {
+  position: absolute;
+  z-index: -1;
+  box-sizing: border-box;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
 /* Collapse the surface itself, so the logo is the only visible dock content. */
 html body :is(#timebar, #math-timebar, #data-timebar, #activity-timebar).panel-dock.is-dock-collapsed {
   display: block !important;
