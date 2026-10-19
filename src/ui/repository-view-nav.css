@@ -302,3 +302,67 @@ html body #activity-timebar #tab-activity .repository-app-icon {
     padding: 6px;
   }
 }
+
+/* Keep the appearance setting readable before its slider is opened. */
+html body :is(#data-timebar, #activity-timebar) #repository-opacity-trigger.glass-opacity-trigger {
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 8px;
+  width: 112px;
+  min-width: 112px;
+  height: 44px;
+  padding: 4px 8px;
+  box-sizing: border-box;
+  border: 1px solid rgba(195, 208, 252, .25);
+  border-radius: 14px;
+  background: linear-gradient(150deg, rgba(117, 137, 186, .18), rgba(59, 73, 116, .09));
+  box-shadow: inset 0 1px 0 rgba(228, 237, 255, .08);
+}
+html body :is(#data-timebar, #activity-timebar) #repository-opacity-trigger:is(:hover, [aria-expanded="true"]) {
+  border-color: rgba(208, 222, 255, .58);
+  background: linear-gradient(150deg, rgba(117, 137, 186, .3), rgba(59, 73, 116, .17));
+}
+html body #repository-opacity-trigger .repository-app-icon { width: 30px; height: 30px; border-radius: 9px; transform: none; }
+html body #repository-opacity-trigger .repository-app-icon svg { width: 20px; height: 20px; }
+html body #repository-opacity-trigger .repository-opacity-copy { display: grid; gap: 2px; text-align: left; }
+html body :is(#data-timebar, #activity-timebar) #repository-opacity-trigger .glass-opacity-text { display: block; font-size: 11px; font-weight: 500; line-height: 1.2; color: #d9e3f6; }
+html body :is(#data-timebar, #activity-timebar) #repository-opacity-trigger .glass-opacity-value { display: block; font-size: 11px; font-weight: 600; line-height: 1.2; color: #f2f5ff; font-variant-numeric: tabular-nums; }
+html body :is(#data-timebar, #activity-timebar).repository-parallel-controls .repository-opacity-inline {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  align-items: start;
+  gap: 8px;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  box-sizing: border-box;
+  padding: 10px;
+  border: 1px solid rgba(195, 208, 252, .2);
+  border-radius: 14px;
+  background: linear-gradient(150deg, rgba(117, 137, 186, .1), rgba(59, 73, 116, .04));
+}
+html body .repository-opacity-content { min-width: 0; }
+html body .repository-opacity-label { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 26px; color: #d9e3f6; font-size: 11px; font-weight: 500; }
+html body #repository-opacity-output { color: #f2f5ff; font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+html body #repository-opacity-description { margin: 4px 0 0; color: #b2c0d5; font-size: 10px; line-height: 1.5; }
+@media (max-width: 700px) {
+  /* Keep the narrow app slot; captions add clarity without covering its neighbors. */
+  html body :is(#data-timebar, #activity-timebar) #repository-opacity-trigger.glass-opacity-trigger {
+    flex-direction: column;
+    justify-content: center;
+    width: 44px;
+    min-width: 44px;
+    height: 64px;
+    min-height: 64px;
+    padding: 4px 2px;
+    gap: 3px;
+    border-radius: 12px;
+  }
+  html body #repository-opacity-trigger .repository-app-icon { width: 26px; height: 26px; }
+  html body #repository-opacity-trigger .repository-opacity-copy { gap: 1px; text-align: center; }
+  html body :is(#data-timebar, #activity-timebar) #repository-opacity-trigger .glass-opacity-text { font-size: 9px; }
+  html body :is(#data-timebar, #activity-timebar) #repository-opacity-trigger .glass-opacity-value { font-size: 10px; }
+}
+@media (max-width: 374px) {
+  html body :is(#data-timebar, #activity-timebar) #repository-opacity-trigger.glass-opacity-trigger { width: 36px; min-width: 36px; }
+}

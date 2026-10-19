@@ -32,6 +32,7 @@ export class DataLabControls extends TrackballControls {
     this._touchGesture = false;
     this._twistAngle = null;
     this._ignoredPointers = new Set();
+    this._overlayPointers = new Set();
     this._suppressClickUntil = 0;
     this._lifetime = new AbortController();
     const options = { capture: true, signal: this._lifetime.signal };
@@ -41,7 +42,7 @@ export class DataLabControls extends TrackballControls {
     canvas.addEventListener('pointercancel', event => this._captureCancel(event), options);
     canvas.addEventListener('wheel', () => this._syncOrbitOptions(), options);
     canvas.addEventListener('lostpointercapture', event => {
-      if (this._rollPointer?.id === event.pointerId || this._touchPoints.has(event.pointerId)) this.stop();
+      if (this._overlayPointers.has(event.pointerId) || this._rollPointer?.id === event.pointerId || this._touchPoints.has(event.pointerId)) this.stop();
     }, options);
     for (const name of ['click', 'dblclick']) canvas.addEventListener(name, event => {
       if (performance.now() < this._suppressClickUntil) this._consume(event);
@@ -57,6 +58,20 @@ export class DataLabControls extends TrackballControls {
   set enableRotate(value) { this.noRotate = !value; }
   get enableZoom() { return !this.noZoom; }
   set enableZoom(value) { this.noZoom = !value; }
+
+  /** Start an overlay drag without sending a pick/select event to the scene. */
+  startOverlayDrag(event) {
+    if (this._disposed || !this.enabled) return false;
+    const down = new PointerEvent('pointerdown', event);
+    this._captureDown(down);
+    if (!down.defaultPrevented) {
+      (this.rootMode ? this : this._orbit)._onPointerDown(down);
+    }
+    // Every touch needs capture, including a second finger starting on a label.
+    this._capturePointer(event.pointerId);
+    this._overlayPointers.add(event.pointerId);
+    return true;
+  }
 
   _syncOrbitOptions() {
     if (!this._orbit) return;
@@ -182,6 +197,7 @@ export class DataLabControls extends TrackballControls {
   }
 
   _captureUp(event) {
+    if (this._overlayPointers.delete(event.pointerId)) this._suppressClickUntil = performance.now() + 400;
     if (this._ignoredPointers.delete(event.pointerId)) { this._consume(event); return; }
     if (!this.rootMode) return;
     if (this._rollPointer?.id === event.pointerId) {
@@ -208,6 +224,7 @@ export class DataLabControls extends TrackballControls {
   }
 
   _captureCancel(event) {
+    if (this._overlayPointers.delete(event.pointerId)) this._suppressClickUntil = performance.now() + 400;
     if (this._rollPointer?.id === event.pointerId || this._touchPoints.has(event.pointerId)
       || this._pointers.some(pointer => pointer.pointerId === event.pointerId)) {
       this.stop();
@@ -232,6 +249,7 @@ export class DataLabControls extends TrackballControls {
     if (this._rollPointer) pointers.add(this._rollPointer.id);
     const active = pointers.size > 0;
     this._rollPointer = null;
+    this._overlayPointers.clear();
     this._touchPoints.clear();
     this._touchGesture = false;
     this._twistAngle = null;

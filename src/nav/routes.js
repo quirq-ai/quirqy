@@ -2,10 +2,10 @@
 // Each section has a stable URL so it can be bookmarked and shared.
 
 export const ROUTES = [
-  { mode: 'data', path: '/data', title: 'Quirqy · Data Lab', aliases: ['/data-lab'] },
+  { mode: 'data', path: '/data', title: 'Quirqy · Data Lab', aliases: ['/', '/data-lab'] },
   { mode: 'activity', path: '/activity', title: 'Quirqy · Activity Lab', aliases: ['/activity-lab'] },
   { mode: 'spm', path: '/spm', title: 'Quirqy · SPM Mooring', aliases: ['/mooring'] },
-  { mode: 'solar', path: '/', title: 'Quirqy · Solar System', aliases: ['/solar'] },
+  { mode: 'solar', path: '/solar', title: 'Quirqy · Solar System', aliases: [] },
   { mode: 'math', path: '/equation', title: 'Quirqy · Equation Lab', aliases: ['/math', '/equations'] },
   { mode: 'earth', path: '/earth', title: 'Quirqy · Earth Lab', aliases: [] },
   { mode: 'light', path: '/light', title: 'Quirqy · Light Lab', aliases: ['/optics'] },
@@ -22,11 +22,11 @@ for (const r of ROUTES) {
 }
 
 export function pathForMode(mode) {
-  return (byMode[mode] || byMode.solar).path;
+  return (byMode[mode] || byMode.data).path;
 }
 
 export function titleForMode(mode) {
-  return (byMode[mode] || byMode.solar).title;
+  return (byMode[mode] || byMode.data).title;
 }
 
 export function modeFromLocation(loc = window.location) {
@@ -41,11 +41,11 @@ export function modeFromLocation(loc = window.location) {
   let raw = (loc.pathname || '/').replace(/\/+$/, '') || '/';
   if (raw === '') raw = '/';
   if (byPath.has(raw)) return byPath.get(raw);
-  return 'solar';
+  return 'data';
 }
 
 export function syncUrl(mode, { replace = false } = {}) {
-  const route = byMode[mode] || byMode.solar;
+  const route = byMode[mode] || byMode.data;
   const url = route.path + window.location.search;
   const state = { mode: route.mode };
   if (replace) window.history.replaceState(state, '', url);

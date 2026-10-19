@@ -109,6 +109,8 @@ body[data-mode="data"] #app { background: var(--bg); }
 /* The author is the shared open/close control for the attached commit panel. */
 button.data-sun-portrait { appearance: none; padding: 0; font: inherit; cursor: pointer; pointer-events: auto; }
 button.data-sun-name { appearance: none; padding: 0; border: 0; background: transparent; color: inherit; font-family: inherit; text-align: inherit; cursor: pointer; pointer-events: auto; }
+:is(button.data-sun-portrait, button.data-sun-name) { touch-action: none; cursor: grab; }
+:is(button.data-sun-portrait, button.data-sun-name):active:not(:disabled) { cursor: grabbing; }
 :is(button.data-sun-portrait, button.data-sun-name):disabled { cursor: default; pointer-events: none; }
 button.data-sun-name:hover:not(:disabled) { color: var(--accent-cool); }
 :is(button.data-sun-portrait, button.data-sun-name):focus-visible { outline: 2px solid var(--accent-cool); outline-offset: 4px; }

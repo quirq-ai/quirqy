@@ -426,7 +426,7 @@ async function init() {
       mode = 'solar';
     }
     if (mode === tabState.mode) {
-      if (!fromUrl) syncUrl(mode, { replace: true });
+      syncUrl(mode, { replace: true });
       document.body.dataset.mode = mode;
       return;
     }
@@ -1256,7 +1256,7 @@ async function init() {
   loading.classList.add('done');
   setTimeout(() => loading.remove(), 900);
 
-  // Open the instrument named by the URL (/, /spm, /equation, /earth, ...)
+  // Open the instrument named by the URL (/solar, /spm, /equation, /earth, ...)
   const bootMode = modeFromLocation();
   setMode(bootMode, { fromUrl: true });
 

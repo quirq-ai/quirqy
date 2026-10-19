@@ -2,13 +2,14 @@ import { Vector3 } from 'three';
 import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { normalizeAuthorProfile } from './author-profile.js';
 import { placeCommitBubble } from './commit-bubble-layout.js';
+import { bindSceneDragHandles } from './scene-drag-handles.js';
 import { registerGlassSurface } from '../ui/glass-refraction.js';
 
 let nextBubbleId = 0;
 
 /** A screen-facing credit anchored to the root, independent of scene picking. */
 export class SunCredit {
-  constructor(parent, { onSelect = () => {} } = {}) {
+  constructor(parent, { onSelect = () => {}, controls, onNavigate } = {}) {
     this.element = document.createElement('div');
     this.element.className = 'data-sun-credit';
     this.element.hidden = true;
@@ -42,6 +43,7 @@ export class SunCredit {
         target.addEventListener(event, event => event.stopPropagation(), { signal: this.listeners.signal });
       }
     }
+    this.releaseDragHandles = controls ? bindSceneDragHandles([this.portrait, this.name], controls, onNavigate) : () => {};
     for (const control of [this.portrait, this.name]) {
       control.addEventListener('click', event => {
         event.stopPropagation();
@@ -110,7 +112,7 @@ export class SunCredit {
       control.setAttribute('aria-controls', this.bubble.id);
       control.setAttribute('aria-expanded', String(expanded));
       control.setAttribute('aria-label', action);
-      control.title = action;
+      control.title = `${action} · Drag to move the scene`;
     }
     const active = document.activeElement;
     if ((!expanded && this.bubble.contains(active)) || (!available && (active === this.portrait || active === this.name))) active?.blur();
@@ -328,6 +330,7 @@ export class SunCredit {
   dispose() {
     this.setCommit(null);
     this.listeners.abort();
+    this.releaseDragHandles();
     this.releaseGlass();
     this.object.removeFromParent();
     this.element.remove();

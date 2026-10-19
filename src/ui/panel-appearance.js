@@ -44,7 +44,7 @@ export function mountPanelAppearance() {
     <label class="glass-opacity-label" for="glass-opacity-range"><span>Panel opacity</span><output id="glass-opacity-output" for="glass-opacity-range"></output></label>
     <input id="glass-opacity-range" type="range" min="0" max="100" step="1" aria-describedby="glass-opacity-description" />
     <div class="glass-opacity-scale" aria-hidden="true"><span>Clear</span><span>Solid</span></div>
-    <p id="glass-opacity-description">Clearer glass bends the scene behind panels and playback bars.</p>
+    <p id="glass-opacity-description">Controls how see-through panels and toolbars are. Lower is clearer; higher is more solid.</p>
     <div class="glass-popover-footer"><span id="glass-opacity-status" role="status">Browser preference</span><button class="glass-opacity-reset" type="button">Reset</button></div></div></div>`;
   document.body.append(popover);
   const range = popover.querySelector('input');
@@ -65,12 +65,13 @@ export function mountPanelAppearance() {
       repositoryViews.range.value = String(opacity);
       repositoryViews.range.setAttribute('aria-valuetext', `${opacity} percent`);
       repositoryViews.range.title = `Panel opacity: ${opacity}%`;
+      repositoryViews.output.value = `${opacity}%`;
     }
     for (const trigger of triggers) {
       if (!trigger.isConnected) { triggers.delete(trigger); continue; }
       trigger.querySelector('.glass-opacity-value').textContent = `${opacity}%`;
       trigger.setAttribute('aria-label', `Adjust panel opacity, ${opacity} percent`);
-      trigger.title = `Panel opacity: ${opacity}%`;
+      trigger.title = `Panel opacity: ${opacity}% · Adjust how see-through panels and toolbars are`;
     }
   }
 
@@ -148,7 +149,11 @@ export function mountPanelAppearance() {
     button.type = 'button';
     const dockApp = REPOSITORY_LABS.some(lab => lab.dockId === host.id);
     button.className = `glass-opacity-trigger${dockApp ? ' repository-app-tile' : ''}`;
-    if (dockApp) { button.id = 'repository-opacity-trigger'; button.dataset.repositoryApp = 'opacity'; }
+    if (dockApp) {
+      button.id = 'repository-opacity-trigger';
+      button.dataset.repositoryApp = 'opacity';
+      button.setAttribute('aria-describedby', 'repository-opacity-description');
+    }
     button.setAttribute('aria-controls', dockApp ? repositoryViews.inline.id : popover.id);
     if (!dockApp) {
       button.setAttribute('aria-haspopup', 'dialog');
@@ -156,7 +161,7 @@ export function mountPanelAppearance() {
     }
     button.setAttribute('aria-expanded', 'false');
     button.innerHTML = dockApp
-      ? `<span class="repository-app-icon" aria-hidden="true">${OPACITY_APP_ICON}</span><span class="glass-opacity-text repository-app-label">Opacity</span><span class="glass-opacity-value" hidden></span>`
+      ? `<span class="repository-app-icon" aria-hidden="true">${OPACITY_APP_ICON}</span><span class="repository-opacity-copy"><span class="glass-opacity-text">Opacity</span><span class="glass-opacity-value"></span></span>`
       : `${ICON}<span class="glass-opacity-text">Opacity</span><span class="glass-opacity-value"></span>`;
     if (dockApp) {
       host.insertBefore(button, host.querySelector(':scope > :not(.panel-dock-grip)'));
@@ -228,7 +233,7 @@ export function mountPanelAppearance() {
     inline.hidden = true;
     inline.setAttribute('role', 'group');
     inline.setAttribute('aria-label', 'Panel opacity');
-    inline.innerHTML = `<button type="button" class="repository-opacity-back" aria-label="Close opacity controls" title="Close opacity controls"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m12 5-5 5 5 5"/></svg></button><input id="repository-opacity-range" type="range" min="0" max="100" step="1" aria-label="Panel opacity" />`;
+    inline.innerHTML = `<button type="button" class="repository-opacity-back" aria-label="Close opacity controls" title="Close opacity controls"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m12 5-5 5 5 5"/></svg></button><div class="repository-opacity-content"><label class="repository-opacity-label" for="repository-opacity-range"><span>Panel opacity</span><output id="repository-opacity-output" for="repository-opacity-range"></output></label><input id="repository-opacity-range" type="range" min="0" max="100" step="1" aria-describedby="repository-opacity-description" /><p id="repository-opacity-description">Controls how see-through panels and toolbars are. Lower is clearer; higher is more solid.</p></div>`;
     const inlineRange = inline.querySelector('input');
     const controller = new AbortController();
     inlineRange.addEventListener('input', () => { opacity = Number(inlineRange.value); render(); }, { signal: controller.signal });
@@ -247,7 +252,7 @@ export function mountPanelAppearance() {
     dock.prepend(heading, nav);
     dock.classList.add('repository-parallel-controls');
     const connection = mountRepositoryViewConnection(dock, nav, actions.querySelector(`#tab-${lab.mode}`));
-    repositoryViews = { panel, row, placeholder, heading, controls, timeline, github, connection, nav, dock, actions, inline, range: inlineRange, controller, open: false, trigger: null };
+    repositoryViews = { panel, row, placeholder, heading, controls, timeline, github, connection, nav, dock, actions, inline, range: inlineRange, output: inline.querySelector('output'), controller, open: false, trigger: null };
     render();
   }
 

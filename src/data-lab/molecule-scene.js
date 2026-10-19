@@ -25,7 +25,11 @@ export class MoleculeScene extends RepositoryScene {
     this.group.name = 'Data Lab · Repository molecule';
     this.enclosures = new FolderEnclosureScene(this.group);
     this._createRootGlow();
-    this.sunCredit = new SunCredit(this.group, { onSelect: id => this.onSelect(id) });
+    this.sunCredit = new SunCredit(this.group, {
+      onSelect: id => this.onSelect(id),
+      controls: this.controls,
+      onNavigate: () => { this.pointerStart = null; },
+    });
     for (const geometry of Object.values(this.geometries)) geometry.dispose();
     this.geometries = {
       atom: new THREE.SphereGeometry(1, 24, 16),

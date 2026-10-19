@@ -21,7 +21,7 @@ npm ci
 npm run dev
 ```
 
-Open [Data Lab](http://localhost:5174/data) or [Activity Lab](http://localhost:5174/activity). The default development port is `5174`; Vite prints the actual address if that port is occupied. Opening `/` opens the Solar System.
+Open [Data Lab](http://localhost:5174/data) or [Activity Lab](http://localhost:5174/activity). The default development port is `5174`; Vite prints the actual address if that port is occupied. The home page `/` opens Data Lab; the Solar System remains available at `/solar`.
 
 ```bash
 npm run build       # Production files in dist/
@@ -34,7 +34,7 @@ No application backend, environment file, GitHub token, or account setup is requ
 ## Start exploring
 
 1. Open **Data** or **Activity** in the dock.
-2. Choose the preloaded **quirq-ai/xo** or **quirq-ai/xo-space** example, or enter a public repository URL such as `https://github.com/owner/repository` and choose **Load**.
+2. Open **GitHub** in the dock, then choose the preloaded **quirq-ai/xo** or **quirq-ai/xo-space** example, or enter a public repository URL such as `https://github.com/owner/repository` and choose **Load**.
 3. Select a scene view above the dock's app row. Use **Timeline** to show or hide playback controls, step through records, scrub, or change speed.
 4. Click a scene item to inspect it. Use **Frame view** or **F** to return to the whole scene; **H** opens that lab's help.
 5. Read **Data coverage** before interpreting a sample or exporting it.
@@ -48,7 +48,7 @@ Data Lab turns repository hierarchy and sampled first-parent commit history into
 - **Structure:** folders are carbon-like anchors and files are colored atoms, with file categories explained in the Scene guide. Files connect to their actual folders. While playing, folder marbles become enclosures around their contents and travelling current marks the current commit. Pausing restores the folder marbles and visible pathways. Brightness builds with loaded commit touches and rewinds with the timeline.
 - **Growth tree:** directories form branches, files form leaves, and additions and removals animate through history. Branch weight follows mapped file counts. Leaf area uses known snapshot byte sizes with readability limits; historical byte sizes are not invented.
 
-The Structure root shows the current commit author's portrait and name. During playback it glows; when paused, a wide glass message panel shows **only the commit title**, the commit ID, expandable changed files, line additions/deletions, and a GitHub link. Click the author's photo or name to collapse or reopen this panel. Unknown or unavailable portraits use initials.
+The Structure root shows the current commit author's portrait and name. During playback it glows; when paused, a wide glass message panel shows **only the commit title**, the commit ID, expandable changed files, line additions/deletions, and a GitHub link. Click the author's photo or name to collapse or reopen this panel. Drag, right-drag, wheel, and touch gestures over the portrait or name still control the 3D camera. Unknown or unavailable portraits use initials.
 
 **Frame roots** in Growth tree enlarges the root system and shortens the canopy around the same ground junction. Roots follow the real directory hierarchy. Every distinct loaded commit touching a file adds the same repository-calibrated length step, retained through renames and rewound with playback. The inspector reports touches and added length; compare added length within one repository and touch counts across repositories. Thickness is a visual effect. Dot-prefixed files and folders are hidden from roots, while the underlying dataset and other views retain them.
 
@@ -83,6 +83,7 @@ The repository apps share one dock and glass-panel system:
 - **Logo in the middle of the bottom app row:** drag it to move the dock; click to smoothly collapse everything to the logo, then click again to expand. Controls keep their state. Reduced-motion preferences remove the transition.
 - **Edit beside the logo (under it on narrow screens):** upload a PNG, JPG, WebP, or SVG up to 5 MB, or reset the default logo. Uploads are rasterized to a bounded PNG with transparency retained. The logo is shared by the dock, loading screen, favicon, and the legacy recording overlay.
 - **Data, Activity, and Apps:** switch repository labs or open the other 3D instruments. Repository pages keep the top bar clear; scene choices appear above the dock's apps.
+- **GitHub:** opens the repository connection, example choices, source metadata, and refresh controls above the dock.
 - **Timeline and Opacity:** independent controls in the dock. Panel opacity ranges from **0–100%** while text and controls remain readable. Clearer glass increases simulated edge refraction; more opaque glass adds softness. Browsers without SVG backdrop refraction retain blur and highlights. Reduced-transparency and high-contrast preferences use solid surfaces.
 - **Floating sidebars:** drag their headers and use the header's **− / +** control to collapse or expand. On narrow screens, page buttons reopen the corresponding sheets.
 - **Position shortcuts:** focused drag handles support Arrow keys, **Shift + Arrow** for larger steps, and **Home** to reset. Double-click a handle to restore its default position. Dock and panel positions are remembered separately for desktop and mobile.
@@ -176,7 +177,7 @@ Open these through **Apps** in the repository dock or by their direct URLs. Thei
 
 | Instrument | Route | What it explores |
 | --- | --- | --- |
-| Solar System | `/` | Keplerian planetary motion, moons, Halley, belts, and an interactive N-body experiment |
+| Solar System | `/solar` | Keplerian planetary motion, moons, Halley, belts, and an interactive N-body experiment |
 | Equation Lab | `/equation` | Parametric curves, ODE/force fields, surfaces, swarms, superposition, data fitting, and saved experiment versions |
 | SPM Mooring | `/spm` | Buoy motion, chains, weather inputs, catenary shape, and tension |
 | Earth Lab | `/earth` | Earth layers, composition, atmosphere, magnetic field, and interior gravity |
@@ -202,7 +203,11 @@ npm ci
 npm run build
 ```
 
-Publish **`dist/`** to a static host. Configure unknown application routes to serve `index.html` so direct visits to `/data`, `/activity`, and the instrument routes work. Serve existing assets normally.
+For **Vercel**, import `quirq-ai/quirqy` with **Production Branch: `quirq`** and **Root Directory: `.`** (the repository root containing `package.json`). The checked-in [vercel.json](vercel.json) selects Vite, runs `npm ci` / `npm run build`, publishes `dist/`, and provides the SPA fallback for direct page visits and refreshes.
+
+After deployment, `/` opens Data Lab, `/data` and `/activity` open their respective repository scenes, and `/solar` opens the Solar System. Check all three repository entry URLs after a deployment. The latest `quirq` commit is the release source; the historical `v0` and `v0.1` tags are earlier versions.
+
+For other static hosts, publish **`dist/`** and configure unknown application routes to serve `index.html`, while serving existing assets normally. Vite's local fallback alone does not configure a production host. See [Vercel's Vite SPA routing guidance](https://vercel.com/docs/frameworks/frontend/vite#using-vite-to-make-spas).
 
 The current app uses root-relative routes and asset URLs; deploy at the site's root. Hosting under a subdirectory requires route and asset-path changes. No backend or application environment variables are required. `PORT` optionally changes the local Vite development/preview port. `npm run preview` is for checking a build locally.
 
