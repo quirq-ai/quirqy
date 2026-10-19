@@ -51,10 +51,9 @@ export async function prepareLogo(file) {
 
 /** Shared branding controls for every instrument, independent of scene settings. */
 export function mountLogoEditor() {
-  const trigger = document.getElementById('brand-logo-button');
-  if (!trigger) return () => {};
+  const triggerSelector = '[data-logo-editor-trigger], #brand-logo-button';
   const lifetime = new AbortController();
-  const listen = (node, event, handler) => node.addEventListener(event, handler, { signal: lifetime.signal });
+  const listen = (node, event, handler, options = {}) => node.addEventListener(event, handler, { ...options, signal: lifetime.signal });
   const dialog = document.createElement('dialog');
   dialog.id = 'logo-editor';
   dialog.setAttribute('aria-labelledby', 'logo-editor-title');
@@ -82,6 +81,30 @@ export function mountLogoEditor() {
   const done = dialog.querySelector('.logo-editor-done');
   const status = dialog.querySelector('#logo-editor-status');
   let busy = false, generation = 0;
+  let opener = null, restoreFocusOnClose = true;
+
+  function editorTrigger(event) {
+    const trigger = event.target instanceof Element ? event.target.closest(triggerSelector) : null;
+    // The dock logo is exclusively a drag handle, even if its markup changes.
+    return trigger && !trigger.closest('.panel-dock-grip') && !trigger.disabled ? trigger : null;
+  }
+
+  function finishClose({ restoreFocus = restoreFocusOnClose } = {}) {
+    if (!opener) return;
+    generation += 1;
+    input.value = '';
+    setBusy(false);
+    opener.setAttribute('aria-expanded', 'false');
+    if (restoreFocus && opener.isConnected && !opener.disabled) opener.focus({ preventScroll: true });
+    opener = null;
+  }
+
+  function close({ restoreFocus = true } = {}) {
+    if (!dialog.open) return;
+    restoreFocusOnClose = restoreFocus;
+    dialog.close();
+    finishClose();
+  }
 
   function showStatus(message = '', error = false) {
     status.textContent = message;
@@ -105,7 +128,9 @@ export function mountLogoEditor() {
         image.src = DEFAULT_LOGO_URL;
       };
     }
-    trigger.classList.toggle('has-custom-logo', custom);
+    for (const trigger of document.querySelectorAll(triggerSelector)) {
+      trigger.classList.toggle('has-custom-logo', custom);
+    }
     const favicon = document.querySelector('link[rel="icon"]');
     if (favicon) {
       favicon.type = custom ? 'image/png' : 'image/svg+xml';
@@ -116,23 +141,33 @@ export function mountLogoEditor() {
   const unsubscribe = subscribeLogo(applyLogo);
   applyLogo();
 
-  listen(trigger, 'click', () => {
-    if (dialog.open) return;
+  // Repository docks mount after bootstrap, so their Edit app uses delegation.
+  listen(document, 'click', event => {
+    const trigger = editorTrigger(event);
+    if (!trigger || dialog.open) return;
+    event.preventDefault();
+    finishClose({ restoreFocus: false });
+    opener = trigger;
+    restoreFocusOnClose = true;
     showStatus();
+    document.dispatchEvent(new CustomEvent('observatory:popover-open', { detail: dialog.id }));
     dialog.showModal();
+    opener.setAttribute('aria-expanded', 'true');
   });
-  // Keep scene shortcuts from consuming native button and dialog interaction.
-  listen(trigger, 'keydown', event => {
-    if (event.key === ' ' || event.key === 'Enter') event.stopPropagation();
-  });
+  // Capture keeps scene shortcuts out while preserving native button activation.
+  listen(document, 'keydown', event => {
+    if (editorTrigger(event)) event.stopPropagation();
+  }, { capture: true });
   listen(dialog, 'keydown', event => event.stopPropagation());
-  listen(dialog.querySelector('.logo-editor-close'), 'click', () => dialog.close());
-  listen(done, 'click', () => dialog.close());
+  listen(dialog.querySelector('.logo-editor-close'), 'click', () => close());
+  listen(done, 'click', () => close());
+  listen(document, 'observatory:popover-open', event => {
+    if (event.detail !== dialog.id) close({ restoreFocus: false });
+  });
   listen(dialog, 'close', () => {
-    generation += 1;
-    input.value = '';
-    setBusy(false);
-    trigger.focus({ preventScroll: true });
+    // A queued close event may arrive after a different trigger reopens the dialog.
+    if (dialog.open) return;
+    finishClose();
   });
   listen(upload, 'click', () => input.click());
   listen(input, 'change', async () => {
@@ -168,6 +203,8 @@ export function mountLogoEditor() {
     generation += 1;
     lifetime.abort();
     unsubscribe();
+    opener?.setAttribute('aria-expanded', 'false');
+    opener = null;
     dialog.remove();
   };
 }

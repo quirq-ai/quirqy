@@ -702,6 +702,8 @@ export class ActivityScene {
   }
 
   _spaceContributorCards() {
+    // The first frame can arrive before the saved repository has finished loading.
+    if (!this.layout) return;
     const viewport = this._viewport();
     const dock = document.getElementById('activity-timebar')?.getBoundingClientRect();
     const signature = [this.view, this.selectedId, [...this.visibleKinds].sort().join(','), [...this.visibleIds].join(','), dock?.x, dock?.y, dock?.width, dock?.height, ...Object.values(viewport), ...this.camera.matrixWorld.elements,

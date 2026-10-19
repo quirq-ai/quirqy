@@ -27,7 +27,7 @@ html body :is(#data-panel, #activity-panel) :is(.data-sheet-close, .activity-she
 html body :is(#data-guide, #activity-guide) .list-title { padding-top: 9px; padding-bottom: 7px; }
 
 html body :is(#timebar, #math-timebar, #data-timebar, #activity-timebar).panel-dock {
-  padding-top: 28px;
+  padding-top: 44px;
   z-index: 40;
 }
 html body :is(#data-timebar, #activity-timebar).panel-dock {
@@ -43,8 +43,9 @@ html body .panel-dock > .panel-dock-grip {
   transform: translateX(-50%);
   display: grid;
   place-items: center;
-  width: 68px;
-  height: 24px;
+  justify-content: center;
+  width: 60px;
+  height: 44px;
   padding: 0;
   border: 0;
   border-radius: 8px;
@@ -53,17 +54,18 @@ html body .panel-dock > .panel-dock-grip {
   cursor: grab;
   touch-action: none;
 }
-html body .panel-dock-grip > span {
+html body .panel-dock-grip > .panel-dock-logo {
   display: block;
-  width: 30px;
-  height: 3px;
-  border-radius: 99px;
-  background: linear-gradient(90deg, rgba(196, 218, 245, .25), rgba(224, 239, 255, .6), rgba(196, 218, 245, .25));
-  box-shadow: 0 1px 0 rgba(255, 255, 255, .08);
-  transition: width 150ms ease, background-color 150ms ease;
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  transition: transform 150ms ease;
 }
-html body .panel-dock-grip:hover > span,
-html body .panel-dock-grip:focus-visible > span { width: 38px; background-color: rgba(224, 239, 255, .5); }
+html body .panel-dock-grip:hover > .panel-dock-logo,
+html body .panel-dock-grip:focus-visible > .panel-dock-logo { transform: scale(1.08); }
 html body .panel-float.is-dragging { z-index: 80; }
 html body .panel-float.is-dragging :is(.panel-drag-handle, .panel-drag-grip, .panel-dock-grip) { cursor: grabbing; }
 
@@ -93,7 +95,7 @@ html body .panel-float.is-dragging :is(.panel-drag-handle, .panel-drag-grip, .pa
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  html body .panel-dock-grip > span { transition: none; }
+  html body .panel-dock-grip > .panel-dock-logo { transition: none; }
 }
 
 /* Repository labs keep Opacity beside the app icons and the source status in its header. */

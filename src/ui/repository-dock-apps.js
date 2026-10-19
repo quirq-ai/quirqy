@@ -47,6 +47,18 @@ export function mountRepositoryDockApps(host, mode) {
   }, { signal: lifetime.signal });
   window.addEventListener('resize', () => links.forEach(positionTooltip), { signal: lifetime.signal });
   host.append(nav);
+  const edit = document.createElement('button');
+  edit.type = 'button';
+  edit.className = 'repository-app-tile repository-logo-edit';
+  edit.dataset.repositoryApp = 'edit';
+  edit.setAttribute('data-logo-editor-trigger', '');
+  edit.setAttribute('aria-label', 'Edit logo');
+  edit.setAttribute('aria-haspopup', 'dialog');
+  edit.setAttribute('aria-controls', 'logo-editor');
+  edit.setAttribute('aria-expanded', 'false');
+  edit.title = 'Edit logo';
+  edit.innerHTML = '<span class="repository-app-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" focusable="false"><path d="m15.5 4.5 4 4M4 20l4.5-1L20 7.5a2.83 2.83 0 0 0-4-4L4.5 15 4 20Z"/><path d="M12 20h8"/></svg></span><span class="repository-app-label">Edit</span>';
+  nav.append(edit);
   const disposeLauncher = mountAppsLauncher(nav);
   document.body.classList.add('repository-apps-docked');
   return {

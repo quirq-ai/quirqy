@@ -2,6 +2,7 @@ import { makePanelDraggable } from './dragPanel.js';
 import './floating-layout.css';
 import { REPOSITORY_LABS } from './repository-labs.js';
 import { mountRepositoryDockApps } from './repository-dock-apps.js';
+import { DEFAULT_LOGO_URL, getLogoUrl, subscribeLogo } from '../branding/logo-preference.js';
 
 /** Attach shared floating behavior without tying it to a lab's scene lifecycle. */
 export function mountFloatingLayout() {
@@ -58,10 +59,19 @@ export function mountFloatingLayout() {
     repositoryControls = { moves, header, dock, group, apps };
   }
 
+  function applyDockLogo(grip) {
+    const image = grip.querySelector('.panel-dock-logo');
+    image.onerror = () => { image.onerror = null; image.src = DEFAULT_LOGO_URL; };
+    image.src = getLogoUrl();
+  }
+
   function release(element, entry) {
     entry.dispose?.();
     entry.resize?.disconnect();
-    entry.grip?.remove();
+    if (entry.grip) {
+      entry.grip.querySelector('.panel-dock-logo').onerror = null;
+      entry.grip.remove();
+    }
     element.classList.remove('panel-dock');
     panels.delete(element);
   }
@@ -98,8 +108,14 @@ export function mountFloatingLayout() {
       grip.type = 'button';
       grip.className = 'panel-dock-grip';
       grip.setAttribute('aria-label', 'Move timeline dock');
-      grip.title = 'Drag to move · Arrow keys to move · Home or double-click to reset';
-      grip.innerHTML = '<span aria-hidden="true"></span>';
+      grip.title = 'Drag logo to move · Arrow keys to move · Home or double-click to reset';
+      const logo = document.createElement('img');
+      logo.className = 'panel-dock-logo';
+      logo.alt = '';
+      logo.draggable = false;
+      logo.setAttribute('aria-hidden', 'true');
+      grip.append(logo);
+      applyDockLogo(grip);
       dock.prepend(grip);
       const dispose = makePanelDraggable(dock, {
         handleSelector: '.panel-dock-grip', storageKey: `observatory-${id}-pos`, addHint: false,
@@ -123,8 +139,12 @@ export function mountFloatingLayout() {
   // Panels mount asynchronously. Observe only direct children, never scene updates.
   const bodyObserver = new MutationObserver(attach);
   bodyObserver.observe(document.body, { childList: true });
+  const unsubscribeLogo = subscribeLogo(() => {
+    for (const { grip } of panels.values()) if (grip) applyDockLogo(grip);
+  });
   attach();
   return () => {
+    unsubscribeLogo();
     bodyObserver.disconnect();
     for (const observer of watched.values()) observer.disconnect();
     watched.clear();
