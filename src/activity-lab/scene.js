@@ -391,13 +391,15 @@ export class ActivityScene {
   setVisible(ids, { kinds } = {}) {
     if (this.disposed) return;
     this.visibleIds = new Set(ids || []);
+    let leftCloseUp = false;
     if (this.focusedConstellation && (!this.visibleIds.has(this.focusedConstellation.id)
       || (kinds !== undefined && [...new Set(kinds || [])].sort().join(',') !== [...this.visibleKinds].sort().join(',')))) {
-      this.focusedConstellation = null; this.contributorScreenSignature = null;
+      this.focusedConstellation = null; this.contributorScreenSignature = null; leftCloseUp = true;
     }
     if (kinds !== undefined) this.visibleKinds = new Set(kinds || []);
     if (this.hoveredId && !this.visibleIds.has(this.hoveredId)) this._clearHover();
     this._paint();
+    if (leftCloseUp) this.frame();
   }
 
   setSelected(id) {
