@@ -6,6 +6,7 @@
  */
 :root {
   --lab-panel-width: 360px;
+  --commit-panel-width: calc(var(--lab-panel-width) * 1.2);
   --glass-surface-rgb: 10, 17, 28;
   --glass-text: #e2eaf4;
   --glass-text-dim: #a0aec1;

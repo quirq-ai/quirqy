@@ -4,6 +4,8 @@ import { normalizeAuthorProfile } from './author-profile.js';
 import { placeCommitBubble } from './commit-bubble-layout.js';
 import { registerGlassSurface } from '../ui/glass-refraction.js';
 
+let nextBubbleId = 0;
+
 /** A screen-facing credit anchored to the root, independent of scene picking. */
 export class SunCredit {
   constructor(parent, { onSelect = () => {} } = {}) {
@@ -11,17 +13,19 @@ export class SunCredit {
     this.element.className = 'data-sun-credit';
     this.element.hidden = true;
     this.element.setAttribute('role', 'group');
-    this.element.innerHTML = '<div class="data-sun-pulse" aria-hidden="true"></div><div class="data-sun-portrait" aria-hidden="true"><span class="data-sun-initials"></span></div><div class="data-sun-caption" aria-hidden="true"><span class="data-sun-byline">Commit by</span><span class="data-sun-name"></span></div>';
+    this.element.innerHTML = '<div class="data-sun-pulse" aria-hidden="true"></div><button type="button" class="data-sun-portrait"><span class="data-sun-initials" aria-hidden="true"></span></button><div class="data-sun-caption"><span class="data-sun-byline">Commit by</span><button type="button" class="data-sun-name"></button></div>';
     this.portrait = this.element.querySelector('.data-sun-portrait');
     this.pulseRing = this.element.querySelector('.data-sun-pulse');
     this.initials = this.element.querySelector('.data-sun-initials');
     this.name = this.element.querySelector('.data-sun-name');
+    this.caption = this.element.querySelector('.data-sun-caption');
     this.bubble = document.createElement('section');
     this.bubble.className = 'panel data-commit-bubble';
+    this.bubble.id = `data-commit-bubble-${++nextBubbleId}`;
     this.bubble.hidden = true;
     this.bubble.style.visibility = 'hidden';
     this.bubble.setAttribute('aria-label', 'Current commit');
-    this.bubble.innerHTML = '<h2 class="list-title data-bubble-heading">Commit message</h2><div class="data-bubble-scroll"><p class="data-bubble-message" tabindex="0"></p><details class="data-bubble-files"><summary><span class="data-bubble-file-count"></span><span class="data-bubble-lines"><span class="data-bubble-added"></span><span class="data-bubble-deleted"></span><span>lines</span></span></summary><div class="data-bubble-file-list"></div></details><p class="data-bubble-notice" hidden></p></div><footer class="data-bubble-footer"><code class="data-bubble-sha"></code><a class="btn tiny data-bubble-link" target="_blank" rel="noopener noreferrer">View on GitHub <span aria-hidden="true">↗</span></a></footer>';
+    this.bubble.innerHTML = '<h2 class="list-title data-bubble-heading">Commit</h2><div class="data-bubble-scroll"><p class="data-bubble-message" tabindex="0"></p><details class="data-bubble-files"><summary><span class="data-bubble-file-count"></span><span class="data-bubble-lines"><span class="data-bubble-added"></span><span class="data-bubble-deleted"></span><span>lines</span></span></summary><div class="data-bubble-file-list"></div></details><p class="data-bubble-notice" hidden></p></div><footer class="data-bubble-footer"><code class="data-bubble-sha"></code><a class="btn tiny data-bubble-link" target="_blank" rel="noopener noreferrer">View on GitHub <span aria-hidden="true">↗</span></a></footer>';
     this.element.append(this.bubble);
     this.releaseGlass = registerGlassSurface(this.bubble);
     this.message = this.bubble.querySelector('.data-bubble-message');
@@ -32,15 +36,26 @@ export class SunCredit {
     this.commitLink = this.bubble.querySelector('.data-bubble-link');
     this.commitId = this.bubble.querySelector('.data-bubble-sha');
     this.listeners = new AbortController();
-    // Native text selection, scrolling and links belong to the bubble, not orbit controls.
-    for (const event of ['pointerdown', 'pointerup', 'dblclick', 'wheel', 'keydown']) {
-      this.bubble.addEventListener(event, event => event.stopPropagation(), { signal: this.listeners.signal });
+    // Native disclosure controls, text selection and links must not orbit the scene.
+    for (const target of [this.bubble, this.portrait, this.name]) {
+      for (const event of ['pointerdown', 'pointerup', 'dblclick', 'wheel', 'keydown', 'keyup']) {
+        target.addEventListener(event, event => event.stopPropagation(), { signal: this.listeners.signal });
+      }
+    }
+    for (const control of [this.portrait, this.name]) {
+      control.addEventListener('click', event => {
+        event.stopPropagation();
+        if (this.playing || !this.hasCommit) return;
+        this.collapsed = !this.collapsed;
+        this._syncBubbleVisibility();
+      }, { signal: this.listeners.signal });
     }
     this.fileList.addEventListener('click', event => {
       const button = event.target.closest('button[data-file-id]');
       if (button) onSelect(button.dataset.fileId);
     }, { signal: this.listeners.signal });
     this.playing = false;
+    this.collapsed = false;
 
     this.object = new CSS2DObject(this.element);
     this.object.name = 'Data Lab · Commit author';
@@ -49,6 +64,7 @@ export class SunCredit {
     this.anchor = new Vector3();
     this.hasCommit = false;
     this.requestedVisible = false;
+    this._syncBubbleVisibility();
     parent.add(this.object);
   }
 
@@ -63,7 +79,7 @@ export class SunCredit {
       this.name.textContent = '';
       this.initials.textContent = '';
       this._setAvatar(null);
-      this.bubble.hidden = true;
+      this._syncBubbleVisibility();
       this.fileList.replaceChildren();
       this.message.textContent = '';
       this.commitLink.removeAttribute('href');
@@ -78,11 +94,30 @@ export class SunCredit {
     this.element.dataset.commit = commit.sha || '';
     this._setAvatar(profile?.avatarUrl || null);
     if (changed) this._renderBubble(commit);
-    this.bubble.hidden = this.playing;
+    this._syncBubbleVisibility();
+  }
+
+  _syncBubbleVisibility() {
+    const available = this.hasCommit && !this.playing;
+    const expanded = available && !this.collapsed;
+    this.bubble.hidden = !expanded;
+    this.element.dataset.playing = String(this.playing);
+    this.element.dataset.collapsed = String(this.collapsed);
+    if (!expanded) this.element.dataset.compact = 'false';
+    const action = `${expanded ? 'Hide' : 'Show'} commit title by ${this.name.textContent || 'Unknown author'}`;
+    for (const control of [this.portrait, this.name]) {
+      control.disabled = !available;
+      control.setAttribute('aria-controls', this.bubble.id);
+      control.setAttribute('aria-expanded', String(expanded));
+      control.setAttribute('aria-label', action);
+      control.title = action;
+    }
+    const active = document.activeElement;
+    if ((!expanded && this.bubble.contains(active)) || (!available && (active === this.portrait || active === this.name))) active?.blur();
   }
 
   _renderBubble(commit) {
-    this.message.textContent = commit.message || '(No commit message)';
+    this.message.textContent = String(commit.message || '').split(/\r\n?|\n/u).map(line => line.trim()).find(Boolean) || '(No commit title)';
     this.message.scrollTop = 0;
     this.bubbleScroll.scrollTop = 0;
     this.fileList.scrollTop = 0;
@@ -131,9 +166,7 @@ export class SunCredit {
 
   setPlayback(playing) {
     this.playing = Boolean(playing);
-    this.element.dataset.playing = String(this.playing);
-    this.bubble.hidden = this.playing || !this.hasCommit;
-    if (this.playing && this.bubble.contains(document.activeElement)) document.activeElement.blur();
+    this._syncBubbleVisibility();
     if (!this.playing) this.stopPulse();
   }
 
@@ -202,7 +235,8 @@ export class SunCredit {
     const inView = z >= -1 && z <= 1 && Math.abs(x) <= 1 && Math.abs(y) <= 1;
     let screenX = (x * .5 + .5) * width, screenY = (-y * .5 + .5) * height;
     const bounds = this.playing ? null : this._bubbleBounds(width, height);
-    const compact = !this.playing && bounds.bottom - bounds.top < 260;
+    const expanded = !this.playing && !this.collapsed;
+    const compact = expanded && bounds.bottom - bounds.top < 260;
     this.element.dataset.compact = String(compact);
     const docked = !this.playing && (this.detached || !inView || screenX < bounds.left + 22 || screenX > bounds.right - 22
       || screenY < bounds.top + 24 || screenY > bounds.bottom - 60);
@@ -213,12 +247,24 @@ export class SunCredit {
       this.object.position.set(screenX / width * 2 - 1, 1 - screenY / height * 2, 0).unproject(camera);
       this.object.parent?.worldToLocal(this.object.position);
     } else this.object.position.copy(this.anchor);
-    this.element.dataset.docked = String(docked);
+    let authorClamped = false;
+    if (!this.playing && this.collapsed) {
+      // A collapsed credit remains a reachable disclosure, including offscreen roots.
+      const half = Math.max(24, Math.min(96, this.caption.offsetWidth / 2 || 96));
+      const clampedX = Math.max(bounds.left + half, Math.min(screenX, bounds.right - half));
+      const clampedY = Math.max(bounds.top + 24, Math.min(screenY, bounds.bottom - 60));
+      authorClamped = clampedX !== screenX || clampedY !== screenY;
+      screenX = clampedX;
+      screenY = clampedY;
+      this.object.position.set(screenX / width * 2 - 1, 1 - screenY / height * 2, 0).unproject(camera);
+      this.object.parent?.worldToLocal(this.object.position);
+    }
+    this.element.dataset.docked = String(docked || authorClamped);
     const visible = inView || docked;
     this.object.visible = visible;
     this.element.hidden = !visible;
     if (!visible) { this.stopPulse(); return null; }
-    if (!this.playing) {
+    if (expanded) {
       // CSS owns the shared preferred width. Screen bounds only constrain it;
       // leave a clear lane for the author's portrait and caption when stacked.
       this.element.style.setProperty('--bubble-available-width', `${Math.max(1, bounds.right - bounds.left)}px`);
@@ -228,7 +274,7 @@ export class SunCredit {
       let placement = placeCommitBubble({ x: screenX, y: screenY, width, height, bubbleWidth, bubbleHeight, bounds });
       const overlaps = rect => placement.left < rect.right && placement.left + bubbleWidth > rect.left
         && placement.top < rect.bottom && placement.top + bubbleHeight > rect.top;
-      const captionHalf = Math.min(96, this.element.querySelector('.data-sun-caption').offsetWidth / 2 || 96);
+      const captionHalf = Math.min(96, this.caption.offsetWidth / 2 || 96);
       if (!compact && bubbleWidth && bubbleHeight && (overlaps({ left: screenX - 24, right: screenX + 24, top: screenY - 24, bottom: screenY + 24 })
         || overlaps({ left: screenX - captionHalf, right: screenX + captionHalf, top: screenY + 24, bottom: screenY + 60 }))) {
         // A full reading panel may not fit beside the projected root. Keep its

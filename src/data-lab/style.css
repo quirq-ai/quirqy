@@ -106,9 +106,15 @@ body[data-mode="data"] #app { background: var(--bg); }
 .data-sun-caption { position: absolute; top: 28px; left: 0; transform: translateX(-50%); display: grid; gap: 2px; width: max-content; max-width: min(190px, 60vw); text-align: center; text-shadow: 0 1px 4px #000, 0 0 12px #000; }
 .data-sun-byline { font-size: 8px; font-weight: 500; letter-spacing: .13em; text-transform: uppercase; color: #bca783; white-space: nowrap; }
 .data-sun-name { font-size: 11px; line-height: 1.4; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* The author is the shared open/close control for the attached commit panel. */
+button.data-sun-portrait { appearance: none; padding: 0; font: inherit; cursor: pointer; pointer-events: auto; }
+button.data-sun-name { appearance: none; padding: 0; border: 0; background: transparent; color: inherit; font-family: inherit; text-align: inherit; cursor: pointer; pointer-events: auto; }
+:is(button.data-sun-portrait, button.data-sun-name):disabled { cursor: default; pointer-events: none; }
+button.data-sun-name:hover:not(:disabled) { color: var(--accent-cool); }
+:is(button.data-sun-portrait, button.data-sun-name):focus-visible { outline: 2px solid var(--accent-cool); outline-offset: 4px; }
 .data-sun-credit[data-playing="false"] .data-sun-portrait { border-color: rgba(208,222,242,.8); box-shadow: 0 0 0 3px rgba(11,18,30,.7), 0 3px 16px rgba(0,0,0,.45); }
 /* The message uses the same panel material, width and control tokens as Data Lab. */
-.data-commit-bubble.panel { position: absolute; display: flex; flex-direction: column; width: min(var(--lab-panel-width), var(--bubble-available-width, calc(100vw - 24px))); min-height: min(320px, var(--bubble-available-height, 320px)); max-height: var(--bubble-available-height, calc(100dvh - 210px)); box-sizing: border-box; padding: 0; pointer-events: auto; user-select: text; text-align: left; }
+.data-commit-bubble.panel { position: absolute; display: flex; flex-direction: column; width: min(var(--commit-panel-width), var(--bubble-available-width, calc(100vw - 24px))); min-height: min(320px, var(--bubble-available-height, 320px)); max-height: var(--bubble-available-height, calc(100dvh - 210px)); box-sizing: border-box; padding: 0; pointer-events: auto; user-select: text; text-align: left; }
 .data-commit-bubble::before { content: ''; position: absolute; width: 11px; height: 11px; border-radius: 2px; background: rgba(var(--glass-surface-rgb), var(--glass-fill-alpha, var(--glass-opacity))); transform: rotate(45deg); pointer-events: none; }
 .data-commit-bubble[data-side="right"]::before { left: -6px; top: calc(var(--bubble-tail) - 5px); border-left: 1px solid var(--glass-edge); border-bottom: 1px solid var(--glass-edge); }
 .data-commit-bubble[data-side="left"]::before { right: -6px; top: calc(var(--bubble-tail) - 5px); border-right: 1px solid var(--glass-edge); border-top: 1px solid var(--glass-edge); }
@@ -138,7 +144,7 @@ button.data-bubble-file:hover { background: var(--glass-control-hover); }
 .data-bubble-link:hover { text-decoration: none; }
 /* On short displays, keep the author in the panel header to preserve reading room. */
 .data-sun-credit[data-compact="true"] .data-sun-portrait { left: calc(var(--bubble-left) + 28px); top: calc(var(--bubble-top) + 25px); width: 28px; height: 28px; z-index: 11; }
-.data-sun-credit[data-compact="true"] .data-sun-caption { left: calc(var(--bubble-left) + 52px); top: calc(var(--bubble-top) + 26px); transform: none; max-width: calc(min(var(--lab-panel-width), var(--bubble-available-width)) - 68px); text-align: left; text-shadow: none; color: var(--glass-text-dim); z-index: 11; }
+.data-sun-credit[data-compact="true"] .data-sun-caption { left: calc(var(--bubble-left) + 52px); top: calc(var(--bubble-top) + 26px); transform: none; max-width: calc(min(var(--commit-panel-width), var(--bubble-available-width)) - 68px); text-align: left; text-shadow: none; color: var(--glass-text-dim); z-index: 11; }
 .data-sun-credit[data-compact="true"] .data-sun-byline { display: none; }
 .data-sun-credit[data-compact="true"] .data-sun-name { font-size: 10px; }
 .data-sun-credit[data-compact="true"] .data-bubble-heading { min-height: 50px; padding: 8px 12px 8px 52px; }
