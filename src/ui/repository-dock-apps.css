@@ -61,6 +61,12 @@ html body [data-repository-app="opacity"] .repository-app-icon {
     radial-gradient(ellipse at 22% 0, rgba(224, 230, 255, .42), transparent 65%),
     linear-gradient(150deg, #7589ba, #3b4974 80%);
 }
+html body [data-repository-app="timeline"] .repository-app-icon {
+  color: #edfff7;
+  background:
+    radial-gradient(ellipse at 22% 0, rgba(199, 255, 218, .4), transparent 65%),
+    linear-gradient(150deg, #488e79, #27584d 80%);
+}
 html body [data-repository-app="activity"] .repository-app-icon {
   color: #fff5df;
   background:

@@ -51,7 +51,7 @@ export function mountFloatingLayout() {
       return { node, placeholder, label: node.getAttribute('aria-label') };
     });
     const apps = mountRepositoryDockApps(group, lab.mode);
-    speed.after(group);
+    dock.append(group);
     header.insertBefore(status, header.querySelector('button'));
     header.classList.add('repository-status-header');
     dock.classList.add('repository-actions-dock');
