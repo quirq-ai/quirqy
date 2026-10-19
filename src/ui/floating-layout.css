@@ -96,7 +96,7 @@ html body .panel-float.is-dragging :is(.panel-drag-handle, .panel-drag-grip, .pa
   html body .panel-dock-grip > span { transition: none; }
 }
 
-/* Repository labs keep Help beside View and the source status in its header. */
+/* Repository labs keep Help beside the app icons and the source status in its header. */
 html body:is([data-mode="data"], [data-mode="activity"]) #btn-snap { display: none !important; }
 html body:is([data-mode="data"], [data-mode="activity"]).repository-dock-layout #topbar > .top-actions { display: none; }
 html body:is([data-mode="data"], [data-mode="activity"]) #help-overlay .help-card {
@@ -132,12 +132,11 @@ html body :is(#data-timebar, #activity-timebar) .repository-dock-actions .tbtn {
 }
 @media (max-width: 900px) {
   html body :is(#data-timebar, #activity-timebar).repository-actions-dock {
-    grid-template-columns: 30px 38px 30px minmax(0, 1fr) auto auto;
+    grid-template-columns: 30px 38px 30px minmax(0, 1fr) auto;
     column-gap: 6px;
   }
-  html body :is(#data-timebar, #activity-timebar).repository-actions-dock > :where(:is(#data-prev, #activity-prev), :is(#data-play, #activity-play), :is(#data-next, #activity-next), :is(.data-speed, .activity-speed), .glass-opacity-trigger, .repository-dock-actions) { grid-row: 2; }
+  html body :is(#data-timebar, #activity-timebar).repository-actions-dock > :where(:is(#data-prev, #activity-prev), :is(#data-play, #activity-play), :is(#data-next, #activity-next), :is(.data-speed, .activity-speed), .repository-dock-actions) { grid-row: 2; }
   html body :is(#data-timebar, #activity-timebar).repository-actions-dock > :is(.data-speed, .activity-speed) { grid-column: 4; }
-  html body :is(#data-timebar, #activity-timebar).repository-actions-dock > .glass-opacity-trigger { grid-column: 5; }
-  html body :is(#data-timebar, #activity-timebar).repository-actions-dock > .repository-dock-actions { grid-column: 6; }
+  html body :is(#data-timebar, #activity-timebar).repository-actions-dock > .repository-dock-actions { grid-column: 5; }
   html body :is(#data-timebar, #activity-timebar) .repository-dock-actions .tbtn { width: 32px; min-width: 32px; height: 38px; }
 }

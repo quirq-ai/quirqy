@@ -1,19 +1,12 @@
 import './glass-surfaces.css';
 import './panel-appearance.css';
+import './repository-view-nav.css';
 import { mountGlassRefraction } from './glass-refraction.js';
 import { REPOSITORY_LABS } from './repository-labs.js';
 
 const STORAGE_KEY = 'quirq-observatory.panel-opacity.v1';
 const DEFAULT_OPACITY = 62;
-const STRUCTURE_ICON = '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m5 6 10 8M15 6 5 14M5 6h10M5 14h10"/><circle cx="5" cy="6" r="2"/><circle cx="15" cy="6" r="2"/><circle cx="5" cy="14" r="2"/><circle cx="15" cy="14" r="2"/></svg>';
-const TREE_ICON = '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 18V5m0 7L5 7m5 7 5-5M10 7l4-4"/><circle cx="10" cy="3" r="1.5"/><circle cx="4" cy="6" r="1.5"/><circle cx="16" cy="8" r="1.5"/><path d="m6 18 4-2 4 2"/></svg>';
 const ICON = '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m10 2 8 4-8 4-8-4 8-4Z"/><path d="m2 10 8 4 8-4M2 14l8 4 8-4"/></svg>';
-
-const ACTIVITY_ICONS = {
-  constellation: '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m4 5 5 5 7-6M9 10l5 6M4 5l-1 10"/><circle cx="4" cy="5" r="2"/><circle cx="9" cy="10" r="2"/><circle cx="16" cy="4" r="1.5"/><circle cx="14" cy="16" r="1.5"/><circle cx="3" cy="15" r="1.5"/></svg>',
-  orbits: '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="2"/><ellipse cx="10" cy="10" rx="8" ry="4" transform="rotate(-30 10 10)"/><ellipse cx="10" cy="10" rx="8" ry="4" transform="rotate(45 10 10)"/></svg>',
-  contributors: '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="6" r="3"/><path d="M4 18v-2a6 6 0 0 1 12 0v2M3 4a2 2 0 0 0 0 4m14-4a2 2 0 0 1 0 4M1 14a4 4 0 0 1 3-4m15 4a4 4 0 0 0-3-4"/></svg>',
-};
 
 function readOpacity(raw) {
   try {
@@ -41,21 +34,17 @@ export function mountPanelAppearance() {
   popover.setAttribute('aria-labelledby', 'glass-appearance-title');
   popover.innerHTML = `
     <div class="glass-popover-heading"><span class="glass-popover-icon">${ICON}</span><div><h2 id="glass-appearance-title">Liquid glass</h2><p>Appearance across all labs.</p></div><button class="glass-popover-close" type="button" aria-label="Close appearance controls">×</button></div>
-    <div class="glass-view-options" hidden></div>
-    <details class="glass-opacity-section" open>
-    <summary class="glass-opacity-summary"><span class="glass-view-icon">${ICON}</span><span>Opacity</span><span class="glass-opacity-summary-value"></span><span class="glass-opacity-chevron" aria-hidden="true">⌄</span></summary>
+    <div class="glass-opacity-section">
     <div class="glass-opacity-content">
     <label class="glass-opacity-label" for="glass-opacity-range"><span>Panel opacity</span><output id="glass-opacity-output" for="glass-opacity-range"></output></label>
     <input id="glass-opacity-range" type="range" min="0" max="100" step="1" aria-describedby="glass-opacity-description" />
     <div class="glass-opacity-scale" aria-hidden="true"><span>Clear</span><span>Solid</span></div>
     <p id="glass-opacity-description">Clearer glass bends the scene behind panels and playback bars.</p>
-    <div class="glass-popover-footer"><span id="glass-opacity-status" role="status">Browser preference</span><button class="glass-opacity-reset" type="button">Reset</button></div></div></details>`;
+    <div class="glass-popover-footer"><span id="glass-opacity-status" role="status">Browser preference</span><button class="glass-opacity-reset" type="button">Reset</button></div></div></div>`;
   document.body.append(popover);
   const range = popover.querySelector('input');
   const output = popover.querySelector('output');
   const status = popover.querySelector('#glass-opacity-status');
-  const viewOptions = popover.querySelector('.glass-view-options');
-  const opacitySection = popover.querySelector('.glass-opacity-section');
   const nativePopover = typeof popover.showPopover === 'function';
   if (!nativePopover) popover.hidden = true;
   const isOpen = () => nativePopover ? popover.matches(':popover-open') : !popover.hidden;
@@ -67,13 +56,11 @@ export function mountPanelAppearance() {
     range.value = String(opacity);
     range.setAttribute('aria-valuetext', `${opacity} percent`);
     output.value = `${opacity}%`;
-    popover.querySelector('.glass-opacity-summary-value').textContent = `${opacity}%`;
     for (const trigger of triggers) {
       if (!trigger.isConnected) { triggers.delete(trigger); continue; }
       trigger.querySelector('.glass-opacity-value').textContent = `${opacity}%`;
-      const isView = trigger.classList.contains('glass-view-trigger');
-      trigger.setAttribute('aria-label', isView ? 'View' : `Adjust panel opacity, ${opacity} percent`);
-      trigger.title = isView ? 'View and appearance' : `Panel opacity: ${opacity}%`;
+      trigger.setAttribute('aria-label', `Adjust panel opacity, ${opacity} percent`);
+      trigger.title = `Panel opacity: ${opacity}%`;
     }
   }
 
@@ -117,84 +104,80 @@ export function mountPanelAppearance() {
   function open(trigger) {
     if (isOpen() && activeTrigger === trigger) { close(); return; }
     activeTrigger = trigger;
-    const isView = trigger.classList.contains('glass-view-trigger') && Boolean(repositoryViews);
-    popover.classList.toggle('glass-view-popover', Boolean(isView));
-    viewOptions.hidden = !isView;
-    opacitySection.open = !isView;
-    popover.querySelector('#glass-appearance-title').textContent = isView ? 'View' : 'Liquid glass';
-    popover.querySelector('.glass-popover-heading p').textContent = isView ? 'Scene & appearance' : 'Appearance across all labs.';
-    popover.querySelector('.glass-popover-close').setAttribute('aria-label', isView ? 'Close View controls' : 'Close appearance controls');
     if (!isOpen()) {
       if (nativePopover) popover.showPopover({ source: trigger });
       else popover.hidden = false;
     }
     syncExpanded();
     positionPopover();
-    (isView ? repositoryViews.row.querySelector('[aria-pressed="true"]') || repositoryViews.row.querySelector('button') : range).focus({ preventScroll: true });
+    range.focus({ preventScroll: true });
   }
 
   function addTrigger(host, after = null) {
     if (!host || host.querySelector(':scope > .glass-opacity-trigger')) return;
     const button = document.createElement('button');
     button.type = 'button';
-    button.className = `glass-opacity-trigger${REPOSITORY_LABS.some(lab => lab.dockId === host.id) ? ' glass-view-trigger' : ''}`;
+    button.className = 'glass-opacity-trigger';
     button.setAttribute('aria-haspopup', 'dialog');
     button.setAttribute('aria-controls', popover.id);
     button.setAttribute('popovertarget', popover.id);
     button.setAttribute('aria-expanded', 'false');
-    button.innerHTML = `${ICON}<span class="glass-opacity-text">${REPOSITORY_LABS.some(lab => lab.dockId === host.id) ? 'View' : 'Opacity'}</span><span class="glass-opacity-value"></span>`;
+    button.innerHTML = `${ICON}<span class="glass-opacity-text">Opacity</span><span class="glass-opacity-value"></span>`;
     if (after) after.after(button);
     else host.append(button);
     triggers.add(button);
     on(button, 'click', event => { event.preventDefault(); open(button); });
     on(button, 'keydown', event => event.stopPropagation());
     render();
+    return button;
   }
 
   function releaseRepositoryViews() {
     if (!repositoryViews) return;
-    const { row, placeholder, originalMarkup } = repositoryViews;
-    if (activeTrigger?.classList.contains('glass-view-trigger')) close();
-    for (const [button, markup] of originalMarkup) button.innerHTML = markup;
+    const { row, placeholder, nav, trigger, resize } = repositoryViews;
+    repositoryViews = null;
+    if (activeTrigger === trigger) { close(); activeTrigger = null; }
+    triggers.delete(trigger);
+    resize.disconnect();
     if (placeholder.parentNode) placeholder.replaceWith(row);
     else row.remove();
-    viewOptions.hidden = true;
-    repositoryViews = null;
+    nav.remove();
+    document.body.classList.remove('repository-views-top');
+    document.documentElement.style.removeProperty('--repository-header-height');
   }
 
   function attachRepositoryViews() {
     const lab = REPOSITORY_LABS.find(lab => document.getElementById(lab.panelId));
     const panel = lab && document.getElementById(lab.panelId);
-    if (repositoryViews && (repositoryViews.panel !== panel || !repositoryViews.placeholder.isConnected)) releaseRepositoryViews();
-    if (!panel || repositoryViews) return;
+    const topbar = document.getElementById('topbar');
+    if (repositoryViews && (repositoryViews.panel !== panel || repositoryViews.topbar !== topbar
+      || !repositoryViews.placeholder.isConnected || !repositoryViews.nav.isConnected
+      || !repositoryViews.nav.contains(repositoryViews.row))) releaseRepositoryViews();
+    if (!panel || !topbar || repositoryViews) return;
     const row = panel.querySelector(lab.viewSwitch);
     if (!row) return;
-    const placeholder = document.createComment('Repository views are presented in the dock View popover.');
+    const placeholder = document.createComment('Repository views are presented beneath the Observatory brand.');
     row.before(placeholder);
-    const originalMarkup = new Map();
-    for (const button of row.querySelectorAll('[data-view]')) {
-      originalMarkup.set(button, button.innerHTML);
-      const tree = button.dataset.view === 'tree';
-      const label = button.textContent.trim();
-      button.replaceChildren();
-      const icon = document.createElement('span');
-      icon.className = 'glass-view-icon';
-      icon.innerHTML = tree ? TREE_ICON : ACTIVITY_ICONS[button.dataset.view] || STRUCTURE_ICON;
-      const text = document.createElement('span');
-      text.textContent = label;
-      const check = document.createElement('span');
-      check.className = 'glass-view-check';
-      check.setAttribute('aria-hidden', 'true');
-      check.textContent = '✓';
-      button.append(icon, text, check);
-    }
-    repositoryViews = { panel, row, placeholder, originalMarkup };
-    viewOptions.append(row);
+    const nav = document.createElement('nav');
+    nav.className = 'repository-view-nav';
+    nav.setAttribute('aria-label', 'Scene view and appearance');
+    // Keep the original group and buttons, including the lab's listeners and pressed states.
+    nav.append(row);
+    topbar.append(nav);
+    const trigger = addTrigger(nav);
+    document.body.classList.add('repository-views-top');
+    const updateHeight = () => {
+      document.documentElement.style.setProperty('--repository-header-height', `${Math.ceil(topbar.getBoundingClientRect().height)}px`);
+    };
+    const resize = new ResizeObserver(updateHeight);
+    resize.observe(topbar);
+    updateHeight();
+    repositoryViews = { panel, row, placeholder, nav, trigger, topbar, resize };
   }
 
   function attachControls() {
     attachRepositoryViews();
-    for (const id of ['timebar', 'math-timebar', 'equation-panel', ...REPOSITORY_LABS.flatMap(lab => [lab.dockId, lab.panelId])]) {
+    for (const id of ['topbar', 'timebar', 'math-timebar', 'equation-panel', ...REPOSITORY_LABS.map(lab => lab.panelId)]) {
       const container = document.getElementById(id);
       if (!container) continue;
       if (!observed.has(container)) {
@@ -205,7 +188,7 @@ export function mountPanelAppearance() {
         panelObservers.push(observer);
       }
       const lab = REPOSITORY_LABS.find(lab => lab.dockId === id || lab.panelId === id);
-      if (id === lab?.panelId) continue;
+      if (id === 'topbar' || id === lab?.panelId) continue;
       if (id === 'equation-panel') {
         const row = container.querySelector('#eq-speed')?.previousElementSibling;
         if (row) { row.classList.add('glass-speed-heading'); addTrigger(row); }
@@ -225,8 +208,6 @@ export function mountPanelAppearance() {
     if (event.key === 'Escape') { event.preventDefault(); close(); }
   });
   on(popover, 'toggle', syncExpanded);
-  on(opacitySection, 'toggle', positionPopover);
-  on(viewOptions, 'click', event => { if (event.target.closest('[data-view]')) close(); });
   on(document, 'pointerdown', event => {
     if (isOpen() && !popover.contains(event.target) && !event.target.closest('.glass-opacity-trigger')) close();
   });

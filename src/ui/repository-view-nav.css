@@ -1,0 +1,72 @@
+/* Scene choices sit quietly beneath the brand; the 3D canvas stays the focus. */
+html body.repository-views-top #topbar {
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 14px 20px 8px;
+}
+html body #topbar .repository-view-nav,
+html body #topbar .repository-view-nav > .seg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+html body #topbar .repository-view-nav { max-width: 100%; }
+html body #topbar .repository-view-nav button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  min-height: 36px;
+  margin: 0;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 5px;
+  background: none;
+  box-shadow: none;
+  color: #a4afbe;
+  font: 500 12px/1.3 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  letter-spacing: .01em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 150ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+html body #topbar .repository-view-nav button:hover { color: #f0f4fa; }
+html body #topbar .repository-view-nav button:is([aria-pressed="true"], [aria-expanded="true"]) { color: #efd7b4; }
+html body #topbar .repository-view-nav button:focus-visible { outline: 2px solid var(--accent-cool); outline-offset: -2px; }
+html body #topbar .repository-view-nav .glass-opacity-trigger :is(svg, .glass-opacity-value) { display: none; }
+html body.repository-views-top :is(#data-panel-toggle, #data-guide-toggle, #activity-panel-toggle, #activity-guide-toggle) {
+  top: calc(var(--repository-header-height, 91px) + 12px);
+}
+@media (min-width: 901px) {
+  html body.repository-views-top :is(#data-panel, #activity-panel, #data-guide, #activity-guide):not(.is-user-positioned) {
+    top: calc(var(--repository-header-height, 91px) + 12px);
+    max-height: calc(100dvh - var(--repository-header-height, 91px) - 36px);
+  }
+}
+@media (min-width: 901px) and (max-width: 1440px) {
+  html body.repository-views-top :is(#data-panel, #activity-panel):not(.is-user-positioned) {
+    max-height: calc(100dvh - var(--repository-header-height, 91px) - var(--repository-timebar-height, 82px) - 36px);
+  }
+}
+@media (max-width: 900px) {
+  html body.repository-views-top #topbar { padding: 10px 12px 6px; gap: 2px; }
+  html body #topbar .repository-view-nav,
+  html body #topbar .repository-view-nav > .seg { gap: 2px; }
+  html body #topbar .repository-view-nav button { min-height: 40px; padding: 0 8px; }
+}
+@media (max-width: 540px) {
+  html body #topbar .repository-view-nav,
+  html body #topbar .repository-view-nav > .seg { gap: 0; }
+  html body #topbar .repository-view-nav button { padding: 0 7px; font-size: 11px; letter-spacing: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html body #topbar .repository-view-nav button { transition: none; }
+}

@@ -36,10 +36,10 @@ export function mountFloatingLayout() {
         && repositoryControls.apps?.links.every(link => repositoryControls.apps.element.contains(link))) return;
       restoreRepositoryControls();
     }
-    const view = dock?.querySelector(':scope > .glass-opacity-trigger');
+    const speed = dock?.querySelector(lab.speedSelector);
     const help = document.getElementById('btn-help');
     const status = document.getElementById('sim-date');
-    if (!header || !view || !help || !status || !REPOSITORY_LABS.every(app => document.getElementById(`tab-${app.mode}`))) return;
+    if (!header || !speed || !help || !status || !REPOSITORY_LABS.every(app => document.getElementById(`tab-${app.mode}`))) return;
 
     const group = document.createElement('div');
     group.className = 'repository-dock-actions';
@@ -53,7 +53,7 @@ export function mountFloatingLayout() {
     help.setAttribute('aria-label', 'Help');
     group.append(help);
     const apps = mountRepositoryDockApps(group, lab.mode);
-    view.after(group);
+    speed.after(group);
     header.insertBefore(status, header.querySelector('button'));
     header.classList.add('repository-status-header');
     dock.classList.add('repository-actions-dock');

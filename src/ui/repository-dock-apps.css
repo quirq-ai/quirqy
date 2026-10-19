@@ -98,8 +98,8 @@ html body .repository-app-link:focus-visible .repository-app-icon { transform: t
   html body .repository-app-link:hover:not([data-tooltip-dismissed]) .repository-app-tooltip { visibility: visible; opacity: 1; transform: translateX(-50%); }
 }
 @media (max-width: 900px) {
-  html body.repository-apps-docked #topbar { padding-bottom: 10px; }
-  html body.repository-apps-docked :is(#data-panel-toggle, #data-guide-toggle, #activity-panel-toggle, #activity-guide-toggle) { top: 64px; }
+  html body.repository-apps-docked:not(.repository-views-top) #topbar { padding-bottom: 10px; }
+  html body.repository-apps-docked:not(.repository-views-top) :is(#data-panel-toggle, #data-guide-toggle, #activity-panel-toggle, #activity-guide-toggle) { top: 64px; }
 }
 /* A separate actions row keeps generous icon targets on narrow phones. */
 @media (max-width: 540px) {
@@ -109,9 +109,7 @@ html body .repository-app-link:focus-visible .repository-app-icon { transform: t
     padding-bottom: 17px;
   }
   html body.repository-apps-docked :is(#data-timebar, #activity-timebar).repository-actions-dock > :is(.data-speed, .activity-speed) { grid-column: 5 / -1; }
-  /* Override Activity’s transport row selector, which contains two IDs. */
-  html body.repository-apps-docked :is(#data-timebar, #activity-timebar).repository-actions-dock > .glass-opacity-trigger { grid-row: 3 !important; grid-column: 1 / 3; justify-self: end; }
-  html body.repository-apps-docked :is(#data-timebar, #activity-timebar).repository-actions-dock > .repository-dock-actions { grid-row: 3; grid-column: 3 / -1; justify-self: start; }
+  html body.repository-apps-docked :is(#data-timebar, #activity-timebar).repository-actions-dock > .repository-dock-actions { grid-row: 3; grid-column: 1 / -1; justify-self: center; }
 }
 @media (prefers-reduced-motion: reduce) {
   html body .repository-app-icon, html body .repository-app-tooltip { transition: none; }
