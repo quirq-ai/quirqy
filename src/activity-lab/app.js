@@ -1,5 +1,6 @@
 import './style.css';
 import { createStage } from '../scene/setup.js';
+import { createRenderScheduler } from '../scene/render-on-demand.js';
 import { DataLabControls } from '../data-lab/data-controls.js';
 import { makePanelDraggable } from '../ui/dragPanel.js';
 import { restoreRepositorySession, flushRepositorySession } from '../repository/session.js';
@@ -86,6 +87,7 @@ export async function mountActivityLab() {
   const removeDrag = makePanelDraggable(panel, { storageKey: 'observatory-activity-panel-pos', handleSelector: '.list-title' });
   const stage = createStage($('#app'));
   stage.controls.dispose(); stage.controls = new DataLabControls(stage.camera, stage.renderer.domElement);
+  const redraw = createRenderScheduler({ controls: stage.controls });
   const scene = new ActivityScene(stage, {
     onSelect: id => selectItem(id, true),
     onHover: hit => {
@@ -125,7 +127,7 @@ export async function mountActivityLab() {
     else { collapsed[name] = !collapsed[name]; try { localStorage.setItem(`observatory-activity-${name}-collapsed`, String(collapsed[name])); } catch { /* Optional preference. */ } }
     updatePanels();
   }
-  function setPlaying(value) { playing = Boolean(value && model?.events.length); elapsed = 0; renderPlayback(); }
+  function setPlaying(value) { playing = Boolean(value && model?.events.length); elapsed = 0; redraw.invalidate(); renderPlayback(); }
   function togglePlayback() {
     if (!model?.events.length) return;
     if (!playing && index >= model.events.length - 1) seek(-1);
@@ -171,6 +173,7 @@ export async function mountActivityLab() {
   }
   function render() {
     if (!model) return;
+    redraw.invalidate();
     items = filterCommunityItems(model, filters, cursorDate());
     const ids = new Set(items.map(item => item.id));
     if (selectedId && !ids.has(selectedId)) selectedId = null;
@@ -315,12 +318,14 @@ export async function mountActivityLab() {
     const dt = previousTime ? Math.min((now - previousTime) / 1000, .1) : 0; previousTime = now;
     if (!document.hidden) {
       if (playing && model) { elapsed += dt; if (elapsed >= 1.5 / speed) { elapsed = 0; if (index >= model.events.length - 1) setPlaying(false); else seek(index + 1, false); } }
-      stage.controls.update(); scene.tick(dt); stage.composer.render(); stage.labelRenderer.render(stage.scene, stage.camera);
+      stage.controls.update(); scene.tick(dt);
+      // Skip the bloom pipeline when the image would be identical to the last one.
+      if (redraw.shouldRender(now, playing)) { stage.composer.render(); stage.labelRenderer.render(stage.scene, stage.camera); }
     }
     raf = requestAnimationFrame(tick);
   }
   function dispose() {
-    if (disposed) return; disposed = true; cancelAnimationFrame(raf); request++; controller?.abort(); lifetime.abort(); removeDrag(); scene.dispose(); stage.controls.dispose();
+    if (disposed) return; disposed = true; cancelAnimationFrame(raf); redraw.dispose(); request++; controller?.abort(); lifetime.abort(); removeDrag(); scene.dispose(); stage.controls.dispose();
     for (const pass of stage.composer.passes) pass.dispose?.(); stage.composer.dispose(); stage.renderer.dispose();
     canvas.remove(); stage.labelRenderer.domElement.remove(); for (const el of [guide, panel, dock, ...toggles, tooltip, empty]) el.remove(); help.innerHTML = oldHelp; $('#attribution').textContent = previousAttribution;
     delete window.__activityLab;
@@ -328,7 +333,7 @@ export async function mountActivityLab() {
   on(window, 'pagehide', event => { if (event.persisted) setPlaying(false); else { void flushRepositorySession(); dispose(); } });
   on(window, 'pageshow', event => { if (event.persisted && !disposed) { const url = connectedRepository(); if (url && url !== model?.dataset.repository.url) load(url); } });
   if (import.meta.hot) import.meta.hot.dispose(dispose);
-  window.__activityLab = { stage, scene, get model() { return model; }, get items() { return items; }, get view() { return view; }, get index() { return index; }, get playing() { return playing; }, get selectedId() { return selectedId; }, get filters() { return structuredClone(filters); } };
+  window.__activityLab = { stage, scene, redraw, get model() { return model; }, get items() { return items; }, get view() { return view; }, get index() { return index; }, get playing() { return playing; }, get selectedId() { return selectedId; }, get filters() { return structuredClone(filters); } };
   updatePanels();
   raf = requestAnimationFrame(tick);
   const startupRequest = request;

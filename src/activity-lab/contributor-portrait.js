@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { contributorPortrait } from './contributor-profile.js';
+import { requestRender } from '../scene/render-on-demand.js';
 
 /** One scene-owned texture; late image loads cannot outlive their repository. */
 export function createContributorPortrait(actor) {
@@ -24,7 +25,7 @@ export function createContributorPortrait(actor) {
       try {
         const side = Math.min(image.naturalWidth, image.naturalHeight);
         context.drawImage(image, (image.naturalWidth - side) / 2, (image.naturalHeight - side) / 2, side, side, 0, 0, 256, 256);
-        map.needsUpdate = true; portrait.status = 'ready';
+        map.needsUpdate = true; portrait.status = 'ready'; requestRender();
       } catch { portrait.status = 'fallback'; }
     };
     image.onerror = () => { if (active) portrait.status = 'fallback'; };

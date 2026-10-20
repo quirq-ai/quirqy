@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { softDotTexture } from '../scene/setup.js';
+import { requestRender } from '../scene/render-on-demand.js';
 import { radialSpriteTexture } from '../textures/procedural.js';
 import { createContributorPortrait } from './contributor-portrait.js';
 import { placeContributorCards } from './contributor-screen-layout.js';
@@ -143,6 +144,7 @@ export class ActivityScene {
     this.motionChange = () => {
       this.reducedMotion = this.motionPreference.matches;
       if (this.reducedMotion) { this._finishLayoutTransition(); this._finishCameraTransition(); }
+      requestRender();
     };
     this.motionPreference.addEventListener('change', this.motionChange);
     this.controlStart = () => { this.cameraTween = null; this._clearHover(); };
