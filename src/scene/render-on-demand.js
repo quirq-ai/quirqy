@@ -3,13 +3,17 @@
 // A frame is drawn while the lab reports it is busy (playback), for a grace
 // period after any invalidation (input, camera movement, data or view changes,
 // late texture loads), and otherwise at most once per keep-alive interval as a
-// safety net for an update that forgot to invalidate. The grace period is
-// longer than every non-playback transition in the labs (at most 1.6 s).
+// safety net for an update that forgot to invalidate. A change that starts a
+// longer transition passes its length to invalidate(ms): a paused Growth tree
+// step lasts 1.6 s divided by the playback speed, so 3.2 s at 0.5x.
 
 export const RENDER_GRACE_MS = 2000;
 export const RENDER_KEEPALIVE_MS = 1000;
 
-const INPUT_EVENTS = ['pointerdown', 'pointermove', 'pointerup', 'wheel', 'keydown', 'input', 'change', 'focusin', 'resize', 'visibilitychange'];
+// Listened for in the capture phase on window, so canvas-only events such as a
+// restored WebGL context are seen too. 'click' covers activation without pointer
+// or key events (assistive technology, element.click()).
+export const INPUT_EVENTS = ['pointerdown', 'pointermove', 'pointerup', 'click', 'wheel', 'keydown', 'input', 'change', 'focusin', 'resize', 'visibilitychange', 'pageshow', 'webglcontextrestored'];
 
 let current = null;
 

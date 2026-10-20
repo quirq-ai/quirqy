@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { softDotTexture } from '../scene/setup.js';
+import { requestRender } from '../scene/render-on-demand.js';
 import { createRepositoryLayout, stableHash } from './layout.js';
 import { FOLDER_COLORS, CHANGE_COLORS, fileKind } from './encoding.js';
 
@@ -87,6 +88,7 @@ export class RepositoryScene {
     this._motionChange = () => {
       this.reducedMotion = this.motionPreference.matches;
       if (this.reducedMotion) { this.elapsed = this.duration; this._clearActivity(); this.tween = null; }
+      requestRender();
     };
     this._motionChange();
     this.motionPreference.addEventListener('change', this._motionChange);

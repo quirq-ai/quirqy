@@ -1,7 +1,7 @@
 // Data Lab uses Quirqy's stage and HUD, with its own repository state.
 import './style.css';
 import { createStage } from '../scene/setup.js';
-import { createRenderScheduler } from '../scene/render-on-demand.js';
+import { createRenderScheduler, RENDER_GRACE_MS } from '../scene/render-on-demand.js';
 import { DEFAULT_EXAMPLE_URL, DEFAULT_EXAMPLE_COMMIT_LIMIT, getExampleDataset } from './examples.js';
 import { DEFAULT_REPOSITORY_COMMIT_LIMIT, loadRepository } from './github.js';
 import { buildModel, stateAt } from './model.js';
@@ -57,6 +57,8 @@ export async function mountDataLab() {
   stage.controls = new DataLabControls(stage.camera, stage.renderer.domElement);
   scene = new MoleculeScene(stage, { onSelect: selectFile });
   const redraw = createRenderScheduler({ controls: stage.controls });
+  // A paused Growth tree step animates for 1.6 s / speed (3.2 s at 0.5x).
+  const redrawTransition = () => redraw.invalidate(Math.max(RENDER_GRACE_MS, 1600 / speed + 250));
   const guide = new DataGuide({
     onOverview: () => { if (scene.frameMode === 'roots') scene.focusRoots(); else scene.resetView(); renderPanel(); },
     onFocusFolder: focusDirectory,
@@ -175,7 +177,7 @@ export async function mountDataLab() {
     restartAtEnd = !playing && index === model.commits.length - 1;
     stepTime = 0;
     updateScene();
-    redraw.invalidate();
+    redrawTransition();
     renderPanel();
     persistSelection();
   }
@@ -183,7 +185,7 @@ export async function mountDataLab() {
     playing = Boolean(next && model?.commits.length);
     if (playing) restartAtEnd = false;
     scene.setPlayback?.(playing);
-    redraw.invalidate();
+    redrawTransition();
     renderPanel();
   }
   function togglePlayback() {
