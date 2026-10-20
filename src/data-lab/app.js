@@ -1,6 +1,7 @@
 // Data Lab uses Quirqy's stage and HUD, with its own repository state.
 import './style.css';
 import { createStage } from '../scene/setup.js';
+import { createRenderScheduler } from '../scene/render-on-demand.js';
 import { DEFAULT_EXAMPLE_URL, DEFAULT_EXAMPLE_COMMIT_LIMIT, getExampleDataset } from './examples.js';
 import { DEFAULT_REPOSITORY_COMMIT_LIMIT, loadRepository } from './github.js';
 import { buildModel, stateAt } from './model.js';
@@ -55,6 +56,7 @@ export async function mountDataLab() {
   stage.controls.dispose();
   stage.controls = new DataLabControls(stage.camera, stage.renderer.domElement);
   scene = new MoleculeScene(stage, { onSelect: selectFile });
+  const redraw = createRenderScheduler({ controls: stage.controls });
   const guide = new DataGuide({
     onOverview: () => { if (scene.frameMode === 'roots') scene.focusRoots(); else scene.resetView(); renderPanel(); },
     onFocusFolder: focusDirectory,
@@ -154,6 +156,7 @@ export async function mountDataLab() {
       ? new TreeScene(stage, { onSelect: selectFile, onFocusMode: renderPanel })
       : new MoleculeScene(stage, { onSelect: selectFile });
     scene.setOptions(options);
+    redraw.invalidate();
     if (model) {
       scene.setModel(model);
       updateScene();
@@ -172,6 +175,7 @@ export async function mountDataLab() {
     restartAtEnd = !playing && index === model.commits.length - 1;
     stepTime = 0;
     updateScene();
+    redraw.invalidate();
     renderPanel();
     persistSelection();
   }
@@ -179,6 +183,7 @@ export async function mountDataLab() {
     playing = Boolean(next && model?.commits.length);
     if (playing) restartAtEnd = false;
     scene.setPlayback?.(playing);
+    redraw.invalidate();
     renderPanel();
   }
   function togglePlayback() {
@@ -288,14 +293,18 @@ export async function mountDataLab() {
       stage.controls.update();
       scene.afterCameraUpdate?.(dt);
       guide.updateRootReadability();
-      stage.composer.render();
-      stage.labelRenderer.render(stage.scene, stage.camera);
+      // Skip the bloom pipeline when the image would be identical to the last one.
+      if (redraw.shouldRender(now, playing)) {
+        stage.composer.render();
+        stage.labelRenderer.render(stage.scene, stage.camera);
+      }
     }
     raf = requestAnimationFrame(tick);
   }
   function dispose() {
     disposed = true;
     cancelAnimationFrame(raf);
+    redraw.dispose();
     lifetime.abort();
     requestController?.abort();
     guide.dispose();
@@ -330,7 +339,7 @@ export async function mountDataLab() {
   requestAnimationFrame(() => document.getElementById('tab-data')?.scrollIntoView({ block: 'nearest', inline: 'nearest' }));
   raf = requestAnimationFrame(tick);
   window.__dataLab = {
-    stage, panel, guide,
+    stage, panel, guide, redraw,
     get scene() { return scene; }, get view() { return view; },
     get model() { return model; }, get frame() { return frame; },
     get index() { return index; }, get playing() { return playing; },
