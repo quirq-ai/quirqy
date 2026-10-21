@@ -1,0 +1,98 @@
+/*
+ * Dock material contract: one inherited opacity for every painted surface.
+ * Scope is automatic inside .panel-dock; detached menus use data-dock-material.
+ * Custom cards use data-dock-surface and may set --dock-tint (RGB channels).
+ * Content, focus indicators and native disabled/disclosure states stay readable.
+ */
+html body :is(.panel-dock, [data-dock-material], #glass-appearance-popover) {
+  --dock-material-alpha: var(--glass-fill-alpha, var(--glass-opacity, .62));
+  --glass-control-fill: var(--dock-control-fill);
+  --glass-control-hover: var(--dock-control-hover);
+  --glass-control-edge: var(--dock-edge);
+}
+
+/* Resolve tint on each element so a new card can choose a palette, not a new
+   opacity policy. Tokens reach future children without JS registration. */
+:where(.panel-dock, [data-dock-material], #glass-appearance-popover),
+:where(.panel-dock, [data-dock-material], #glass-appearance-popover) * {
+  --dock-edge: rgba(var(--dock-tint, 211, 230, 252), calc(.10 + var(--dock-material-alpha) * .22));
+  --dock-edge-strong: rgba(var(--dock-tint, 225, 239, 255), calc(.24 + var(--dock-material-alpha) * .65));
+  --dock-highlight: rgba(245, 251, 255, calc(var(--dock-material-alpha) * .13));
+  --dock-shadow: rgba(0, 4, 12, calc(var(--dock-material-alpha) * .20));
+  --dock-control-fill: rgba(187, 213, 240, calc(var(--dock-material-alpha) * .105));
+  --dock-control-hover: rgba(202, 226, 250, calc(var(--dock-material-alpha) * .185));
+  --dock-control-active: rgba(214, 233, 255, calc(var(--dock-material-alpha) * .24));
+  --dock-field-fill: rgba(3, 9, 17, calc(var(--dock-material-alpha) * .55));
+  --dock-tooltip-fill: rgba(14, 23, 36, var(--dock-material-alpha));
+  --dock-control-background: linear-gradient(180deg, var(--dock-highlight), transparent), var(--dock-control-fill);
+  --dock-selected-background: linear-gradient(160deg, rgba(247, 213, 168, calc(var(--dock-material-alpha) * .26)), rgba(221, 169, 99, calc(var(--dock-material-alpha) * .12)));
+  --dock-surface-background: linear-gradient(155deg, rgba(var(--dock-tint, 149, 174, 209), calc(var(--dock-material-alpha) * .21)), rgba(var(--dock-tint, 149, 174, 209), calc(var(--dock-material-alpha) * .057)));
+  --dock-surface-shadow: inset 0 1px 0 var(--dock-highlight), 0 4px 14px var(--dock-shadow);
+  --dock-connector: linear-gradient(rgba(var(--dock-tint, 154, 226, 196), calc(.12 + var(--dock-material-alpha) * .21)), rgba(var(--dock-tint, 154, 226, 196), calc(.24 + var(--dock-material-alpha) * .66)));
+}
+
+/* Plain future controls need readable author styles instead of UA black text. */
+:where(.panel-dock, [data-dock-material], #glass-appearance-popover) :where(button, input, textarea, select) {
+  color: var(--glass-text);
+  color-scheme: dark;
+}
+
+/* Native controls inherit the material, including controls added in future. */
+html body :is(.panel-dock, [data-dock-material], #glass-appearance-popover) :is(button, .btn, .tbtn, .seg button, .seg a):not(:where(.repository-app-tile, .panel-dock-grip, .panel-dock-edit, .repository-opacity-back, .repository-github-close, .glass-popover-close, .repository-view-nav .seg button)) {
+  background: var(--dock-control-background);
+  border-color: var(--dock-edge);
+  box-shadow: inset 0 1px 0 var(--dock-highlight), 0 2px 5px var(--dock-shadow);
+}
+html body :is(.panel-dock, [data-dock-material], #glass-appearance-popover) :is(button, .btn, .tbtn, .seg button, .seg a):not(:where(.repository-app-tile, .panel-dock-grip, .panel-dock-edit, .repository-opacity-back, .repository-github-close, .glass-popover-close, .repository-view-nav .seg button)):hover:not(:disabled) {
+  background-color: var(--dock-control-hover);
+  border-color: var(--dock-edge-strong);
+  box-shadow: inset 0 1px 0 var(--dock-highlight), 0 2px 8px var(--dock-shadow);
+}
+html body :is(.panel-dock, [data-dock-material], #glass-appearance-popover) :is(button, .btn, .tbtn, .seg button, .seg a):not(:where(.repository-app-tile, .panel-dock-grip, .panel-dock-edit, .repository-opacity-back, .repository-github-close, .glass-popover-close, .repository-view-nav .seg button)):active:not(:disabled) {
+  background-color: var(--dock-control-active);
+}
+html body :is(.panel-dock, [data-dock-material], #glass-appearance-popover) :is(.btn.active, .tbtn.active, .seg .active, .seg [aria-pressed='true'], .btn.primary) {
+  color: #ffdaa6;
+  border-color: var(--dock-edge-strong);
+  background: var(--dock-selected-background);
+  box-shadow: inset 0 1px 0 var(--dock-highlight), 0 2px 8px var(--dock-shadow);
+}
+html body :is(.panel-dock, [data-dock-material], #glass-appearance-popover) :is(input:not([type='range']):not([type='checkbox']):not([type='radio']):not([type='color']):not([type='file']), textarea, select) {
+  background: var(--dock-field-fill);
+  border-color: var(--dock-edge);
+  box-shadow: inset 0 1px 3px var(--dock-shadow), 0 1px 0 var(--dock-highlight);
+}
+html body :is(.panel-dock, [data-dock-material], #glass-appearance-popover) [data-dock-surface] {
+  background: var(--dock-surface-background);
+  border-color: var(--dock-edge);
+  box-shadow: var(--dock-surface-shadow);
+}
+/* Icon wrappers and the logo are clear hit areas; their inner tile owns paint. */
+html body :is(.panel-dock, [data-dock-material], #glass-appearance-popover) :is(.repository-app-tile, .panel-dock-grip, .panel-dock-edit, .repository-opacity-back, .repository-github-close, .glass-popover-close),
+html body :is(.panel-dock, [data-dock-material], #glass-appearance-popover) .repository-view-nav .seg button {
+  background: none;
+  box-shadow: none;
+}
+
+html body #glass-appearance-popover .glass-popover-icon {
+  background: var(--dock-control-fill);
+  border-color: var(--dock-edge);
+}
+html body #glass-appearance-popover .glass-popover-footer { border-color: var(--dock-edge); }
+html body .panel-dock.panel-float.is-dragging {
+  border-color: var(--dock-edge-strong);
+  box-shadow: inset 0 1px 0 var(--dock-highlight), 0 28px 70px -20px var(--dock-shadow);
+}
+
+/* Accessibility preferences override the shared material, never each component. */
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  html body :is(.panel-dock, [data-dock-material], #glass-appearance-popover) { --dock-material-alpha: 1; }
+}
+@media (forced-colors: active) {
+  html body :is(.panel-dock, [data-dock-material], #glass-appearance-popover) :is(button, .btn, .tbtn, input, select, textarea, [data-dock-surface], .repository-app-icon, .repository-app-tooltip) {
+    background: Canvas !important;
+    color: CanvasText;
+    border-color: ButtonText !important;
+    box-shadow: none !important;
+  }
+}

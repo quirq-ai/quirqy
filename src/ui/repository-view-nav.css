@@ -207,10 +207,11 @@ html body :is(#data-timebar, #activity-timebar).panel-dock.repository-actions-do
 html body :is(#data-timebar, #activity-timebar) .repository-timeline-controls {
   position: relative;
   padding: 12px;
-  border: 1px solid rgba(154, 226, 196, .24);
+  --dock-tint: 154, 226, 196;
+  border: 1px solid var(--dock-edge);
   border-radius: 16px;
-  background: linear-gradient(155deg, rgba(95, 182, 149, .13), rgba(43, 88, 76, .045));
-  box-shadow: inset 0 1px 0 rgba(216, 255, 237, .08), 0 4px 14px rgba(0, 0, 0, .08);
+  background: var(--dock-surface-background);
+  box-shadow: var(--dock-surface-shadow);
 }
 html body :is(#data-timebar, #activity-timebar) .repository-timeline-controls::after {
   content: '';
@@ -221,13 +222,13 @@ html body :is(#data-timebar, #activity-timebar) .repository-timeline-controls::a
   width: 2px;
   height: var(--timeline-connector-height, 16px);
   transform: translateX(-50%);
-  background: linear-gradient(rgba(154, 226, 196, .25), rgba(154, 226, 196, .65));
-  box-shadow: 0 0 8px rgba(125, 229, 180, .16);
+  background: var(--dock-connector);
+  box-shadow: 0 0 8px var(--dock-highlight);
 }
 html body #repository-timeline-trigger .repository-app-icon { position: relative; }
 html body #repository-timeline-trigger[aria-expanded="true"] .repository-app-icon {
-  border-color: rgba(184, 245, 215, .8);
-  box-shadow: inset 0 1px 0 rgba(232, 255, 244, .3), 0 0 0 3px rgba(131, 218, 177, .09), 0 3px 12px rgba(55, 125, 96, .23);
+  border-color: var(--dock-edge-strong);
+  box-shadow: inset 0 1px 0 var(--dock-highlight), 0 0 0 3px var(--dock-highlight), 0 3px 12px var(--dock-shadow);
 }
 html body #repository-timeline-trigger .repository-timeline-status {
   position: absolute;
@@ -247,7 +248,7 @@ html body #repository-timeline-trigger[data-timeline-playing="true"] .repository
   box-shadow: 0 0 7px rgba(148, 255, 198, .65);
   animation: timeline-playing 1.8s ease-in-out infinite;
 }
-html body .repository-timeline-controls[data-timeline-playing="true"] { border-color: rgba(161, 237, 196, .4); }
+html body .repository-timeline-controls[data-timeline-playing="true"] { border-color: var(--dock-edge-strong); }
 @keyframes timeline-playing { 0%, 100% { opacity: .65; } 50% { opacity: 1; } }
 @media (max-width: 700px) {
   html body :is(#data-timebar, #activity-timebar) .repository-timeline-controls { padding: 10px; }
@@ -263,17 +264,17 @@ html body .repository-timeline-controls[data-timeline-playing="true"] { border-c
 
 /* Scene views stay open above the current lab, independently of the left tools. */
 html body :is(#data-timebar, #activity-timebar) > .repository-view-nav {
-  --view-tint: 142, 224, 231;
+  --dock-tint: 142, 224, 231;
   position: relative;
   box-sizing: border-box;
   min-width: 0;
   padding: 10px 6px;
-  border: 1px solid rgba(var(--view-tint), .24);
+  border: 1px solid var(--dock-edge);
   border-radius: 16px;
-  background: linear-gradient(155deg, rgba(var(--view-tint), .13), rgba(var(--view-tint), .035));
-  box-shadow: inset 0 1px 0 rgba(var(--view-tint), .08), 0 4px 14px rgba(0, 0, 0, .08);
+  background: var(--dock-surface-background);
+  box-shadow: var(--dock-surface-shadow);
 }
-html body #activity-timebar > .repository-view-nav { --view-tint: 239, 193, 133; }
+html body #activity-timebar > .repository-view-nav { --dock-tint: 239, 193, 133; }
 html body :is(#data-timebar, #activity-timebar) > .repository-view-nav::after {
   content: '';
   position: absolute;
@@ -283,16 +284,16 @@ html body :is(#data-timebar, #activity-timebar) > .repository-view-nav::after {
   width: 2px;
   height: var(--view-connector-height, 16px);
   transform: translateX(-50%);
-  background: linear-gradient(rgba(var(--view-tint), .25), rgba(var(--view-tint), .65));
-  box-shadow: 0 0 8px rgba(var(--view-tint), .16);
+  background: var(--dock-connector);
+  box-shadow: 0 0 8px var(--dock-highlight);
 }
 html body #data-timebar #tab-data .repository-app-icon {
-  border-color: rgba(178, 245, 249, .8);
-  box-shadow: inset 0 1px 0 rgba(225, 253, 255, .3), 0 0 0 3px rgba(142, 224, 231, .09), 0 3px 12px rgba(55, 119, 125, .23);
+  border-color: var(--dock-edge-strong);
+  box-shadow: inset 0 1px 0 var(--dock-highlight), 0 0 0 3px var(--dock-highlight), 0 3px 12px var(--dock-shadow);
 }
 html body #activity-timebar #tab-activity .repository-app-icon {
-  border-color: rgba(251, 218, 172, .8);
-  box-shadow: inset 0 1px 0 rgba(255, 244, 225, .3), 0 0 0 3px rgba(239, 193, 133, .09), 0 3px 12px rgba(125, 88, 55, .23);
+  border-color: var(--dock-edge-strong);
+  box-shadow: inset 0 1px 0 var(--dock-highlight), 0 0 0 3px var(--dock-highlight), 0 3px 12px var(--dock-shadow);
 }
 @media (max-width: 540px) {
   /* Each expanded app keeps a clear path to its icon on compact screens. */
@@ -313,14 +314,15 @@ html body :is(#data-timebar, #activity-timebar) #repository-opacity-trigger.glas
   height: 44px;
   padding: 4px 8px;
   box-sizing: border-box;
-  border: 1px solid rgba(195, 208, 252, .25);
+  --dock-tint: 195, 208, 252;
+  border: 1px solid var(--dock-edge);
   border-radius: 14px;
-  background: linear-gradient(150deg, rgba(117, 137, 186, .18), rgba(59, 73, 116, .09));
-  box-shadow: inset 0 1px 0 rgba(228, 237, 255, .08);
+  background: var(--dock-surface-background);
+  box-shadow: inset 0 1px 0 var(--dock-highlight);
 }
 html body :is(#data-timebar, #activity-timebar) #repository-opacity-trigger:is(:hover, [aria-expanded="true"]) {
-  border-color: rgba(208, 222, 255, .58);
-  background: linear-gradient(150deg, rgba(117, 137, 186, .3), rgba(59, 73, 116, .17));
+  border-color: var(--dock-edge-strong);
+  background: var(--dock-control-background);
 }
 html body #repository-opacity-trigger .repository-app-icon { width: 30px; height: 30px; border-radius: 9px; transform: none; }
 html body #repository-opacity-trigger .repository-app-icon svg { width: 20px; height: 20px; }
@@ -337,9 +339,10 @@ html body :is(#data-timebar, #activity-timebar).repository-parallel-controls .re
   min-height: 0;
   box-sizing: border-box;
   padding: 10px;
-  border: 1px solid rgba(195, 208, 252, .2);
+  --dock-tint: 195, 208, 252;
+  border: 1px solid var(--dock-edge);
   border-radius: 14px;
-  background: linear-gradient(150deg, rgba(117, 137, 186, .1), rgba(59, 73, 116, .04));
+  background: var(--dock-surface-background);
 }
 html body .repository-opacity-content { min-width: 0; }
 html body .repository-opacity-label { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 26px; color: #d9e3f6; font-size: 11px; font-weight: 500; }

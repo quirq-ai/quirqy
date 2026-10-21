@@ -35,6 +35,7 @@ export function mountAppsLauncher(host) {
   const popover = document.createElement('div');
   popover.id = 'repository-apps-popover';
   popover.className = 'panel';
+  popover.dataset.dockMaterial = '';
   popover.setAttribute('popover', 'auto');
   popover.setAttribute('role', 'dialog');
   popover.setAttribute('aria-labelledby', 'repository-apps-title');

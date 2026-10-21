@@ -6,9 +6,9 @@ html body :is(#data-timebar, #activity-timebar).panel-dock.repository-actions-do
 }
 html body [data-repository-app="github"] .repository-app-icon {
   color: #f3f5fa;
-  background:
-    radial-gradient(ellipse at 22% 0, rgba(224, 234, 251, .28), transparent 65%),
-    linear-gradient(150deg, #576477, #27313f 80%);
+  --app-tile-start: #576477;
+  --app-tile-end: #27313f;
+  --dock-icon-highlight: 224, 234, 251;
 }
 html body :is(#data-timebar, #activity-timebar) .repository-github-controls {
   box-sizing: border-box;
@@ -20,10 +20,10 @@ html body :is(#data-timebar, #activity-timebar) .repository-github-controls {
   overscroll-behavior: contain;
   scrollbar-width: thin;
   scrollbar-color: rgba(201, 218, 239, .25) transparent;
-  border: 1px solid rgba(193, 213, 239, .22);
+  border: 1px solid var(--dock-edge);
   border-radius: 16px;
-  background: linear-gradient(155deg, rgba(149, 174, 209, .12), rgba(73, 93, 122, .035));
-  box-shadow: inset 0 1px 0 rgba(225, 237, 255, .08), 0 4px 14px rgba(0, 0, 0, .08);
+  background: var(--dock-surface-background);
+  box-shadow: var(--dock-surface-shadow);
   text-align: left;
 }
 html body :is(#data-timebar, #activity-timebar) .repository-github-controls[hidden] { display: none !important; }
@@ -56,7 +56,7 @@ html body :is(#data-timebar, #activity-timebar) .repository-github-close {
   font: 400 19px/1 sans-serif;
   cursor: pointer;
 }
-html body :is(#data-timebar, #activity-timebar) .repository-github-close:hover { color: #f3f7ff; background: rgba(208, 228, 255, .08); }
+html body :is(#data-timebar, #activity-timebar) .repository-github-close:hover { color: #f3f7ff; background: var(--dock-control-hover); }
 html body :is(#data-timebar, #activity-timebar) .repository-github-close:focus-visible { outline: 2px solid var(--accent-cool); outline-offset: -2px; }
 html body :is(#data-timebar, #activity-timebar) .repository-github-controls :is(.data-repo-meta, .activity-repository-meta) {
   margin: 0 0 10px;
@@ -82,7 +82,7 @@ html body :is(#data-timebar, #activity-timebar) .repository-github-controls inpu
   min-height: 34px;
   border-radius: 8px;
   font-family: inherit;
-  background: rgba(12, 20, 33, .5);
+  background: var(--dock-field-fill);
 }
 html body :is(#data-timebar, #activity-timebar) .repository-github-controls button[type="submit"] { flex: none; min-height: 34px; }
 html body :is(#data-timebar, #activity-timebar) .repository-github-controls :is(.data-source-tools, .data-example-choices, .activity-example-choices) {

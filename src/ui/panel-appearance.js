@@ -7,6 +7,7 @@ import { mountRepositoryTimeline } from './repository-timeline.js';
 import { mountRepositoryViewConnection } from './repository-view-connection.js';
 import { mountRepositoryGithub } from './repository-github.js';
 import './repository-github.css';
+import './dock-material.css';
 
 const STORAGE_KEY = 'quirq-observatory.panel-opacity.v1';
 const DEFAULT_OPACITY = 62;
@@ -34,6 +35,7 @@ export function mountPanelAppearance() {
   let repositoryViews = null;
   const popover = document.createElement('div');
   popover.id = 'glass-appearance-popover';
+  popover.dataset.dockMaterial = '';
   popover.setAttribute('popover', 'auto');
   popover.setAttribute('role', 'dialog');
   popover.setAttribute('aria-labelledby', 'glass-appearance-title');
@@ -44,7 +46,7 @@ export function mountPanelAppearance() {
     <label class="glass-opacity-label" for="glass-opacity-range"><span>Panel opacity</span><output id="glass-opacity-output" for="glass-opacity-range"></output></label>
     <input id="glass-opacity-range" type="range" min="0" max="100" step="1" aria-describedby="glass-opacity-description" />
     <div class="glass-opacity-scale" aria-hidden="true"><span>Clear</span><span>Solid</span></div>
-    <p id="glass-opacity-description">Controls how see-through panels and toolbars are. Lower is clearer; higher is more solid.</p>
+    <p id="glass-opacity-description">Controls all dock surfaces, app tiles, menus, and panels. Lower is clearer; higher is more solid.</p>
     <div class="glass-popover-footer"><span id="glass-opacity-status" role="status">Browser preference</span><button class="glass-opacity-reset" type="button">Reset</button></div></div></div>`;
   document.body.append(popover);
   const range = popover.querySelector('input');
@@ -225,15 +227,17 @@ export function mountPanelAppearance() {
     controls.className = 'repository-dock-tools';
     const nav = document.createElement('nav');
     nav.className = 'repository-view-nav';
+    nav.dataset.dockSurface = '';
     nav.dataset.repositoryView = lab.mode;
     nav.setAttribute('aria-label', `${lab.mode === 'data' ? 'Data' : 'Activity'} views`);
     const inline = document.createElement('div');
     inline.id = 'repository-opacity-controls';
     inline.className = 'repository-opacity-inline';
+    inline.dataset.dockSurface = '';
     inline.hidden = true;
     inline.setAttribute('role', 'group');
     inline.setAttribute('aria-label', 'Panel opacity');
-    inline.innerHTML = `<button type="button" class="repository-opacity-back" aria-label="Close opacity controls" title="Close opacity controls"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m12 5-5 5 5 5"/></svg></button><div class="repository-opacity-content"><label class="repository-opacity-label" for="repository-opacity-range"><span>Panel opacity</span><output id="repository-opacity-output" for="repository-opacity-range"></output></label><input id="repository-opacity-range" type="range" min="0" max="100" step="1" aria-describedby="repository-opacity-description" /><p id="repository-opacity-description">Controls how see-through panels and toolbars are. Lower is clearer; higher is more solid.</p></div>`;
+    inline.innerHTML = `<button type="button" class="repository-opacity-back" aria-label="Close opacity controls" title="Close opacity controls"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m12 5-5 5 5 5"/></svg></button><div class="repository-opacity-content"><label class="repository-opacity-label" for="repository-opacity-range"><span>Panel opacity</span><output id="repository-opacity-output" for="repository-opacity-range"></output></label><input id="repository-opacity-range" type="range" min="0" max="100" step="1" aria-describedby="repository-opacity-description" /><p id="repository-opacity-description">Controls all dock surfaces, app tiles, menus, and panels. Lower is clearer; higher is more solid.</p></div>`;
     const inlineRange = inline.querySelector('input');
     const controller = new AbortController();
     inlineRange.addEventListener('input', () => { opacity = Number(inlineRange.value); render(); }, { signal: controller.signal });

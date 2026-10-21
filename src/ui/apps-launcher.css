@@ -1,8 +1,8 @@
 html body [data-repository-app="apps"] .repository-app-icon {
   color: #f5f1ff;
-  background:
-    radial-gradient(ellipse at 22% 0, rgba(235, 220, 255, .42), transparent 65%),
-    linear-gradient(150deg, #927bb3, #53426f 80%);
+  --app-tile-start: #927bb3;
+  --app-tile-end: #53426f;
+  --dock-icon-highlight: 235, 220, 255;
 }
 html body #repository-apps-popover {
   position: fixed;
@@ -30,9 +30,7 @@ html body #repository-apps-popover .repository-apps-grid .repository-app-tile {
 }
 html body #repository-apps-popover .repository-apps-grid .repository-app-label { max-width: 100%; white-space: normal; line-height: 13px; }
 html body #repository-apps-popover .repository-app-icon {
-  background:
-    radial-gradient(ellipse at 22% 0, rgba(235, 245, 255, .32), transparent 65%),
-    linear-gradient(150deg, var(--app-tile-start), var(--app-tile-end) 80%);
+  --dock-icon-highlight: 235, 245, 255;
 }
 html body #repository-apps-popover :is(a, button):focus-visible,
 html body .repository-apps-trigger:focus-visible { outline: 2px solid #a8ceff; outline-offset: 2px; }

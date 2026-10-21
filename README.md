@@ -84,11 +84,13 @@ The repository apps share one dock and glass-panel system:
 - **Edit beside the logo (under it on narrow screens):** upload a PNG, JPG, WebP, or SVG up to 5 MB, or reset the default logo. Uploads are rasterized to a bounded PNG with transparency retained. The logo is shared by the dock, loading screen, favicon, and the legacy recording overlay.
 - **Data, Activity, and Apps:** switch repository labs or open the other 3D instruments. Repository pages keep the top bar clear; scene choices appear above the dock's apps.
 - **GitHub:** opens the repository connection, example choices, source metadata, and refresh controls above the dock.
-- **Timeline and Opacity:** independent controls in the dock. Panel opacity ranges from **0–100%** while text and controls remain readable. Clearer glass increases simulated edge refraction; more opaque glass adds softness. Browsers without SVG backdrop refraction retain blur and highlights. Reduced-transparency and high-contrast preferences use solid surfaces.
+- **Timeline and Opacity:** independent controls in the dock. Opacity ranges from **0–100%** across all dock surfaces, app tiles, cards, controls, menus, and glass panels while text and icons remain readable. Clearer glass increases simulated edge refraction; more opaque glass adds softness. Browsers without SVG backdrop refraction retain blur and highlights. Reduced-transparency and high-contrast preferences use solid surfaces.
 - **Floating sidebars:** drag their headers and use the header's **− / +** control to collapse or expand. On narrow screens, page buttons reopen the corresponding sheets.
 - **Position shortcuts:** focused drag handles support Arrow keys, **Shift + Arrow** for larger steps, and **Home** to reset. Double-click a handle to restore its default position. Dock and panel positions are remembered separately for desktop and mobile.
 
-Glass panels and the commit message panel share appearance tokens. The current user-facing appearance control is opacity; developers can adjust shared colors and material rules in `src/ui/glass-surfaces.css`.
+Glass panels and the commit message panel share appearance tokens in `src/ui/glass-surfaces.css`. Dock materials share the inherited opacity contract in `src/ui/dock-material.css`.
+
+**Adding dock components:** native buttons and fields inside `.panel-dock` inherit the shared material automatically. Give custom cards `data-dock-surface` and optionally set `--dock-tint` (RGB channels). Detached dock menus use `data-dock-material` with the shared `.panel` surface. App tiles use `.repository-app-icon` and `--app-tile-start` / `--app-tile-end` colors. Avoid fixed opaque fills or container `opacity`: labels, glyphs, slider indicators, focus outlines, and status indicators stay readable. Image-preview checkerboards and modal focus scrims retain their semantic treatment. Accessibility preferences override the shared material centrally. Verify new components at 0%, 50%, and 100%, including hover, selection, expansion, and mobile layouts.
 
 ### Repository scene controls
 

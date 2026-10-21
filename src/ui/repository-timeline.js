@@ -10,6 +10,7 @@ export function mountRepositoryTimeline(dock, mode) {
   const element = document.createElement('div');
   element.id = 'repository-timeline-controls';
   element.className = 'repository-timeline-controls';
+  element.dataset.dockSurface = '';
   element.setAttribute('role', 'group');
   element.setAttribute('aria-label', 'Timeline');
   const moves = controls.map(node => {

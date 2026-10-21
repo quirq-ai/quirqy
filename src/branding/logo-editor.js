@@ -56,6 +56,8 @@ export function mountLogoEditor() {
   const listen = (node, event, handler, options = {}) => node.addEventListener(event, handler, { ...options, signal: lifetime.signal });
   const dialog = document.createElement('dialog');
   dialog.id = 'logo-editor';
+  dialog.className = 'panel';
+  dialog.dataset.dockMaterial = '';
   dialog.setAttribute('aria-labelledby', 'logo-editor-title');
   dialog.setAttribute('aria-describedby', 'logo-editor-description');
   dialog.innerHTML = `

@@ -47,31 +47,34 @@ html body .repository-app-icon {
   width: 40px;
   height: 40px;
   flex: none;
-  border: 1px solid rgba(220, 246, 255, .25);
+  border: 1px solid var(--dock-edge, rgba(220, 246, 255, .25));
   border-radius: 12px;
+  /* All current and future app themes share the dock's material strength. */
   background:
-    radial-gradient(ellipse at 22% 0, rgba(195, 255, 247, .36), transparent 65%),
-    linear-gradient(150deg, #247d86, #104255 80%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), inset 0 -1px 3px rgba(0, 0, 0, .22), 0 3px 7px rgba(0, 0, 0, .25);
+    radial-gradient(ellipse at 22% 0, rgba(var(--dock-icon-highlight, 195, 255, 247), calc(var(--dock-material-alpha, .62) * .58)), transparent 65%),
+    linear-gradient(150deg,
+      color-mix(in srgb, var(--app-tile-start, #247d86) calc(var(--dock-material-alpha, .62) * 100%), transparent),
+      color-mix(in srgb, var(--app-tile-end, #104255) calc(var(--dock-material-alpha, .62) * 100%), transparent) 80%);
+  box-shadow: inset 0 1px 0 var(--dock-highlight, rgba(255, 255, 255, .22)), inset 0 -1px 3px var(--dock-shadow, rgba(0, 0, 0, .22)), 0 3px 7px var(--dock-shadow, rgba(0, 0, 0, .25));
   transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
 }
 html body [data-repository-app="opacity"] .repository-app-icon {
   color: #f1f3ff;
-  background:
-    radial-gradient(ellipse at 22% 0, rgba(224, 230, 255, .42), transparent 65%),
-    linear-gradient(150deg, #7589ba, #3b4974 80%);
+  --app-tile-start: #7589ba;
+  --app-tile-end: #3b4974;
+  --dock-icon-highlight: 224, 230, 255;
 }
 html body [data-repository-app="timeline"] .repository-app-icon {
   color: #edfff7;
-  background:
-    radial-gradient(ellipse at 22% 0, rgba(199, 255, 218, .4), transparent 65%),
-    linear-gradient(150deg, #488e79, #27584d 80%);
+  --app-tile-start: #488e79;
+  --app-tile-end: #27584d;
+  --dock-icon-highlight: 199, 255, 218;
 }
 html body [data-repository-app="activity"] .repository-app-icon {
   color: #fff5df;
-  background:
-    radial-gradient(ellipse at 22% 0, rgba(255, 232, 177, .42), transparent 65%),
-    linear-gradient(150deg, #bf8549, #774b2b 80%);
+  --app-tile-start: #bf8549;
+  --app-tile-end: #774b2b;
+  --dock-icon-highlight: 255, 232, 177;
 }
 html body .repository-app-icon svg {
   width: 25px;
@@ -83,8 +86,8 @@ html body .repository-app-icon svg {
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .22));
 }
 html body .repository-app-tile:is([aria-current="page"], [aria-expanded="true"]) .repository-app-icon {
-  border-color: rgba(235, 250, 255, .72);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .32), 0 0 0 2px rgba(222, 241, 255, .10), 0 3px 9px rgba(0, 0, 0, .28);
+  border-color: var(--dock-edge-strong, rgba(235, 250, 255, .72));
+  box-shadow: inset 0 1px 0 var(--dock-highlight, rgba(255, 255, 255, .32)), 0 0 0 2px var(--dock-highlight, rgba(222, 241, 255, .10)), 0 3px 9px var(--dock-shadow, rgba(0, 0, 0, .28));
 }
 html body .repository-app-link[aria-current="page"]::after {
   content: '';
@@ -103,10 +106,10 @@ html body .repository-app-tooltip {
   transform: translateX(-50%) translateY(3px);
   z-index: 2;
   padding: 7px 10px;
-  border: 1px solid rgba(206, 227, 252, .22);
+  border: 1px solid var(--dock-edge, rgba(206, 227, 252, .22));
   border-radius: 9px;
-  background: rgba(14, 23, 36, .97);
-  box-shadow: 0 5px 18px rgba(0, 0, 0, .3);
+  background: var(--dock-tooltip-fill, rgba(14, 23, 36, .97));
+  box-shadow: 0 5px 18px var(--dock-shadow, rgba(0, 0, 0, .3));
   color: #edf4ff;
   font: 500 11px/1.2 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   letter-spacing: .01em;
@@ -127,7 +130,7 @@ html body .repository-app-link:focus-visible:not([data-tooltip-dismissed]) .repo
 }
 html body .repository-app-tile:focus-visible .repository-app-icon { transform: translateY(-2px); }
 @media (hover: hover) {
-  html body .repository-app-tile:hover .repository-app-icon { transform: translateY(-3px); border-color: rgba(245, 253, 255, .7); }
+  html body .repository-app-tile:hover .repository-app-icon { transform: translateY(-3px); border-color: var(--dock-edge-strong, rgba(245, 253, 255, .7)); }
   html body .repository-app-link:hover:not([data-tooltip-dismissed]) .repository-app-tooltip { visibility: visible; opacity: 1; transform: translateX(-50%); }
 }
 @media (max-width: 900px) {

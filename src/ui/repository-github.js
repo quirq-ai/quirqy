@@ -15,6 +15,7 @@ export function mountRepositoryGithub(dock, panel, mode) {
   const element = document.createElement('div');
   element.id = 'repository-github-controls';
   element.className = 'repository-github-controls';
+  element.dataset.dockSurface = '';
   element.setAttribute('role', 'region');
   element.setAttribute('aria-label', 'GitHub repository');
   element.hidden = true;
