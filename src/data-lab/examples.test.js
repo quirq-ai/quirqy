@@ -74,3 +74,28 @@ test('switching or modifying an example cannot corrupt subsequent selections', (
   assert.ok(again.files.length > 0);
   assert.equal(again.repository.fullName, 'quirq-ai/xo');
 });
+
+for (const example of EXAMPLE_REPOSITORIES) test(`${example.name}: every replay frame uses measured Git tree bytes and shorter windows retain the correct byte baseline`, () => {
+  const full = getExampleDataset(example.url, 50);
+  assert.equal(full.sizeHistory.version, 1);
+  assert.equal(full.sizeHistory.commits.length, full.commits.length);
+  const expectedHead = example.name.endsWith('/xo-space') ? 12409571 : 938061;
+  assert.equal(full.sizeHistory.commits.at(-1).totalBytes, expectedHead);
+  const model = buildModel(full);
+  let shrinkCount = 0;
+  for (let index = -1; index < model.commits.length; index++) {
+    const frame = stateAt(model, index), snapshot = index < 0 ? full.sizeHistory.baseline : full.sizeHistory.commits[index];
+    assert.equal(frame.sizeSummary.complete, true);
+    assert.equal(frame.sizeSummary.totalBytes, snapshot.totalBytes);
+    assert.equal(frame.files.filter(file => file.exists).reduce((total, file) => total + file.size, 0), snapshot.totalBytes);
+    assert.ok(frame.files.filter(file => file.exists).every(file => Number.isSafeInteger(file.size)));
+    if (index >= 0 && frame.sizeSummary.totalBytes < stateAt(model, index - 1).sizeSummary.totalBytes) shrinkCount++;
+  }
+  assert.equal(shrinkCount, example.name.endsWith('/xo-space') ? 4 : 2);
+  const shorter = getExampleDataset(example.url, 8);
+  assert.deepEqual(shorter.sizeHistory.baseline, full.sizeHistory.commits[full.commits.length - 9]);
+  assert.deepEqual(shorter.sizeHistory.commits, full.sizeHistory.commits.slice(-8));
+  assert.equal(stateAt(buildModel(shorter), -1).sizeSummary.totalBytes, shorter.sizeHistory.baseline.totalBytes);
+  shorter.sizeHistory.baseline.files[0].size = -999;
+  assert.notEqual(getExampleDataset(example.url, 8).sizeHistory.baseline.files[0].size, -999);
+});

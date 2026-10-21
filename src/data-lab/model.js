@@ -1,3 +1,5 @@
+import { createSizeSnapshot, fileBytes, sizeSummary } from './size-history.js';
+
 // Deterministic file identities and replay states, shared by both visualizations.
 const topDirectory = path => path.includes('/') ? path.split('/')[0] : '(root)';
 const parentPath = path => path.includes('/') ? path.slice(0, path.lastIndexOf('/')) : '';
@@ -16,7 +18,7 @@ export function buildModel(dataset) {
     const id = `file:${encodeURIComponent(path)}${ordinal > 1 ? `:${ordinal}` : ''}`;
     const node = {
       id, path, name: path.split('/').pop(), directory: topDirectory(path), parentPath: parentPath(path),
-      size: file.size ?? null, aliases: new Set([path]), existsAtHead: file.existsAtHead === true,
+      size: fileBytes(file.size), aliases: new Set([path]), existsAtHead: file.existsAtHead === true,
     };
     nodes.push(node);
     nodeById.set(id, node);
@@ -61,6 +63,8 @@ export function buildModel(dataset) {
         id, path: file.path, status: file.status || 'modified',
         additions: lines(file.additions), deletions: lines(file.deletions),
         ...(file.previousPath ? { previousPath: file.previousPath } : {}),
+        ...(Object.hasOwn(file, 'sizeBefore') ? { sizeBefore: fileBytes(file.sizeBefore) } : {}),
+        ...(Object.hasOwn(file, 'sizeAfter') ? { sizeAfter: fileBytes(file.sizeAfter) } : {}),
       });
     }
     commit.changes = changes;
@@ -80,6 +84,42 @@ export function buildModel(dataset) {
     }
     snapshots[index] = new Map(current);
   }
+  // Byte state is separate from stable file identity and membership. A complete
+  // tree snapshot is authoritative even when the commit's diff listing is partial.
+  // Legacy inputs know only head bytes: crossing an edited edge invalidates that
+  // earlier size instead of projecting today's bytes backwards through history.
+  const sizeHistory = dataset.sizeHistory?.version === 1 ? dataset.sizeHistory : null;
+  if (!sizeHistory && dataset.repository.source === 'github') uncertain('Historical byte sizes may be unavailable in this saved dataset. Reload the repository to fetch measured file sizes.');
+  const historyBySha = new Map((sizeHistory?.commits || []).map(snapshot => [snapshot.sha, snapshot]));
+  const sizeSnapshots = new Array(snapshots.length), sizeSummaries = new Array(snapshots.length);
+  let currentSizes = new Map(nodes.map(node => [node.id, node.size]));
+  // Old URL imports did not record whether their head tree hit a display/API
+  // limit. Without an explicit full-tree guarantee, their sums are known bytes
+  // only, even if every retained file happens to have a size.
+  let completeMembership = dataset.provenance?.completeHeadTree === true
+    || (dataset.repository.source !== 'github' && dataset.provenance?.completeHeadTree !== false);
+  for (let frame = commits.length; frame >= 0; frame--) {
+    const membership = snapshots[frame];
+    const exact = frame === 0 ? sizeHistory?.baseline : historyBySha.get(commits[frame - 1].sha);
+    if (exact && Array.isArray(exact.files)) {
+      const byPath = new Map(exact.files.map(file => [file.path, fileBytes(file.size)]));
+      currentSizes = new Map([...membership].map(([path, id]) => [id, byPath.get(path) ?? null]));
+    } else {
+      for (const change of commits[frame - 1]?.changes || []) {
+        if (Object.hasOwn(change, 'sizeAfter') && membership.get(change.path) === change.id) currentSizes.set(change.id, change.sizeAfter);
+      }
+    }
+    const sizes = new Map([...membership].map(([, id]) => [id, currentSizes.get(id) ?? null]));
+    sizeSnapshots[frame] = sizes;
+    sizeSummaries[frame] = sizeSummary(exact || createSizeSnapshot([...membership].map(([path, id]) => ({ path, size: sizes.get(id) })), { complete: completeMembership }));
+    if (!frame) continue;
+    const commit = commits[frame - 1];
+    if (commit.partial) completeMembership = false;
+    for (const change of commit.changes) {
+      if (change.status === 'added' || change.status === 'copied') currentSizes.delete(change.id);
+      else currentSizes.set(change.id, Object.hasOwn(change, 'sizeBefore') ? change.sizeBefore : null);
+    }
+  }
   for (const node of nodes) node.aliases = [...node.aliases].sort();
   nodes.sort((a, b) => a.path < b.path ? -1 : a.path > b.path ? 1 : a.id < b.id ? -1 : 1);
   const groupCounts = new Map();
@@ -98,6 +138,8 @@ export function buildModel(dataset) {
       limitations: [...(dataset.coverage?.limitations || []), ...reconstructionNotes],
     },
     _snapshots: snapshots,
+    _sizeSnapshots: sizeSnapshots,
+    _sizeSummaries: sizeSummaries,
     _stateCache: new Map(),
   };
 }
@@ -115,6 +157,7 @@ export function stateAt(model, requestedIndex) {
     const change = changes.get(node.id);
     return {
       ...node,
+      size: paths.has(node.id) ? model._sizeSnapshots[index + 1].get(node.id) ?? null : null,
       path: paths.get(node.id) || change?.path || node.path,
       exists: paths.has(node.id),
       activity: change ? 0.3 + 0.7 * Math.log1p(change.additions + change.deletions) / Math.log1p(maxLines) : 0,
@@ -131,6 +174,7 @@ export function stateAt(model, requestedIndex) {
     files,
     activeIds: [...paths.keys()],
     changedIds: [...changes.keys()],
+    sizeSummary: { ...model._sizeSummaries[index + 1] },
     summary: {
       activeFiles: paths.size,
       totalFiles: model.nodes.length,

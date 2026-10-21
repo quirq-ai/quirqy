@@ -5,6 +5,13 @@ import { FILE_ATOM_KINDS, fileAtomKind } from './molecule-layout.js';
 import { ROOT_LENGTH_PER_TOUCH } from './root-length-layout.js';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+const formatBytes = value => {
+  const bytes = Math.max(0, Number(value) || 0);
+  const units = ['B', 'KiB', 'MiB', 'GiB', 'TiB'];
+  const unit = Math.min(units.length - 1, bytes ? Math.floor(Math.log(bytes) / Math.log(1024)) : 0);
+  return `${(bytes / 1024 ** unit).toLocaleString(undefined, { maximumFractionDigits: 2 })} ${units[unit]}`;
+};
+
 const fmt = value => Number(value || 0).toLocaleString();
 const fmtLength = value => Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 2 });
 const rootGrowthStep = layout => layout?.lengthGrowth?.lengthPerTouch ?? layout?.proportions?.lengthPerTouch ?? ROOT_LENGTH_PER_TOUCH;
@@ -241,9 +248,11 @@ export class DataPanel {
     const frameChanged = modelChanged || previous?.index !== state.index;
     const selectionChanged = modelChanged || previous?.selectedId !== state.selectedId;
     const activityChanged = previous?.activity !== state.activity;
-    if (modelChanged) { this.filePage = 0; this.folder = ''; this.renderRepository(); this.renderCoverage(); }
+    if (modelChanged) { this.filePage = 0; this.folder = ''; this.renderRepository(); }
+    if (modelChanged || viewChanged || (frameChanged && state.view === 'tree')) this.renderCoverage();
     if (frameChanged) this.renderPatterns();
     if (viewChanged || !previous) this.renderView();
+    if (state.view === 'tree' && (frameChanged || viewChanged || previous?.frameMode !== state.frameMode)) this.renderTreeSize();
     if (frameChanged || viewChanged || previous?.structure !== state.structure) this.renderStructure();
     if (modelChanged || viewChanged || (frameChanged && state.view !== 'tree')) this.renderDirectories();
     if (frameChanged || selectionChanged || viewChanged) { this.renderSelected(); this.renderFiles(); }
@@ -286,7 +295,7 @@ export class DataPanel {
       button.setAttribute('aria-pressed', String(active));
     }
     this.$('#data-view-intro').textContent = tree
-      ? `Each file touch adds ${fmtLength(rootGrowthStep(this.state.rootLayout))} scene units here, calibrated to this repository’s snapshot width and fixed through replay. Renames retain growth; roots thicken gently with length.`
+      ? `Canopy and leaf size follow current file bytes and can grow or shrink. Roots keep their commit-touch growth.`
       : 'Play turns folder marbles into enclosures while the commit author lights the root. Pause restores pathways and opens the author’s commit bubble.';
     this.$('#data-links-label').textContent = tree ? 'File stems' : 'Bonds';
     this.$('#data-links-label').title = tree ? '' : 'Show or hide pathways and current. Playing shows current only; pause restores pathways.';
@@ -354,6 +363,15 @@ export class DataPanel {
     return `<button class="data-file-row${selected ? ' selected' : ''}${file.exists === false ? ' historical' : ''}" type="button" data-file-id="${esc(file.id)}" aria-pressed="${selected}" title="${esc(file.path)}"><span class="data-file-path">${esc(file.path)}</span>${label ? `<span class="data-file-status" data-status="${esc(status)}">${esc(label)}</span>` : ''}${compact ? '' : `<span class="data-file-diff">+${fmt(file.additions)} −${fmt(file.deletions)}</span>`}</button>`;
   }
 
+  renderTreeSize() {
+    const summary = this.state.frame.sizeSummary;
+    const amount = !summary ? 'Byte coverage is unavailable for this commit.'
+      : summary.complete && Number.isFinite(summary.totalBytes)
+        ? `Repository file contents: ${formatBytes(summary.totalBytes)} at this commit.`
+        : `Known file contents: ${formatBytes(summary.knownBytes)}; the repository total is incomplete.`;
+    this.$('#data-view-intro').textContent = `${amount} Canopy and leaves grow or shrink with file bytes. Roots keep their touch-based growth.`;
+  }
+
   renderSelected() {
     const { frame, model, selectedId } = this.state;
     const file = frame.files.find(item => item.id === selectedId);
@@ -373,7 +391,7 @@ export class DataPanel {
     const currentFolder = file.path.includes('/') ? file.path.slice(0, file.path.lastIndexOf('/')) : '(root)';
     const atomRows = kind ? `<div class="stat-k">File category</div><div class="stat-v">${esc(kind.label)}</div><div class="stat-k">File element</div><div class="stat-v data-file-element">${esc(kind.element)} · ${esc(kind.elementName)}</div><div class="stat-k">Current folder</div><div class="stat-v data-folder-path">${esc(currentFolder)}</div>` : '';
     const history = changes.length ? `<details class="data-file-history" ${historyWasOpen ? 'open' : ''}><summary>File activity · ${changes.length} commits</summary>${changes.map(commit => `<button type="button" data-commit-index="${commit.index}" aria-current="${commit.index === this.state.index}" title="${esc(commit.message)}"><code>${esc(this.shortSha(commit.sha))}</code><span>${esc(commit.message.split('\n')[0])}</span></button>`).join('')}</details>` : '';
-    this.replaceContent(this.$('#data-selected'), `<div class="data-selected-path">${esc(file.path)}</div><div class="stat-grid"><div class="stat-k">At this point</div><div class="stat-v">${file.exists ? 'Present' : 'Not present'}</div><div class="stat-k">Current change</div><div class="stat-v">${esc(file.status)}</div>${touchRows}<div class="stat-k">${kind ? 'Touches in loaded history' : 'Commits touching file'}</div><div class="stat-v">${fmt(changes.length)}</div>${atomRows}<div class="stat-k">Snapshot size</div><div class="stat-v">${file.size != null ? `${fmt(file.size)} bytes` : 'Unknown'}</div></div>${historical.length ? `<div class="data-history-paths"><span>Other paths for this file</span>${historical.map(path => `<code>${esc(path)}</code>`).join('')}</div>` : ''}${rendered ? '' : '<p class="lab-note" style="padding:0 0 8px">Outside the displayed subset; data remains available here.</p>'}<button class="btn tiny" type="button" data-focus-id="${esc(file.id)}" ${rendered ? '' : 'disabled'}>Focus in scene</button>${history}`);
+    this.replaceContent(this.$('#data-selected'), `<div class="data-selected-path">${esc(file.path)}</div><div class="stat-grid"><div class="stat-k">At this point</div><div class="stat-v">${file.exists ? 'Present' : 'Not present'}</div><div class="stat-k">Current change</div><div class="stat-v">${esc(file.status)}</div>${touchRows}<div class="stat-k">${kind ? 'Touches in loaded history' : 'Commits touching file'}</div><div class="stat-v">${fmt(changes.length)}</div>${atomRows}<div class="stat-k">File size at this commit</div><div class="stat-v data-file-size">${!file.exists ? 'Not present' : Number.isFinite(file.size) ? `${fmt(file.size)} bytes` : 'Unknown'}</div></div>${historical.length ? `<div class="data-history-paths"><span>Other paths for this file</span>${historical.map(path => `<code>${esc(path)}</code>`).join('')}</div>` : ''}${rendered ? '' : '<p class="lab-note" style="padding:0 0 8px">Outside the displayed subset; data remains available here.</p>'}<button class="btn tiny" type="button" data-focus-id="${esc(file.id)}" ${rendered ? '' : 'disabled'}>Focus in scene</button>${history}`);
   }
 
   renderFiles() {
@@ -409,7 +427,9 @@ export class DataPanel {
 
   renderCoverage() {
     const coverage = this.state.model.coverage;
-    this.$('#data-coverage').innerHTML = `<p class="lab-note">${esc(coverage.label)}</p>${coverage.limitations.map(text => `<p class="lab-note">${esc(text)}</p>`).join('')}`;
+    const size = this.state.view === 'tree' ? this.state.frame.sizeSummary : null;
+    const sizeNote = size ? `<p class="lab-note">${size.complete && Number.isFinite(size.totalBytes) ? `Repository file contents: ${formatBytes(size.totalBytes)}.` : `Known file contents: ${formatBytes(size.knownBytes)}. The complete repository total is unavailable.`} ${fmt(size.knownFiles)} of ${fmt(size.fileCount)} present files have known byte sizes${size.unknownFiles ? `; ${fmt(size.unknownFiles)} are unknown` : ''}. Totals count current Git blob contents, including files outside the canopy’s 500-leaf display and dot-prefixed files. They exclude .git storage and repository history. Unknown sizes are not counted as zero.</p>` : '';
+    this.$('#data-coverage').innerHTML = `${sizeNote}<p class="lab-note">${esc(coverage.label)}</p>${coverage.limitations.map(text => `<p class="lab-note">${esc(text)}</p>`).join('')}`;
   }
 
   dispose() {

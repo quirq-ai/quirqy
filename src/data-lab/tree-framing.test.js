@@ -265,13 +265,12 @@ test('bonsai presentation and framing points agree through transitions and retai
   nearVector(destination, scene.canopyGroup.localToWorld(point.clone()), 'target framing must predict the final bonsai pose');
 });
 
-test('small canopy presentation retains trunk thickness and commit growth ratios without changing geometry', () => {
+test('small canopy presentation retains trunk thickness and byte growth ratios without changing geometry', () => {
   const repository = buildModel(createRepositoryFixture());
   const layout = createTreeLayout(repository);
   const earlyIndex = -1, lateIndex = repository.commits.length - 1;
-  const poses = [earlyIndex, lateIndex].map(index => createTreePose(layout, {
-    index, commitCount: repository.commits.length, activeIds: stateAt(repository, index).activeIds,
-  }));
+  const files = repository.nodes.map(node => ({ ...node, size: 16384 }));
+  const poses = [1, 8].map(multiplier => createTreePose(layout, { frame: { files: files.map(node => ({ ...node, size: node.size * multiplier })), activeIds: files.map(node => node.id) } }));
   const original = structuredClone({ repository, layout, poses });
   const scene = presentationFixture();
   const geometry = new THREE.BufferGeometry().setFromPoints(poses[1].trunk.map(point => new THREE.Vector3(...point)));
@@ -283,8 +282,8 @@ test('small canopy presentation retains trunk thickness and commit growth ratios
     scene.presentation = scene.presentationTarget = { canopy, roots: canopy === 1 ? .32 : 1 };
     scene._applyPresentation();
     const heights = poses.map(pose => scene.canopyGroup.localToWorld(new THREE.Vector3(...pose.trunk.at(-1))).y + 40);
-    const radii = [earlyIndex, lateIndex].map(index => scene.canopyGroup.localToWorld(new THREE.Vector3(trunkRadius(index), -40, 0)).x);
-    assert.ok(heights[1] > heights[0] && radii[1] > radii[0], 'every mode must retain visible commit growth');
+    const radii = poses.map(pose => scene.canopyGroup.localToWorld(new THREE.Vector3(pose.trunkRadius, -40, 0)).x);
+    assert.ok(heights[1] > heights[0] && radii[1] > radii[0], 'every mode must retain visible byte growth');
     measurements.push({ heights, radii });
     assert.equal(geometry.uuid, geometryId);
     assert.deepEqual(geometry.attributes.position.array, vertices, 'presentation must leave geometry buffers unchanged');

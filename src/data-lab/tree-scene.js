@@ -13,6 +13,7 @@ const PRESENTATION = { tree: { canopy: 1, roots: 0.32 }, roots: { canopy: 0.24, 
 const FLAT_GROUND = { height: 0, radiusX: 50, radiusZ: 30, depthWeight: 0.2, active: false };
 const UP = new THREE.Vector3(0, 1, 0);
 const WHITE = new THREE.Color(0xf2f0d8);
+const UNKNOWN_COLOR = new THREE.Color(0x99aba0);
 const FOLIAGE = [0x83a974, 0xa1b775, 0x67a489, 0x9aa45c, 0x54886d, 0xa4b58c, 0x74a394, 0xaabb71];
 const ease = value => value * value * (3 - 2 * value);
 const toSet = value => value instanceof Set ? value : new Set(value || []);
@@ -53,6 +54,20 @@ export function createLeafGeometry() {
   return geometry;
 }
 
+function finiteNormals(geometry) {
+  const normals = geometry.attributes.normal;
+  for (let index = 0; index < normals.array.length; index += 3) {
+    const length = Math.hypot(normals.array[index], normals.array[index + 1], normals.array[index + 2]);
+    if (!Number.isFinite(length) || length < 1e-6) { normals.array[index] = 0; normals.array[index + 1] = 1; normals.array[index + 2] = 0; }
+  }
+  normals.needsUpdate = true;
+  return geometry;
+}
+
+function stemGeometry(curve, scale, leafScale) {
+  return finiteNormals(new THREE.TubeGeometry(curve, 12, scale * 0.05 + leafScale * 0.025, 5, false));
+}
+
 function branchGeometry(curve, { trunk = false, segments = 28 } = {}) {
   const radialSegments = trunk ? 14 : 9;
   const geometry = new THREE.TubeGeometry(curve, segments, 1, radialSegments, false);
@@ -88,6 +103,7 @@ function setBranchRadius(geometry, radius) {
   for (let index = 0; index < position.array.length; index++) position.array[index] = centers[index] + offsets[index] * radius;
   position.needsUpdate = true;
   geometry.computeVertexNormals();
+  finiteNormals(geometry);
   geometry.computeBoundingSphere();
   geometry.userData.radius = radius;
 }
@@ -116,7 +132,8 @@ function updateSurface(surface, amount) {
     let z = fromNormals[index + 2] + (toNormals[index + 2] - fromNormals[index + 2]) * amount;
     let length = Math.hypot(x, y, z);
     // Never feed zero normals to PBR/bloom, even at a sharp change of direction.
-    if (length < 1e-6) { x = toNormals[index]; y = toNormals[index + 1]; z = toNormals[index + 2]; length = Math.hypot(x, y, z) || 1; }
+    if (!Number.isFinite(length) || length < 1e-6) { x = toNormals[index]; y = toNormals[index + 1]; z = toNormals[index + 2]; length = Math.hypot(x, y, z); }
+    if (!Number.isFinite(length) || length < 1e-6) { x = 0; y = 1; z = 0; length = 1; }
     normals[index] = x / length; normals[index + 1] = y / length; normals[index + 2] = z / length;
   }
   geometry.attributes.position.needsUpdate = true;
@@ -156,7 +173,7 @@ export class TreeScene extends RepositoryScene {
     this.fallingLeaves = [];
     this.index = null;
     this.trunkRadius = trunkRadius(-1);
-    this.renderer.domElement.setAttribute('aria-label', 'Three-dimensional repository growth tree. Each leaf is a file. The trunk is the repository root. Below ground, visible folders and files branch into a fully expanded, balanced three-dimensional hierarchy. Dot-prefixed files and folders and their contents are hidden from roots. Folder names sit beside junctions and file names below tapered root ends. Starting root length and growth per loaded commit touch scale with repository width. The growth increment stays fixed throughout the loaded history. Rope thickness grows gently with length as a natural detail. Folder junctions stay fixed and the ground stays flat. The base grows with the visible file count and root extent. Horizontal filenames stay near their tips; zoom or focus a folder to reveal more names without overlap. Click a folder name to focus its subtree, or a file name or leaf to inspect. Frame roots enlarges the roots, shortens the canopy while preserving a sturdier trunk, and enables free rotation and sideways roll with Shift-drag or a two-finger twist. Frame view emphasizes the canopy with smaller roots and upright orbit. Scroll to zoom, double-click a file to focus.');
+    this.renderer.domElement.setAttribute('aria-label', 'Three-dimensional repository growth tree. Each leaf is a file; its surface area follows its current bytes. Tree dimensions follow the cube root of current known repository bytes, so both grow and shrink through history. Unknown file sizes use muted wireframe markers. The trunk is the repository root. Below ground, visible folders and files branch into a fully expanded, balanced three-dimensional hierarchy. Dot-prefixed files and folders and their contents are hidden from roots. Folder names sit beside junctions and file names below tapered root ends. Starting root length and growth per loaded commit touch scale with repository width. The growth increment stays fixed throughout the loaded history. Rope thickness grows gently with length as a natural detail. Folder junctions stay fixed and the ground stays flat. The base grows with the visible file count and root extent. Horizontal filenames stay near their tips; zoom or focus a folder to reveal more names without overlap. Click a folder name to focus its subtree, or a file name or leaf to inspect. Frame roots enlarges the roots, shortens the canopy while preserving a sturdier trunk, and enables free rotation and sideways roll with Shift-drag or a two-finger twist. Frame view emphasizes the canopy with smaller roots and upright orbit. Scroll to zoom, double-click a file to focus.');
   }
 
   setModel(model) {
@@ -164,21 +181,25 @@ export class TreeScene extends RepositoryScene {
     this.model = model;
     this.roots.setModel(model);
     this.layout = createTreeLayout(model);
+    const initialFrame = stateAt(model, model.commits.length - 1);
+    const initialPose = createTreePose(this.layout, { frame: initialFrame });
+    this.byteSummary = initialPose.sizeSummary;
+    this.leafSizing = initialPose.sizing;
     this.extent = this.layout.extent;
     this.center = asVector(this.layout.center);
     this.renderedCount = this.layout.nodes.length;
     this.branches = [];
     this.poseTransition = null;
-    this.poseTarget = null;
-    this.lengthScale = 1;
+    this.poseTarget = initialPose;
+    this.lengthScale = initialPose.lengthScale;
     this.index = null;
     this.frameKey = undefined;
-    this.trunkRadius = trunkRadius(-1);
+    this.trunkRadius = initialPose.trunkRadius;
     this.radiusFrom = this.radiusTarget = this.trunkRadius;
     const topPaths = this.layout.folders.filter(folder => folder.depth === 1).map(folder => folder.path).sort();
     const colorFor = path => new THREE.Color(FOLIAGE[Math.max(0, topPaths.indexOf(path.split('/')[0])) % FOLIAGE.length]);
 
-    for (const folder of this.layout.folders) {
+    for (const folder of initialPose.folders) {
       const position = asVector(folder.position);
       const color = colorFor(folder.path);
       const curve = new THREE.CubicBezierCurve3(...folder.curve.map(asVector));
@@ -191,7 +212,7 @@ export class TreeScene extends RepositoryScene {
       this.folders.set(folder.path, record);
       this.world.add(mesh);
       this.branches.push(record);
-      setBranchRadius(geometry, this.trunkRadius * folder.branchWeight);
+      setBranchRadius(geometry, folder.radius);
       if (folder.path) this._label(folder.path, position.clone().add(new THREE.Vector3(0, 3.2, 0)), `#${color.getHexString()}`, folder.path);
     }
     this._label(model.repository?.name || 'Repository', new THREE.Vector3(0, -38, 0), '#b7a88b', '');
@@ -216,12 +237,11 @@ export class TreeScene extends RepositoryScene {
     this.groundContourBaseVertices = contour.geometry.attributes.position.array.slice();
     this.groundGroup.add(contour);
 
-    for (const node of this.layout.nodes) {
+    for (const node of initialPose.nodes) {
       const folder = this.folders.get(node.folder);
       const color = folder.color.clone();
       const variation = ((stableHash(node.id) % 100) / 100 - 0.5) * 0.075;
       color.offsetHSL(variation * 0.25, variation, variation);
-      if (!node.sizeKnown) color.lerp(new THREE.Color(0x99aba0), 0.55);
       const material = new THREE.MeshStandardMaterial({ color, vertexColors: true, roughness: 0.62, metalness: 0.025, side: THREE.DoubleSide, emissive: color, emissiveIntensity: 0.045, transparent: true });
       const mesh = new THREE.Mesh(this.geometries.leaf, material);
       const position = asVector(node.position);
@@ -240,12 +260,12 @@ export class TreeScene extends RepositoryScene {
       pick.userData = { kind: 'file', id: node.id };
       this.world.add(pick);
       const curve = new THREE.QuadraticBezierCurve3(asVector(node.stemStart), asVector(node.stemControl), position.clone());
-      const link = new THREE.Mesh(new THREE.TubeGeometry(curve, 12, 0.065 + Math.min(0.055, node.scale * 0.025), 5, false), new THREE.MeshStandardMaterial({ color: 0x6c7050, roughness: 0.92, transparent: true, opacity: 0.8 }));
+      const link = new THREE.Mesh(stemGeometry(curve, initialPose.lengthScale, node.scale), new THREE.MeshStandardMaterial({ color: 0x6c7050, roughness: 0.92, transparent: true, opacity: 0.8 }));
       this.linkGroup.add(link);
-      this.nodes.set(node.id, { node, mesh, pick, link, vein, position, center, color, size: node.scale, sizeKnown: node.sizeKnown, areaRatio: node.areaRatio, folder, quaternion: mesh.quaternion.clone() });
+      this.nodes.set(node.id, { node, mesh, pick, link, vein, position, center, color, size: node.scale, currentBytes: node.size, sizeKnown: node.sizeKnown, areaRatio: node.areaRatio, folder, quaternion: mesh.quaternion.clone() });
     }
     this.pickables = [...this.nodes.values()].map(record => record.pick).concat([...this.folders.values()].map(folder => folder.mesh));
-    this.activeIds = new Set(this.layout.nodes.map(node => node.id));
+    this.activeIds = new Set(initialFrame.activeIds);
     this.changedIds = new Set();
     this.statuses = {};
     this.paths = {};
@@ -258,9 +278,9 @@ export class TreeScene extends RepositoryScene {
     this.cameraPoints = [];
     this.rootCameraPoints = [];
     for (let cursor = -1; cursor < model.commits.length; cursor++) {
-      const pose = createTreePose(this.layout, { index: cursor, commitCount: model.commits.length, activeIds: stateAt(model, cursor).activeIds });
-      this.cameraPoints.push(...pose.nodes.map(node => asVector(node.position)), ...pose.folders.flatMap(folder => folder.curve.map(asVector)));
       const frame = stateAt(model, cursor);
+      const pose = createTreePose(this.layout, { frame });
+      for (const x of [pose.bounds.min[0], pose.bounds.max[0]]) for (const y of [pose.bounds.min[1], pose.bounds.max[1]]) for (const z of [pose.bounds.min[2], pose.bounds.max[2]]) this.cameraPoints.push(new THREE.Vector3(x, y, z));
       const roots = createRootLayout(model, { repositoryWidth: this.roots.repositoryWidth, activeIds: frame.activeIds, paths: Object.fromEntries(frame.files.map(file => [file.id, file.path])) });
       for (const x of [roots.bounds.min[0], roots.bounds.max[0]]) for (const y of [roots.bounds.min[1], roots.bounds.max[1]]) for (const z of [roots.bounds.min[2], roots.bounds.max[2]]) this.rootCameraPoints.push(new THREE.Vector3(x, y, z));
     }
@@ -285,8 +305,6 @@ export class TreeScene extends RepositoryScene {
       this.animateTransition = adjacentForward && !this.reducedMotion && this.options.activity;
       this.elapsed = this.animateTransition ? 0 : this.duration;
       this.radiusFrom = this.trunkRadius;
-      this.radiusTarget = trunkRadius(nextIndex);
-      if (!this.animateTransition) this.trunkRadius = this.radiusTarget;
       if (this.animateTransition) for (const id of this.changedIds) {
         if (statuses[id] !== 'removed' || !previousActive.has(id) || this.activeIds.has(id)) continue;
         const record = this.nodes.get(id);
@@ -304,7 +322,8 @@ export class TreeScene extends RepositoryScene {
         this.activityGroup.add(mesh);
         this.fallingLeaves.push({ id, mesh, start: record.position.clone(), quaternion: record.quaternion.clone(), phase: stableHash(id) / 4294967295 * Math.PI * 2 });
       }
-      this._preparePose(nextIndex, commitCount ?? this.model?.commits.length ?? 0);
+      this._preparePose(nextIndex, previousActive);
+      if (!this.animateTransition) this.trunkRadius = this.radiusTarget;
     }
     this.index = nextIndex;
     this.commitCount = commitCount ?? this.model?.commits.length ?? 0;
@@ -314,16 +333,21 @@ export class TreeScene extends RepositoryScene {
     this.update(0);
   }
 
-  _preparePose(index, commitCount) {
-    const pose = createTreePose(this.layout, { index, commitCount, activeIds: this.activeIds });
+  _preparePose(index, previousActive = this.activeIds) {
+    const pose = createTreePose(this.layout, { frame: stateAt(this.model, index), activeIds: this.activeIds });
+    this.radiusTarget = pose.trunkRadius;
+    this.byteSummary = pose.sizeSummary;
+    this.leafSizing = pose.sizing;
     const surfaces = [], folders = [], nodes = [];
     for (const target of pose.folders) {
       const record = this.folders.get(target.path);
       const curve = new THREE.CubicBezierCurve3(...target.curve.map(asVector));
       const geometry = branchGeometry(curve, { trunk: !target.path, segments: target.path ? 28 : 44 });
-      setBranchRadius(geometry, this.radiusTarget * target.branchWeight);
+      setBranchRadius(geometry, target.radius);
       surfaces.push(surfaceTransition(record.mesh.geometry, geometry));
-      folders.push({ record, from: record.position.clone(), to: asVector(target.position), fromCurve: [record.curve.v0, record.curve.v1, record.curve.v2, record.curve.v3].map(point => point.clone()), toCurve: target.curve.map(asVector) });
+      folders.push({ record, fromRadius: record.radius, toRadius: target.radius, from: record.position.clone(), to: asVector(target.position), fromCurve: [record.curve.v0, record.curve.v1, record.curve.v2, record.curve.v3].map(point => point.clone()), toCurve: target.curve.map(asVector) });
+      record.loadBytes = target.loadBytes;
+      record.radiusTarget = target.radius;
       record.loadCount = target.loadCount;
       record.loadWeight = target.loadWeight;
       record.lengthFactor = target.lengthFactor;
@@ -332,11 +356,16 @@ export class TreeScene extends RepositoryScene {
     for (const target of pose.nodes) {
       const record = this.nodes.get(target.id);
       const curve = new THREE.QuadraticBezierCurve3(asVector(target.stemStart), asVector(target.stemControl), asVector(target.position));
-      const geometry = new THREE.TubeGeometry(curve, 12, 0.065 + Math.min(0.055, target.scale * 0.025), 5, false);
+      const geometry = stemGeometry(curve, pose.lengthScale, target.scale);
       surfaces.push(surfaceTransition(record.link.geometry, geometry));
       const quaternion = new THREE.Quaternion().setFromUnitVectors(UP, asVector(target.direction));
       quaternion.multiply(new THREE.Quaternion().setFromAxisAngle(UP, target.roll));
-      nodes.push({ record, from: record.position.clone(), to: asVector(target.position), fromQuaternion: record.quaternion.clone(), toQuaternion: quaternion });
+      const fromSize = this.animateTransition && !previousActive.has(target.id) && this.activeIds.has(target.id) ? 0 : record.size;
+      nodes.push({ record, from: record.position.clone(), to: asVector(target.position), fromQuaternion: record.quaternion.clone(), toQuaternion: quaternion, fromSize, toSize: target.scale });
+      record.currentBytes = target.size;
+      record.sizeKnown = target.sizeKnown;
+      record.areaRatio = target.areaRatio;
+      record.node = target;
     }
     this.poseTarget = pose;
     this.poseTransition = { surfaces, folders, nodes, lengthFrom: this.lengthScale, amount: -1 };
@@ -348,18 +377,22 @@ export class TreeScene extends RepositoryScene {
     pose.amount = amount;
     this.lengthScale = THREE.MathUtils.lerp(pose.lengthFrom, this.poseTarget.lengthScale, amount);
     for (const surface of pose.surfaces) updateSurface(surface, amount);
-    for (const { record, from, to, fromCurve, toCurve } of pose.folders) {
+    for (const { record, from, to, fromCurve, toCurve, fromRadius, toRadius } of pose.folders) {
+      record.radius = THREE.MathUtils.lerp(fromRadius, toRadius, amount);
       record.position.lerpVectors(from, to, amount);
       [record.curve.v0, record.curve.v1, record.curve.v2, record.curve.v3].forEach((point, index) => point.lerpVectors(fromCurve[index], toCurve[index], amount));
       record.curve.needsUpdate = true;
     }
-    for (const { record, from, to, fromQuaternion, toQuaternion } of pose.nodes) {
+    for (const { record, from, to, fromQuaternion, toQuaternion, fromSize, toSize } of pose.nodes) {
+      // Interpolate quantitative area, rather than exaggerating the scale curve.
+      record.size = Math.sqrt(THREE.MathUtils.lerp(fromSize * fromSize, toSize * toSize, amount));
       record.position.lerpVectors(from, to, amount);
       record.mesh.position.copy(record.position);
       record.quaternion.slerpQuaternions(fromQuaternion, toQuaternion, amount);
       record.mesh.quaternion.copy(record.quaternion);
       record.center.set(0, 1.85 * record.size, 0).applyQuaternion(record.quaternion).add(record.position);
       record.pick.position.copy(record.center);
+      record.pick.scale.setScalar(Math.max(1, record.size * 1.75));
     }
     for (const label of this.labelRecords) {
       if (!label.path) continue; // The repository name stays beside its rooted base.
@@ -406,7 +439,7 @@ export class TreeScene extends RepositoryScene {
     this.trunkRadius = THREE.MathUtils.lerp(this.radiusFrom, this.radiusTarget, ease(transition));
     this._updatePose(ease(transition));
     for (const branch of this.branches) {
-      const active = !branch.path || branch.members.some(id => this.activeIds.has(id));
+      const active = !branch.path || branch.loadCount > 0;
       branch.mesh.visible = active || this.options.ghosts;
       branch.mesh.material.opacity = active ? 1 : 0.1;
       branch.mesh.material.depthWrite = active;
@@ -417,24 +450,20 @@ export class TreeScene extends RepositoryScene {
       const active = this.activeIds.has(id), changed = this.changedIds.has(id);
       const selected = id === this.selectedId, hovered = id === this.hoveredId;
       const status = this.statuses[id];
-      let size = record.size, opacity = active ? 1 : this.options.ghosts ? 0.105 : 0;
-      if (this.animateTransition && transition < 1 && changed && (status === 'added' || status === 'copied')) {
-        const growth = ease(Math.min(1, transition * 1.25));
-        size *= 0.015 + growth * 0.985;
-        opacity *= Math.min(1, growth * 2);
-      }
+      const size = record.size, opacity = active ? 1 : this.options.ghosts ? 0.105 : 0;
       const material = record.mesh.material;
-      record.mesh.visible = opacity > 0;
-      record.mesh.scale.setScalar(size * (selected ? 1.12 : hovered ? 1.06 : 1));
+      record.mesh.visible = opacity > 0 && size > 0;
+      record.mesh.scale.setScalar(size);
       material.opacity = opacity;
-      material.wireframe = !active;
+      material.wireframe = !active || !record.sizeKnown;
       material.depthWrite = active;
       material.color.copy(record.color);
+      if (!record.sizeKnown) material.color.lerp(UNKNOWN_COLOR, 0.75);
       if (changed && this.options.activity) material.color.lerp(this.activityColor.setHex(CHANGE_COLORS[status] || CHANGE_COLORS.modified), status === 'modified' ? 0.72 : 0.63);
       if (selected || hovered) material.color.lerp(WHITE, selected ? 0.33 : 0.2);
       material.emissive.copy(material.color);
       material.emissiveIntensity = selected ? 0.27 : hovered ? 0.18 : changed && this.options.activity ? 0.09 + Math.sin(Math.PI * transition) * 0.22 : 0.045;
-      record.vein.visible = active;
+      record.vein.visible = active && record.sizeKnown && size > 0;
       record.link.visible = active || this.options.ghosts;
       record.link.material.opacity = selected ? 0.95 : active ? 0.72 : 0.06;
       record.link.material.depthWrite = active;

@@ -1,8 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createTreeLayout, createTreePose, treeLengthScale, treePoint, leafSizing, leafScale, trunkRadius } from './tree-layout.js';
+import { createTreeLayout, createTreePose, treeByteScale, treePoint, leafSizing, leafScale, trunkRadius, TREE_REFERENCE_BYTES, LEAF_REFERENCE_BYTES } from './tree-layout.js';
 import { createRepositoryFixture } from './test-fixtures/repository.js';
-import { createLeafGeometry } from './tree-scene.js';
+import * as THREE from 'three';
+import { createLeafGeometry, TreeScene } from './tree-scene.js';
 import { buildModel, stateAt } from './model.js';
 
 test('growth tree uses exactly the mapped file identities and connected directory hierarchy', () => {
@@ -37,25 +38,30 @@ test('base attachment layout and byte normalization are independent of the histo
   }
 });
 
-test('leaf surface area follows byte ratios with explicit clamps and unknown fallback', () => {
+test('leaf area uses one absolute byte reference with no quantitative clamps', () => {
   const nodes = [{ size: 100 }, { size: 200 }, { size: 400 }, { size: null }, { size: 0 }, { size: 1e9 }];
   const sizing = leafSizing(nodes);
-  const a = leafScale(nodes[0], sizing), b = leafScale(nodes[1], sizing);
-  assert.equal(b.areaRatio / a.areaRatio, 2);
-  assert.ok(Math.abs((b.scale / a.scale) ** 2 - 2) < 1e-10);
-  assert.equal(leafScale(nodes[3], sizing).sizeKnown, false);
-  assert.equal(leafScale(nodes[3], sizing).areaRatio, 0.65);
-  assert.equal(leafScale(nodes[4], sizing).sizeKnown, true);
-  assert.equal(leafScale(nodes[4], sizing).areaRatio, sizing.minAreaRatio);
-  assert.equal(leafScale(nodes[5], sizing).areaRatio, sizing.maxAreaRatio);
+  assert.equal(sizing.referenceBytes, LEAF_REFERENCE_BYTES);
+  assert.deepEqual(leafSizing([{ size: 1e12 }]).referenceBytes, sizing.referenceBytes);
+  const a = leafScale(nodes[0]), b = leafScale(nodes[2]);
+  assert.equal(b.areaRatio / a.areaRatio, 4);
+  assert.equal(b.scale / a.scale, 2);
+  assert.equal(leafScale(nodes[3]).sizeKnown, false);
+  assert.equal(leafScale(nodes[3]).areaRatio, null);
+  assert.equal(leafScale(nodes[4]).areaRatio, 0);
+  assert.equal(leafScale(nodes[4]).scale, 0);
+  assert.equal(leafScale(nodes[5]).areaRatio, 1e9 / LEAF_REFERENCE_BYTES);
   assert.equal(sizing.unknownCount, 1);
+  assert.equal(sizing.clampedCount, 0);
 });
 
-test('each forward commit thickens trunk and cursor rewinds reproduce the exact radius', () => {
-  const sequence = Array.from({ length: 24 }, (_, index) => trunkRadius(index - 1));
-  for (let index = 1; index < sequence.length; index++) assert.ok(sequence[index] > sequence[index - 1]);
-  for (const cursor of [14, -1, 4, 20, 4]) assert.equal(trunkRadius(cursor), sequence[cursor + 1]);
-  assert.ok(trunkRadius(-1) > 0);
+test('eight times the bytes doubles every linear trunk dimension and shrink reverses it', () => {
+  assert.equal(treeByteScale(TREE_REFERENCE_BYTES), 1);
+  assert.equal(treeByteScale(8 * TREE_REFERENCE_BYTES), 2);
+  assert.equal(trunkRadius(8 * TREE_REFERENCE_BYTES), trunkRadius(TREE_REFERENCE_BYTES) * 2);
+  assert.equal(treeByteScale(0), 0);
+  assert.equal(trunkRadius(0), 0);
+  assert.equal(treeByteScale(Infinity), 0);
 });
 
 test('the tree cap preserves changed identities and never invents leaves', () => {
@@ -109,42 +115,42 @@ function weightedFixture(count = 72) {
   };
 }
 
-test('every commit visibly elongates the tree from the same grounded trunk base', () => {
-  const layout = createTreeLayout(weightedFixture());
-  const sequence = Array.from({ length: 23 }, (_, step) => createTreePose(layout, { index: step - 1, commitCount: 22 }));
-  for (const pose of sequence) assert.deepEqual(pose.trunk[0], [0, -40, 0]);
-  for (let step = 1; step < sequence.length; step++) {
-    assert.ok(sequence[step].trunk[3][1] > sequence[step - 1].trunk[3][1]);
-    assert.ok(branchLength(sequence[step].folders[0]) > branchLength(sequence[step - 1].folders[0]));
-  }
-  assert.ok(branchLength(sequence.at(-1).folders[0]) / branchLength(sequence[0].folders[0]) > 3);
-  assert.equal(treeLengthScale(-10, 22), treeLengthScale(-1, 22));
-  assert.equal(treeLengthScale(100, 22), treeLengthScale(21, 22));
+const frameFor = (nodes, multiplier = 1) => ({ files: nodes.map(node => ({ ...node, size: node.size === null ? null : node.size * multiplier })), activeIds: nodes.map(node => node.id) });
+
+test('current repository bytes control growth and shrink, independent of commit position', () => {
+  const model = weightedFixture(), layout = createTreeLayout(model);
+  const early = createTreePose(layout, { frame: frameFor(model.nodes), index: -1 });
+  const grown = createTreePose(layout, { frame: frameFor(model.nodes, 8), index: 4 });
+  const shrunk = createTreePose(layout, { frame: frameFor(model.nodes), index: 20 });
+  assert.deepEqual(early, shrunk, 'identical current quantities must reproduce identical geometry');
+  assert.deepEqual(grown.trunk[0], [0, -40, 0]);
+  assert.ok(Math.abs(branchLength(grown.folders[0]) / branchLength(early.folders[0]) - 2) < 1e-10);
+  assert.equal(grown.trunkRadius / early.trunkRadius, 2);
+  assert.equal(grown.lengthScale / early.lengthScale, 2);
+  for (const folder of grown.folders) assert.equal(folder.droop, 0);
 });
 
-test('many present leaves extend a branch sideways and lower its tip; removal unloads it', () => {
-  const model = weightedFixture();
-  const layout = createTreeLayout(model);
-  const activeIds = model.nodes.slice(0, 2).map(node => node.id);
-  const light = createTreePose(layout, { index: 9, commitCount: 10, activeIds });
-  const heavy = createTreePose(layout, { index: 9, commitCount: 10 });
-  const lightBranch = light.folders.find(folder => folder.path === 'src');
-  const heavyBranch = heavy.folders.find(folder => folder.path === 'src');
-  assert.equal(heavyBranch.loadCount, 72);
-  assert.equal(lightBranch.loadCount, 2);
-  assert.ok(heavyBranch.lengthFactor > 1.9);
-  assert.ok(branchLength(heavyBranch) > branchLength(lightBranch) * 1.2);
-  assert.ok(heavyBranch.position[1] < lightBranch.position[1] - 20);
-  const reach = branch => Math.hypot(branch.position[0] - branch.curve[0][0], branch.position[2] - branch.curve[0][2]);
-  assert.ok(reach(heavyBranch) > reach(lightBranch) * 1.8);
-  assert.deepEqual(createTreePose(layout, { index: 9, commitCount: 10, activeIds }), light);
+test('each branch radius follows its own descendant bytes, including omitted canopy files', () => {
+  const model = weightedFixture(80);
+  model.nodes.push({ id: 'elsewhere', path: 'tests/check.js', size: 1000 });
+  const layout = createTreeLayout(model, { maxNodes: 15 });
+  const before = createTreePose(layout, { frame: frameFor(model.nodes) });
+  const frame = frameFor(model.nodes);
+  frame.files.find(node => node.id === 'elsewhere').size *= 8;
+  const after = createTreePose(layout, { frame });
+  const branch = pose => pose.folders.find(folder => folder.path === 'src');
+  const expected = model.nodes.filter(node => node.path.startsWith('src/') && node.size !== null).reduce((sum, node) => sum + node.size, 0);
+  assert.equal(branch(before).loadBytes, expected);
+  assert.equal(branch(before).loadCount, 80);
+  assert.equal(branch(after).radius, branch(before).radius, 'growth in another subtree must not thin this branch');
+  assert.ok(after.trunkRadius > before.trunkRadius);
+  assert.equal(before.nodes.length, 15);
 });
 
-test('bending keeps every child branch and leaf twig attached to the posed parent', () => {
-  const model = weightedFixture();
-  const layout = createTreeLayout(model);
-  for (const index of [-1, 6, 15]) {
-    const pose = createTreePose(layout, { index, commitCount: 16, activeIds: model.nodes.slice(0, 49).map(node => node.id) });
+test('byte scaling keeps all branches and leaf twigs attached to their authored parent', () => {
+  const model = weightedFixture(), layout = createTreeLayout(model);
+  for (const multiplier of [0, 1, 8]) {
+    const pose = createTreePose(layout, { frame: frameFor(model.nodes, multiplier) });
     const byPath = new Map(pose.folders.map(folder => [folder.path, folder]));
     for (const folder of pose.folders) {
       if (!folder.path) continue;
@@ -158,47 +164,104 @@ test('bending keeps every child branch and leaf twig attached to the posed paren
   }
 });
 
-test('cursor seeks preserve byte-based leaf areas and reproduce poses without mutating layout', () => {
-  const model = buildModel(createRepositoryFixture());
-  const layout = createTreeLayout(model), before = JSON.stringify(layout);
-  const poses = new Map();
-  for (const index of [4, 21, -1, 7, 4, -1, 21]) {
-    const pose = createTreePose(layout, { index, commitCount: model.commits.length, activeIds: stateAt(model, index).activeIds });
-    if (poses.has(index)) assert.deepEqual(pose, poses.get(index));
-    else poses.set(index, pose);
-    assert.deepEqual(pose.nodes.map(node => [node.id, node.scale, node.areaRatio, node.sizeKnown]), layout.nodes.map(node => [node.id, node.scale, node.areaRatio, node.sizeKnown]));
-  }
+test('historical byte seeks resize leaves and reproduce exact poses without mutating the base', () => {
+  const model = weightedFixture(), layout = createTreeLayout(model), before = JSON.stringify(layout);
+  const frames = [frameFor(model.nodes), frameFor(model.nodes, 4), frameFor(model.nodes, 0.25)];
+  const poses = frames.map(frame => createTreePose(layout, { frame }));
+  const knownId = model.nodes.find(node => node.size > 0).id;
+  const leaf = pose => pose.nodes.find(node => node.id === knownId);
+  assert.equal(leaf(poses[1]).scale / leaf(poses[0]).scale, 2);
+  assert.equal(leaf(poses[2]).scale / leaf(poses[0]).scale, 0.5);
+  for (const index of [2, 0, 1, 0, 2]) assert.deepEqual(createTreePose(layout, { frame: frames[index] }), poses[index]);
   assert.equal(JSON.stringify(layout), before);
 });
 
-test('load counts use active mapped descendants once, including unknown and zero-size leaves', () => {
-  const model = weightedFixture(80);
-  model.nodes.push({ id: 'root-file', path: 'README.md', size: 0 });
-  const layout = createTreeLayout(model, { maxNodes: 35, maxFolders: 2 });
-  const ids = layout.nodes.slice(0, 13).map(node => node.id);
-  const pose = createTreePose(layout, { index: 0, commitCount: 1, activeIds: [...ids, ids[0], 'unmapped-id'] });
-  const root = pose.folders.find(folder => !folder.path);
-  assert.equal(root.loadCount, 13);
-  for (const folder of pose.folders.filter(folder => folder.path)) {
-    const expected = pose.nodes.filter(node => ids.includes(node.id) && (node.folder === folder.path || node.folder.startsWith(`${folder.path}/`))).length;
-    assert.equal(folder.loadCount, expected);
-  }
-  assert.equal(pose.nodes.length, layout.nodes.length);
+test('current byte sizes follow stable canopy slots across renames, while inactive files contribute nothing', () => {
+  const model = { nodes: [{ id: 'a', path: 'src/a.js', size: 100 }, { id: 'b', path: 'test/b.js', size: 200 }], commits: [] };
+  const layout = createTreeLayout(model);
+  const pose = createTreePose(layout, { frame: { files: [{ id: 'a', path: 'test/renamed.js', size: 400 }, { id: 'b', path: 'test/b.js', size: null }], activeIds: ['a'] } });
+  assert.equal(pose.knownBytes, 400);
+  assert.equal(pose.folders.find(folder => folder.path === 'src').loadBytes, 400);
+  assert.equal(pose.folders.find(folder => folder.path === 'test').loadBytes, 0);
+  assert.equal(pose.nodes.find(node => node.id === 'a').size, 400);
+  assert.equal(pose.nodes.find(node => node.id === 'b').size, null);
 });
 
-test('empty, root-only, and single-commit trees produce finite bounded poses', () => {
-  for (const nodes of [[], [{ id: 'readme', path: 'README.md', size: null }]]) {
-    const layout = createTreeLayout({ nodes, commits: [] });
-    for (const commitCount of [0, 1, 20]) {
-      const pose = createTreePose(layout, { index: commitCount - 1, commitCount });
-      assert.ok(pose.trunk.flat().every(Number.isFinite));
-      assert.ok(pose.center.every(Number.isFinite));
-      assert.ok(Number.isFinite(pose.extent) && pose.extent > 0);
-      for (const node of pose.nodes) for (const axis of [0, 1, 2]) {
-        assert.ok(node.position[axis] > pose.bounds.min[axis]);
-        assert.ok(node.position[axis] < pose.bounds.max[axis]);
-      }
-    }
+test('complete snapshot totals include files beyond the loaded model and partial totals remain explicit', () => {
+  const layout = createTreeLayout({ nodes: [{ id: 'a', path: 'a.js', size: 16 }], commits: [] });
+  const sizeSummary = { knownBytes: TREE_REFERENCE_BYTES, totalBytes: null, knownFiles: 20, unknownFiles: 1, fileCount: 21, complete: false };
+  const pose = createTreePose(layout, { frame: { files: [{ id: 'a', path: 'a.js', size: 16 }], activeIds: ['a'], sizeSummary } });
+  assert.equal(pose.lengthScale, 1);
+  assert.equal(pose.folders[0].loadBytes, TREE_REFERENCE_BYTES);
+  assert.deepEqual(pose.sizeSummary, sizeSummary);
+  assert.equal(pose.totalBytes, null);
+  assert.equal(pose.sizeComplete, false);
+});
+
+test('pose bounds contain actual unclamped leaf vertices, including very large files', () => {
+  const layout = createTreeLayout({ nodes: [{ id: 'large', path: 'large.bin', size: 1e9 }], commits: [] });
+  const pose = createTreePose(layout), leaf = pose.nodes[0];
+  assert.ok(leaf.scale > 100);
+  for (let axis = 0; axis < 3; axis++) {
+    assert.ok(pose.bounds.min[axis] <= leaf.position[axis] - 3.9 * leaf.scale);
+    assert.ok(pose.bounds.max[axis] >= leaf.position[axis] + 3.9 * leaf.scale);
   }
-  assert.ok(Number.isFinite(treeLengthScale(Infinity, Infinity)));
+});
+
+test('empty, unknown-only and zero-byte trees have finite bounds and honest zero quantitative size', () => {
+  for (const nodes of [[], [{ id: 'readme', path: 'README.md', size: null }], [{ id: 'empty', path: 'empty.js', size: 0 }]]) {
+    const pose = createTreePose(createTreeLayout({ nodes, commits: [] }));
+    assert.ok(pose.trunk.flat().every(Number.isFinite));
+    assert.ok(pose.center.every(Number.isFinite));
+    assert.ok(Number.isFinite(pose.extent) && pose.extent > 0);
+    assert.equal(pose.lengthScale, 0);
+    assert.equal(pose.trunkRadius, 0);
+    assert.equal(pose.knownBytes, 0);
+    for (const node of pose.nodes) assert.ok(node.position.every(Number.isFinite));
+  }
+});
+
+
+test('actual canopy buffers resize area, stem endpoints and picking together, including a zero-byte frame', () => {
+  const model = buildModel({
+    repository: { name: 'Byte animation' }, files: [{ path: 'file.js', size: 0 }],
+    commits: [
+      { sha: 'grow', files: [{ path: 'file.js', status: 'modified', sizeBefore: 16384, sizeAfter: 65536 }] },
+      { sha: 'empty', files: [{ path: 'file.js', status: 'modified', sizeBefore: 65536, sizeAfter: 0 }] },
+    ],
+  });
+  const scene = Object.create(TreeScene.prototype);
+  scene.model = model; scene.layout = createTreeLayout(model);
+  const pose = createTreePose(scene.layout, { frame: stateAt(model, -1) });
+  scene.lengthScale = pose.lengthScale; scene.activeIds = new Set(stateAt(model, -1).activeIds);
+  scene.animateTransition = true; scene.labelRecords = []; scene.folders = new Map(); scene.nodes = new Map();
+  for (const folder of pose.folders) {
+    const curve = new THREE.CubicBezierCurve3(...folder.curve.map(point => new THREE.Vector3(...point)));
+    scene.folders.set(folder.path, { ...folder, curve, position: new THREE.Vector3(...folder.position), mesh: new THREE.Mesh(new THREE.TubeGeometry(curve, folder.path ? 28 : 44, 1, folder.path ? 9 : 14)) });
+  }
+  for (const node of pose.nodes) {
+    const position = new THREE.Vector3(...node.position), quaternion = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(...node.direction));
+    const curve = new THREE.QuadraticBezierCurve3(new THREE.Vector3(...node.stemStart), new THREE.Vector3(...node.stemControl), position.clone());
+    scene.nodes.set(node.id, { size: node.scale, position, quaternion, center: new THREE.Vector3(), mesh: new THREE.Mesh(createLeafGeometry()), pick: new THREE.Object3D(), link: new THREE.Mesh(new THREE.TubeGeometry(curve, 12, .1, 5)) });
+  }
+  const leaf = [...scene.nodes.values()][0], branch = scene.folders.get('');
+  const ids = [leaf.link.geometry.uuid, branch.mesh.geometry.uuid];
+  scene._preparePose(0); scene._updatePose(.5);
+  assert.ok(Math.abs(leaf.size ** 2 - 2.5) < 1e-10, 'halfway animation must interpolate area, not linear leaf size');
+  assert.ok(Math.abs(leaf.pick.scale.x - leaf.size * 1.75) < 1e-10);
+  const expectedCenter = new THREE.Vector3(0, 1.85 * leaf.size, 0).applyQuaternion(leaf.quaternion).add(leaf.position);
+  assert.ok(leaf.pick.position.distanceTo(expectedCenter) < 1e-10);
+  scene._updatePose(1);
+  assert.equal(leaf.size, 2); assert.equal(leaf.currentBytes, 65536);
+  scene._preparePose(1); scene._updatePose(1);
+  assert.equal(leaf.size, 0); assert.equal(leaf.pick.scale.x, 1, 'empty files retain an invisible interaction target');
+  assert.equal(scene.lengthScale, 0); assert.equal(branch.radius, 0);
+  assert.deepEqual([leaf.link.geometry.uuid, branch.mesh.geometry.uuid], ids, 'animated resizing must reuse surface buffers');
+  for (const geometry of [leaf.link.geometry, branch.mesh.geometry]) {
+    assert.ok(geometry.attributes.position.array.every(Number.isFinite));
+    const normals = geometry.attributes.normal.array;
+    for (let index = 0; index < normals.length; index += 3) assert.ok(Math.abs(Math.hypot(normals[index], normals[index + 1], normals[index + 2]) - 1) < 1e-5, 'collapsed zero-byte geometry must keep finite unit PBR normals');
+    geometry.dispose();
+  }
+  leaf.mesh.geometry.dispose();
 });

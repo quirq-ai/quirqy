@@ -79,6 +79,7 @@ function apiCommit(sha, parents, files) {
     ['/repos/example/sample', { default_branch: 'main', name: 'sample', full_name: 'example/sample' }],
     ['/repos/example/sample/commits/main?per_page=100&page=1', apiCommit('merge', ['first', 'side'], [])],
     ['/repos/example/sample/git/trees/tree-merge?recursive=1', { tree: [{ type: 'blob', path: 'a' }, { type: 'blob', path: 'b' }], truncated: false }],
+    ['/repos/example/sample/git/trees/tree-first?recursive=1', { tree: [{ type: 'blob', path: 'a' }], truncated: false }],
     ['/repos/example/sample/compare/first...merge?per_page=1', { files: [{ filename: 'b', status: 'added', additions: 4, deletions: 0 }] }],
     ['/repos/example/sample/commits/first?per_page=100&page=1', apiCommit('first', [], [{ filename: 'a', status: 'added', additions: 2, deletions: 0 }])],
   ]);
@@ -107,6 +108,7 @@ test('URL imports default to 20 commits and preserve smaller explicit windows', 
     if (url.endsWith('/repos/example/sample')) return mockResponse({ default_branch: 'main' });
     if (url.includes('/git/trees/')) return mockResponse({ tree: [{ type: 'blob', path: 'a.js' }], truncated: false });
     const ref = new URL(url).pathname.split('/').at(-1);
+    if (url.includes('/git/commits/')) return mockResponse({ tree: { sha: `tree-${ref}` } });
     const index = ref === 'main' ? 50 : Number(ref.slice(1));
     assert.ok(index > 0 && index <= 50, `Unexpected commit reference: ${ref}`);
     return mockResponse(apiCommit(`c${index}`, [`c${index - 1}`], [
@@ -117,11 +119,11 @@ test('URL imports default to 20 commits and preserve smaller explicit windows', 
     calls.length = 0;
     const data = await loadRepository('https://github.com/example/sample', options);
     assert.equal(data.commits.length, expected);
-    assert.equal(calls.filter(url => url.includes('/commits/')).length, expected);
+    assert.equal(calls.filter(url => url.includes('/sample/commits/')).length, expected);
     assert.equal(data.commits[0].sha, `c${51 - expected}`);
     assert.equal(data.commits.at(-1).sha, 'c50');
     assert.equal(data.repository.headSha, 'c50');
-    assert.equal(calls.length, expected + 2, 'only metadata, pinned tree and requested commits are fetched');
+    assert.equal(calls.length, expected * 2 + 3, 'metadata, selected commits, unique trees and boundary metadata are fetched');
   }
 });
 
@@ -153,6 +155,7 @@ test('URL imports default to 20 commits and preserve smaller explicit windows', 
   t.mock.method(globalThis, 'fetch', async url => {
     if (url.endsWith('/repos/example/sample')) return mockResponse({ default_branch: 'main' });
     if (url.includes('/git/trees/')) return mockResponse({ tree, truncated: false });
+    if (url.includes('/git/commits/')) return mockResponse({ tree: { sha: 'tree-parent' } });
     return mockResponse(apiCommit('head', ['parent'], [{ filename: 'z/changed.js', status: 'modified', additions: 4, deletions: 2 }]));
   });
   const data = await loadRepository('https://github.com/example/sample', { limit: 1 });

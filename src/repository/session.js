@@ -48,6 +48,43 @@ function normalizeAuthorProfile(profile) {
   return { login: profile.login, avatarUrl, url: `https://github.com/${encodeURIComponent(profile.login)}` };
 }
 
+/** Keep measured byte history through cache/refresh without trusting extra data. */
+function normalizeSizeHistory(history, paths, commits) {
+  requireValue(history && history.version === 1 && Array.isArray(history.commits)
+    && history.commits.length === commits.length, 'Invalid byte history.');
+  const normalize = (source, expectedSha, checkSha = true) => {
+    requireValue(source && typeof source === 'object', 'Missing byte snapshot.');
+    const commitSha = source.sha === null ? null : sha(source.sha);
+    requireValue(!checkSha || commitSha === expectedSha, 'Byte snapshot belongs to another commit.');
+    requireValue(Array.isArray(source.files) && source.files.length <= paths.size, 'Invalid byte snapshot files.');
+    const seen = new Set();
+    let selectedBytes = 0, selectedKnown = 0;
+    const files = source.files.map(file => {
+      const filePath = path(file?.path);
+      requireValue(paths.has(filePath) && !seen.has(filePath), 'Invalid byte snapshot path.');
+      seen.add(filePath);
+      const size = file.size === null ? null : count(file.size);
+      if (size !== null) { selectedBytes += size; selectedKnown++; }
+      return { path: filePath, size };
+    });
+    const knownBytes = count(source.knownBytes), fileCount = count(source.fileCount);
+    const knownFiles = count(source.knownFiles), unknownFiles = count(source.unknownFiles);
+    requireValue(Number.isSafeInteger(selectedBytes) && knownFiles + unknownFiles === fileCount
+      && fileCount >= files.length && knownFiles >= selectedKnown
+      && unknownFiles >= files.length - selectedKnown && knownBytes >= selectedBytes, 'Inconsistent byte coverage.');
+    if (fileCount === files.length) requireValue(knownBytes === selectedBytes, 'Byte total does not match its files.');
+    requireValue(typeof source.complete === 'boolean', 'Invalid byte coverage flag.');
+    const totalBytes = source.totalBytes === null ? null : count(source.totalBytes);
+    requireValue(source.complete ? unknownFiles === 0 && totalBytes === knownBytes : totalBytes === null,
+      'Partial bytes cannot claim an exact repository total.');
+    return { sha: commitSha, ...(source.treeSha == null ? {} : { treeSha: sha(source.treeSha) }),
+      files, totalBytes, knownBytes, fileCount, knownFiles, unknownFiles, complete: source.complete };
+  };
+  const hasBoundary = commits.length && owns(commits[0], 'firstParent');
+  return { version: 1, baseline: normalize(history.baseline, hasBoundary ? commits[0].firstParent : null, Boolean(hasBoundary)),
+    commits: history.commits.map((snapshot, index) => normalize(snapshot, commits[index].sha)) };
+}
+
 /** Copy an allowlist of metadata fields, never arbitrary imported properties. */
 function normalizeDataset(input) {
   requireValue(input && typeof input === 'object' && input.repository, 'Missing repository metadata.');
@@ -101,6 +138,9 @@ function normalizeDataset(input) {
         requireValue(paths.has(value.previousPath), 'Rename source is missing from the file union.');
       }
       requireValue(!['renamed', 'copied'].includes(status) || value.previousPath, 'Missing previous file path.');
+      for (const key of ['sizeBefore', 'sizeAfter']) {
+        if (owns(file, key)) value[key] = file[key] === null ? null : count(file[key]);
+      }
       if (file.binary != null) {
         requireValue(typeof file.binary === 'boolean', 'Invalid binary marker.');
         value.binary = file.binary;
@@ -114,6 +154,7 @@ function normalizeDataset(input) {
       partial: commit.partial === true, files: changes,
     };
     if (commit.authorProfile != null) value.authorProfile = normalizeAuthorProfile(commit.authorProfile);
+    if (commit.treeSha != null) value.treeSha = sha(commit.treeSha);
     if (owns(commit, 'firstParent')) value.firstParent = commit.firstParent === null ? null : sha(commit.firstParent);
     return value;
   });
@@ -128,6 +169,7 @@ function normalizeDataset(input) {
     label: string(input.coverage?.label, 2048), limitations: limitations.map(note => string(note, 8192)),
   };
   const dataset = { repository, files, commits, coverage };
+  if (input.sizeHistory != null) dataset.sizeHistory = normalizeSizeHistory(input.sizeHistory, paths, commits);
   if (input.provenance && typeof input.provenance === 'object') {
     const source = input.provenance;
     const provenance = {};
@@ -143,7 +185,7 @@ function normalizeDataset(input) {
       requireValue(validDate(source.capturedAt), 'Invalid provenance date.');
       provenance.capturedAt = source.capturedAt;
     }
-    for (const key of ['completeHeadTree', 'completeCommitDiffs']) {
+    for (const key of ['completeHeadTree', 'completeCommitDiffs', 'completeSizeHistory']) {
       if (source[key] != null) { requireValue(typeof source[key] === 'boolean', 'Invalid coverage flag.'); provenance[key] = source[key]; }
     }
     if (source.diff && typeof source.diff === 'object') {

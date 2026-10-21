@@ -1,4 +1,5 @@
 import { normalizeAuthorProfile } from './author-profile.js';
+import { createSizeSnapshot } from './size-history.js';
 
 // Public GitHub metadata only. No source execution, credentials or backend.
 const API = 'https://api.github.com';
@@ -67,6 +68,15 @@ export async function loadRepository(input, { signal, onProgress = () => {}, lim
   const count = Math.min(MAX_COMMITS, Math.max(1, Math.floor(Number(limit) || DEFAULT_REPOSITORY_COMMIT_LIMIT)));
   const base = `/repos/${encodeURIComponent(parsed.owner)}/${encodeURIComponent(parsed.repo)}`;
   const limitations = [];
+  const trees = new Map();
+  const readTree = treeSha => {
+    if (!trees.has(treeSha)) trees.set(treeSha, request(`${base}/git/trees/${encodeURIComponent(treeSha)}?recursive=1`, signal).then(({ data }) => {
+      if (!Array.isArray(data.tree)) throw new Error('GitHub did not return a usable file tree.');
+      return data;
+    }));
+    return trees.get(treeSha);
+  };
+  const entries = tree => tree.tree.filter(entry => entry.type === 'blob' || entry.type === 'commit');
   const note = text => { if (!limitations.includes(text)) limitations.push(text); };
   const progress = message => { checkAbort(signal); onProgress(message); };
   progress('Reading repository details…');
@@ -78,10 +88,9 @@ export async function loadRepository(input, { signal, onProgress = () => {}, lim
   const treeSha = detail.data.commit?.tree?.sha;
   if (!headSha || !treeSha) throw new Error('GitHub did not return a usable commit and file tree.');
   progress('Reading the pinned file tree…');
-  const { data: tree } = await request(`${base}/git/trees/${encodeURIComponent(treeSha)}?recursive=1`, signal);
-  if (!Array.isArray(tree.tree)) throw new Error('GitHub did not return a usable file tree.');
+  const tree = await readTree(treeSha);
   if (tree.truncated) note('GitHub truncated the recursive tree. Some unchanged paths may be absent; membership for unreturned paths is inferred from the sampled changes.');
-  const treeFiles = tree.tree.filter(entry => entry.type === 'blob' || entry.type === 'commit')
+  const treeFiles = entries(tree)
     .map(entry => ({ path: entry.path, ...(Number.isFinite(entry.size) ? { size: entry.size } : {}) }))
     .sort(comparePath);
   if (tree.tree.some(entry => entry.type === 'commit')) note('Submodules are shown as repository entries; their internal history is not loaded.');
@@ -112,6 +121,8 @@ export async function loadRepository(input, { signal, onProgress = () => {}, lim
     if (partial) note(`Commit ${String(data.sha).slice(0, 7)} shows at most ${MAX_DIFF_FILES} changed files; replay and totals are partial for that commit.`);
     commits.push({
       sha: data.sha,
+      treeSha: data.commit?.tree?.sha,
+      firstParent: parents[0]?.sha || null,
       message: data.commit?.message || '(No commit message)',
       author: data.commit?.author?.name || data.author?.login || 'Unknown author',
       authorProfile: normalizeAuthorProfile(data.author),
@@ -161,6 +172,46 @@ export async function loadRepository(input, { signal, onProgress = () => {}, lim
     ...(headByPath.get(path)?.size != null ? { size: headByPath.get(path).size } : {}),
     existsAtHead: headByPath.has(path) || (tree.truncated && observedHead.get(path) === true),
   }));
+  // Tree metadata gives exact byte sizes for text and binary blobs without
+  // downloading source contents. Reuse identical tree objects, including head,
+  // and keep at most two historical tree requests in flight.
+  const boundarySha = commits[0]?.firstParent || null;
+  let boundaryTreeSha = null;
+  if (boundarySha) {
+    progress('Reading the history boundary tree…');
+    const { data: boundary } = await request(`${base}/git/commits/${encodeURIComponent(boundarySha)}`, signal);
+    boundaryTreeSha = boundary.tree?.sha;
+    if (!boundaryTreeSha) throw new Error('GitHub did not return a usable history boundary tree.');
+  }
+  const pendingTrees = [...new Set([...commits.map(commit => commit.treeSha), boundaryTreeSha].filter(Boolean))];
+  if (commits.some(commit => !commit.treeSha)) throw new Error('GitHub did not return a usable historical file tree.');
+  let nextTree = 0, completedTrees = 0, failure;
+  const worker = async () => {
+    while (nextTree < pendingTrees.length && !failure) {
+      const sha = pendingTrees[nextTree++];
+      try {
+        progress(`Measuring file bytes in tree ${completedTrees + 1} of ${pendingTrees.length}…`);
+        await readTree(sha);
+        completedTrees++;
+      } catch (error) { failure ||= error; }
+    }
+  };
+  await Promise.all([worker(), worker()]);
+  if (failure) throw failure;
+  checkAbort(signal);
+  const snapshot = async (sha, treeSha) => {
+    if (!treeSha) return createSizeSnapshot([], { sha, selectedPaths: selected });
+    const data = await readTree(treeSha);
+    if (data.truncated) note('Some historical trees were truncated by GitHub. Byte totals are partial where tree entries or their sizes are unavailable.');
+    return createSizeSnapshot(entries(data), { sha, treeSha, complete: !data.truncated, selectedPaths: selected });
+  };
+  const sizeHistory = {
+    version: 1,
+    baseline: await snapshot(boundarySha, boundaryTreeSha),
+    commits: await Promise.all(commits.map(commit => snapshot(commit.sha, commit.treeSha))),
+  };
+  const partialSizes = [sizeHistory.baseline, ...sizeHistory.commits].some(snapshot => !snapshot.complete);
+  if (partialSizes) note('Unknown file sizes, including submodule entries, remain unknown; displayed known bytes are not presented as a complete repository total.');
   note('Line additions and deletions describe Git diffs; they do not measure runtime behavior, code quality or individual productivity.');
   progress('Preparing the repository map…');
   return {
@@ -175,8 +226,9 @@ export async function loadRepository(input, { signal, onProgress = () => {}, lim
     },
     files,
     commits,
+    sizeHistory,
     coverage: {
-      label: `${commits.length} first-parent commits · pinned ${String(headSha).slice(0, 7)}${tree.truncated || omittedChanges || omittedTree || commits.some(commit => commit.partial) ? ' · partial coverage' : ''}`,
+      label: `${commits.length} first-parent commits · pinned ${String(headSha).slice(0, 7)}${tree.truncated || omittedChanges || omittedTree || partialSizes || commits.some(commit => commit.partial) ? ' · partial coverage' : ''}`,
       limitations,
     },
   };

@@ -7,35 +7,31 @@ const scale = (value, factor) => value.map(component => component * factor);
 const lerp = (a, b, amount) => a.map((value, index) => value + (b[index] - value) * amount);
 const normalize = value => scale(value, 1 / (Math.hypot(...value) || 1));
 const subtract = (a, b) => a.map((value, index) => value - b[index]);
-const dot = (a, b) => a.reduce((sum, value, index) => sum + value * b[index], 0);
-const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
 const random = value => stableHash(value) / 4294967295;
 
-export const LEAF_AREA_MIN = 0.16;
-export const LEAF_AREA_MAX = 6.25;
+export const TREE_REFERENCE_BYTES = 1024 * 1024;
+export const LEAF_REFERENCE_BYTES = 16 * 1024;
+export const UNKNOWN_LEAF_SCALE = 0.55;
+const knownSize = size => typeof size === 'number' && Number.isFinite(size) && size >= 0;
 
-/** Byte sizes describe the pinned tree, not reconstructed historical contents. */
+/** Fixed calibration across repositories and every frame of their history. */
 export function leafSizing(nodes) {
-  const known = nodes.filter(node => typeof node.size === 'number' && Number.isFinite(node.size) && node.size >= 0);
-  const positive = known.map(node => node.size).filter(size => size > 0).sort((a, b) => a - b);
-  const referenceBytes = positive[Math.floor(positive.length / 2)] || 1;
-  return {
-    referenceBytes, minAreaRatio: LEAF_AREA_MIN, maxAreaRatio: LEAF_AREA_MAX,
-    knownCount: known.length, unknownCount: nodes.length - known.length,
-    clampedCount: known.filter(node => node.size / referenceBytes < LEAF_AREA_MIN || node.size / referenceBytes > LEAF_AREA_MAX).length,
-  };
+  const known = nodes.filter(node => knownSize(node.size));
+  return { referenceBytes: LEAF_REFERENCE_BYTES, knownCount: known.length, unknownCount: nodes.length - known.length, clampedCount: 0 };
 }
 
-export function leafScale(node, sizing) {
-  const known = typeof node.size === 'number' && Number.isFinite(node.size) && node.size >= 0;
-  const areaRatio = known ? Math.max(sizing.minAreaRatio, Math.min(sizing.maxAreaRatio, node.size / sizing.referenceBytes)) : 0.65;
-  return { sizeKnown: known, areaRatio, scale: Math.sqrt(areaRatio) };
+export function leafScale(node) {
+  const sizeKnown = knownSize(node.size);
+  const areaRatio = sizeKnown ? node.size / LEAF_REFERENCE_BYTES : null;
+  return { sizeKnown, areaRatio, scale: sizeKnown ? Math.sqrt(areaRatio) : UNKNOWN_LEAF_SCALE };
 }
 
-/** Growth is an absolute function of the cursor, so replay and seeking agree. */
-export function trunkRadius(index) {
-  return 1.18 + Math.log1p(Math.max(0, Math.floor(Number(index) || 0) + 1)) * 0.48;
+/** Linear dimensions encode the cube root of the current known byte subtotal. */
+export function treeByteScale(bytes) {
+  return knownSize(bytes) ? Math.cbrt(bytes / TREE_REFERENCE_BYTES) : 0;
 }
+export const treeLengthScale = treeByteScale;
+export function trunkRadius(bytes) { return 1.18 * treeByteScale(bytes); }
 
 // Cubic interpolation is shared by the pure layout and Three.js curves.
 export const treePoint = (points, t) => {
@@ -83,7 +79,7 @@ export function createTreeLayout(model, options = {}) {
       child.curve = [start, add(start, [vector[0] * 0.18, Math.max(5, vector[1] * 0.55), vector[2] * 0.18]), add(lerp(start, end, 0.72), [0, 2.8, 0]), end];
       child.position = end;
       child.direction = normalize(vector);
-      child.branchWeight = Math.max(0.16, Math.min(0.54, Math.sqrt(child.count / Math.max(1, base.nodes.length)) * 0.82)) * Math.pow(0.76, child.depth - 1);
+      child.branchWeight = 0.82 * Math.pow(0.76, child.depth - 1);
       populate(child);
     });
   };
@@ -112,7 +108,7 @@ export function createTreeLayout(model, options = {}) {
       nodes.push({ ...node, position, stemStart, stemControl, attachmentT, direction, roll: (random(node.id) - 0.5) * 1.1 });
     });
   }
-  // Use all loaded file bytes as the reference, even when the visible map is capped.
+  // Retain all loaded identities for byte totals, even when the visible canopy is capped.
   const sizing = leafSizing(model.nodes || []);
   for (const node of nodes) Object.assign(node, leafScale(node, sizing));
   const points = [...trunk, ...folders.map(folder => folder.position), ...nodes.map(node => node.position)];
@@ -120,104 +116,83 @@ export function createTreeLayout(model, options = {}) {
   const max = [0, 1, 2].map(axis => Math.max(...points.map(point => point[axis])) + 6);
   const center = lerp(min, max, 0.5);
   const extent = Math.max(...points.map(point => Math.hypot(...point.map((value, axis) => value - center[axis])))) + 6;
-  return { ...base, nodes, folders: folders.map(({ children, ...folder }) => folder), trunk, sizing, center, extent, bounds: { min, max } };
+  return { ...base, byteNodes: (model.nodes || []).map(node => ({ ...node })), nodes, folders: folders.map(({ children, ...folder }) => folder), trunk, sizing, center, extent, bounds: { min, max } };
 }
 
 
-/** Every loaded commit adds the same visible amount of longitudinal growth. */
-export function treeLengthScale(index, commitCount) {
-  const count = Math.max(0, Number.isFinite(Number(commitCount)) ? Math.floor(Number(commitCount)) : 0);
-  const cursor = Math.max(-1, Math.min(count - 1, Number.isFinite(Number(index)) ? Math.floor(Number(index)) : -1));
-  return 0.42 + (count ? (cursor + 1) / count : 0) * 0.9;
-}
-
-function tangent(points, t) {
-  const u = 1 - t;
-  return normalize(add(add(scale(subtract(points[1], points[0]), 3 * u * u), scale(subtract(points[2], points[1]), 6 * u * t)), scale(subtract(points[3], points[2]), 3 * t * t)));
-}
-
-// Minimal rotation keeps each twig's deterministic side of its parent limb.
-function rotateBetween(value, from, to) {
-  const axis = cross(from, to), cosine = Math.max(-1, Math.min(1, dot(from, to)));
-  if (cosine > 0.999999) return [...value];
-  if (cosine < -0.999999) {
-    const perpendicular = normalize(cross(from, Math.abs(from[0]) < 0.9 ? [1, 0, 0] : [0, 1, 0]));
-    return subtract(scale(perpendicular, 2 * dot(value, perpendicular)), value);
+function poseBounds(folders, nodes) {
+  const min = [Infinity, Infinity, Infinity], max = [-Infinity, -Infinity, -Infinity];
+  const include = (point, radius = 0) => point.forEach((value, axis) => {
+    min[axis] = Math.min(min[axis], value - radius);
+    max[axis] = Math.max(max[axis], value + radius);
+  });
+  // Control-point hulls contain the curves. Four units contain the authored
+  // leaf at any orientation; leaf size is independent of the canopy scale.
+  for (const folder of folders) for (const point of folder.curve) include(point, folder.radius * 1.8);
+  for (const node of nodes) {
+    include(node.stemStart); include(node.stemControl);
+    include(node.position, node.active ? node.scale * 4 : 0);
   }
-  return add(add(value, cross(axis, value)), scale(cross(axis, cross(axis, value)), 1 / (1 + cosine)));
-}
-
-function poseBounds(trunk, folders, nodes) {
-  // A Bézier curve stays in its control-point hull. Include those points, twigs,
-  // and the largest allowed leaf so fitting does not clip a bent branch.
-  const points = [...trunk, ...folders.flatMap(folder => folder.curve), ...nodes.flatMap(node => [node.position, node.stemStart, node.stemControl])];
-  const margin = 10;
-  const min = [0, 1, 2].map(axis => Math.min(...points.map(point => point[axis])) - margin);
-  const max = [0, 1, 2].map(axis => Math.max(...points.map(point => point[axis])) + margin);
+  for (const axis of [0, 1, 2]) { min[axis] -= 2; max[axis] += 2; }
   const center = lerp(min, max, 0.5);
-  const extent = Math.max(...points.map(point => Math.hypot(...subtract(point, center)))) + margin;
-  return { bounds: { min, max }, center, extent };
+  return { bounds: { min, max }, center, extent: Math.hypot(...subtract(max, min)) / 2 };
 }
 
-/**
- * Absolute history pose: growth depends on the cursor, load on present leaves.
- * It changes branch and twig lengths, never the byte-encoded leaf surface area.
- */
-export function createTreePose(layout, { index = -1, commitCount = 0, activeIds } = {}) {
-  const active = activeIds === undefined ? new Set(layout.nodes.map(node => node.id)) : activeIds instanceof Set ? activeIds : new Set(activeIds || []);
-  const lengthScale = treeLengthScale(index, commitCount);
+/** Current byte quantities determine size; commit position never enters it. */
+export function createTreePose(layout, { frame, activeIds } = {}) {
+  const source = frame?.files || layout.byteNodes || layout.nodes;
+  const requested = activeIds ?? frame?.activeIds;
+  const active = requested === undefined
+    ? new Set(source.filter(node => node.exists !== false && node.existsAtHead !== false).map(node => node.id))
+    : requested instanceof Set ? requested : new Set(requested || []);
+  const files = source.filter(node => active.has(node.id));
+  const byId = new Map(files.map(node => [node.id, node]));
+  const knownFiles = files.filter(node => knownSize(node.size));
+  const computedBytes = knownFiles.reduce((sum, node) => sum + node.size, 0);
+  const knownBytes = knownSize(frame?.sizeSummary?.knownBytes) ? frame.sizeSummary.knownBytes : computedBytes;
+  const sizeSummary = frame?.sizeSummary ? { ...frame.sizeSummary } : { totalBytes: knownFiles.length === files.length ? knownBytes : null, knownBytes, fileCount: files.length, knownFiles: knownFiles.length, unknownFiles: files.length - knownFiles.length, complete: knownFiles.length === files.length };
+  const lengthScale = treeByteScale(knownBytes), radius = trunkRadius(knownBytes);
   const origin = layout.trunk[0];
   const trunk = layout.trunk.map(point => add(origin, scale(subtract(point, origin), lengthScale)));
   const baseFolders = new Map(layout.folders.map(folder => [folder.path, folder]));
-  const loadCounts = new Map(layout.folders.map(folder => [folder.path, 0]));
-  for (const node of layout.nodes) {
-    if (!active.has(node.id)) continue;
-    let path = node.folder;
+  const loads = new Map(layout.folders.map(folder => [folder.path, { count: 0, bytes: 0 }]));
+  const mappedFolders = new Map(layout.nodes.map(node => [node.id, node.folder]));
+  const authoredFiles = new Map((layout.byteNodes || layout.nodes).map(node => [node.id, node]));
+  for (const node of files) {
+    // The canopy retains authored attachment slots across renames. Its branch
+    // load must follow those displayed slots; the roots show exact current paths.
+    let path = mappedFolders.get(node.id) ?? String(authoredFiles.get(node.id)?.path || node.path || '').split('/').slice(0, -1).join('/');
+    while (!baseFolders.has(path) && path) path = path.split('/').slice(0, -1).join('/');
     while (path !== null && baseFolders.has(path)) {
-      loadCounts.set(path, loadCounts.get(path) + 1);
+      const load = loads.get(path);
+      load.count++; if (knownSize(node.size)) load.bytes += node.size;
       path = baseFolders.get(path).parent;
     }
   }
   const posed = new Map();
   const poseFolder = folder => {
     if (posed.has(folder.path)) return posed.get(folder.path);
-    const loadCount = loadCounts.get(folder.path) || 0;
-    if (!folder.path) {
-      const root = { ...folder, curve: trunk, position: trunk[3], direction: tangent(trunk, 1), loadCount, loadWeight: 0, lengthFactor: 1, droop: 0 };
-      posed.set(folder.path, root);
-      return root;
+    const load = loads.get(folder.path);
+    let curve = trunk;
+    if (folder.path) {
+      const parent = poseFolder(baseFolders.get(folder.parent));
+      const start = treePoint(parent.curve, folder.attachmentT);
+      curve = folder.curve.map(point => add(start, scale(subtract(point, folder.curve[0]), lengthScale)));
     }
-    const parentBase = baseFolders.get(folder.parent);
-    const parent = poseFolder(parentBase);
-    const attachment = folder.attachmentT;
-    const start = treePoint(parent.curve, attachment);
-    const from = tangent(parentBase.curve, attachment), to = tangent(parent.curve, attachment);
-    // A count-based load lets an empty or unknown-size file weigh like any other
-    // leaf. It avoids implying that bytes measure physical branch weight.
-    const loadWeight = 1 - Math.exp(-loadCount / 18);
-    const lengthFactor = 1 + loadWeight * 1.05;
-    const originalLength = Math.hypot(...subtract(folder.curve[3], folder.curve[0]));
-    const droop = originalLength * lengthScale * Math.pow(loadWeight, 1.35) * 0.72;
-    const curve = folder.curve.map((point, controlIndex) => {
-      if (controlIndex === 0) return start;
-      const local = rotateBetween(scale(subtract(point, folder.curve[0]), lengthScale), from, to);
-      const reach = 1 + (lengthFactor - 1) * [0, 0.25, 0.8, 1][controlIndex];
-      return add(start, [local[0] * reach, local[1] - droop * [0, 0.015, 0.48, 1][controlIndex], local[2] * reach]);
-    });
-    const result = { ...folder, curve, position: curve[3], direction: tangent(curve, 1), loadCount, loadWeight, lengthFactor, droop };
+    const branchRadius = folder.path ? trunkRadius(load.bytes) * folder.branchWeight : radius;
+    if (!folder.path) { load.bytes = knownBytes; load.count = sizeSummary.fileCount; }
+    const result = { ...folder, curve, position: curve[3], radius: branchRadius, loadBytes: load.bytes, loadCount: load.count, loadWeight: knownBytes ? load.bytes / knownBytes : 0, lengthFactor: 1, droop: 0 };
     posed.set(folder.path, result);
     return result;
   };
   const folders = layout.folders.map(poseFolder);
   const nodes = layout.nodes.map(node => {
-    const base = baseFolders.get(node.folder), folder = posed.get(node.folder);
+    const folder = posed.get(node.folder), current = byId.get(node.id);
     const stemStart = treePoint(folder.curve, node.attachmentT);
-    const from = tangent(base.curve, node.attachmentT), to = tangent(folder.curve, node.attachmentT);
-    const twigScale = lengthScale * (1 + folder.loadWeight * 0.15);
-    const position = add(stemStart, rotateBetween(scale(subtract(node.position, node.stemStart), twigScale), from, to));
-    const stemControl = add(stemStart, rotateBetween(scale(subtract(node.stemControl, node.stemStart), twigScale), from, to));
-    const direction = normalize(rotateBetween(node.direction, from, to));
-    return { ...node, position, stemStart, stemControl, direction };
+    const position = add(stemStart, scale(subtract(node.position, node.stemStart), lengthScale));
+    const stemControl = add(stemStart, scale(subtract(node.stemControl, node.stemStart), lengthScale));
+    const size = current?.size ?? null;
+    return { ...node, size, active: active.has(node.id), position, stemStart, stemControl, ...leafScale({ size }) };
   });
-  return { ...layout, trunk, folders, nodes, lengthScale, ...poseBounds(trunk, folders, nodes) };
+  return { ...layout, trunk, folders, nodes, sizeSummary, knownBytes, totalBytes: sizeSummary.totalBytes, sizeComplete: sizeSummary.complete, trunkRadius: radius, sizing: leafSizing(files), lengthScale, ...poseBounds(folders, nodes) };
 }

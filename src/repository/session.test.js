@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createRepositorySession, REPOSITORY_SESSION_STORAGE_KEY } from './session.js';
+import { buildModel, stateAt } from '../data-lab/model.js';
 
 const ref = number => number.toString(16).padStart(40, '0');
 const fileId = 'file:src%2Fa.js';
@@ -364,4 +365,59 @@ test('a blocked IndexedDB open falls back without leaving navigation flush pendi
   assert.equal(await session.saveRepositoryDataset(dataset()), false);
   await session.flushRepositorySession();
   assert.equal((await session.restoreRepositorySession()).dataset.repository.headSha, ref(2));
+});
+
+
+function withByteHistory() {
+  const data = dataset();
+  const snapshot = (sha, size) => ({ sha, files: [{ path: 'src/a.js', size }],
+    totalBytes: size, knownBytes: size, fileCount: 1, knownFiles: 1, unknownFiles: 0, complete: true });
+  data.sizeHistory = { version: 1, baseline: snapshot(null, 100),
+    commits: [snapshot(ref(1), 200), snapshot(ref(2), 123)] };
+  return data;
+}
+
+test('measured grow and shrink history survives cache reload with its selected commit', async () => {
+  const { session, reload } = fixture();
+  const data = withByteHistory();
+  const expected = structuredClone(data.sizeHistory);
+  assert.equal(await session.saveRepositoryDataset(data, { commitSha: ref(1), fileId }), true);
+  data.sizeHistory.commits[0].files[0].size = 9000;
+  const restored = await reload().restoreRepositorySession();
+  assert.deepEqual(restored.dataset.sizeHistory, expected);
+  assert.deepEqual(restored.selection, { commitSha: ref(1), fileId });
+  const model = buildModel(restored.dataset);
+  assert.deepEqual([-1, 0, 1].map(index => stateAt(model, index).files.find(file => file.exists).size), [100, 200, 123]);
+  assert.deepEqual([-1, 0, 1].map(index => stateAt(model, index).sizeSummary.totalBytes), [100, 200, 123]);
+});
+
+test('cached byte history preserves complete repository totals beyond the displayed paths and partial unknowns', async () => {
+  const { session, reload } = fixture();
+  const data = withByteHistory();
+  Object.assign(data.sizeHistory.commits[0], { totalBytes: 5000, knownBytes: 5000, fileCount: 3, knownFiles: 3 });
+  Object.assign(data.sizeHistory.baseline, { totalBytes: null, knownBytes: 100, fileCount: 2, unknownFiles: 1, complete: false });
+  assert.equal(await session.saveRepositoryDataset(data), true);
+  const restored = await reload().restoreRepositorySession();
+  assert.deepEqual(restored.dataset.sizeHistory, data.sizeHistory);
+  assert.equal(stateAt(buildModel(restored.dataset), 0).sizeSummary.totalBytes, 5000);
+  assert.equal(stateAt(buildModel(restored.dataset), -1).sizeSummary.totalBytes, null);
+});
+
+test('invalid or cross-commit byte snapshots cannot replace a durable repository session', async () => {
+  const { session, reload } = fixture();
+  await session.saveRepositoryDataset(dataset());
+  const invalid = [
+    data => { data.sizeHistory.commits[0].sha = ref(9); },
+    data => { data.sizeHistory.commits.pop(); },
+    data => { data.sizeHistory.baseline.files[0].path = 'other.js'; },
+    data => { data.sizeHistory.baseline.files[0].size = -1; },
+    data => { data.sizeHistory.baseline.knownBytes = 101; },
+    data => { data.sizeHistory.baseline.complete = false; },
+    data => { data.sizeHistory.baseline.unknownFiles = 1; },
+  ];
+  for (const corrupt of invalid) {
+    const data = withByteHistory(); corrupt(data);
+    assert.equal(await session.saveRepositoryDataset(data), false);
+  }
+  assert.equal((await reload().restoreRepositorySession()).dataset.sizeHistory, undefined);
 });

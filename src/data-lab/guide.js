@@ -2,6 +2,13 @@ import { CHANGE_COLORS } from './encoding.js';
 import { FILE_ATOM_KINDS } from './molecule-layout.js';
 import { ROOT_LENGTH_PER_TOUCH } from './root-length-layout.js';
 
+const formatBytes = value => {
+  const bytes = Math.max(0, Number(value) || 0);
+  const units = ['B', 'KiB', 'MiB', 'GiB', 'TiB'];
+  const unit = Math.min(units.length - 1, bytes ? Math.floor(Math.log(bytes) / Math.log(1024)) : 0);
+  return `${(bytes / 1024 ** unit).toLocaleString(undefined, { maximumFractionDigits: 2 })} ${units[unit]}`;
+};
+
 const hex = value => `#${value.toString(16).padStart(6, '0')}`;
 const icons = {
   trunk: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 22 3-7V3h4v12l3 7ZM11 11 5 5l-1 2 7 8m2-7 6-5 1 2-7 7" fill="#ad8a61"/><path d="M12 5v16" stroke="#e2c39a" stroke-width=".7"/></svg>',
@@ -175,6 +182,7 @@ export class DataGuide {
     }
     this.selectedId = selectedId;
     this.selectedFolder = selectedFolder;
+    this.updateTreeSizeReadout(frame);
     this.updateRootGrowthReadout();
     this.markFocus();
   }
@@ -183,7 +191,7 @@ export class DataGuide {
     const tree = this.view === 'tree';
     const $ = selector => this.el.querySelector(selector);
     $('.guide-intro').textContent = tree
-      ? 'One repository, growing through the same commit history.'
+      ? 'One repository, changing through the same commit history.'
       : 'One folder, two forms: a small carbon marble when paused, an enclosure while playing. The root keeps the commit author’s portrait. Play adds a sun glow; pause opens the commit message and changes.';
     $('#guide-atom-types').hidden = tree;
     $('#guide-activity-key').hidden = tree;
@@ -193,9 +201,9 @@ export class DataGuide {
       : 'Click a name to focus. Counts show present / mapped files; amber dots mark changes.';
     this.el.querySelector('.guide-intro + .section-title').textContent = tree ? 'Reading the shapes' : 'Reading the structure';
     $('#guide-shape-key').innerHTML = tree
-      ? `<div><dt><span class="guide-icon">${icons.trunk}</span>Repository trunk</dt><dd>The repository root, growing taller and thicker with each commit</dd></div>
-         <div><dt><span class="guide-icon">${icons.branch}</span>Folder branches</dt><dd>More present leaves lengthen and bend a limb</dd></div>
-         <div><dt><span class="guide-icon">${icons.leaf}</span>File leaves</dt><dd>One leaf for each mapped file</dd></div>
+      ? `<div><dt><span class="guide-icon">${icons.trunk}</span>Repository trunk</dt><dd>Current repository file bytes set canopy height and trunk thickness</dd></div>
+         <div><dt><span class="guide-icon">${icons.branch}</span>Folder branches</dt><dd>Branch size follows the current bytes beneath its folder</dd></div>
+         <div><dt><span class="guide-icon">${icons.leaf}</span>File leaves</dt><dd>One leaf per mapped file; its area follows current bytes</dd></div>
          <div><dt><span class="guide-icon">${icons.roots}</span>Directory roots</dt><dd>Exact folder junctions; each file root gains a fixed step per commit touch</dd></div>`
       : `<div><dt><span class="guide-icon">${icons.carbon}</span>Folder · C</dt><dd>Its small marble becomes an enclosing boundary while playing; pause restores it</dd></div>
          <div><dt><span class="guide-icon">${icons.atom}</span>File atom</dt><dd>One N, O, H or S atom per file, visible in both modes</dd></div>`;
@@ -204,26 +212,37 @@ export class DataGuide {
       : '<span class="guide-connection" aria-hidden="true"></span>Each enclosure fits its folder’s current files. The root keeps its small marble, and folder levels preserve the actual hierarchy.';
     const sizeNote = $('#guide-size-note');
     sizeNote.hidden = !tree;
-    if (tree) {
-      const nodes = [...this.scene.nodes.values()].map(record => record.node);
-      const known = nodes.filter(node => Number.isFinite(node.size) && node.size >= 0).length;
-      sizeNote.textContent = `Leaf area follows snapshot bytes, with limits for readability. Empty files use the minimum size; unknown sizes use a muted fallback. ${known.toLocaleString()} known · ${(nodes.length - known).toLocaleString()} unknown.`;
-    }
     $('.guide-motion').textContent = tree
-      ? 'Each file touch adds the same calibrated length step within this repository. Renames retain growth; rewinding restores the earlier length. Above ground, new leaves grow and removed leaves fall.'
+      ? 'Each file touch adds the same calibrated length step within this repository. Renames retain growth; rewinding restores the earlier length. Above ground, current file bytes control growth and shrinkage; removed leaves fall.'
       : 'Loaded commit touches build brightness up to this cursor. Playing shows current as folder marbles become enclosures. Pause restores small marbles and pathways, freezing current. Wireframes mark absent files; a halo marks selection.';
     $('#guide-map-step').innerHTML = tree
       ? '<strong>Build both hierarchies.</strong> The trunk begins the root hierarchy. Every present file connects to its actual folder, and every folder connects to its parent. Above ground, mapped files become leaves on growing limbs.'
       : '<strong>Build the structure.</strong> Keep folders at repository depth and connect files to their own folders. Each non-root folder switches between a carbon marble and its enclosure.';
     $('#guide-replay-step').innerHTML = tree
-      ? '<strong>Replay growth.</strong> Each distinct loaded commit touching a file adds the repository’s calibrated length step to its root. Rewinding restores its earlier length. Above ground, new leaves grow, removed leaves fall, and lighter branches lift back up.'
+      ? '<strong>Replay growth.</strong> Each distinct loaded commit touching a file adds the repository’s calibrated length step to its root. Rewinding restores its earlier length. Above ground, byte increases grow leaves and branches, byte decreases shrink them, and removed leaves fall.'
       : '<strong>Replay.</strong> Add or remove file atoms; renames retain their identity. Each loaded commit touch adds brightness to that file and its folder path. Rewinding restores the touch counts at that commit.';
     $('#guide-coverage-note').textContent = tree
-      ? 'Roots display every present loaded file and ancestor folder except dot-prefixed entries and their contents. Names identify junctions and tapered ends. Large repositories reveal names as space becomes available; zoom or focus a folder to read more. All file roots remain present, including those whose names do not fit at the current zoom. The canopy maps up to 500 leaves. GitHub loading limits are listed under Data coverage.'
+      ? 'Roots display every present loaded file and ancestor folder except dot-prefixed entries and their contents. Names identify junctions and tapered ends. Large repositories reveal names as space becomes available; zoom or focus a folder to read more. All file roots remain present, including those whose names do not fit at the current zoom. The canopy maps up to 500 leaves, while its total size uses the full repository file tree, including unmapped and dot-prefixed files. Missing byte sizes are excluded from the known subtotal; incomplete coverage is shown explicitly. GitHub loading limits are listed under Data coverage.'
       : 'Up to 500 files are mapped. All their ancestor folders remain visible; the inspector lists every loaded file and change.';
     $('#guide-encoding-note').textContent = tree
-      ? 'Trunk height and thickness show progress through the loaded history. Branch weight is a visual metaphor for present mapped leaf counts, not bytes or code quality. File identities survive renames; their positions follow the growing limbs. Leaf areas use known file sizes at the loaded snapshot, held constant during replay. Every distinct loaded commit touching a file adds the same length step within this repository. Baseline root spacing and growth are calibrated to the loaded repository snapshot’s width, and that calibration stays fixed throughout replay. The count follows file identity across renames and folder moves. Initial connections vary with the hierarchy, so compare added length within a repository rather than total root length. Use touch counts when comparing different repositories. Thickness is a gentle visual effect of length, not another activity count. For an unchanged hierarchy, folder junctions and untouched file roots keep their positions. Growth does not push neighboring roots or bend the ground; the base stays flat while zooming and rotating. File names remain attached to their actual tips, with no guide-line extensions. Historical byte sizes are not inferred from lines added or deleted. Areas are relative to the median known positive file size, limited to 0.16–6.25 times that area. Empty files use the minimum; unknown sizes use a muted 0.65 fallback.'
+      ? 'Canopy length and trunk radius use a cube-root scale from current repository file bytes, with 1 MiB as the reference. Branch size follows the current bytes beneath each folder. Leaf area uses current file bytes relative to 16 KiB and is independent of canopy scale. Equal byte sizes stay equal across commits; byte reductions shrink the tree. Repository totals count Git blob contents, including unmapped and dot-prefixed files, not .git storage or the size of repository history. File identities survive renames. Every distinct loaded commit touching a file adds the same length step within this repository. Baseline root spacing and growth are calibrated to the loaded repository snapshot’s width, and that calibration stays fixed throughout replay. The count follows file identity across renames and folder moves. Initial connections vary with the hierarchy, so compare added length within a repository rather than total root length. Use touch counts when comparing different repositories. Thickness is a gentle visual effect of length, not another activity count. For an unchanged hierarchy, folder junctions and untouched file roots keep their positions. Growth does not push neighboring roots or bend the ground; the base stays flat while zooming and rotating. File names remain attached to their actual tips, with no guide-line extensions. Historical sizes come from recorded file trees, not line-count estimates. Unknown sizes use a muted, nonquantitative marker and do not enter the known byte subtotal. Empty files have zero leaf area but remain pickable.'
       : 'During playback, each non-root enclosure replaces its folder’s marble and fits current contents. Pause restores the small marble. The root keeps the current commit author’s portrait and name. Playing adds a sun glow; pausing opens a message bubble with the commit, changed files, line totals, and GitHub link. Initials stand in for unavailable pictures. Connections encode containment. Color and sphere size identify the assigned file element; byte size is shown in the inspector. Historical wireframes are excluded from current counts.';
+  }
+
+  updateTreeSizeReadout(frame) {
+    if (this.view !== 'tree') return;
+    const summary = frame?.sizeSummary;
+    const note = this.el.querySelector('#guide-size-note');
+    if (!summary) {
+      note.textContent = 'Byte coverage is unavailable for this commit. Unknown file sizes remain muted and are not counted as zero bytes.';
+      return;
+    }
+    const measured = `${summary.knownFiles.toLocaleString()} / ${summary.fileCount.toLocaleString()} files measured`;
+    const amount = summary.complete && Number.isFinite(summary.totalBytes)
+      ? `Repository file contents: ${formatBytes(summary.totalBytes)}.`
+      : `Known file contents: ${formatBytes(summary.knownBytes)}; repository total unavailable.`;
+    const text = `${amount} ${measured}. Leaf area follows each file’s current bytes. Empty files have no leaf area but remain pickable; unknown sizes are muted and excluded from the known subtotal.`;
+    if (note.textContent !== text) note.textContent = text;
   }
 
   updateRootGrowthReadout() {
@@ -231,7 +250,7 @@ export class DataGuide {
     const layout = this.scene?.roots?.layout || this.scene?.indexLayout;
     const step = layout?.lengthGrowth?.lengthPerTouch ?? layout?.proportions?.lengthPerTouch ?? ROOT_LENGTH_PER_TOUCH;
     const formatted = Number(step).toLocaleString(undefined, { maximumFractionDigits: 2 });
-    const text = `Here, each file touch adds ${formatted} scene units. The step scales with the repository’s snapshot width and stays fixed during replay. Compare added length within this repository; use touch counts across repositories. Roots thicken gently with length. Renames retain growth, and rewinding restores it. Above ground, new leaves grow and removed leaves fall.`;
+    const text = `Here, each file touch adds ${formatted} scene units. The step scales with the repository’s snapshot width and stays fixed during replay. Compare added length within this repository; use touch counts across repositories. Roots thicken gently with length. Renames retain growth, and rewinding restores it. Above ground, current file bytes control growth and shrinkage; removed leaves fall.`;
     const note = this.el.querySelector('.guide-motion');
     if (note.textContent !== text) note.textContent = text;
   }

@@ -22,7 +22,13 @@ export function getExampleDataset(input = DEFAULT_EXAMPLE_URL, limit = DEFAULT_E
   const count = Math.min(DEFAULT_EXAMPLE_COMMIT_LIMIT, snapshot.commits.length, Math.max(1, Math.floor(Number(limit) || DEFAULT_EXAMPLE_COMMIT_LIMIT)));
   // Each selection gets independent data so playback or export cannot alter a preset.
   const dataset = structuredClone(snapshot);
-  dataset.commits = dataset.commits.slice(-count);
+  const start = dataset.commits.length - count;
+  dataset.commits = dataset.commits.slice(start);
+  if (dataset.sizeHistory?.version === 1) {
+    const history = dataset.sizeHistory;
+    if (start > 0) history.baseline = structuredClone(history.commits[start - 1]);
+    history.commits = history.commits.slice(start);
+  }
   dataset.provenance.bundledCommitCount = snapshot.commits.length;
   dataset.provenance.commitCount = dataset.commits.length;
   dataset.provenance.firstParentBoundarySha = dataset.commits[0]?.firstParent || null;

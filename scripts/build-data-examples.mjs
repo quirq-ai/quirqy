@@ -8,6 +8,7 @@ import { devNull } from 'node:os';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { normalizeAuthorProfile } from '../src/data-lab/author-profile.js';
+import { createSizeSnapshot } from '../src/data-lab/size-history.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 // Account identities cannot be recovered from Git author names. This checked-in
@@ -73,13 +74,18 @@ function git(directory, ...args) {
 const splitZero = text => text.split('\0').filter((_, index, list) => index !== list.length - 1 || list[index]);
 const byPath = (a, b) => a.path < b.path ? -1 : a.path > b.path ? 1 : 0;
 
+const treeCache = new Map();
 function readTree(directory, ref) {
-  return splitZero(git(directory, 'ls-tree', '-r', '-l', '-z', ref)).map(record => {
+  const key = `${directory}\0${ref}`;
+  if (treeCache.has(key)) return treeCache.get(key);
+  const files = splitZero(git(directory, 'ls-tree', '-r', '-l', '-z', ref)).map(record => {
     const tab = record.indexOf('\t');
     const [mode, type, sha, size] = record.slice(0, tab).trim().split(/\s+/);
     assert(tab > 0 && ['blob', 'commit'].includes(type), `Unexpected tree entry at ${ref}.`);
     return { path: record.slice(tab + 1), mode, type, sha, ...(size !== '-' ? { size: Number(size) } : {}) };
   });
+  treeCache.set(key, files);
+  return files;
 }
 
 function readDiff(directory, sha, parent) {
@@ -143,13 +149,13 @@ function buildSnapshot(definition) {
   const shallow = new Set(existsSync(shallowFile) ? readFileSync(shallowFile, 'utf8').trim().split('\n') : []);
   assert(!selected.some(sha => shallow.has(sha)), `The ${name} snapshot reaches a shallow boundary. Deepen the clone, then retry; do not treat that boundary as a root.`);
   const commits = selected.map(sha => {
-    const fields = git(directory, 'show', '-s', '--format=%H%x00%P%x00%an%x00%cI%x00%B', sha).split('\0');
+    const fields = git(directory, 'show', '-s', '--format=%H%x00%P%x00%an%x00%cI%x00%T%x00%B', sha).split('\0');
     assert.equal(fields[0], sha);
     const parents = fields[1].split(' ').filter(Boolean);
     const authorLogin = verifiedAuthors.repositories[fullName]?.commits[sha];
     const authorProfile = normalizeAuthorProfile(verifiedAuthors.profiles[authorLogin]);
     return {
-      sha, message: fields.slice(4).join('\0').trimEnd(), author: fields[2], date: fields[3],
+      sha, treeSha: fields[4], message: fields.slice(5).join('\0').trimEnd(), author: fields[2], date: fields[3],
       authorProfile,
       url: `${url}/commit/${sha}`, isMerge: parents.length > 1, partial: false,
       firstParent: parents[0] || null,
@@ -188,17 +194,23 @@ function buildSnapshot(definition) {
   if (binaryChanges) limitations.push('Binary changes are included with binary: true. Their additions and deletions are zero because Git does not provide line counts for binary data.');
   if (headFiles.some(file => file.type === 'commit')) limitations.push('Submodules are shown as repository entries; their internal history is not loaded.');
   limitations.push('Line additions and deletions describe Git diffs; they do not measure runtime behavior, code quality or individual productivity.');
+  const sizeHistory = {
+    version: 1,
+    baseline: createSizeSnapshot(boundarySha ? readTree(directory, boundarySha) : [], { sha: boundarySha, selectedPaths }),
+    commits: commits.map(commit => createSizeSnapshot(readTree(directory, commit.sha), { sha: commit.sha, treeSha: commit.treeSha, selectedPaths })),
+  };
   const dataset = {
     repository: { name, fullName, url, branch: 'main', source: 'example', headSha, treeSha, capturedAt: options.capturedAt },
     files, commits,
+    sizeHistory,
     coverage: { label: `${commits.length} first-parent commits · bundled snapshot · pinned ${headSha.slice(0, 7)}`, limitations },
     provenance: {
-      formatVersion: 1, generator: 'scripts/build-data-examples.mjs', source: 'local bare Git clone',
+      formatVersion: 2, generator: 'scripts/build-data-examples.mjs', source: 'local bare Git clone',
       remote: `${url}.git`, branchRef: 'refs/heads/main', headSha, treeSha,
       capturedAt: options.capturedAt, firstParentBoundarySha: boundarySha,
       commitCount: commits.length, headFileCount: headFiles.length, historicalPathCount: files.length - headFiles.length,
       changedFileCount: commits.reduce((sum, commit) => sum + commit.files.length, 0), binaryChangeCount: binaryChanges,
-      completeHeadTree: true, completeCommitDiffs: true,
+      completeHeadTree: true, completeCommitDiffs: true, completeSizeHistory: [sizeHistory.baseline, ...sizeHistory.commits].every(snapshot => snapshot.complete),
       diff: { parent: 'first', renameThreshold: '50%', algorithm: 'myers', indentHeuristic: false },
     },
   };
