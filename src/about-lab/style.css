@@ -1,0 +1,182 @@
+/* About keeps the repository's own writing flat and readable beside its 3D folio. */
+body[data-mode='about'] :is(#body-list,#mobile-bodies,#timebar,#math-timebar,#btn-record,#btn-lab,#btn-settings,#btn-bodies,#btn-help) { display:none !important; }
+body[data-mode='about'] #app { background:var(--bg); }
+#about-shell { --readme-size:16px; --about-left:clamp(290px,28vw,410px); --about-bottom:calc(var(--about-timebar-height,120px) + 40px); }
+#about-shell [hidden], #about-timebar [hidden] { display:none !important; }
+#about-shell button, #about-source-form button, #about-repository-url { font-family:inherit; }
+#about-shell :is(button,a):focus-visible { outline:2px solid #b8d8f4; outline-offset:3px; }
+.about-introduction { position:fixed; z-index:5; top:42px; left:36px; width:calc(var(--about-left) - 70px); pointer-events:none; }
+.about-eyebrow { display:flex; align-items:center; gap:8px; color:#bca98b; font-size:9px; font-weight:600; letter-spacing:.17em; text-transform:uppercase; }
+.about-eyebrow>span { width:5px; height:5px; border-radius:50%; background:#edc98e; box-shadow:0 0 12px #e3bb7c66; }
+#about-repo-name { margin:18px 0 9px; font-size:clamp(24px,2.4vw,36px); font-weight:500; line-height:1.15; letter-spacing:-.055em; color:#f0ede5; overflow-wrap:anywhere; }
+#about-repo-description { color:#9ca8ba; font-size:12px; line-height:1.65; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+#about-scene-slot { position:fixed; top:var(--about-scene-top,185px); left:12px; width:calc(var(--about-left) - 24px); height:clamp(180px,29vh,330px); pointer-events:none; }
+.about-folio-caption { position:fixed; z-index:5; top:calc(var(--about-scene-top,185px) + clamp(180px,29vh,330px)); left:36px; width:calc(var(--about-left) - 68px); pointer-events:none; }
+#about-folio-section { display:block; color:#d7c2a1; font-size:11px; font-weight:500; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+#about-folio-hint { margin-top:6px; color:#78889c; font-size:10px; line-height:1.5; }
+html body #about-guide { top:calc(var(--about-scene-top,185px) + 66px + clamp(180px,29vh,330px)); left:26px; width:calc(var(--about-left) - 48px); bottom:var(--about-bottom); border-radius:14px; display:flex; flex-direction:column; min-height:80px; max-height:400px; overflow:hidden; padding-bottom:8px; z-index:10; }
+#about-guide .list-title { display:flex; align-items:center; gap:10px; padding:14px 14px 10px; font-size:9px; font-weight:600; letter-spacing:.15em; text-transform:uppercase; }
+#about-section-count { color:#c6b18e; font:11px ui-monospace,SFMono-Regular,Consolas,monospace; margin-left:auto; }
+#about-contents { min-height:0; overflow:auto; padding:0 6px; scrollbar-width:thin; }
+#about-contents button { display:flex; align-items:baseline; gap:10px; width:100%; text-align:left; padding:8px 9px 8px calc(9px + var(--section-depth)*8px); color:#aab6c7; background:none; border:1px solid transparent; border-radius:7px; font-size:11px; line-height:1.4; cursor:pointer; }
+#about-contents button:hover { color:#f0e6d6; background:#d6bb8610; }
+#about-contents button[aria-current] { color:#f1d8b0; background:#d4b98512; border-color:#dfc79722; }
+.about-section-number { flex:none; color:#7b8b9f; font:9px ui-monospace,SFMono-Regular,Consolas,monospace; }
+#about-contents button[aria-current] .about-section-number { color:#dec296; }
+.about-frame { flex:none; border:0; background:none; color:#8c9bb0; align-self:flex-start; padding:9px 15px 3px; font-size:10px; cursor:pointer; }
+.about-empty-index { color:#7f8da1; font-size:11px; padding:12px; }
+html body #about-reader.panel { position:fixed; left:var(--about-left); right:28px; top:28px; bottom:var(--about-bottom); z-index:15; display:flex; flex-direction:column; overflow:hidden; border-radius:20px; text-shadow:none; }
+.about-reader-toolbar { display:flex; flex:none; align-items:center; justify-content:space-between; gap:12px; padding:18px 24px 12px; border-bottom:1px solid #b8cbe414; }
+.about-document-label { display:flex; align-items:center; gap:9px; min-width:0; color:#c5b18f; }
+#about-file-path { max-width:240px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font:11px ui-monospace,SFMono-Regular,Consolas,monospace; }
+#about-branch { padding-left:10px; border-left:1px solid #b8cbe422; color:#77899f; font:10px ui-monospace,SFMono-Regular,Consolas,monospace; max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.about-reading-actions { display:flex; align-items:center; gap:6px; flex:none; }
+.about-reading-actions button { border:0; background:none; border-radius:6px; padding:5px; color:#99abc2; cursor:pointer; font-size:12px; min-width:28px; min-height:28px; }
+.about-reading-actions button:disabled { opacity:.35; cursor:default; }
+.about-reading-actions button:hover:not(:disabled) { color:#f6e4c4; background:#c5dbf011; }
+#about-github-link { color:#b8c7da; font-size:11px; text-decoration:none; margin-left:9px; white-space:nowrap; }
+#about-github-link:hover { color:#f1d8b0; }
+.about-reader-meta { display:flex; justify-content:space-between; gap:8px; padding:11px 25px 0; color:#7f91a7; font-size:10px; line-height:1.5; }
+#about-reading-time { flex:none; }
+#about-reader-scroll { overflow:auto; min-height:0; flex:1; overscroll-behavior:contain; scrollbar-gutter:stable; padding:30px 38px 42px; outline-offset:-4px; scroll-behavior:auto; }
+#about-document { width:min(100%,740px); margin:0 auto; }
+#about-notice { margin:12px 24px 0; padding:9px 12px; border:1px solid #e9c98c33; border-radius:8px; color:#dbc9ac; background:#c5a7740a; font-size:11px; line-height:1.6; }
+#about-notice[data-error='true'] { color:#f4c0ae; border-color:#d398773d; }
+.about-readme-content { color:#d5deea; font-size:var(--readme-size); line-height:1.8; overflow-wrap:anywhere; }
+.about-readme-content :is(h1,h2,h3,h4,h5,h6) { color:#f0eee9; letter-spacing:-.025em; font-weight:550; line-height:1.3; scroll-margin-top:24px; margin:1.8em 0 .75em; }
+.about-readme-content h1 { font-size:2em; letter-spacing:-.04em; }
+.about-readme-content h2 { font-size:1.38em; padding-bottom:.5em; border-bottom:1px solid #b1c6e01c; }
+.about-readme-content h3 { font-size:1.12em; }
+.about-readme-content h4, .about-readme-content h5, .about-readme-content h6 { font-size:1em; }
+.about-readme-content>:first-child { margin-top:0; }
+.about-readme-content :is(p,ul,ol,blockquote,pre,table,details) { margin:0 0 1.2em; }
+.about-readme-content :is(ul,ol) { padding-left:1.5em; }
+.about-readme-content li { padding-left:.2em; margin:.3em 0; }
+.about-readme-content li>p { margin-bottom:.6em; }
+.about-readme-content :is(ul,ol) :is(ul,ol) { margin-bottom:.5em; }
+.about-readme-content a { color:#9ec9ec; text-decoration:underline; text-underline-offset:3px; text-decoration-color:#8ab4d351; }
+.about-readme-content a:hover { color:#f3d3a4; }
+.about-readme-content strong { color:#ecedf0; font-weight:600; }
+.about-readme-content code { font: .84em/1.7 ui-monospace,SFMono-Regular,Consolas,monospace; color:#e1c69d; background:#e0bd7e0d; border:1px solid #d0c3b91c; border-radius:5px; padding:.15em .35em; }
+.about-readme-content pre { overflow:auto; padding:18px 20px; border:1px solid #a3b7ce22; border-radius:12px; background:#02060c66; color:#c4d4e5; white-space:pre; overflow-wrap:normal; line-height:1.7; }
+.about-readme-content pre code { padding:0; border:0; background:none; color:inherit; font-size:12px; }
+.about-readme-content blockquote { padding:3px 18px; border-left:2px solid #c6a77699; color:#aab9ca; }
+.about-readme-content blockquote p:last-child { margin-bottom:0; }
+.about-readme-content img { max-width:100%; height:auto; max-height:440px; object-fit:contain; vertical-align:middle; border-radius:4px; }
+.about-readme-content p:has(>img) { line-height:2.2; }
+.about-readme-content picture { display:contents; }
+.about-readme-content table { border-collapse:collapse; width:100%; display:block; overflow:auto; font-size:.83em; line-height:1.65; }
+.about-readme-content :is(td,th) { text-align:left; padding:10px 13px; border:1px solid #a3b7ce22; min-width:100px; }
+.about-readme-content th { color:#d9c29e; background:#d0b37f0a; font-weight:600; }
+.about-readme-content hr { border:0; height:1px; background:#a3b7ce26; margin:2em 0; }
+.about-readme-content summary { cursor:pointer; color:#e1c69d; }
+.about-readme-content details { border:1px solid #a3b7ce22; border-radius:8px; padding:12px 16px; }
+.about-readme-content details[open]>summary { margin-bottom:12px; }
+.about-readme-content input[type='checkbox'] { accent-color:#dac095; margin-right:.5em; }
+.about-image-fallback { display:inline-block; border:1px solid #a3b7ce22; padding:3px 8px; border-radius:5px; color:#91a0b4; font-size:11px; }
+#about-reader-end { display:flex; width:min(100%,740px); margin:48px auto 0; padding-top:20px; border-top:1px solid #acbfd01a; justify-content:space-between; align-items:center; font-size:10px; color:#7d8ea4; }
+#about-back-top { border:0; color:#c2ad8b; background:none; cursor:pointer; font-size:11px; }
+.about-reading-progress { height:2px; flex:none; background:#a8c4e00c; }
+#about-progress-fill { display:block; height:100%; width:0; background:#d5bb8a; box-shadow:0 0 10px #e7c58b66; }
+.about-reader-placeholder { padding:65px 12px; max-width:560px; margin:auto; }
+.about-placeholder-mark { display:block; color:#b8a07b; font-size:32px; margin-bottom:25px; }
+.about-reader-placeholder h2 { color:#e0e5ec; font-weight:450; font-size:28px; letter-spacing:-.04em; margin-bottom:15px; }
+.about-reader-placeholder p { color:#8c9cb0; font-size:13px; line-height:1.8; margin-bottom:18px; }
+.about-reader-placeholder .btn { margin:3px 0 18px; }
+.about-empty-source { font-size:11px !important; }
+.about-skeleton { height:6px; border-radius:6px; background:#b3c9df13; margin:28px 0; }
+.about-skeleton.short { width:65%; margin-top:-12px; }
+#about-hover { position:fixed; pointer-events:none; z-index:20; top:170px; left:36px; max-width:calc(var(--about-left) - 60px); padding:6px 10px; color:#e9cda2; font-size:11px; background:#0a111bcc; border:1px solid #dcc59b33; border-radius:6px; }
+#about-contents-toggle, #about-contents-close { display:none; }
+.about-source-row { display:flex; gap:6px; }
+#about-repository-url { min-width:0; flex:1; padding:8px 10px; border:1px solid var(--dock-edge); border-radius:8px; color:var(--text); font-size:11px; }
+.about-example-choices, .about-source-actions { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+.about-example-choices .btn { flex:1; font-size:10px; min-height:30px; }
+#about-repository-meta, #about-status { color:var(--glass-text-dim); font-size:10px; line-height:1.6; margin-bottom:8px; }
+.about-dock-reading { display:flex; align-items:center; gap:12px; color:#b8c6d7; font-size:10px; }
+#about-reading-position { min-width:0; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#about-reading-percent { flex:none; color:#d5bd96; font-variant-numeric:tabular-nums; }
+@media (max-height:850px) and (min-width:1001px) {
+  #about-scene-slot { top:var(--about-scene-top,150px); height:210px; }
+  .about-introduction { top:30px; }
+  #about-repo-description { -webkit-line-clamp:2; }
+  .about-folio-caption { top:calc(var(--about-scene-top,150px) + 215px); }
+  html body #about-guide { top:calc(var(--about-scene-top,150px) + 270px); }
+}
+@media (max-width:1000px) {
+  #about-shell { --about-left:0px; --about-bottom:calc(var(--about-timebar-height,120px) + 34px); }
+  .about-introduction { top:24px; left:24px; width:46%; }
+  .about-eyebrow { font-size:8px; letter-spacing:.12em; }
+  #about-repo-name { font-size:28px; margin:12px 0 8px; }
+  #about-repo-description { font-size:11px; -webkit-line-clamp:2; }
+  #about-scene-slot { top:12px; left:52%; width:46%; height:164px; }
+  .about-folio-caption { top:161px; left:52%; width:44%; }
+  #about-folio-section { font-size:9px; text-align:center; }
+  #about-folio-hint { display:none; }
+  html body #about-reader.panel { top:202px; left:18px; right:18px; }
+  html body #about-guide { display:none; position:fixed; top:247px; left:30px; width:min(320px,calc(100vw - 60px)); bottom:var(--about-bottom); max-height:440px; z-index:60; }
+  html body #about-guide.is-open { display:flex; }
+  #about-guide .panel-drag-hint, #about-guide .panel-drag-grip { display:none; }
+  #about-contents-toggle, #about-contents-close { display:block; }
+  #about-contents-close { border:0; background:none; color:#becddd; font-size:18px; cursor:pointer; }
+  #about-hover { top:165px; left:52%; max-width:44%; font-size:9px; }
+  #about-reader-scroll { padding:24px 28px 36px; }
+}
+@media (max-width:600px) {
+  .about-introduction { top:20px; left:18px; width:49%; }
+  .about-eyebrow { font-size:7px; gap:6px; }
+  #about-repo-name { font-size:25px; }
+  #about-repo-description { font-size:10px; line-height:1.5; }
+  #about-scene-slot { top:10px; height:144px; }
+  .about-folio-caption { top:150px; }
+  html body #about-reader.panel { top:184px; left:10px; right:10px; border-radius:15px; }
+  .about-reader-toolbar { padding:10px 12px; gap:6px; flex-wrap:wrap; }
+  .about-document-label { gap:6px; }
+  #about-file-path { max-width:125px; font-size:10px; }
+  #about-branch { display:none; }
+  .about-reading-actions { gap:2px; }
+  #about-github-link { margin-left:4px; font-size:10px; }
+  .about-reading-actions button { font-size:11px; }
+  .about-reader-meta { padding:9px 14px 0; font-size:9px; }
+  #about-reader-scroll { padding:22px 18px 30px; }
+  .about-readme-content { line-height:1.75; }
+  .about-readme-content h1 { font-size:1.7em; }
+  .about-readme-content pre { padding:13px; }
+  #about-notice { margin:9px 12px 0; }
+  html body #about-guide { top:234px; }
+}
+@media (max-height:700px) and (max-width:1000px) {
+  #about-scene-slot { height:105px; }
+  .about-introduction { top:14px; }
+  #about-repo-name { font-size:22px; margin:9px 0 0; }
+  #about-repo-description, .about-folio-caption { display:none; }
+  html body #about-reader.panel { top:120px; }
+  html body #about-guide { top:170px; }
+}
+@media (forced-colors:active) {
+  #about-contents button[aria-current] { outline:1px solid Highlight; }
+  #about-progress-fill { background:Highlight; }
+}
+
+/* Quiet repository counts echo the amber star and cool fork in the folio. */
+#about-repo-stats { display:flex; align-items:center; flex-wrap:wrap; gap:8px 17px; margin:0 0 10px; }
+.about-repo-stat { display:inline-flex; align-items:center; gap:5px; min-height:22px; color:#c6ae87; font-size:11px; line-height:1.2; text-decoration:none; pointer-events:auto; }
+.about-repo-stat svg { flex:none; width:14px; height:14px; stroke:currentColor; stroke-width:1.35; stroke-linecap:round; stroke-linejoin:round; }
+#about-forks { color:#9ebbd2; }
+.about-stat-value { color:#e5e8ed; font-variant-numeric:tabular-nums; font-weight:550; }
+.about-stat-label { color:#8e9eb3; font-size:10px; }
+.about-repo-stat:hover .about-stat-label { color:#dce4ef; }
+.about-repo-stat:hover svg { filter:drop-shadow(0 0 5px currentColor); }
+@media (max-width:600px) {
+  #about-repo-stats { gap:4px 11px; margin-bottom:7px; }
+  .about-repo-stat { gap:4px; font-size:10px; min-height:22px; }
+  .about-repo-stat svg { width:12px; height:12px; }
+  .about-stat-label { font-size:9px; }
+}
+@media (max-height:700px) and (max-width:1000px) {
+  #about-repo-stats { margin-top:7px; margin-bottom:0; }
+}
+@media (forced-colors:active) {
+  .about-repo-stat, #about-forks { color:LinkText; }
+  .about-stat-value, .about-stat-label { color:inherit; }
+}

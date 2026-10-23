@@ -38,9 +38,9 @@ export function mountFloatingLayout() {
         && repositoryControls.apps?.links.every(link => repositoryControls.apps.element.contains(link))) return;
       restoreRepositoryControls();
     }
-    const speed = dock?.querySelector(lab.speedSelector);
+    const content = dock?.querySelector(lab.timeline ? lab.speedSelector : '.t-mid');
     const status = document.getElementById('sim-date');
-    if (!header || !speed || !status || !REPOSITORY_LABS.every(app => document.getElementById(`tab-${app.mode}`))) return;
+    if (!header || !content || !status || !REPOSITORY_LABS.every(app => document.getElementById(`tab-${app.mode}`))) return;
 
     const group = document.createElement('div');
     group.className = 'repository-dock-actions';

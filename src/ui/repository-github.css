@@ -1,5 +1,5 @@
 /* The repository connection lives beside the other apps, using its original form. */
-html body :is(#data-timebar, #activity-timebar).panel-dock.repository-actions-dock.repository-parallel-controls > #repository-github-trigger {
+html body :is(#data-timebar, #activity-timebar, #about-timebar).panel-dock.repository-actions-dock.repository-parallel-controls > #repository-github-trigger {
   grid-column: 2;
   grid-row: 2;
   align-self: center;
@@ -10,7 +10,7 @@ html body [data-repository-app="github"] .repository-app-icon {
   --app-tile-end: #27313f;
   --dock-icon-highlight: 224, 234, 251;
 }
-html body :is(#data-timebar, #activity-timebar) .repository-github-controls {
+html body :is(#data-timebar, #activity-timebar, #about-timebar) .repository-github-controls {
   box-sizing: border-box;
   min-width: 0;
   width: 100%;
@@ -26,21 +26,21 @@ html body :is(#data-timebar, #activity-timebar) .repository-github-controls {
   box-shadow: var(--dock-surface-shadow);
   text-align: left;
 }
-html body :is(#data-timebar, #activity-timebar) .repository-github-controls[hidden] { display: none !important; }
-html body :is(#data-timebar, #activity-timebar) .repository-github-heading {
+html body :is(#data-timebar, #activity-timebar, #about-timebar) .repository-github-controls[hidden] { display: none !important; }
+html body :is(#data-timebar, #activity-timebar, #about-timebar) .repository-github-heading {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
   margin: -4px -4px 6px 0;
 }
-html body :is(#data-timebar, #activity-timebar) .repository-github-heading > .section-title {
+html body :is(#data-timebar, #activity-timebar, #about-timebar) .repository-github-heading > .section-title {
   margin: 0;
   padding: 0;
   color: #c0ccdc;
   font-size: 9px;
 }
-html body :is(#data-timebar, #activity-timebar) .repository-github-close {
+html body :is(#data-timebar, #activity-timebar, #about-timebar) .repository-github-close {
   display: grid;
   place-items: center;
   flex: none;
@@ -56,27 +56,27 @@ html body :is(#data-timebar, #activity-timebar) .repository-github-close {
   font: 400 19px/1 sans-serif;
   cursor: pointer;
 }
-html body :is(#data-timebar, #activity-timebar) .repository-github-close:hover { color: #f3f7ff; background: var(--dock-control-hover); }
-html body :is(#data-timebar, #activity-timebar) .repository-github-close:focus-visible { outline: 2px solid var(--accent-cool); outline-offset: -2px; }
-html body :is(#data-timebar, #activity-timebar) .repository-github-controls :is(.data-repo-meta, .activity-repository-meta) {
+html body :is(#data-timebar, #activity-timebar, #about-timebar) .repository-github-close:hover { color: #f3f7ff; background: var(--dock-control-hover); }
+html body :is(#data-timebar, #activity-timebar, #about-timebar) .repository-github-close:focus-visible { outline: 2px solid var(--accent-cool); outline-offset: -2px; }
+html body :is(#data-timebar, #activity-timebar, #about-timebar) .repository-github-controls :is(.data-repo-meta, .activity-repository-meta, #about-repository-meta) {
   margin: 0 0 10px;
   padding: 0;
   font-size: 12px;
 }
-html body :is(#data-timebar, #activity-timebar) .repository-github-controls :is(.data-repo-meta, .activity-repository-meta) a {
+html body :is(#data-timebar, #activity-timebar, #about-timebar) .repository-github-controls :is(.data-repo-meta, .activity-repository-meta, #about-repository-meta) a {
   color: #dce8f7;
   font-weight: 600;
   text-decoration: none;
   overflow-wrap: anywhere;
 }
-html body :is(#data-timebar, #activity-timebar) .repository-github-controls :is(.data-repo-meta, .activity-repository-meta) a:hover { text-decoration: underline; }
-html body :is(#data-timebar, #activity-timebar) .repository-github-controls :is(.data-source-row, .activity-source-row) {
+html body :is(#data-timebar, #activity-timebar, #about-timebar) .repository-github-controls :is(.data-repo-meta, .activity-repository-meta, #about-repository-meta) a:hover { text-decoration: underline; }
+html body :is(#data-timebar, #activity-timebar, #about-timebar) .repository-github-controls :is(.data-source-row, .activity-source-row, .about-source-row) {
   display: flex;
   gap: 6px;
   min-width: 0;
   padding: 0 0 8px;
 }
-html body :is(#data-timebar, #activity-timebar) .repository-github-controls input[type="url"] {
+html body :is(#data-timebar, #activity-timebar, #about-timebar) .repository-github-controls input[type="url"] {
   flex: 1;
   min-width: 0;
   min-height: 34px;
@@ -84,37 +84,40 @@ html body :is(#data-timebar, #activity-timebar) .repository-github-controls inpu
   font-family: inherit;
   background: var(--dock-field-fill);
 }
-html body :is(#data-timebar, #activity-timebar) .repository-github-controls button[type="submit"] { flex: none; min-height: 34px; }
-html body :is(#data-timebar, #activity-timebar) .repository-github-controls :is(.data-source-tools, .data-example-choices, .activity-example-choices) {
+html body :is(#data-timebar, #activity-timebar, #about-timebar) .repository-github-controls button[type="submit"] { flex: none; min-height: 34px; }
+html body :is(#data-timebar, #activity-timebar, #about-timebar) .repository-github-controls :is(.data-source-tools, .data-example-choices, .activity-example-choices, .about-example-choices) {
   flex-wrap: wrap;
   gap: 6px;
   padding: 0 0 8px;
 }
-html body :is(#data-timebar, #activity-timebar) .repository-github-controls :is(.data-example-choices, .activity-example-choices) .btn { padding-inline: 6px; font-size: 10px; }
-html body :is(#data-timebar, #activity-timebar) .repository-github-controls #data-examples-label { display: none; }
-html body :is(#data-timebar, #activity-timebar) .repository-github-controls :is(#data-status, #activity-status) {
+html body :is(#data-timebar, #activity-timebar, #about-timebar) .repository-github-controls :is(.data-example-choices, .activity-example-choices, .about-example-choices) .btn { padding-inline: 6px; font-size: 10px; }
+html body :is(#data-timebar, #activity-timebar, #about-timebar) .repository-github-controls #data-examples-label { display: none; }
+html body :is(#data-timebar, #activity-timebar, #about-timebar) .repository-github-controls :is(#data-status, #activity-status, #about-status) {
   margin: 0;
   padding: 0;
   font-size: 10px;
   line-height: 1.5;
   overflow-wrap: anywhere;
 }
-html body :is(#data-timebar, #activity-timebar) .repository-github-controls .activity-source-actions { padding: 6px 0 0; gap: 8px; }
+html body :is(#data-timebar, #activity-timebar, #about-timebar) .repository-github-controls :is(.activity-source-actions, .about-source-actions) { padding: 6px 0 0; gap: 8px; }
 @media (max-width: 540px) {
-  html body :is(#data-timebar, #activity-timebar).panel-dock.repository-actions-dock.repository-parallel-controls > #repository-github-trigger {
+  html body :is(#data-timebar, #activity-timebar, #about-timebar).panel-dock.repository-actions-dock.repository-parallel-controls > #repository-github-trigger {
     grid-row: 4;
     align-self: start;
   }
-  html body :is(#data-timebar, #activity-timebar).repository-parallel-controls .repository-dock-heading :is(.repository-github-controls, .repository-opacity-inline, .repository-timeline-controls) {
+  html body :is(#data-timebar, #activity-timebar, #about-timebar).repository-parallel-controls .repository-dock-heading :is(.repository-github-controls, .repository-opacity-inline, .repository-timeline-controls) {
     grid-column: 1 / -1;
     grid-row: auto;
   }
-  html body :is(#data-timebar, #activity-timebar) .repository-github-controls { padding: 10px; }
+  html body :is(#data-timebar, #activity-timebar, #about-timebar) .repository-github-controls { padding: 10px; }
 }
 
 /* Leave room for the labeled Opacity control when that presentation is active. */
 @media (min-width: 701px) {
-  html body :is(#data-timebar, #activity-timebar).panel-dock.repository-actions-dock.repository-parallel-controls:has(> #repository-opacity-trigger .repository-opacity-copy) {
+  html body :is(#data-timebar, #activity-timebar, #about-timebar).panel-dock.repository-actions-dock.repository-parallel-controls:has(> #repository-opacity-trigger .repository-opacity-copy) {
     grid-template-columns: 112px 44px minmax(0, 1fr);
   }
+}
+@media (max-width: 540px) {
+  html body #about-timebar.panel-dock.repository-actions-dock.repository-parallel-controls > #repository-github-trigger { grid-row: 3; }
 }

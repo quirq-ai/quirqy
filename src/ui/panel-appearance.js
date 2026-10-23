@@ -186,11 +186,12 @@ export function mountPanelAppearance() {
 
   function releaseRepositoryViews() {
     if (!repositoryViews) return;
-    const { row, placeholder, heading, nav, dock, trigger, timeline, github, connection, controller } = repositoryViews;
+    const { row, placeholder, heading, nav, dock, trigger, timeline, reading, github, connection, controller } = repositoryViews;
     setRepositoryOpacity(false);
     repositoryViews = null;
     controller.abort();
-    timeline.dispose();
+    timeline?.dispose();
+    if (reading?.placeholder.parentNode) reading.placeholder.replaceWith(reading.element);
     github?.dispose();
     connection.dispose();
     trigger?.remove();
@@ -199,7 +200,7 @@ export function mountPanelAppearance() {
     else row.remove();
     heading.remove();
     nav.remove();
-    dock.classList.remove('repository-parallel-controls');
+    dock.classList.remove('repository-parallel-controls', 'repository-reading-dock');
   }
 
   function attachRepositoryViews() {
@@ -210,15 +211,24 @@ export function mountPanelAppearance() {
     if (repositoryViews && (repositoryViews.panel !== panel || repositoryViews.actions !== actions
       || !repositoryViews.placeholder.isConnected || !dock?.contains(repositoryViews.heading)
       || !dock.contains(repositoryViews.nav) || !repositoryViews.controls.contains(repositoryViews.inline)
-      || !repositoryViews.controls.contains(repositoryViews.timeline.element) || !dock.contains(repositoryViews.timeline.trigger)
+      || (repositoryViews.timeline && (!repositoryViews.controls.contains(repositoryViews.timeline.element) || !dock.contains(repositoryViews.timeline.trigger)))
+      || (repositoryViews.reading && !repositoryViews.controls.contains(repositoryViews.reading.element))
       || !repositoryViews.nav.contains(repositoryViews.row)
       || (repositoryViews.github && (!repositoryViews.controls.contains(repositoryViews.github.element)
         || !dock.contains(repositoryViews.github.trigger))))) releaseRepositoryViews();
     if (!panel || !actions || repositoryViews) return;
     const row = panel.querySelector(lab.viewSwitch);
     if (!row) return;
-    const timeline = mountRepositoryTimeline(dock, lab.mode);
-    if (!timeline) return;
+    const timeline = lab.timeline ? mountRepositoryTimeline(dock, lab.mode) : null;
+    if (lab.timeline && !timeline) return;
+    let reading = null;
+    if (!lab.timeline) {
+      const element = dock.querySelector(':scope > .t-mid');
+      if (!element) return;
+      const placeholder = document.createComment('Repository reading status original position');
+      element.before(placeholder);
+      reading = { element, placeholder };
+    }
     const placeholder = document.createComment('Repository views are presented above the dock apps.');
     row.before(placeholder);
     const heading = document.createElement('div');
@@ -229,7 +239,7 @@ export function mountPanelAppearance() {
     nav.className = 'repository-view-nav';
     nav.dataset.dockSurface = '';
     nav.dataset.repositoryView = lab.mode;
-    nav.setAttribute('aria-label', `${lab.mode === 'data' ? 'Data' : 'Activity'} views`);
+    nav.setAttribute('aria-label', `${lab.label} views`);
     const inline = document.createElement('div');
     inline.id = 'repository-opacity-controls';
     inline.className = 'repository-opacity-inline';
@@ -251,12 +261,15 @@ export function mountPanelAppearance() {
     nav.append(row);
     const github = mountRepositoryGithub(dock, panel, lab.mode);
     if (github) controls.append(github.element);
-    controls.append(inline, timeline.element);
+    controls.append(inline);
+    if (timeline) controls.append(timeline.element);
+    if (reading) controls.append(reading.element);
     heading.append(controls);
     dock.prepend(heading, nav);
     dock.classList.add('repository-parallel-controls');
+    dock.classList.toggle('repository-reading-dock', !lab.timeline);
     const connection = mountRepositoryViewConnection(dock, nav, actions.querySelector(`#tab-${lab.mode}`));
-    repositoryViews = { panel, row, placeholder, heading, controls, timeline, github, connection, nav, dock, actions, inline, range: inlineRange, output: inline.querySelector('output'), controller, open: false, trigger: null };
+    repositoryViews = { panel, row, placeholder, heading, controls, timeline, reading, github, connection, nav, dock, actions, inline, range: inlineRange, output: inline.querySelector('output'), controller, open: false, trigger: null };
     render();
   }
 

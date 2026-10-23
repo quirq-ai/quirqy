@@ -1,6 +1,8 @@
+import { REPOSITORY_LABS } from './repository-labs.js';
+
 /** Move the existing playback controls into an independent dock disclosure. */
 export function mountRepositoryTimeline(dock, mode) {
-  if (!dock || !['data', 'activity'].includes(mode)) return null;
+  if (!dock || !REPOSITORY_LABS.some(lab => lab.mode === mode && lab.timeline)) return null;
   const controls = [`#${mode}-prev`, `#${mode}-play`, '.t-mid', `#${mode}-next`, `.${mode}-speed`]
     .map(selector => dock.querySelector(`:scope > ${selector}`));
   if (controls.some(control => !control)) return null;

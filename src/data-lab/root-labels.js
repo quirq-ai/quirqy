@@ -1,12 +1,15 @@
 import * as THREE from 'three';
 import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
-import { placeRootLabels, placeReadableRootLabels } from './root-label-layout.js';
+import { placeRootLabels, placeReadableRootLabels, placeClassificationRootLabels } from './root-label-layout.js';
+import { ROOT_ATTENTION_COLORS } from './root-attention.js';
 
 const basename = path => String(path || '').split('/').filter(Boolean).pop() || '';
 const finite = value => Number.isFinite(value);
 const FILE_FONT = 11;
 const FILE_LINE = 14;
 const FONT_FAMILY = 'ui-monospace,SFMono-Regular,Consolas,monospace';
+const ATTENTION_TEXT_COLORS = Object.fromEntries(Object.entries(ROOT_ATTENTION_COLORS)
+  .map(([direction, color]) => [direction, `#${color.toString(16).padStart(6, '0')}`]));
 
 /** Persistent screen-space names anchored to the real folder junctions and file ends. */
 export class RootLabels {
@@ -17,7 +20,10 @@ export class RootLabels {
     this.records = [];
     this.files = [];
     this.folders = [];
+    this.levels = [];
     this.projected = new THREE.Vector3();
+    this.outward = new THREE.Vector3();
+    this.presentationMode = 'organic';
     this.textMetrics = document.createElement('canvas').getContext('2d');
     this.enabled = false;
     this.focusMode = false;
@@ -26,6 +32,13 @@ export class RootLabels {
     this.signature = null;
     this.obstacles = [];
     this.disposed = false;
+  }
+
+  setPresentationMode(mode) {
+    const next = mode === 'classification' ? 'classification' : 'organic';
+    if (next === this.presentationMode) return;
+    this.presentationMode = next;
+    this.signature = null;
   }
 
   setFocusMode(enabled) {
@@ -65,7 +78,7 @@ export class RootLabels {
     anchor.setAttribute('aria-hidden', 'true');
     const element = document.createElement('span');
     element.className = `data-root-${kind}-name`;
-    element.textContent = basename(path);
+    element.textContent = this._nameText(kind, path, source);
     element.title = path;
     element.style.cssText = 'position:absolute;display:block;white-space:pre;pointer-events:none;box-sizing:border-box;text-shadow:0 1px 3px #000,0 0 5px #000;background:rgba(1,3,10,.58);';
     element.style.fontFamily = FONT_FAMILY;
@@ -85,6 +98,49 @@ export class RootLabels {
     this._styleName(record);
     this.records.push(record);
     return record;
+  }
+
+  _nameText(kind, path, source) {
+    const name = basename(path);
+    if (kind !== 'folder' || this.presentationMode !== 'classification') return name;
+    const count = Math.max(0, source.touchCount || 0);
+    return `${name} · ${count} ${count === 1 ? 'edit' : 'edits'}`;
+  }
+
+  setLevels(levels = []) {
+    for (const level of this.levels) { level.object.removeFromParent(); level.object.element.remove(); }
+    this.levels = levels.map(source => {
+      const element = document.createElement('span');
+      element.className = 'data-root-level-name';
+      element.textContent = `Level ${source.depth}`;
+      element.setAttribute('aria-hidden', 'true');
+      element.style.cssText = 'pointer-events:none;white-space:nowrap;color:#8c97aa;font:10px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.06em;text-shadow:0 1px 3px #000;';
+      const object = new CSS2DObject(element);
+      object.center.set(0, 0);
+      object.position.fromArray(source.position);
+      object.visible = false;
+      this.group.add(object);
+      return { source, object, width: 60 };
+    });
+    this.signature = null;
+  }
+
+  _placeLevels(width, height) {
+    const overlaps = (a, b) => a.left < b.left + b.width + 3 && a.left + a.width + 3 > b.left
+      && a.top < b.top + b.height + 3 && a.top + a.height + 3 > b.top;
+    const occupied = [...this.obstacles, ...this.records.filter(record => record.visible && record.labelBounds).map(record => record.labelBounds)];
+    for (const level of this.levels) {
+      this.projected.copy(level.object.position).applyMatrix4(this.group.matrixWorld).project(this.camera);
+      const x = (this.projected.x * 0.5 + 0.5) * width;
+      const y = (-this.projected.y * 0.5 + 0.5) * height;
+      const box = { left: x + 2, top: y - 18, width: level.width, height: 14 };
+      level.object.visible = this.presentationMode === 'classification' && this.projected.z >= -1 && this.projected.z <= 1
+        && box.left >= 4 && box.top >= 4 && box.left + box.width <= width - 4 && box.top + box.height <= height - 4
+        && !occupied.some(other => overlaps(box, other));
+      level.object.element.style.marginLeft = '2px';
+      level.object.element.style.marginTop = '-18px';
+      if (level.object.visible) occupied.push(box);
+    }
   }
 
   _styleName(record) {
@@ -118,8 +174,25 @@ export class RootLabels {
     this.enabled = Boolean(visible && labels);
     if (!this.enabled) {
       for (const record of this.records) { record.object.visible = false; record.visible = false; }
+      for (const level of this.levels) level.object.visible = false;
       this.signature = null;
       return;
+    }
+    for (const record of this.records) {
+      // In root focus, labels describe attention accumulated through this
+      // commit. Keep every root in the scene, but never reveal an untouched
+      // name via hover, selection, folder focus, or a later camera move.
+      const activityVisible = this.presentationMode !== 'classification' || record.source.touchCount > 0;
+      if (record.activityVisible !== activityVisible) {
+        record.activityVisible = activityVisible;
+        this.signature = null;
+      }
+      if (record.kind !== 'folder') continue;
+      const text = this._nameText(record.kind, record.path, record.source);
+      if (record.element.textContent === text) continue;
+      record.element.textContent = text;
+      this._styleName(record);
+      this.signature = null;
     }
     this.camera.updateMatrixWorld();
     this.group.updateWorldMatrix(true, false);
@@ -134,7 +207,7 @@ export class RootLabels {
     }
     this.obstacles = this._screenObstacles(width, height);
     const obstacleSignature = this.obstacles.map(box => `${box.left},${box.top},${box.width},${box.height}`).join(';');
-    const signature = `${width}:${height}:${obstacleSignature}:${this.focusMode}:${this.focusedPath || ''}:${selectedId || ''}:${hovered?.kind || ''}:${hovered?.id || hovered?.path || ''}:${this.camera.matrixWorld.elements.join(',')}:${this.camera.projectionMatrix.elements.join(',')}:${this.group.matrixWorld.elements.join(',')}`;
+    const signature = `${width}:${height}:${obstacleSignature}:${this.focusMode}:${this.presentationMode}:${this.focusedPath || ''}:${selectedId || ''}:${hovered?.kind || ''}:${hovered?.id || hovered?.path || ''}:${this.camera.matrixWorld.elements.join(',')}:${this.camera.projectionMatrix.elements.join(',')}:${this.group.matrixWorld.elements.join(',')}`;
     if (signature !== this.signature) {
       this.signature = signature;
       for (const record of this.records) {
@@ -142,12 +215,22 @@ export class RootLabels {
         this.projected.copy(record.source.position).applyMatrix4(this.group.matrixWorld).project(this.camera);
         record.x = (this.projected.x * 0.5 + 0.5) * width;
         record.y = (-this.projected.y * 0.5 + 0.5) * height;
+        if (this.presentationMode === 'classification') {
+          const direction = record.source.labelDirection ?? record.source.node?.labelDirection ?? [0, -1, 0];
+          this.outward.copy(record.source.position);
+          this.outward.x += direction[0];
+          this.outward.y += direction[1];
+          this.outward.z += direction[2];
+          this.outward.applyMatrix4(this.group.matrixWorld).project(this.camera);
+          record.directionX = (this.outward.x - this.projected.x) * width;
+          record.directionY = -(this.outward.y - this.projected.y) * height;
+        }
         const contextual = record.kind === 'folder' || this.focusMode || record.key === selectedId || (hovered?.kind === 'file' && record.key === hovered.id);
         // A name should not escape from a root that is itself behind the HUD.
         // Keep its persistent record so it reappears as soon as the tip is clear.
         record.occludedByHud = this.obstacles.some(box => record.x >= box.left && record.x <= box.left + box.width
           && record.y >= box.top && record.y <= box.top + box.height);
-        record.visible = contextual && !record.occludedByHud && finite(record.x) && finite(record.y) && this.projected.z >= -1 && this.projected.z <= 1
+        record.visible = record.activityVisible && contextual && !record.occludedByHud && finite(record.x) && finite(record.y) && this.projected.z >= -1 && this.projected.z <= 1
           && record.x >= -10 && record.x <= width + 10 && record.y >= -10 && record.y <= height;
         record.object.visible = record.visible;
         const inFocusedFolder = this.focusMode && this.focusedPath
@@ -158,13 +241,24 @@ export class RootLabels {
           ? 100 : inFocusedFolder ? 50 : 0;
       }
       this._placeNames(width, height);
+      this._placeLevels(width, height);
     }
     for (const record of this.records) {
       const highlighted = record.kind === 'file'
         ? record.key === selectedId || (hovered?.kind === 'file' && record.key === hovered.id)
         : hovered?.kind === 'folder' && record.path === hovered.path;
-      const color = highlighted ? '#fff1cf' : record.kind === 'folder' ? '#eadbc5' : '#d5dde7';
+      const classification = this.presentationMode === 'classification';
+      const direction = record.source.attention?.direction;
+      const attentionColor = classification && direction !== 'unknown' ? ATTENTION_TEXT_COLORS[direction] : null;
+      // Labels share the root's byte direction, never its low baseline alpha.
+      // Underlining selection preserves the meaning of green/red/yellow text.
+      const color = attentionColor || (highlighted ? '#fff1cf' : record.kind === 'folder' ? '#eadbc5' : '#d5dde7');
       if (record.color !== color) { record.element.style.color = color; record.color = color; }
+      const underline = classification && highlighted;
+      if (record.underlined !== underline) {
+        record.element.style.textDecoration = underline ? 'underline' : 'none';
+        record.underlined = underline;
+      }
     }
   }
 
@@ -189,10 +283,14 @@ export class RootLabels {
   _placeNames(width, height) {
     const visible = this.records.filter(record => record.visible);
     const obstacles = this.obstacles;
-    const placer = this.files.length > 160 ? placeReadableRootLabels : placeRootLabels;
+    const placer = this.presentationMode === 'classification' ? placeClassificationRootLabels
+      : this.files.length > 160 ? placeReadableRootLabels : placeRootLabels;
     const placements = placer(visible.map(record => ({
       key: `${record.kind}:${record.key}`, kind: record.kind, priority: record.priority,
       depth: record.path.split('/').length,
+      row: record.source.row ?? record.source.node?.row,
+      side: record.source.side ?? record.source.node?.side,
+      directionX: record.directionX, directionY: record.directionY,
       parentPath: record.kind === 'file' ? record.path.slice(0, Math.max(0, record.path.lastIndexOf('/'))) : undefined,
       x: record.x, y: record.y, width: record.textWidth + (record.kind === 'folder' ? 6 : 4), height: record.boxHeight,
     })), { width, height, focusMode: this.focusMode, obstacles });
@@ -228,6 +326,7 @@ export class RootLabels {
   clear() {
     for (const record of this.records) { record.object.removeFromParent(); record.object.element.remove(); }
     this.records = []; this.files = []; this.folders = [];
+    this.setLevels([]);
     this.signature = null;
   }
 

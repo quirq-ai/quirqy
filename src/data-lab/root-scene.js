@@ -1,9 +1,11 @@
 import * as THREE from 'three';
 import { createRootLayout } from './root-layout.js';
+import { createRootClassificationLayout } from './root-classification-layout.js';
 import { createRootLengthLayout } from './root-length-layout.js';
 import { buildRootActivityHistory, rootActivityAt, rootMembershipKey } from './root-activity.js';
+import { buildRootAttentionHistory, rootAttentionAt, ROOT_ATTENTION_COLORS } from './root-attention.js';
 import { RootLabels } from './root-labels.js';
-import { ROOT_VINE_RADIUS, rootRopeRadius, createRootRopeBatch, setRootRopeShape, setRootRopeColor, finishRootRopeUpdate } from './root-rope-geometry.js';
+import { ROOT_VINE_RADIUS, ROOT_ROPE_PITCH, rootRopeRadius, createRootRopeBatch, setRootRopeShape, setRootRopeColor, finishRootRopeUpdate } from './root-rope-geometry.js';
 import { CHANGE_COLORS, FOLDER_COLORS } from './encoding.js';
 
 const asVector = point => new THREE.Vector3(...point);
@@ -11,6 +13,8 @@ const toSet = value => value instanceof Set ? value : new Set(value || []);
 const makeCurve = points => new THREE.CubicBezierCurve3(...points.map(asVector));
 const STRAND_COLOR = new THREE.Color(0xb0926f);
 const SELECTED_COLOR = new THREE.Color(0xe1eefc);
+export const ROOT_NEUTRAL_ALPHA = 0.18;
+const highlightedAlpha = 0.65;
 const ease = value => value * value * (3 - 2 * value);
 const curvePoints = curve => [curve.v0, curve.v1, curve.v2, curve.v3];
 // Two twisted strands give the roots a natural surface. Their count does not
@@ -21,6 +25,28 @@ const growthCounts = (layout, activity) => ({
   fileTouches: new Map(layout.nodes.map(node => [node.id, activity.fileTouches.get(node.id) || 0])),
   folderTouches: new Map(layout.folders.map(folder => [folder.path, activity.folderTouches.get(folder.path) || 0])),
 });
+
+// Reserve historical names and the largest count suffix once. A rename or
+// another commit must not silently change the meaning of a hierarchy lane.
+function classificationLabelWidths(model, maximumActivity) {
+  const widths = new Map();
+  const reserve = (key, text) => {
+    const pixels = [...text].reduce((sum, glyph) => sum + (/[^\x00-\x7f]/.test(glyph) ? 13 : 8), 8);
+    widths.set(key, Math.max(widths.get(key) || 0, pixels / 4));
+  };
+  const include = (path, id) => {
+    if (typeof path !== 'string' || path.split('/').some(part => part.startsWith('.'))) return;
+    const parts = path.split('/');
+    reserve(`file:${id}`, parts.at(-1));
+    for (let depth = 1; depth < parts.length; depth++) {
+      const folder = parts.slice(0, depth).join('/');
+      reserve(`folder:${folder}`, `${parts[depth - 1]} · ${maximumActivity.folderTouches.get(folder) || 0} touches`);
+    }
+  };
+  for (const node of model.nodes) for (const path of new Set([node.path, ...(node.aliases || [])])) include(path, node.id);
+  for (const snapshot of model._snapshots || []) for (const [path, id] of snapshot) include(path, id);
+  return widths;
+}
 
 /** Each file touch adds a fixed length; folder junctions stay rooted in place. */
 export class RepositoryRoots {
@@ -33,6 +59,8 @@ export class RepositoryRoots {
     this.labels = new RootLabels(stage, this.group);
     this.files = new Map(); this.folders = new Map();
     this.options = { roots: true, labels: true, activity: true };
+    this.presentationMode = 'organic';
+    this.attentionHistory = this.attentionState = null;
     this.selectedId = null; this.hovered = null;
     this.changedIds = new Set(); this.statuses = {};
     this.folderFaces = []; this.fileFaces = []; this.pickables = [];
@@ -45,6 +73,19 @@ export class RepositoryRoots {
 
   get labelRecords() { return this.labels.records; }
 
+  setPresentationMode(mode) {
+    const next = mode === 'classification' ? 'classification' : 'organic';
+    this.labels.setPresentationMode(next);
+    if (next === this.presentationMode) return false;
+    this.presentationMode = next;
+    this.signature = null;
+    if (this.model) this.setFrame({
+      activeIds: this.activeIds, paths: this.currentPaths, changedIds: this.changedIds,
+      statuses: this.statuses, selectedId: this.selectedId, index: this.index, animate: false,
+    });
+    return true;
+  }
+
   setModel(model) {
     this._clear();
     this.model = model;
@@ -53,7 +94,20 @@ export class RepositoryRoots {
     // physical meaning of a touch as files are added, removed, or renamed.
     this.repositoryWidth = createRootLayout(model).footprint.width;
     this.activityHistory = buildRootActivityHistory(model);
+    this.attentionHistory = buildRootAttentionHistory(model);
     this.maximumActivity = rootActivityAt(this.activityHistory, model.commits.length - 1);
+    const unionLayout = createRootLayout(model, { activeIds: new Set(model.nodes.map(node => node.id)), repositoryWidth: this.repositoryWidth });
+    const labelWidths = classificationLabelWidths(model, this.maximumActivity);
+    const classification = createRootClassificationLayout(unionLayout, { labelWidths });
+    this.classificationCalibration = {
+      // At a representative 900px reading pane, width/40 leaves roughly 22px
+      // between folder levels. Calibrate once from the whole loaded history;
+      // local lanes, exact attention increments and replay cannot change it.
+      tierPitch: Math.max(classification.classification.tierPitch, classification.footprint.width / 40),
+      lanePitch: classification.classification.lanePitch,
+      labelWidths,
+      referenceWidth: classification.footprint.width,
+    };
     this.selectedId = null; this.hovered = null;
     this.signature = null; this.index = null;
     this.surface = this.surfaceDisplay = null;
@@ -81,11 +135,13 @@ export class RepositoryRoots {
       : null;
     if (layoutChanged) {
       this.signature = signature;
-      this.baseLayout = createRootLayout(this.model, { activeIds: active, paths: currentPaths, groundY: -40, repositoryWidth: this.repositoryWidth });
+      const organic = createRootLayout(this.model, { activeIds: active, paths: currentPaths, groundY: -40, repositoryWidth: this.repositoryWidth });
+      this.baseLayout = this.presentationMode === 'classification' ? createRootClassificationLayout(organic, this.classificationCalibration) : organic;
       this._build(this.baseLayout, previousShapes);
     }
     this.index = nextIndex;
     this.activityState = rootActivityAt(this.activityHistory, nextIndex);
+    this.attentionState = rootAttentionAt(this.attentionHistory, nextIndex);
     const canAnimate = Boolean(animate && adjacent && this.options.activity && !this.motionPreference?.matches);
     if (layoutChanged || previousIndex !== nextIndex) {
       this.pathGrowth = growthCounts(this.baseLayout, this.activityState);
@@ -139,7 +195,7 @@ export class RepositoryRoots {
     this.bounds = new THREE.Box3(asVector(layout.bounds.min), asVector(layout.bounds.max));
     this.renderedCount = layout.nodes.length;
     const topPaths = layout.folders.filter(folder => folder.depth === 1).map(folder => folder.path).sort();
-    const colorFor = path => new THREE.Color(FOLDER_COLORS[Math.max(0, topPaths.indexOf(path.split('/')[0])) % FOLDER_COLORS.length]);
+    const colorFor = path => new THREE.Color(layout.kind === 'classification' ? ROOT_ATTENTION_COLORS.unknown : FOLDER_COLORS[Math.max(0, topPaths.indexOf(path.split('/')[0])) % FOLDER_COLORS.length]);
     // Future counts reserve buffer capacity only. The displayed pose still uses
     // the selected history prefix in setFrame; untouched roots stay untouched.
     const capacityLayout = createRootLengthLayout(layout, { fileTouches: this.maximumActivity.fileTouches });
@@ -157,10 +213,11 @@ export class RepositoryRoots {
           new THREE.CubicBezierCurve3(...previous.points).getLength()));
       }
     }
+    const classification = layout.kind === 'classification';
     const folderEdges = [], fileEdges = [];
     for (const folder of layout.folders) {
       const color = colorFor(folder.path);
-      const record = { ...folder, kind: 'folder', visible: true, position: asVector(folder.position), color, strandColor: STRAND_COLOR.clone().lerp(color, 0.35), curve: makeCurve(folder.curve), edgeKey: `folder:${folder.path}`, touchCount: 0, radius: ROOT_VINE_RADIUS, radiusTarget: ROOT_VINE_RADIUS };
+      const record = { ...folder, kind: 'folder', visible: true, position: asVector(folder.position), color, strandColor: layout.kind === 'classification' ? color.clone() : STRAND_COLOR.clone().lerp(color, 0.35), curve: makeCurve(folder.curve), edgeKey: `folder:${folder.path}`, touchCount: 0, radius: ROOT_VINE_RADIUS, radiusTarget: ROOT_VINE_RADIUS };
       this.folders.set(folder.path, record);
       // The existing trunk is the sole repository root; folders are junctions.
       if (folder.path) folderEdges.push({ key: folder.path, curve: record.curve, color: record.strandColor, touches: ROPE_PACKING, maxTouches: ROPE_PACKING, maxLength: folderLengths.get(folder.path) });
@@ -174,7 +231,7 @@ export class RepositoryRoots {
         const node = layout.nodes[index];
         const position = asVector(node.position);
         const folder = this.folders.get(node.folder);
-        const color = STRAND_COLOR.clone().lerp(folder.color, 0.4);
+        const color = layout.kind === 'classification' ? new THREE.Color(ROOT_ATTENTION_COLORS.unknown) : STRAND_COLOR.clone().lerp(folder.color, 0.4);
         const curve = makeCurve(node.curve);
         const membershipKey = rootMembershipKey(node.folder, node.id);
         fileEdges.push({ key: node.id, curve, color, touches: ROPE_PACKING, maxTouches: ROPE_PACKING, maxLength: fileLengths.get(node.id) });
@@ -186,9 +243,14 @@ export class RepositoryRoots {
       this.tipPicks.computeBoundingSphere();
       this.group.add(this.tipPicks); this.pickables.push(this.tipPicks);
     }
-    this.folderBatch = createRootRopeBatch(folderEdges);
-    this.fileBatch = createRootRopeBatch(fileEdges, { pointed: true });
-    const material = () => new THREE.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, roughness: 0.83, metalness: 0.02, emissive: 0x392a1a, emissiveIntensity: 0.1 });
+    if (layout.kind === 'classification') for (const edge of [...folderEdges, ...fileEdges]) {
+      const budgetLength = Math.max(edge.curve.getLength() * 2, edge.maxLength || 0) + rootRopeRadius(ROPE_PACKING) * 4;
+      edge.pitch = Math.max(ROOT_ROPE_PITCH, budgetLength * 12 / 256);
+      edge.segments = Math.min(256, Math.max(16, Math.ceil(budgetLength * 12 / edge.pitch)));
+    }
+    this.folderBatch = createRootRopeBatch(folderEdges, { vertexAlpha: classification });
+    this.fileBatch = createRootRopeBatch(fileEdges, { pointed: true, vertexAlpha: classification });
+    const material = () => new THREE.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, roughness: 0.83, metalness: 0.02, emissive: 0x392a1a, emissiveIntensity: 0.1, transparent: classification, depthWrite: !classification });
     this.strands = [];
     if (this.folderBatch) {
       this.branchMesh = new THREE.Mesh(this.folderBatch.geometry, material());
@@ -215,26 +277,55 @@ export class RepositoryRoots {
     const linePositions = [], lineColors = [];
     for (const record of this.strands) {
       const points = record.curve.getPoints(20);
-      record.centerlineRange = { vertexStart: linePositions.length / 3, vertexCount: 40, color: record.strandColor.clone() };
+      record.centerlineRange = { vertexStart: linePositions.length / 3, vertexCount: 40, color: record.strandColor.clone(), alpha: 1 };
       for (let index = 1; index < points.length; index++) {
         linePositions.push(...points[index - 1].toArray(), ...points[index].toArray());
-        for (let end = 0; end < 2; end++) lineColors.push(record.strandColor.r, record.strandColor.g, record.strandColor.b);
+        for (let end = 0; end < 2; end++) {
+          lineColors.push(record.strandColor.r, record.strandColor.g, record.strandColor.b);
+          if (classification) lineColors.push(1);
+        }
       }
     }
     const lineGeometry = new THREE.BufferGeometry();
     lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
-    lineGeometry.setAttribute('color', new THREE.Float32BufferAttribute(lineColors, 3));
-    this.centerlines = new THREE.LineSegments(lineGeometry, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.38, depthWrite: false }));
+    lineGeometry.setAttribute('color', new THREE.Float32BufferAttribute(lineColors, classification ? 4 : 3));
+    this.centerlines = new THREE.LineSegments(lineGeometry, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: classification ? 1 : 0.38, depthWrite: false }));
     this.group.add(this.centerlines);
     this.selectionTrace = new THREE.LineSegments(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({ color: 0xc9dce9, transparent: true, opacity: 0.72, depthWrite: false, depthTest: false }));
     this.selectionTrace.visible = false; this.selectionTrace.renderOrder = 2;
     this.group.add(this.selectionTrace);
+    this._buildLevelGuides(layout);
+    this.labels.setPresentationMode(this.presentationMode);
     this.labels.setLayout(this.folders, this.files);
+    this.labels.setLevels?.(this.levels);
     this.labelWidths = new Map(this.labels.files.map(record => [record.key, record.textWidth]));
     this.surfaceSignature = null;
     this.group.visible = this.options.roots;
     if (this.hovered?.kind === 'file' && !this.files.has(this.hovered.id)) this.hovered = null;
     if (this.hovered?.kind === 'folder' && !this.folders.has(this.hovered.path)) this.hovered = null;
+  }
+
+  _buildLevelGuides(layout) {
+    this.levels = [];
+    if (layout.kind !== 'classification' || layout.classification?.orientation !== 'down') return;
+    const positions = [...layout.folders, ...layout.nodes].map(record => record.position[0]);
+    const xMin = Math.min(0, ...positions) - 4, xMax = Math.max(0, ...positions) + 4;
+    const folderDepths = new Set(layout.folders.map(folder => folder.depth));
+    const vertices = [];
+    for (const level of layout.classification.levels || []) {
+      if (!level.depth || !folderDepths.has(level.depth)) continue;
+      const position = [xMin, level.y, -1.2];
+      this.levels.push({ ...level, xMin, xMax, position });
+      vertices.push(...position, xMax, level.y, -1.2);
+    }
+    if (!vertices.length) return;
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+    this.levelGuides = new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({ color: 0x74849a, transparent: true, opacity: .11, depthWrite: false }));
+    this.levelGuides.name = 'Repository depth guides';
+    this.levelGuides.renderOrder = -1;
+    // Guides explain depth only; they are never folders, index entries or picks.
+    this.group.add(this.levelGuides);
   }
 
   _setShape(record, amount) {
@@ -257,6 +348,9 @@ export class RepositoryRoots {
     }
     const parent = record.kind === 'file' ? record.folder : this.folders.get(record.parent);
     record.ropeStartDistance = parent?.ropeEndDistance || 0;
+    // Preserve the inherited helix phase when a long classification connector
+    // uses a different decorative pitch. Equal-pitch organic roots are unchanged.
+    if (parent?.range && parent.range.pitch !== record.range.pitch) record.ropeStartDistance *= record.range.pitch / parent.range.pitch;
     const addedLength = record.kind === 'file' ? record.displayTouches * record.lengthPerTouch : 0;
     record.radialScale = naturalCaliber(record.baseLength, addedLength);
     setRootRopeShape(record.batch, record.range, record.curve, ROPE_PACKING, record.ropeStartDistance, record.radialScale);
@@ -300,33 +394,64 @@ export class RepositoryRoots {
     this.transition = null; this._finishGeometry();
   }
 
+  setFocusFolder(path) {
+    this.labels.setFocusFolder(path);
+    this._updateColors();
+  }
+
   _updateColors() {
+    const classification = this.presentationMode === 'classification';
+    const focus = classification ? this.labels.focusedPath : null;
+    const inFocus = path => !focus || path === focus || path.startsWith(`${focus}/`);
     const color = new THREE.Color();
     for (const [id, record] of this.files) {
-      color.copy(record.strandColor);
-      if (this.options.activity && this.changedIds.has(id)) color.lerp(new THREE.Color(CHANGE_COLORS[this.statuses[id]] || CHANGE_COLORS.modified), 0.8);
-      if (id === this.selectedId || this.hovered?.id === id) color.lerp(SELECTED_COLOR, 0.75);
-      setRootRopeColor(this.fileBatch, record.range, color);
-      this._setCenterlineColor(record, color);
+      record.attention = this.attentionState?.files.get(id) || null;
+      if (classification) {
+        // This is persistent data, independent of the transient Commit effects
+        // toggle. Unknown comparisons replace a prior hue instead of guessing.
+        color.setHex(ROOT_ATTENTION_COLORS[record.attention?.direction || 'unknown']);
+      } else {
+        color.copy(record.strandColor);
+        if (this.options.activity && this.changedIds.has(id)) color.lerp(new THREE.Color(CHANGE_COLORS[this.statuses[id]] || CHANGE_COLORS.modified), 0.8);
+      }
+      const highlighted = id === this.selectedId || this.hovered?.id === id;
+      record.alpha = classification && (!record.attention || record.attention.direction === 'unknown') ? highlighted ? highlightedAlpha : ROOT_NEUTRAL_ALPHA : 1;
+      if (highlighted) color.lerp(SELECTED_COLOR, classification ? 0.12 : 0.75);
+      else if (!inFocus(record.node.folder)) color.multiplyScalar(.13);
+      setRootRopeColor(this.fileBatch, record.range, color, record.alpha);
+      this._setCenterlineColor(record, color, record.alpha);
     }
     for (const folder of this.folders.values()) {
+      folder.attention = this.attentionState?.folders?.get(folder.path) || null;
+      const highlighted = this.hovered?.kind === 'folder' && this.hovered.path === folder.path;
+      folder.alpha = classification && (!folder.attention || folder.attention.direction === 'unknown') ? highlighted ? highlightedAlpha : ROOT_NEUTRAL_ALPHA : 1;
       if (!folder.range) continue;
-      color.copy(folder.strandColor);
-      if (this.options.activity && this.activityState?.touchedFolders.has(folder.path)) color.lerp(new THREE.Color(CHANGE_COLORS.modified), 0.28);
-      if (this.hovered?.kind === 'folder' && this.hovered.path === folder.path) color.lerp(SELECTED_COLOR, 0.5);
-      setRootRopeColor(this.folderBatch, folder.range, color);
-      this._setCenterlineColor(folder, color);
+      if (classification) color.setHex(ROOT_ATTENTION_COLORS[folder.attention?.direction || 'unknown']);
+      else {
+        color.copy(folder.strandColor);
+        if (this.options.activity && this.activityState?.touchedFolders.has(folder.path)) color.lerp(new THREE.Color(CHANGE_COLORS.modified), 0.28);
+      }
+      if (highlighted) color.lerp(SELECTED_COLOR, classification ? 0.12 : 0.5);
+      else if (!inFocus(folder.path) && !focus?.startsWith(`${folder.path}/`)) color.multiplyScalar(.13);
+      setRootRopeColor(this.folderBatch, folder.range, color, folder.alpha);
+      this._setCenterlineColor(folder, color, folder.alpha);
     }
     this._finishGeometry();
     if (this.underlayColorDirty) { this.centerlines.geometry.attributes.color.needsUpdate = true; this.underlayColorDirty = false; }
   }
 
-  _setCenterlineColor(record, color) {
+  _setCenterlineColor(record, color, alpha = 1) {
     const range = record.centerlineRange;
-    if (!range || range.color.equals(color)) return;
-    const colors = this.centerlines.geometry.attributes.color.array;
-    for (let index = range.vertexStart * 3; index < (range.vertexStart + range.vertexCount) * 3; index += 3) { colors[index] = color.r; colors[index + 1] = color.g; colors[index + 2] = color.b; }
-    range.color.copy(color);
+    if (!range) return;
+    const attribute = this.centerlines.geometry.attributes.color, stride = attribute.itemSize;
+    const opacity = stride === 4 ? alpha : 1;
+    if (range.color.equals(color) && range.alpha === opacity) return;
+    const colors = attribute.array;
+    for (let index = range.vertexStart * stride; index < (range.vertexStart + range.vertexCount) * stride; index += stride) {
+      colors[index] = color.r; colors[index + 1] = color.g; colors[index + 2] = color.b;
+      if (stride === 4) colors[index + 3] = opacity;
+    }
+    range.color.copy(color); range.alpha = opacity;
     this.underlayColorDirty = true;
   }
 
@@ -447,7 +572,8 @@ export class RepositoryRoots {
     });
     this.group.clear(); this.files.clear(); this.folders.clear();
     this.folderFaces = []; this.fileFaces = []; this.pickables = []; this.strands = []; this.orderedStrands = [];
-    this.folderBatch = this.fileBatch = this.tipPicks = this.branchMesh = this.filamentMesh = this.selectionTrace = this.centerlines = null;
+    this.folderBatch = this.fileBatch = this.tipPicks = this.branchMesh = this.filamentMesh = this.selectionTrace = this.centerlines = this.levelGuides = null;
+    this.levels = [];
     this.tipIds = []; this.transition = null; this.underlayColorDirty = false; this.shapeDirty = false;
   }
 
@@ -455,6 +581,6 @@ export class RepositoryRoots {
     if (this.disposed) return;
     this.disposed = true; this._clear(); this.labels.dispose();
     this.group.removeFromParent();
-    this.layout = this.baseLayout = this.growthLayout = this.surface = this.surfaceDisplay = this.labelWidths = this.surfaceCrowding = this.model = this.bounds = this.activityHistory = this.maximumActivity = this.activityState = this.pathGrowth = null;
+    this.layout = this.baseLayout = this.growthLayout = this.surface = this.surfaceDisplay = this.labelWidths = this.surfaceCrowding = this.model = this.bounds = this.attentionHistory = this.attentionState = this.activityHistory = this.maximumActivity = this.activityState = this.pathGrowth = this.classificationCalibration = null;
   }
 }

@@ -4,6 +4,7 @@ import { mountAppsLauncher } from './apps-launcher.js';
 const APPS = [
   { mode: 'data', label: 'Data Lab', name: 'Data', icon: '<path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9"/>' },
   { mode: 'activity', label: 'Activity Lab', name: 'Activity', icon: '<path d="M7 8.25v7.5M17 8.25v1.5c0 4-10 1-10 6"/><circle cx="7" cy="6" r="2.25"/><circle cx="17" cy="6" r="2.25"/><circle cx="7" cy="18" r="2.25"/>' },
+  { mode: 'about', label: 'About · README', name: 'About', icon: '<path d="M12 5v15M3 4.5c3-1 6-.5 9 1.5 3-2 6-2.5 9-1.5v14c-3-1-6-.5-9 1.5-3-2-6-2.5-9-1.5v-14Z"/>' },
 ];
 const ATTRIBUTES = ['class', 'aria-label', 'aria-current', 'data-repository-app', 'data-tooltip-dismissed'];
 

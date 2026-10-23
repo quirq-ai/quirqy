@@ -38,7 +38,26 @@ function cloneRecord(record) {
     ...record, position: [...record.position], curve, points: curve,
     ...(record.children ? { children: [...record.children] } : {}),
     ...(record.directFiles ? { directFiles: [...record.directFiles] } : {}),
+    ...(record.rowSpan ? { rowSpan: [...record.rowSpan] } : {}),
+    ...(record.laneBounds ? { laneBounds: [...record.laneBounds] } : {}),
+    ...(record.labelDirection ? { labelDirection: [...record.labelDirection] } : {}),
+    ...(record.labelBounds ? { labelBounds: { min: [...record.labelBounds.min], max: [...record.labelBounds.max] } } : {}),
   };
+}
+
+// Every touch has the same downward displacement, regardless of file size
+// or initial branch shape. Moving the last two controls together preserves
+// the assigned X/Z lane and both endpoint tangents.
+function growClassificationCurve(node, addedLength) {
+  const curve = node.curve.map(point => [...point]);
+  const displacement = -addedLength;
+  curve[2][1] += displacement;
+  curve[3][1] += displacement;
+  if (node.labelBounds) {
+    node.labelBounds.min[1] += displacement;
+    node.labelBounds.max[1] += displacement;
+  }
+  return curve;
 }
 
 function expandedBase(baseLayout, min, max) {
@@ -57,9 +76,12 @@ function expandedBase(baseLayout, min, max) {
 }
 
 /**
- * Each visible file gains the same arc length per cumulative stable-ID touch.
- * Uniformly scaling its cubic about its fixed parent preserves its original
- * direction and curvature proportions: L becomes L + lengthPerTouch * touches.
+ * Each visible file gains the same calibrated amount per stable-ID touch.
+ * Organic mode adds exact arc length by scaling its cubic about its fixed parent.
+ * Classification mode instead adds exact downward displacement in negative Y,
+ * preserving its assigned X/Z lane. File bytes never enter either calculation.
+ * addedLength is the quantitative extension in lengthGrowth.metric; length and
+ * actualArcLength always describe the resulting curve's physical arc length.
  * Folder junctions, untouched files and neighbouring subtrees never move.
  * The default increment comes from the layout's repository-width proportions;
  * an explicit lengthPerTouch, including zero, overrides that data scale.
@@ -73,6 +95,7 @@ export function createRootLengthLayout(baseLayout, { fileTouches, lengthPerTouch
   const inheritedIncrement = nonnegative(baseLayout.proportions?.lengthPerTouch, ROOT_LENGTH_PER_TOUCH);
   const increment = lengthPerTouch === undefined ? inheritedIncrement : nonnegative(lengthPerTouch, inheritedIncrement);
   const clearance = nonnegative(padding, DEFAULT_PADDING);
+  const metric = baseLayout.kind === 'classification' ? 'vertical' : 'arc';
   const folders = baseLayout.folders.map(cloneRecord), nodes = baseLayout.nodes.map(cloneRecord);
   const byPath = new Map(folders.map(folder => [folder.path, folder]));
   const byId = new Map(nodes.map(node => [node.id, node]));
@@ -85,11 +108,17 @@ export function createRootLengthLayout(baseLayout, { fileTouches, lengthPerTouch
     node.baseLength = baseLength;
     node.addedLength = addedLength;
     node.length = baseLength + addedLength;
+    node.actualArcLength = node.length;
+    node.addedArcLength = addedLength;
     totalAddedLength += addedLength;
     maxTouches = Math.max(maxTouches, touches);
     if (!addedLength) continue;
     const origin = node.curve[0];
-    if (baseLength > 1e-12) {
+    if (metric === 'vertical') {
+      node.curve = growClassificationCurve(node, addedLength);
+      node.length = node.actualArcLength = rootCurveLength(node.curve);
+      node.addedArcLength = node.actualArcLength - baseLength;
+    } else if (baseLength > 1e-12) {
       const scale = 1 + addedLength / baseLength;
       node.curve = node.curve.map(point => point.map((value, axis) => origin[axis] + (value - origin[axis]) * scale));
     } else {
@@ -110,9 +139,15 @@ export function createRootLengthLayout(baseLayout, { fileTouches, lengthPerTouch
     min[axis] = Math.min(min[axis], point[axis] - clearance);
     max[axis] = Math.max(max[axis], point[axis] + clearance);
   }
+  if (baseLayout.kind === 'classification') for (const row of rows) if (row.labelBounds) {
+    for (let axis = 0; axis < 3; axis++) {
+      min[axis] = Math.min(min[axis], row.labelBounds.min[axis] - clearance);
+      max[axis] = Math.max(max[axis], row.labelBounds.max[axis] + clearance);
+    }
+  }
   const center = min.map((value, axis) => (value + max[axis]) / 2);
   const extent = Math.hypot(...max.map((value, axis) => value - center[axis]));
-  const footprint = active ? {
+  const footprint = active && metric === 'arc' ? {
     ...baseLayout.footprint,
     width: 2 * Math.max(Math.abs(min[0]), Math.abs(max[0])),
     depth: 2 * Math.max(Math.abs(min[2]), Math.abs(max[2])),
@@ -122,6 +157,6 @@ export function createRootLengthLayout(baseLayout, { fileTouches, lengthPerTouch
     base: expandedBase(baseLayout, min, max),
     ...(baseLayout.readability ? { readability: { ...baseLayout.readability } } : {}),
     ...(baseLayout.proportions ? { proportions: { ...baseLayout.proportions } } : {}),
-    lengthGrowth: { active, lengthPerTouch: increment, totalAddedLength, maxTouches },
+    lengthGrowth: { active, metric, lengthPerTouch: increment, totalAddedLength, maxTouches },
   };
 }

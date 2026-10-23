@@ -4,6 +4,7 @@
 export const ROUTES = [
   { mode: 'data', path: '/data', title: 'Quirqy · Data Lab', aliases: ['/', '/data-lab'] },
   { mode: 'activity', path: '/activity', title: 'Quirqy · Activity Lab', aliases: ['/activity-lab'] },
+  { mode: 'about', path: '/about', title: 'Quirqy · About', aliases: ['/readme'] },
   { mode: 'spm', path: '/spm', title: 'Quirqy · SPM Mooring', aliases: ['/mooring'] },
   { mode: 'solar', path: '/solar', title: 'Quirqy · Solar System', aliases: [] },
   { mode: 'math', path: '/equation', title: 'Quirqy · Equation Lab', aliases: ['/math', '/equations'] },

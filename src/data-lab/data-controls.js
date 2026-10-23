@@ -1,11 +1,11 @@
-import { Quaternion, Vector3 } from 'three';
+import { MOUSE, Quaternion, Vector3 } from 'three';
 import { TrackballControls } from 'three/addons/controls/TrackballControls.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 // Internal state used by the pinned Three.js TrackballControls implementation.
 const TOUCH_ZOOM_PAN = 4;
 
-/** Upright orbit normally; unrestricted rotation only while inspecting roots. */
+/** Upright orbit normally; direct pan and unrestricted rotation while inspecting roots. */
 export class DataLabControls extends TrackballControls {
   constructor(camera, canvas) {
     super(camera, canvas);
@@ -89,6 +89,7 @@ export class DataLabControls extends TrackballControls {
     if (next) {
       this._orbit.disconnect();
       this.rootMode = true;
+      this.mouseButtons.LEFT = MOUSE.PAN;
       super.connect();
       // Data Lab owns keyboard commands, including S for a snapshot.
       window.removeEventListener('keydown', this._onKeyDown);
@@ -166,6 +167,10 @@ export class DataLabControls extends TrackballControls {
       }
       return;
     }
+    // Choose the action once, at gesture start. Trackball keeps that action
+    // until release, so releasing Alt mid-drag never turns a rotation into pan.
+    // Its pan translates both camera and target and stays usable at any zoom.
+    if (event.button === 0) this.mouseButtons.LEFT = event.altKey ? MOUSE.ROTATE : MOUSE.PAN;
     if (event.button !== 0 || !event.shiftKey || this.noRotate) return;
     this.stop();
     this._rollPointer = { id: event.pointerId, x: event.clientX };

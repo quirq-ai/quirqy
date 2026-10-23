@@ -4,7 +4,7 @@
 
 **Explore repositories, their history, and the people around them in interactive 3D.**
 
-Quirqy builds on Observatory's shared 3D engine and liquid-glass interface. Its primary repository apps are **Data Lab** for files and commit history, and **Activity Lab** for pull requests, issues, reviews, comments, forks, and contributors. Scientific instruments remain available through the dock's **Apps** launcher.
+Quirqy builds on Observatory's shared 3D engine and liquid-glass interface. Its primary repository apps are **Data Lab** for files and commit history, **Activity Lab** for pull requests, issues, reviews, comments, forks, and contributors, and **About** for the connected repository’s README. Scientific instruments remain available through the dock's **Apps** launcher.
 
 This project is maintained on the `quirq` branch of [quirq-ai/quirqy](https://github.com/quirq-ai/quirqy). Every page centers on a meaningful 3D visualization; panels and timelines support the scene.
 
@@ -12,7 +12,7 @@ The existing `v0` tag preserves the original remote baseline, and `v0.1` marks a
 
 ## Run locally
 
-Use **Node.js 22 or newer**, npm, and a modern browser with WebGL support.
+Use a supported Node.js LTS release: **22.22.2 or later in the 22.x line**, or **24.15.0 or later in the 24.x line**, plus npm and a modern browser with WebGL support.
 
 ```bash
 git clone --branch quirq https://github.com/quirq-ai/quirqy.git
@@ -21,7 +21,7 @@ npm ci
 npm run dev
 ```
 
-Open [Data Lab](http://localhost:5174/data) or [Activity Lab](http://localhost:5174/activity). The default development port is `5174`; Vite prints the actual address if that port is occupied. The home page `/` opens Data Lab; the Solar System remains available at `/solar`.
+Open [Data Lab](http://localhost:5174/data), [Activity Lab](http://localhost:5174/activity), or [About](http://localhost:5174/about). The default development port is `5174`; Vite prints the actual address if that port is occupied. The home page `/` opens Data Lab; the Solar System remains available at `/solar`.
 
 ```bash
 npm run build       # Production files in dist/
@@ -39,20 +39,20 @@ No application backend, environment file, GitHub token, or account setup is requ
 4. Click a scene item to inspect it. Use **Frame view** or **F** to return to the whole scene; **H** opens that lab's help.
 5. Read **Data coverage** before interpreting a sample or exporting it.
 
-The selected repository is shared between Data and Activity. The two labs use separate datasets and independent timelines. Data imports pin the repository's default branch to one commit. Branch, file, and query URLs are not accepted.
+The selected repository is shared between Data, Activity, and About. The two labs use separate datasets and independent timelines. Data imports pin the repository's default branch to one commit. Branch, file, and query URLs are not accepted.
 
 ## Data Lab
 
 Data Lab turns repository hierarchy and sampled first-parent commit history into two views:
 
-- **Structure:** folders are carbon-like anchors and files are colored atoms, with file categories explained in the Scene guide. Files connect to their actual folders. While playing, folder marbles become enclosures around their contents and travelling current marks the current commit. Pausing restores the folder marbles and visible pathways. Brightness builds with loaded commit touches and rewinds with the timeline.
+- **Structure:** folders are carbon-like anchors and files are colored atoms, with file categories explained in the Scene guide. Files connect to their actual folders. While playing, folder marbles become enclosures around their contents and travelling current marks the current commit. Pausing restores the folder marbles and visible pathways. Brightness builds with loaded commit edits and rewinds with the timeline.
 - **Growth tree:** directories form branches and files form leaves. Current repository file bytes set canopy length and trunk radius on a cube-root scale, using 1 MiB as the reference. Branch size follows current descendant bytes; leaf area follows each file’s current bytes relative to 16 KiB, independently of canopy size. Byte increases grow the tree, byte decreases shrink it, and equal byte sizes stay equal across commits. The camera stays fixed during replay so those changes remain visible. Totals use the full repository file tree, including unmapped and dot-prefixed files, even though the canopy displays up to 500 leaves. They count Git blob contents, not .git storage or repository history. The guide and controls show byte totals and coverage for the selected commit. Unknown sizes are muted and excluded from the known subtotal; empty files have zero leaf area but remain pickable. Historical sizes come from recorded trees, never from line-count estimates.
 
 The Structure root shows the current commit author's portrait and name. During playback it glows; when paused, a wide glass message panel shows **only the commit title**, the commit ID, expandable changed files, line additions/deletions, and a GitHub link. Click the author's photo or name to collapse or reopen this panel. Drag, right-drag, wheel, and touch gestures over the portrait or name still control the 3D camera. Unknown or unavailable portraits use initials.
 
-**Frame roots** in Growth tree enlarges the root system and shortens the canopy around the same ground junction. Roots follow the real directory hierarchy. Every distinct loaded commit touching a file adds the same repository-calibrated length step, retained through renames and rewound with playback. The inspector reports touches and added length; compare added length within one repository and touch counts across repositories. Thickness is a visual effect. Dot-prefixed files and folders are hidden from roots, while the underlying dataset and other views retain them.
+**Frame roots** in Growth tree opens a top-to-bottom classification tree and shortens the canopy around the same ground junction. The repository trunk remains the root. Folders at the same depth share a horizontal level, each subtree occupies its own span, and files have dedicated vertical lanes. Folder labels show the number of distinct loaded commits editing any of their descendants, for comparison across a level. The 3D rope connections keep their exact parents, with shallow depth instead of overlapping shelves. Basenames sit below their junctions and tips; labels never overlap. Zoom, pan, or focus a folder to read dense repositories without shrinking the text. Frame view restores the original compact root composition beneath the canopy. Every distinct loaded commit editing a file adds the same repository-calibrated length step, retained through renames and rewound with playback. In classification view each edit adds exactly the same downward extension along the file’s lane, regardless of file bytes or edit size, preserving lane spacing. Roots start faint and neutral. The latest edit colors a file root and its name green if its measured bytes increased, red if they decreased, and yellow if the size stayed equal. Folder pathways and names use the net change in their total descendant bytes at their latest descendant edit, including subfolders and hidden files. Opposing gains and losses are summed in bytes. Colors persist until the next edit; unavailable or incomplete before/after comparisons remain faint and neutral. In root mode, file and folder names appear only after their first edit in the loaded history and disappear when rewinding before that edit. Unedited roots remain visible. Edited labels retain full readability, including when their byte comparison is unknown. Rewinding restores both the prior extension and color. The inspector reports edits, downward extension, and the latest byte difference; compare extension within one repository and edit counts across repositories. Thickness is a visual effect. Dot-prefixed files and folders are hidden from roots, while the underlying dataset and other views retain them.
 
-Root focus enables unrestricted rotation and sideways roll: **Shift-drag horizontally** or **twist two fingers**. **Frame view / F** restores upright orbit and canopy framing. Search files, focus a folder, inspect a selected file, and use **Data coverage → Export loaded data** to download the loaded metadata as JSON.
+In root focus, **drag to pan** at any zoom, **Alt-drag to rotate freely**, and **Shift-drag horizontally to roll**. Right-drag also pans. With touch, one finger rotates; two fingers pan, pinch to zoom, or twist to roll. **Frame view / F** restores upright orbit and canopy framing. Search files, focus a folder, inspect a selected file, and use **Data coverage → Export loaded data** to download the loaded metadata as JSON.
 
 These visual encodings describe loaded repository structure and changes, not runtime dependencies, code quality, or individual productivity. The scene may map fewer files than the loaded dataset; the panel reports coverage and mapped counts.
 
@@ -76,13 +76,21 @@ Contributors receive the largest area and portrait circles, with GitHub handles 
 
 Playback reveals records at their returned timestamps and sampled issue events. Current statuses, titles, ownership, and contributor counts describe the fetched snapshot, not a reconstructed historical state. Contributors without historical timestamps stay visible during replay. Contribution counts are GitHub's aggregate commit counts, not collaboration scores or productivity measures.
 
+## About
+
+**About** opens the connected repository’s default-branch README in a wide, scrollable reading panel. A 3D folio beside it maps each heading to a translucent page, with page size and ruled marks reflecting relative section length. Select a page or a **Contents** entry to jump to that section; scrolling highlights your place in both. A README without headings appears as one document page.
+
+The text stays flat and selectable. **A− / A+** adjust reading size; code blocks, tables, images, task lists, and expandable details retain their structure. **GitHub ↗** opens the original README. The shared dock provides GitHub connection, opacity, and reading progress; About has no playback timeline.
+
+The XO examples include actual README snapshots with visible capture dates. **Refresh from GitHub** loads the latest README; arbitrary public repositories load directly from GitHub. The last successfully fetched README is cached locally when browser storage permits. README content is sanitized before display, relative links and images resolve against its repository directory, and missing files or access errors leave an explicit recoverable state. README text is limited to 1 MiB; external images still require network access.
+
 ## Dock, panels, and appearance
 
 The repository apps share one dock and glass-panel system:
 
 - **Logo in the middle of the bottom app row:** drag it to move the dock; click to smoothly collapse everything to the logo, then click again to expand. Controls keep their state. Reduced-motion preferences remove the transition.
 - **Edit beside the logo (under it on narrow screens):** upload a PNG, JPG, WebP, or SVG up to 5 MB, or reset the default logo. Uploads are rasterized to a bounded PNG with transparency retained. The logo is shared by the dock, loading screen, favicon, and the legacy recording overlay.
-- **Data, Activity, and Apps:** switch repository labs or open the other 3D instruments. Repository pages keep the top bar clear; scene choices appear above the dock's apps.
+- **Data, Activity, About, and Apps:** switch repository labs or open the other 3D instruments. Repository pages keep the top bar clear; scene choices appear above the dock's apps.
 - **GitHub:** opens the repository connection, example choices, source metadata, and refresh controls above the dock.
 - **Timeline and Opacity:** independent controls in the dock. Opacity ranges from **0–100%** across all dock surfaces, app tiles, cards, controls, menus, and glass panels while text and icons remain readable. Clearer glass increases simulated edge refraction; more opaque glass adds softness. Browsers without SVG backdrop refraction retain blur and highlights. Reduced-transparency and high-contrast preferences use solid surfaces.
 - **Floating sidebars:** drag their headers and use the header's **− / +** control to collapse or expand. On narrow screens, page buttons reopen the corresponding sheets.

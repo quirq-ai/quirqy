@@ -11,6 +11,11 @@ test('home and direct repository links boot the repository runtime', () => {
   for (const path of ['/activity', '/activity/', '/activity-lab']) {
     assert.equal(modeFromLocation(location(path)), 'activity', path);
   }
+  for (const path of ['/about', '/about/', '/readme']) {
+    assert.equal(modeFromLocation(location(path)), 'about', path);
+  }
+  assert.equal(pathForMode('about'), '/about');
+  assert.equal(titleForMode('about'), 'Quirqy · About');
   assert.equal(modeFromLocation(location('/unknown')), 'data');
   assert.equal(pathForMode(), '/data');
   assert.equal(titleForMode(), 'Quirqy · Data Lab');
@@ -28,6 +33,8 @@ test('existing hash bookmarks still choose their intended instrument', () => {
   assert.equal(modeFromLocation(location('/#/solar')), 'solar');
   assert.equal(modeFromLocation(location('/#equation')), 'math');
   assert.equal(modeFromLocation(location('/#/activity')), 'activity');
+  assert.equal(modeFromLocation(location('/#/about')), 'about');
+  assert.equal(modeFromLocation(location('/#readme')), 'about');
   assert.equal(modeFromLocation(location('/#unrecognized')), 'data');
 });
 
@@ -47,6 +54,9 @@ test('navigation preserves search parameters and uses the new Solar route', () =
     syncUrl('solar');
     assert.deepEqual(calls.at(-1), { state: { mode: 'solar' }, url: '/solar?source=share' });
     assert.equal(document.title, 'Quirqy · Solar System');
+    syncUrl('about');
+    assert.deepEqual(calls.at(-1), { state: { mode: 'about' }, url: '/about?source=share' });
+    assert.equal(document.title, 'Quirqy · About');
     syncUrl('data', { replace: true });
     assert.deepEqual(calls.at(-1), { state: { mode: 'data' }, url: '/data?source=share', replace: true });
     assert.equal(document.title, 'Quirqy · Data Lab');

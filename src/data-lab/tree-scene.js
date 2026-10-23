@@ -140,6 +140,33 @@ function updateSurface(surface, amount) {
   geometry.attributes.normal.needsUpdate = true;
 }
 
+// Largest unobstructed rectangle in the real canvas. Side sheets and the
+// mobile dock can be taller than their nominal CSS breakpoints.
+export function rootReadableViewport(width, height, obstacles) {
+  if (!Array.isArray(obstacles)) return {
+    left: width > 1200 ? 245 : 16,
+    right: width - (width > 1100 ? 390 : width > 900 ? 360 : 16),
+    top: width > 900 ? 100 : 140, bottom: height - (width > 900 ? 120 : 220),
+  };
+  const margin = 12;
+  const boxes = obstacles.map(box => ({ left: Math.max(margin, box.left - 8), right: Math.min(width - margin, box.left + box.width + 8), top: Math.max(margin, box.top - 8), bottom: Math.min(height - margin, box.top + box.height + 8) }))
+    .filter(box => box.right > box.left && box.bottom > box.top);
+  const xs = [...new Set([margin, width - margin, ...boxes.flatMap(box => [box.left, box.right])])].sort((a, b) => a - b);
+  let best = { left: margin, right: width - margin, top: margin, bottom: height - margin }, area = 0;
+  for (let first = 0; first < xs.length - 1; first++) for (let last = first + 1; last < xs.length; last++) {
+    const left = xs[first], right = xs[last];
+    if (right - left < 100) continue;
+    const blocked = boxes.filter(box => box.left < right && box.right > left).sort((a, b) => a.top - b.top);
+    let top = margin;
+    for (const box of [...blocked, { top: height - margin, bottom: height - margin }]) {
+      const size = (right - left) * Math.max(0, box.top - top);
+      if (size > area) { best = { left, right, top, bottom: box.top }; area = size; }
+      top = Math.max(top, box.bottom);
+    }
+  }
+  return best;
+}
+
 /** A second scene for the same repository model, sharing Observatory's stage. */
 export class TreeScene extends RepositoryScene {
   constructor(stage, callbacks = {}) {
@@ -173,7 +200,7 @@ export class TreeScene extends RepositoryScene {
     this.fallingLeaves = [];
     this.index = null;
     this.trunkRadius = trunkRadius(-1);
-    this.renderer.domElement.setAttribute('aria-label', 'Three-dimensional repository growth tree. Each leaf is a file; its surface area follows its current bytes. Tree dimensions follow the cube root of current known repository bytes, so both grow and shrink through history. Unknown file sizes use muted wireframe markers. The trunk is the repository root. Below ground, visible folders and files branch into a fully expanded, balanced three-dimensional hierarchy. Dot-prefixed files and folders and their contents are hidden from roots. Folder names sit beside junctions and file names below tapered root ends. Starting root length and growth per loaded commit touch scale with repository width. The growth increment stays fixed throughout the loaded history. Rope thickness grows gently with length as a natural detail. Folder junctions stay fixed and the ground stays flat. The base grows with the visible file count and root extent. Horizontal filenames stay near their tips; zoom or focus a folder to reveal more names without overlap. Click a folder name to focus its subtree, or a file name or leaf to inspect. Frame roots enlarges the roots, shortens the canopy while preserving a sturdier trunk, and enables free rotation and sideways roll with Shift-drag or a two-finger twist. Frame view emphasizes the canopy with smaller roots and upright orbit. Scroll to zoom, double-click a file to focus.');
+    this.renderer.domElement.setAttribute('aria-label', 'Three-dimensional repository growth tree. Each leaf is a file; its surface area follows its current bytes. Tree dimensions follow the cube root of current known repository bytes, so both grow and shrink through history. Unknown file sizes use muted wireframe markers. The trunk is the repository root. Below ground, visible folders and files form the exact repository hierarchy. Dot-prefixed files and folders and their contents are hidden from roots. In Frame roots, names appear after their folder or file has been edited in the loaded history; folder names sit below their junctions and file names below tapered root ends. Starting root length and growth per loaded commit edit scale with repository width. The growth increment stays fixed throughout the loaded history. Rope thickness grows gently with length as a natural detail. Folder junctions stay fixed and the ground stays flat. The base grows with the visible file count and root extent. Horizontal filenames stay near their tips; zoom or focus a folder to reveal more names without overlap. Click a folder name to focus its subtree, or a file name or leaf to inspect. Frame roots arranges the hierarchy from top to bottom, with every folder depth on one horizontal level and files in ordered lanes. Each commit edit adds an equal downward step regardless of bytes. Unedited roots start faint and neutral. File roots and names use green for more bytes, red for fewer bytes, or yellow for equal bytes at the latest edit. Folder pathways and names use the net change in total bytes across all descendants, including hidden files. Unknown byte comparisons stay faint and neutral; names remain readable. Rewinding restores earlier length and color; zoom or pan to read dense groups. It shortens the canopy while preserving a sturdier trunk. In Frame roots, drag to pan at any zoom, Alt-drag to rotate freely, and Shift-drag to roll sideways. Right-drag also pans. On touch screens, use one finger to rotate and two fingers to pan, pinch to zoom, or twist to roll. Frame view emphasizes the byte-sized canopy with smaller organic roots and upright orbit. Scroll to zoom, double-click a file to focus.');
   }
 
   setModel(model) {
@@ -510,8 +537,10 @@ export class TreeScene extends RepositoryScene {
     this.frameMode = mode;
     this.selectionInRoots = mode === 'roots';
     if (changed) this._clearHover();
+    if (changed && mode === 'roots') this.rootFrameNeedsOrientation = true;
     this.presentationTarget = { ...PRESENTATION[mode] };
     this.controls.setRootMode?.(mode === 'roots');
+    this.roots.setPresentationMode(mode === 'roots' ? 'classification' : 'organic');
     this.roots.labels.setFocusMode?.(mode === 'roots');
     this.roots.labelWidths = new Map(this.roots.labels.files.map(label => [label.key, label.textWidth]));
     this.roots.surfaceSignature = null;
@@ -674,7 +703,7 @@ export class TreeScene extends RepositoryScene {
   focusNode(id) {
     if (this.options.roots && this.roots?.files.has(id) && (this.selectionInRoots || !this.nodes.has(id))) {
       this._setFrameMode('roots');
-      this.roots.labels.setFocusFolder(null);
+      this.roots.setFocusFolder(null);
       const rootPosition = this.roots.files.get(id)?.position.clone();
       if (rootPosition) {
         this.select(id);
@@ -700,13 +729,13 @@ export class TreeScene extends RepositoryScene {
     this._setFrameMode('roots');
     const bounds = path ? this.roots?.getFolderBounds(path) : this.roots?.getBounds();
     if (!bounds || bounds.isEmpty()) return;
-    this.roots.labels.setFocusFolder(path);
+    this.roots.setFocusFolder(path);
     this._frameRootsBounds(bounds, false, path);
   }
 
   focusRoots() {
     if (!this.options.roots) return;
-    this.roots.labels.setFocusFolder(null);
+    this.roots.setFocusFolder(null);
     this.selectionInRoots = true;
     this._setFrameMode('roots');
     const bounds = this.roots?.getBounds();
@@ -722,29 +751,25 @@ export class TreeScene extends RepositoryScene {
   _frameRootsBounds(bounds, overview = false, path = '', fileId = null) {
     const width = this.renderer.domElement.clientWidth || window.innerWidth;
     const height = this.renderer.domElement.clientHeight || window.innerHeight;
-    // Match the panel's CSS breakpoints: tablet sheets do not consume a
-    // permanent sidebar. Frame along the longer usable axis, not the viewport.
-    const rightPanel = width > 1100 ? 390 : width > 900 ? 360 : 16;
-    const leftGuide = width > 1200 ? 245 : 16;
-    const top = width > 900 ? 100 : 140, bottom = width > 900 ? 120 : 220;
-    const availableWidth = Math.max(220, width - rightPanel - leftGuide - 40);
-    const availableHeight = Math.max(220, height - top - bottom - 36);
-    // Portrait phones/tablets give horizontal names more room beside vertical
-    // tip rows, even when the remaining pane is only slightly taller.
-    const portrait = (width <= 900 && height > width) || availableHeight > availableWidth * 1.15;
+    // Explicit framing may run before the shared resize listener. The canvas
+    // bounds and perspective must agree before computing any screen-space fit.
+    if (this.camera.aspect !== width / height) {
+      this.camera.aspect = width / height;
+      this.camera.updateProjectionMatrix();
+    }
+    const classification = this.roots.layout?.kind === 'classification';
+    const obstacles = this.roots.labels?._screenObstacles?.(width, height);
+    const region = rootReadableViewport(width, height, obstacles);
+    this.rootViewport = region;
+    const availableWidth = Math.max(80, region.right - region.left - 24);
+    const availableHeight = Math.max(80, region.bottom - region.top - 24);
     this.controls.stop?.();
-    // Tall root panes use their longer edge; later focus keeps
-    // the user's orientation, including sideways roll.
-    if (overview) this.camera.up.set(portrait ? 1 : 0, portrait ? 0 : 1, 0);
-    const denseRoots = this.roots.baseLayout.fileCount > 160;
-    // Wider repositories now have deeper tiers. Lower the overview angle with
-    // that pinned scale so their depth reads below the ground, not through it.
-    // Portrait framing keeps a steeper view to separate sideways filename rows.
-    const depthScale = this.roots.baseLayout.proportions?.scale || 1;
-    const elevation = denseRoots ? (portrait ? 1.15 : Math.max(0.32, 1.15 / depthScale)) : 0.32;
-    const ray = overview ? new THREE.Vector3(0, elevation, 1) : this.camera.position.clone().sub(this.controls.target);
-    if (ray.lengthSq() < 1e-8) ray.set(0, 0.32, 1);
+    const resetOrientation = overview || (classification && this.rootFrameNeedsOrientation);
+    if (resetOrientation) this.camera.up.set(0, 1, 0);
+    const ray = resetOrientation ? new THREE.Vector3(0, classification ? 0 : .32, 1) : this.camera.position.clone().sub(this.controls.target);
+    if (ray.lengthSq() < 1e-8) ray.set(0, 0, 1);
     ray.normalize();
+    this.rootFrameNeedsOrientation = false;
     const right = this._cameraRight(ray), up = new THREE.Vector3().crossVectors(ray, right).normalize();
     const tangent = Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2));
     const fit = layout => {
@@ -770,7 +795,7 @@ export class TreeScene extends RepositoryScene {
           for (const point of record.curve) add(point, Math.max(0.5, source?.radiusTarget || source?.radius || 0.5));
         }
       }
-      if (overview && layout.base) {
+      if (overview && layout.base && !classification) {
         for (let index = 0; index < 48; index++) {
           const angle = index / 48 * Math.PI * 2;
           const x = Math.cos(angle) * layout.base.radiusX, z = Math.sin(angle) * layout.base.radiusZ;
@@ -787,8 +812,85 @@ export class TreeScene extends RepositoryScene {
           depth + Math.abs(offset.dot(up)) * height / (tangent * availableHeight));
       }
       distance *= 1.025;
-      const target = center.addScaledVector(right, distance * tangent * (rightPanel - leftGuide) / height)
-        .addScaledVector(up, distance * tangent * (top - bottom) / height);
+      const target = center.clone();
+      const labelByKey = new Map((this.roots.labels?.records || []).map(label => [`${label.kind}:${label.key}`, label]));
+      const names = classification ? [...layout.folders, ...layout.nodes].filter(record => {
+        if (record.kind !== 'file' && !record.path) return false;
+        const source = record.kind === 'file' ? this.roots.files.get(record.id) : this.roots.folders.get(record.path);
+        if (!(source?.touchCount > 0)) return false;
+        if (fileId) return record.kind === 'file' && record.id === fileId;
+        return !path || record.path === path || record.path.startsWith(`${path}/`);
+      }).map(record => {
+        const key = record.kind === 'file' ? record.id : record.path;
+        const label = labelByKey.get(`${record.kind}:${key}`);
+        return { point: this._presentationPoint(asVector(record.position), 'roots'), direction: asVector(record.labelDirection || layout.classification?.growthDirection || [record.side || 1, 0, 0]),
+          width: (label?.textWidth || String(record.name || record.path.split('/').pop()).length * 7) + (record.kind === 'file' ? 4 : 6),
+          height: label?.boxHeight || (record.kind === 'file' ? 16 : 18), gap: record.kind === 'file' ? 6 : 8 };
+      }) : [];
+      const probe = this.camera.clone();
+      const screen = point => { const p = point.clone().project(probe); return { x: (p.x + 1) * width / 2, y: (1 - p.y) * height / 2 }; };
+      const projectedBounds = () => {
+        let left = Infinity, rightEdge = -Infinity, top = Infinity, bottom = -Infinity;
+        for (const point of points) { const p = screen(point); left = Math.min(left, p.x); rightEdge = Math.max(rightEdge, p.x); top = Math.min(top, p.y); bottom = Math.max(bottom, p.y); }
+        return { left, right: rightEdge, top, bottom };
+      };
+      probe.up.copy(this.camera.up); probe.position.copy(center).addScaledVector(ray, distance); probe.lookAt(center); probe.updateMatrixWorld(true);
+      const geometryBox = projectedBounds();
+      const nameBox = { ...geometryBox };
+      for (const name of names) {
+        // A fixed-pixel name wider than the usable pane can never be fitted by
+        // zooming. Its label remains available when the user inspects its tip.
+        if (name.width + name.gap > availableWidth || name.height + name.gap > availableHeight) continue;
+        const p = screen(name.point), direction = screen(name.point.clone().add(name.direction));
+        const dx = direction.x - p.x, dy = direction.y - p.y;
+        let left, top;
+        if (Math.abs(dx) >= Math.abs(dy)) {
+          left = dx >= 0 ? p.x + name.gap : p.x - name.width - name.gap;
+          top = p.y - name.height / 2;
+        } else {
+          left = p.x - name.width / 2;
+          top = dy >= 0 ? p.y + name.gap : p.y - name.height - name.gap;
+        }
+        nameBox.left = Math.min(nameBox.left, left); nameBox.right = Math.max(nameBox.right, left + name.width);
+        nameBox.top = Math.min(nameBox.top, top); nameBox.bottom = Math.max(nameBox.bottom, top + name.height);
+      }
+      const padding = {
+        left: geometryBox.left - nameBox.left, right: nameBox.right - geometryBox.right,
+        top: geometryBox.top - nameBox.top, bottom: nameBox.bottom - geometryBox.bottom,
+      };
+      // Opposing names may be individually feasible yet collectively wider
+      // than a phone. Reserve a bounded text margin once, then fit geometry;
+      // never repeatedly zoom against an impossible fixed-pixel text extent.
+      const budget = fileId ? .82 : overview ? .24 : .30;
+      for (const [first, second, extent] of [['left', 'right', availableWidth], ['top', 'bottom', availableHeight]]) {
+        const total = padding[first] + padding[second];
+        const factor = total ? Math.min(1, extent * budget / total) : 1;
+        padding[first] *= factor; padding[second] *= factor;
+      }
+      const contentWidth = availableWidth - padding.left - padding.right;
+      const contentHeight = availableHeight - padding.top - padding.bottom;
+      distance = 24;
+      for (const point of points) {
+        const offset = point.clone().sub(center), depth = offset.dot(ray);
+        distance = Math.max(distance, depth + Math.abs(offset.dot(right)) * height / (tangent * contentWidth), depth + Math.abs(offset.dot(up)) * height / (tangent * contentHeight));
+      }
+      distance *= 1.025;
+      const regionX = (region.left + padding.left + region.right - padding.right) / 2;
+      const regionY = (region.top + padding.top + region.bottom - padding.bottom) / 2;
+      // Only the projected geometry participates in these perspective/centering
+      // corrections, so text cannot push the camera toward an infinite zoom-out.
+      for (let pass = 0; pass < 3; pass++) {
+        probe.position.copy(target).addScaledVector(ray, distance); probe.lookAt(target); probe.updateMatrixWorld(true);
+        const box = projectedBounds();
+        const ratio = Math.max((box.right - box.left) / contentWidth, (box.bottom - box.top) / contentHeight);
+        if (ratio > 1.002) distance *= ratio * 1.015;
+        const unit = 2 * distance * tangent / height;
+        target.addScaledVector(right, ((box.left + box.right) / 2 - regionX) * unit);
+        target.addScaledVector(up, -((box.top + box.bottom) / 2 - regionY) * unit);
+      }
+      this.rootReadingFrame = null;
+      // Top-down folder focus retains every descendant level and its junction.
+      // Zoom and pan are explicit; no horizontal-row zoom is applied to lanes.
       return { distance, target, position: target.clone().addScaledVector(ray, distance) };
     };
     // Roots have a fixed data pose. Framing never changes their length, bends

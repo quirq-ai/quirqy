@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { placeRootLabels, placeReadableRootLabels } from './root-label-layout.js';
+import { placeRootLabels, placeReadableRootLabels, placeClassificationRootLabels } from './root-label-layout.js';
 
 const overlaps = (a, b) => a.left < b.left + b.width && a.left + a.width > b.left
   && a.top < b.top + b.height && a.top + a.height > b.top;
@@ -172,4 +172,69 @@ test('selected dense names take priority and every file can be read when focused
   assert.ok(placeReadableRootLabels(records, { width: 600, height: 400 }).has('file:199'));
   for (const record of records) assert.ok(placeReadableRootLabels([record], { width: 600, height: 400 }).has(record.key));
   assert.deepEqual([...placeReadableRootLabels(records, { width: 600, height: 400 })], [...placeReadableRootLabels([...records].reverse(), { width: 600, height: 400 })]);
+});
+
+
+test('classification names stay in fixed outward slots on balanced leaf rows', () => {
+  const records = [-1, 1].flatMap(side => Array.from({ length: 8 }, (_, row) => ({
+    key: `${side}:${row}`, kind: 'file', side, row, x: side < 0 ? 250 : 550,
+    y: 100 + row * 24, width: 100, height: 16,
+  })));
+  const before = structuredClone(records);
+  const placed = placeClassificationRootLabels(records, { width: 800, height: 500 });
+  assert.equal(placed.size, records.length);
+  for (const record of records) {
+    const box = placed.get(record.key);
+    assert.equal(box.left, record.side < 0 ? record.x - record.width - 6 : record.x + 6);
+    assert.equal(box.top, record.y - record.height / 2);
+  }
+  assert.deepEqual(records, before);
+  assert.deepEqual(placeClassificationRootLabels([...records].reverse(), { width: 800, height: 500 }), placed);
+});
+
+test('classification slots follow projected outward direction through roll and rear views', () => {
+  const records = [
+    { ...file('rear', 300, 100), side: 1, directionX: -2, directionY: .1 },
+    { ...file('down', 300, 200), side: 1, directionX: .1, directionY: 2 },
+    { ...file('up', 300, 300), side: -1, directionX: -.1, directionY: -2 },
+  ];
+  const placed = placeClassificationRootLabels(records, { width: 600, height: 500 });
+  assert.equal(placed.get('rear').left, 214);
+  assert.equal(placed.get('down').top, 206);
+  assert.equal(placed.get('up').top, 272);
+  for (const record of records) assert.equal(placed.get(record.key).width, record.width);
+});
+
+test('classification never nudges overlapping small-view names or draws them over the HUD', () => {
+  const records = [
+    { ...file('selected', 200, 150), priority: 100, side: 1 },
+    { key: 'folder', kind: 'folder', x: 200, y: 150, width: 80, height: 22, side: 1 },
+    { ...file('neighbor', 200, 160), side: 1 },
+    { ...file('hud', 300, 300), side: 1 },
+    { ...file('offscreen', 470, 100), side: 1 },
+  ];
+  const obstacle = { left: 290, top: 270, width: 210, height: 100 };
+  const placed = placeClassificationRootLabels(records, { width: 500, height: 400, obstacles: [obstacle] });
+  assert.deepEqual([...placed.keys()], ['selected']);
+  assert.equal(placed.get('selected').left, 206);
+  assert.equal(placed.get('selected').top, 139);
+});
+
+test('dense classification preserves every record and reveals collision-free names with readable zoom', () => {
+  const records = Array.from({ length: 754 }, (_, row) => ({
+    key: `file:${row}`, kind: 'file', side: 1, row, x: 200, y: 100 + row * .4, width: 120, height: 16,
+  }));
+  const before = structuredClone(records);
+  const options = { width: 430, height: 700, obstacles: [{ left: 0, top: 580, width: 430, height: 120 }] };
+  const overview = placeClassificationRootLabels(records, options);
+  assert.ok(overview.size > 0 && overview.size < records.length);
+  const boxes = [...overview.values()];
+  for (let i = 0; i < boxes.length; i++) {
+    assert.equal(overlaps(boxes[i], options.obstacles[0]), false);
+    for (let j = i + 1; j < boxes.length; j++) assert.equal(overlaps(boxes[i], boxes[j]), false);
+  }
+  const focused = records.slice(0, 20).map((record, row) => ({ ...record, y: 100 + row * 22 }));
+  assert.equal(placeClassificationRootLabels(focused, options).size, focused.length);
+  assert.deepEqual(records, before);
+  assert.deepEqual(placeClassificationRootLabels([...records].reverse(), options), overview);
 });

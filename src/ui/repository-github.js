@@ -1,12 +1,14 @@
+import { REPOSITORY_LABS } from './repository-labs.js';
+
 /** Present the lab's original repository connection controls in the dock. */
 export function mountRepositoryGithub(dock, panel, mode) {
-  if (!dock || !panel || !['data', 'activity'].includes(mode)) return null;
+  if (!dock || !panel || !REPOSITORY_LABS.some(lab => lab.mode === mode)) return null;
   const title = panel.querySelector(`#${mode}-source-kind`)?.closest('.section-title');
   const form = panel.querySelector(`#${mode}-source-form`);
   const input = form?.querySelector(`#${mode}-repository-url`);
-  const meta = panel.querySelector(mode === 'activity' ? '#activity-repository-meta' : '.data-repo-meta');
+  const meta = panel.querySelector(`#${mode}-repository-meta, .${mode}-repo-meta`);
   const status = panel.querySelector(`#${mode}-status`);
-  const actions = mode === 'activity' ? panel.querySelector('.activity-source-actions') : null;
+  const actions = panel.querySelector(`.${mode}-source-actions`);
   if (!title || !form || !input || !meta || !status) return null;
 
   const lifetime = new AbortController();

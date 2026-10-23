@@ -3,6 +3,7 @@ import { modeFromLocation } from './nav/routes.js';
 import { mountLogoEditor } from './branding/logo-editor.js';
 import { mountPanelAppearance } from './ui/panel-appearance.js';
 import { mountFloatingLayout } from './ui/floating-layout.js';
+import { REPOSITORY_LABS } from './ui/repository-labs.js';
 import { flushRepositorySession } from './repository/session.js';
 
 const navigation = new AbortController();
@@ -11,7 +12,10 @@ document.addEventListener('click', async event => {
   const link = event.target.closest('a[href]');
   if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || link.target || link.hasAttribute('download')) return;
   const url = new URL(link.href, location.href);
-  const repositoryModes = ['data', 'activity'];
+  // Reading a section within the current document must not reload the lab.
+  if (url.origin === location.origin && url.pathname === location.pathname && url.search === location.search && url.hash
+    && modeFromLocation(url) === modeFromLocation({ pathname: location.pathname, hash: '' })) return;
+  const repositoryModes = REPOSITORY_LABS.map(lab => lab.mode);
   if (url.origin !== location.origin || !(repositoryModes.includes(modeFromLocation()) || repositoryModes.includes(modeFromLocation(url)))) return;
   event.preventDefault();
   await flushRepositorySession();
@@ -29,11 +33,16 @@ if (import.meta.hot) import.meta.hot.dispose(() => {
 });
 
 const mode = modeFromLocation();
-if (mode === 'data' || mode === 'activity') {
-  const label = mode === 'activity' ? 'Activity Lab' : 'Data Lab';
+const repositoryLab = REPOSITORY_LABS.find(lab => lab.mode === mode);
+if (repositoryLab) {
+  const label = repositoryLab.label;
   // Keep each import in its own loader: combining the imports in a conditional
   // can make the production preload helper attach only one lab's stylesheet.
   const loaders = {
+    about: async () => {
+      const { mountAboutLab } = await import('./about-lab/app.js');
+      return mountAboutLab();
+    },
     activity: async () => {
       const { mountActivityLab } = await import('./activity-lab/app.js');
       return mountActivityLab();

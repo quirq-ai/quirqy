@@ -7,7 +7,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { build } from 'vite';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const modes = ['data', 'activity'];
+const modes = ['data', 'activity', 'about'];
 let output, directory, entry;
 
 before(async () => {
@@ -22,7 +22,7 @@ before(async () => {
     ['src/main.js', ''],
     ...modes.map(mode => [`src/${mode}-lab/app.js`, `
       import './style.css';
-      export function mount${mode === 'data' ? 'Data' : 'Activity'}Lab() {
+      export function mount${mode[0].toUpperCase() + mode.slice(1)}Lab() {
         globalThis.__repositoryBuildMount(${JSON.stringify(mode)});
       }
     `]),
@@ -85,7 +85,7 @@ for (const mode of modes) test(`production ${mode} entry loads its stylesheet be
     // The tiny DOM deliberately holds stylesheet load events until asserted.
     await import(`${entry.href}?mode=${mode}`);
     const stylesheet = output.filter(file => file.type === 'asset' && file.fileName.endsWith('.css')
-      && String(file.source).includes(`#${mode}-panel`));
+      && String(file.source).includes(`#${mode}-${mode === 'about' ? 'reader' : 'panel'}`));
     assert.equal(stylesheet.length, 1, 'the build emitted the selected lab stylesheet');
     const styles = links.filter(link => link.rel === 'stylesheet');
     assert.deepEqual(styles.map(link => link.href), [`/${stylesheet[0].fileName}`], 'only the selected lab stylesheet is requested');

@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createRootLayout } from './root-layout.js';
+import { createRootClassificationLayout } from './root-classification-layout.js';
 import { createRootLengthLayout, rootCurveLength, ROOT_LENGTH_PER_TOUCH } from './root-length-layout.js';
 import { buildModel, stateAt } from './model.js';
 import { buildRootActivityHistory, rootActivityAt } from './root-activity.js';
@@ -65,6 +66,7 @@ test('baseline is unchanged and each touch adds exactly six measured world units
   assert.deepEqual(baseline.bounds, base.bounds);
   assert.deepEqual(baseline.base, base.base);
   assert.equal(baseline.lengthGrowth.active, false);
+  assert.equal(baseline.lengthGrowth.metric, 'arc');
   const id = base.nodes[0].id;
   const length = polylineLength(base.nodes[0].curve);
   for (const count of [1, 2, 7, 30]) {
@@ -248,4 +250,134 @@ test('one pinned repository width gives every historical membership the same per
   assert.equal(first.lengthGrowth.lengthPerTouch, head.proportions.lengthPerTouch);
   assert.ok(first.nodes[0].addedLength > 12);
   assert.deepEqual(createRootLengthLayout(early, { fileTouches: { [id]: 2 } }), first);
+});
+
+test('classification grows exact vertical distance downward while every assigned label row remains fixed', () => {
+  const base = createRootClassificationLayout(createRootLayout(modelFor(['left/a.js', 'left/b.js', 'right/a.js', 'right/b.js'])));
+  const original = structuredClone(base);
+  for (const count of [1, 3, 17]) {
+    const counts = new Map(base.nodes.map(node => [node.id, count]));
+    const grown = createRootLengthLayout(base, { fileTouches: counts });
+    assert.equal(grown.lengthGrowth.metric, 'vertical');
+    assert.deepEqual(grown.folders, base.folders);
+    for (let index = 0; index < base.nodes.length; index++) {
+      const before = base.nodes[index], after = grown.nodes[index];
+      near(before.position[1] - after.position[1], count * 6);
+      near(after.length, polylineLength(after.curve), 2e-5);
+      assert.equal(after.actualArcLength, after.length);
+      near(after.addedArcLength, polylineLength(after.curve) - polylineLength(before.curve), 2e-5);
+      assert.deepEqual([after.position[0], after.position[2]], [before.position[0], before.position[2]]);
+      assert.deepEqual(after.curve.map(point => [point[0], point[2]]), before.curve.map(point => [point[0], point[2]]));
+      assert.deepEqual(after.curve.slice(0, 2), before.curve.slice(0, 2));
+      assert.ok(before.position[1] - after.position[1] > 0);
+      assert.deepEqual(after.rowSpan, before.rowSpan);
+      const displacement = after.position[1] - before.position[1];
+      near(after.labelBounds.min[1] - before.labelBounds.min[1], displacement);
+      near(after.labelBounds.max[1] - before.labelBounds.max[1], displacement);
+      for (let axis = 0; axis < 3; axis++) {
+        assert.ok(after.labelBounds.min[axis] >= grown.bounds.min[axis]);
+        assert.ok(after.labelBounds.max[axis] <= grown.bounds.max[axis]);
+      }
+    }
+    assertConnected(grown);
+    assertEnclosed(grown);
+  }
+  assert.deepEqual(base, original);
+});
+
+test('classification leaves quiet geometry unchanged and absolute counts rewind without pose history', () => {
+  const base = createRootClassificationLayout(createRootLayout(modelFor(['src/hot.js', 'src/quiet.js', 'other/file.js'])));
+  const first = createRootLengthLayout(base, { fileTouches: { f0: 2 } });
+  createRootLengthLayout(base, { fileTouches: { f0: 1000, f1: 30 } });
+  const repeated = createRootLengthLayout(base, { fileTouches: new Map([['f0', 2]]) });
+  assert.deepEqual(repeated, first);
+  for (const id of ['f1', 'f2']) {
+    const before = base.nodes.find(node => node.id === id), after = first.nodes.find(node => node.id === id);
+    assert.deepEqual(after.position, before.position);
+    assert.deepEqual(after.curve, before.curve);
+    assert.deepEqual(after.labelBounds, before.labelBounds);
+  }
+  assert.deepEqual(geometry(createRootLengthLayout(base)), geometry(base));
+});
+
+test('classification rename growth keeps cumulative identity and the new exact attachment', () => {
+  const model = buildModel({ repository: { name: 'rename' }, files: [{ path: 'lib/file.js' }, { path: 'quiet.js' }], commits: [
+    { sha: 'edit', files: [{ path: 'src/file.js', status: 'modified' }] },
+    { sha: 'move', files: [{ path: 'lib/file.js', previousPath: 'src/file.js', status: 'renamed' }] },
+  ] });
+  const history = buildRootActivityHistory(model), results = [];
+  for (const index of [0, 1]) {
+    const frame = stateAt(model, index);
+    const base = createRootClassificationLayout(createRootLayout(model, { activeIds: frame.activeIds, paths: new Map(frame.files.map(file => [file.id, file.path])) }));
+    const grown = createRootLengthLayout(base, { fileTouches: rootActivityAt(history, index).fileTouches });
+    const file = grown.nodes.find(node => node.path.endsWith('/file.js'));
+    const initial = base.nodes.find(node => node.id === file.id);
+    results.push(file);
+    near(initial.position[1] - file.position[1], 6 * (index + 1));
+    near(file.actualArcLength, polylineLength(file.curve), 2e-5);
+    assertConnected(grown);
+  }
+  assert.equal(results[0].id, results[1].id);
+  assert.deepEqual(results.map(node => node.folder), ['src', 'lib']);
+  assert.deepEqual(results.map(node => node.addedLength), [6, 12]);
+});
+
+test('calibrated classification row spacing stays exact under large downward growth', () => {
+  const base = createRootClassificationLayout(createRootLayout(modelFor(['left/a.js', 'left/b.js', 'right/a.js', 'right/b.js'])), { lanePitch: 36, tierPitch: 45 });
+  const grown = createRootLengthLayout(base, { fileTouches: { f0: 40, f2: 30 } });
+  assert.equal(grown.readability.rowPitch, 36);
+  assert.equal(grown.classification.rowPitch, 36);
+  for (let index = 0; index < base.nodes.length; index++) {
+    const before = base.nodes[index], after = grown.nodes[index];
+    assert.equal(after.position[1], base.groundY - after.depth * 45 - after.addedLength);
+    assert.deepEqual([after.position[0], after.position[2]], [before.position[0], before.position[2]]);
+    near(before.position[1] - after.position[1], after.touchCount * 6);
+    near(after.actualArcLength, polylineLength(after.curve), 2e-5);
+    assert.equal(after.curve[3][0], after.curve[2][0]);
+  }
+  assertConnected(grown);
+  assertEnclosed(grown);
+});
+
+test('equal classification touches give equal vertical extension for different bytes and branch shapes', () => {
+  const model = modelFor(['left/top.js', 'left/middle.js', 'left/bottom.js', 'right/deep/file.js', 'root.js']);
+  const sizes = [0, 12, 16384, 24 * 1024 * 1024, null];
+  model.nodes.forEach((node, index) => { node.size = sizes[index]; });
+  const base = createRootClassificationLayout(createRootLayout(model), { lanePitch: 36, tierPitch: 45 });
+  assert.ok(new Set(base.nodes.map(node => rootCurveLength(node.curve).toFixed(3))).size > 2);
+  const before = structuredClone(base), counts = new Map(base.nodes.map(node => [node.id, 4]));
+  const grown = createRootLengthLayout(base, { fileTouches: counts, lengthPerTouch: 7.5 });
+  const measuredArcIncreases = [];
+  for (let index = 0; index < base.nodes.length; index++) {
+    const initial = base.nodes[index], file = grown.nodes[index];
+    assert.equal(file.addedLength, 30);
+    near(initial.position[1] - file.position[1], 30);
+    near(initial.curve[2][1] - file.curve[2][1], 30);
+    assert.deepEqual(file.curve.slice(0, 2), initial.curve.slice(0, 2));
+    assert.deepEqual(file.curve.map(point => [point[0], point[2]]), initial.curve.map(point => [point[0], point[2]]));
+    near(file.actualArcLength, polylineLength(file.curve), 2e-5);
+    near(file.addedArcLength, file.actualArcLength - file.baseLength);
+    measuredArcIncreases.push(file.addedArcLength);
+  }
+  assert.ok(Math.max(...measuredArcIncreases) - Math.min(...measuredArcIncreases) > 1, 'arc distance should reflect the different branch slopes');
+  assert.equal(grown.lengthGrowth.totalAddedLength, 150);
+  assert.deepEqual(base, before);
+  const changedSizes = { ...model, nodes: model.nodes.map(node => ({ ...node, size: 1_000_000_000 })) };
+  const other = createRootLengthLayout(createRootClassificationLayout(createRootLayout(changedSizes), { lanePitch: 36, tierPitch: 45 }), { fileTouches: counts, lengthPerTouch: 7.5 });
+  assert.deepEqual(geometry(other), geometry(grown));
+  assertConnected(grown);
+  assertEnclosed(grown);
+});
+
+test('classification vertical extension respects zero, custom and inherited calibrated increments', () => {
+  const base = createRootClassificationLayout(createRootLayout(modelFor(['a.js', 'b.js']), { repositoryWidth: 640 }));
+  for (const increment of [0, 3.5, undefined, NaN]) {
+    const grown = createRootLengthLayout(base, { fileTouches: { f0: 3 }, lengthPerTouch: increment });
+    const expected = Number.isFinite(increment) ? increment : 24;
+    const file = grown.nodes.find(node => node.id === 'f0'), initial = base.nodes.find(node => node.id === 'f0');
+    assert.equal(file.addedLength, 3 * expected);
+    near(initial.position[1] - file.position[1], 3 * expected);
+    near(file.actualArcLength, rootCurveLength(file.curve));
+    assert.equal(grown.lengthGrowth.metric, 'vertical');
+  }
 });

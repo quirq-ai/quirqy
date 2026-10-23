@@ -274,3 +274,45 @@ export function placeReadableRootLabels(records, { width, height, obstacles = []
   }
   return placements;
 }
+
+
+/**
+ * Classification names occupy one fixed slot outside their real junction/tip.
+ * The projected outward direction follows scene rotation while text remains
+ * upright. Reserve complete boxes only: hidden names reappear as zoom or focus
+ * creates space, without changing topology or displacing labels into other rows.
+ */
+export function placeClassificationRootLabels(records, { width, height, obstacles = [] } = {}) {
+  const placements = new Map(), cells = new Map(), cellSize = 64;
+  const validBox = box => [box.left, box.top, box.width, box.height].every(Number.isFinite)
+    && box.width > 0 && box.height > 0;
+  const visit = (box, callback) => {
+    for (let y = Math.floor((box.top - 1) / cellSize); y <= Math.floor((box.top + box.height + 1) / cellSize); y++) {
+      for (let x = Math.floor((box.left - 1) / cellSize); x <= Math.floor((box.left + box.width + 1) / cellSize); x++) callback(`${x}:${y}`);
+    }
+  };
+  const reserve = box => visit(box, key => {
+    const bucket = cells.get(key) || [];
+    bucket.push(box); cells.set(key, bucket);
+  });
+  for (const obstacle of obstacles) if (validBox(obstacle)) reserve(obstacle);
+  const ordered = [...records].sort((a, b) => (b.priority || 0) - (a.priority || 0)
+    || Number(a.kind !== 'folder') - Number(b.kind !== 'folder')
+    || (a.depth || 0) - (b.depth || 0) || (a.row || 0) - (b.row || 0) || compare(a.key, b.key));
+  for (const record of ordered) {
+    const { x, y, width: w, height: h } = record;
+    const dx = Number.isFinite(record.directionX) ? record.directionX : record.side < 0 ? -1 : 1;
+    const dy = Number.isFinite(record.directionY) ? record.directionY : 0;
+    const gap = record.kind === 'folder' ? 8 : 6;
+    const horizontal = Math.abs(dx) >= Math.abs(dy);
+    const box = horizontal
+      ? { left: dx < 0 ? x - w - gap : x + gap, top: y - h / 2, width: w, height: h }
+      : { left: x - w / 2, top: dy < 0 ? y - h - gap : y + gap, width: w, height: h };
+    if (!validBox(box) || box.left < 6 || box.top < 6 || box.left + w > width - 6 || box.top + h > height - 6) continue;
+    let clear = true;
+    visit(box, key => { if (clear && cells.get(key)?.some(other => intersects(box, other))) clear = false; });
+    if (!clear) continue;
+    placements.set(record.key, box); reserve(box);
+  }
+  return placements;
+}

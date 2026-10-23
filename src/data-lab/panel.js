@@ -51,7 +51,7 @@ export class DataPanel {
       <p class="lab-note" id="data-status" role="status" aria-live="polite"></p>
       <div class="section-title">View</div>
       <div class="seg data-view-switch" role="group" aria-label="Repository visualization"><button type="button" data-view="structure" class="active" aria-pressed="true">Structure</button><button type="button" data-view="tree" aria-pressed="false">Growth tree</button></div>
-      <div class="kick-row eq-actions data-view-actions"><button class="btn tiny" id="data-frame" type="button" title="Focus the canopy with smaller roots and upright orbit (F)">Frame view</button><button class="btn tiny" id="data-frame-roots" type="button" title="Enlarge the roots, shrink the canopy, and enable free rotation" hidden>Frame roots</button><button class="btn tiny" id="data-focus" type="button" disabled>Focus file</button></div>
+      <div class="kick-row eq-actions data-view-actions"><button class="btn tiny" id="data-frame" type="button" title="Focus the canopy with smaller roots and upright orbit (F)">Frame view</button><button class="btn tiny" id="data-frame-roots" type="button" title="Enlarge roots and shrink the canopy. Drag to pan; Alt-drag to rotate; scroll to zoom" hidden>Frame roots</button><button class="btn tiny" id="data-focus" type="button" disabled>Focus file</button></div>
       <div class="data-view-toggles"><label class="setting"><input type="checkbox" data-option="links" checked> <span id="data-links-label">Bonds</span></label><label class="setting"><input type="checkbox" data-option="labels" checked> <span id="data-labels-label">Folder labels</span></label><label class="setting"><input type="checkbox" data-option="ghosts" checked> Historical files</label><label class="setting"><input type="checkbox" data-option="activity" checked> <span id="data-activity-label">Commit effects</span></label><label class="setting" id="data-roots-option" hidden><input type="checkbox" data-option="roots" checked> Show roots</label></div>
       <section id="data-structure" class="data-structure" aria-label="Current repository structure">
         <div class="data-structure-summary"><span><b id="data-structure-folders"></b> folder carbons</span><span><b id="data-structure-atoms"></b> file atoms</span></div>
@@ -256,7 +256,7 @@ export class DataPanel {
     if (frameChanged || viewChanged || previous?.structure !== state.structure) this.renderStructure();
     if (modelChanged || viewChanged || (frameChanged && state.view !== 'tree')) this.renderDirectories();
     if (frameChanged || selectionChanged || viewChanged) { this.renderSelected(); this.renderFiles(); }
-    else if (activityChanged) this.renderSelected();
+    else if (activityChanged || previous?.frameMode !== state.frameMode) this.renderSelected();
     for (const [id, mode] of [['data-frame', 'tree'], ['data-frame-roots', 'roots']]) {
       const button = this.$(`#${id}`);
       if (state.view === 'tree') button.setAttribute('aria-pressed', String((state.frameMode || 'tree') === mode));
@@ -295,7 +295,7 @@ export class DataPanel {
       button.setAttribute('aria-pressed', String(active));
     }
     this.$('#data-view-intro').textContent = tree
-      ? `Canopy and leaf size follow current file bytes and can grow or shrink. Roots keep their commit-touch growth.`
+      ? `Canopy and leaf size follow current file bytes and can grow or shrink. Roots keep their commit-edit growth.`
       : 'Play turns folder marbles into enclosures while the commit author lights the root. Pause restores pathways and opens the author’s commit bubble.';
     this.$('#data-links-label').textContent = tree ? 'File stems' : 'Bonds';
     this.$('#data-links-label').title = tree ? '' : 'Show or hide pathways and current. Playing shows current only; pause restores pathways.';
@@ -303,7 +303,7 @@ export class DataPanel {
     this.$('#data-labels-label').textContent = tree ? 'Names' : 'Folder labels';
     this.$('[data-option="activity"]').title = tree
       ? 'Show commit change colors and motion.'
-      : 'Show current-commit pulses and highlights. Cumulative touch brightness stays visible.';
+      : 'Show current-commit pulses and highlights. Cumulative edit brightness stays visible.';
     this.$('#data-roots-option').hidden = !tree;
     this.$('#data-frame-roots').hidden = !tree;
     this.$('#data-structure').hidden = tree;
@@ -369,7 +369,9 @@ export class DataPanel {
       : summary.complete && Number.isFinite(summary.totalBytes)
         ? `Repository file contents: ${formatBytes(summary.totalBytes)} at this commit.`
         : `Known file contents: ${formatBytes(summary.knownBytes)}; the repository total is incomplete.`;
-    this.$('#data-view-intro').textContent = `${amount} Canopy and leaves grow or shrink with file bytes. Roots keep their touch-based growth.`;
+    this.$('#data-view-intro').textContent = this.state.frameMode === 'roots'
+      ? 'Folders share a row at each depth. Only edited files and folders show names. Every file edit adds one equal downward step. Paths and names: green = more bytes, red = fewer, yellow = equal. Folder colors follow the net change in all their contents.'
+      : `${amount} Canopy and leaves grow or shrink with file bytes. Roots keep their edit-based growth.`;
   }
 
   renderSelected() {
@@ -386,12 +388,19 @@ export class DataPanel {
     const touchesSoFar = this.state.activity?.fileTouches?.get(file.id) ?? changes.filter(commit => commit.index <= this.state.index).length;
     const hasRoot = !kind && file.exists && this.state.rootLayout?.nodes.some(node => node.id === file.id);
     const lengthPerTouch = rootGrowthStep(this.state.rootLayout);
-    const touchRows = kind ? `<div class="stat-k" title="Commit touches through the selected point in the loaded history">Touches so far</div><div class="stat-v data-file-touches">${fmt(touchesSoFar)}</div>`
-      : file.exists ? `<div class="stat-k" title="Distinct loaded commits touching this file through the selected point; retained across renames and folder moves">File touches</div><div class="stat-v data-root-touches">${fmt(touchesSoFar)}</div>${hasRoot ? `<div class="stat-k" title="${fmtLength(lengthPerTouch)} scene units per touch, calibrated to this repository’s snapshot width and fixed through replay. Compare added length within this repository; use File touches across repositories">Added root length</div><div class="stat-v data-root-added-length">+${fmtLength(touchesSoFar * lengthPerTouch)} scene units</div>` : ''}` : '';
+    const classification = this.state.rootLayout?.lengthGrowth?.metric === 'vertical';
+    const touchRows = kind ? `<div class="stat-k" title="Commit edits through the selected point in the loaded history">Edits so far</div><div class="stat-v data-file-touches">${fmt(touchesSoFar)}</div>`
+      : file.exists ? `<div class="stat-k" title="Distinct loaded commits editing this file through the selected point; retained across renames and folder moves">File edits</div><div class="stat-v data-root-touches">${fmt(touchesSoFar)}</div>${hasRoot ? `<div class="stat-k" title="${fmtLength(lengthPerTouch)} scene units per edit, independent of file size or edit size. Calibrated once for this repository and fixed through replay. Compare extension within this repository; use File edits across repositories">${classification ? 'Downward extension' : 'Added root length'}</div><div class="stat-v data-root-added-length">+${fmtLength(touchesSoFar * lengthPerTouch)} scene units</div>` : ''}` : '';
+    const attention = classification && hasRoot ? this.state.rootAttention?.files.get(file.id) : null;
+    const attentionText = !attention ? 'Neutral · no edits yet'
+      : attention.direction === 'unknown' ? 'Neutral · byte comparison unavailable'
+      : `${attention.direction === 'increase' ? 'Green · +' : attention.direction === 'decrease' ? 'Red · −' : 'Yellow · '}${fmt(Math.abs(attention.deltaBytes))} bytes`;
+    const attentionRows = classification && hasRoot
+      ? `<div class="stat-k" title="Measured byte difference at this file’s latest edit through the selected commit. The color persists until its next edit; root growth counts edits equally.">Last edit color</div><div class="stat-v data-root-attention">${attentionText}</div>` : '';
     const currentFolder = file.path.includes('/') ? file.path.slice(0, file.path.lastIndexOf('/')) : '(root)';
     const atomRows = kind ? `<div class="stat-k">File category</div><div class="stat-v">${esc(kind.label)}</div><div class="stat-k">File element</div><div class="stat-v data-file-element">${esc(kind.element)} · ${esc(kind.elementName)}</div><div class="stat-k">Current folder</div><div class="stat-v data-folder-path">${esc(currentFolder)}</div>` : '';
     const history = changes.length ? `<details class="data-file-history" ${historyWasOpen ? 'open' : ''}><summary>File activity · ${changes.length} commits</summary>${changes.map(commit => `<button type="button" data-commit-index="${commit.index}" aria-current="${commit.index === this.state.index}" title="${esc(commit.message)}"><code>${esc(this.shortSha(commit.sha))}</code><span>${esc(commit.message.split('\n')[0])}</span></button>`).join('')}</details>` : '';
-    this.replaceContent(this.$('#data-selected'), `<div class="data-selected-path">${esc(file.path)}</div><div class="stat-grid"><div class="stat-k">At this point</div><div class="stat-v">${file.exists ? 'Present' : 'Not present'}</div><div class="stat-k">Current change</div><div class="stat-v">${esc(file.status)}</div>${touchRows}<div class="stat-k">${kind ? 'Touches in loaded history' : 'Commits touching file'}</div><div class="stat-v">${fmt(changes.length)}</div>${atomRows}<div class="stat-k">File size at this commit</div><div class="stat-v data-file-size">${!file.exists ? 'Not present' : Number.isFinite(file.size) ? `${fmt(file.size)} bytes` : 'Unknown'}</div></div>${historical.length ? `<div class="data-history-paths"><span>Other paths for this file</span>${historical.map(path => `<code>${esc(path)}</code>`).join('')}</div>` : ''}${rendered ? '' : '<p class="lab-note" style="padding:0 0 8px">Outside the displayed subset; data remains available here.</p>'}<button class="btn tiny" type="button" data-focus-id="${esc(file.id)}" ${rendered ? '' : 'disabled'}>Focus in scene</button>${history}`);
+    this.replaceContent(this.$('#data-selected'), `<div class="data-selected-path">${esc(file.path)}</div><div class="stat-grid"><div class="stat-k">At this point</div><div class="stat-v">${file.exists ? 'Present' : 'Not present'}</div><div class="stat-k">Current change</div><div class="stat-v">${esc(file.status)}</div>${touchRows}<div class="stat-k">${kind ? 'Edits in loaded history' : 'Commits editing file'}</div><div class="stat-v">${fmt(changes.length)}</div>${atomRows}${attentionRows}<div class="stat-k">File size at this commit</div><div class="stat-v data-file-size">${!file.exists ? 'Not present' : Number.isFinite(file.size) ? `${fmt(file.size)} bytes` : 'Unknown'}</div></div>${historical.length ? `<div class="data-history-paths"><span>Other paths for this file</span>${historical.map(path => `<code>${esc(path)}</code>`).join('')}</div>` : ''}${rendered ? '' : '<p class="lab-note" style="padding:0 0 8px">Outside the displayed subset; data remains available here.</p>'}<button class="btn tiny" type="button" data-focus-id="${esc(file.id)}" ${rendered ? '' : 'disabled'}>Focus in scene</button>${history}`);
   }
 
   renderFiles() {

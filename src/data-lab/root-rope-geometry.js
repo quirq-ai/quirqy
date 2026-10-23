@@ -67,7 +67,7 @@ export function rootRopeRadius(touches = 0, radialScale = 1) {
  * must cover future replay states; no per-vine meshes or frame-time allocations
  * of geometry are needed. A baseline-only edge uses sixteen longitudinal steps.
  */
-export function createRootRopeBatch(edges, { pointed = false, sides = 6, segments, pitch = ROOT_ROPE_PITCH, samplesPerTurn = 12 } = {}) {
+export function createRootRopeBatch(edges, { pointed = false, sides = 6, segments, pitch = ROOT_ROPE_PITCH, samplesPerTurn = 12, vertexAlpha = false } = {}) {
   if (!edges.length) return null;
   const ranges = new Map();
   let vertexCount = 0, indexCount = 0;
@@ -78,14 +78,18 @@ export function createRootRopeBatch(edges, { pointed = false, sides = 6, segment
     edge.curve.updateArcLengths();
     const capacity = maximum + 1;
     const length = edge.curve.getLength();
-    const divisions = Math.max(4, Math.ceil(segments ?? (maximum ? Math.max(16, (Math.max(length * 2, edge.maxLength || 0) + rootRopeRadius(maximum, radialScale) * 4) / pitch * samplesPerTurn) : 16)));
+    // A presentation may reserve a coarser, fixed decorative twist for very
+    // long hierarchy connectors without changing physical caliber or vine count.
+    const edgePitch = Number.isFinite(edge.pitch) && edge.pitch > 0 ? edge.pitch : pitch;
+    const edgeSegments = Number.isFinite(edge.segments) && edge.segments >= 4 ? edge.segments : segments;
+    const divisions = Math.max(4, Math.ceil(edgeSegments ?? (maximum ? Math.max(16, (Math.max(length * 2, edge.maxLength || 0) + rootRopeRadius(maximum, radialScale) * 4) / edgePitch * samplesPerTurn) : 16)));
     const verticesPerVine = (divisions + 1) * (sides + 1), indicesPerVine = divisions * sides * 6;
     const range = {
       key: edge.key, vertexStart: vertexCount, vertexCount: verticesPerVine * capacity,
       faceStart: indexCount / 3, faceEnd: (indexCount + indicesPerVine * capacity) / 3,
-      capacity, maxTouches: maximum, segments: divisions, sides, pointed, pitch,
+      capacity, maxTouches: maximum, segments: divisions, sides, pointed, pitch: edgePitch,
       touches: NaN, vineCount: 0, radius: ROOT_VINE_RADIUS, distanceOffset: NaN, radialScale: NaN,
-      color: new THREE.Color(-1, -1, -1), curveSignature: new Float64Array(12).fill(NaN),
+      color: new THREE.Color(-1, -1, -1), alpha: NaN, curveSignature: new Float64Array(12).fill(NaN),
       bounds: new THREE.Box3(), centerBounds: new THREE.Box3(), vines: [],
       axisCenters: new Float64Array((divisions + 1) * 3),
       axisNormals: new Float64Array((divisions + 1) * 3),
@@ -107,7 +111,8 @@ export function createRootRopeBatch(edges, { pointed = false, sides = 6, segment
     vertexCount += range.vertexCount;
     indexCount += indicesPerVine * capacity;
   }
-  const positions = new Float32Array(vertexCount * 3), normals = new Float32Array(vertexCount * 3), colors = new Float32Array(vertexCount * 3);
+  const colorSize = vertexAlpha ? 4 : 3;
+  const positions = new Float32Array(vertexCount * 3), normals = new Float32Array(vertexCount * 3), colors = new Float32Array(vertexCount * colorSize);
   const centers = new Float32Array(vertexCount * 3), profiles = new Float32Array(vertexCount), shades = new Float32Array(vertexCount);
   const indices = vertexCount > 65535 ? new Uint32Array(indexCount) : new Uint16Array(indexCount);
   let cursor = 0;
@@ -126,7 +131,7 @@ export function createRootRopeBatch(edges, { pointed = false, sides = 6, segment
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3).setUsage(THREE.DynamicDrawUsage));
   geometry.setAttribute('normal', new THREE.BufferAttribute(normals, 3).setUsage(THREE.DynamicDrawUsage));
-  geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3).setUsage(THREE.DynamicDrawUsage));
+  geometry.setAttribute('color', new THREE.BufferAttribute(colors, colorSize).setUsage(THREE.DynamicDrawUsage));
   geometry.setIndex(new THREE.BufferAttribute(indices, 1));
   const batch = {
     geometry, ranges, centers, profiles, shades, positionDirty: false, colorDirty: false,
@@ -138,7 +143,7 @@ export function createRootRopeBatch(edges, { pointed = false, sides = 6, segment
   for (const edge of edges) {
     const range = ranges.get(edge.key);
     setRootRopeShape(batch, range, edge.curve, touchValue(edge.touches), edge.distanceOffset ?? edge.phaseOffset ?? 0, edge.radialScale ?? 1);
-    setRootRopeColor(batch, range, edge.color);
+    setRootRopeColor(batch, range, edge.color, edge.alpha ?? 1);
   }
   finishRootRopeUpdate(batch);
   return batch;
@@ -289,15 +294,20 @@ export function setRootRopeShape(batch, range, curve, touchesFloat, distanceOffs
   batch.positionDirty = true;
 }
 
-export function setRootRopeColor(batch, range, color) {
-  if (!range || range.color.equals(color)) return;
-  const colors = batch.geometry.attributes.color.array;
+/** RGBA batches use native Three.js vertex alpha; RGB batches retain their original opacity. */
+export function setRootRopeColor(batch, range, color, alpha = 1) {
+  if (!range) return;
+  const attribute = batch.geometry.attributes.color, stride = attribute.itemSize;
+  const opacity = stride === 4 && Number.isFinite(alpha) ? THREE.MathUtils.clamp(alpha, 0, 1) : 1;
+  if (range.color.equals(color) && range.alpha === opacity) return;
+  const colors = attribute.array;
   for (let vertex = range.vertexStart; vertex < range.vertexStart + range.vertexCount; vertex++) {
-    const offset = vertex * 3, shade = batch.shades[vertex];
+    const offset = vertex * stride, shade = batch.shades[vertex];
     colors[offset] = color.r * shade; colors[offset + 1] = color.g * shade; colors[offset + 2] = color.b * shade;
+    if (stride === 4) colors[offset + 3] = opacity;
   }
-  range.color.copy(color); batch.colorDirty = true;
-  batch.colorRanges.push({ start: range.vertexStart * 3, count: range.vertexCount * 3 });
+  range.color.copy(color); range.alpha = opacity; batch.colorDirty = true;
+  batch.colorRanges.push({ start: range.vertexStart * stride, count: range.vertexCount * stride });
 }
 
 // Keep pending updates until WebGL consumes them. Multiple setters can finish

@@ -300,3 +300,56 @@ test('a fixed bundle can start thickened and retain finite normals while its cur
   assert.equal(range.vineCount, 2); assertCaliber(batch, range); finite(batch);
   batch.geometry.dispose();
 });
+
+
+test('long classification edges keep a fixed smooth twist within a bounded geometry budget', () => {
+  const curve = straight(10000), maximumLength = 20000;
+  const pitch = (maximumLength + rootRopeRadius(1) * 4) * 12 / 256;
+  const batch = createRootRopeBatch([{ ...edge('classification', curve, 1, 1), maxLength: maximumLength, pitch, segments: 256 }]);
+  const range = batch.ranges.get('classification'), id = batch.geometry.uuid;
+  assert.equal(range.segments, 256); assert.equal(range.pitch, pitch);
+  assert.equal(range.vertexCount, 257 * 7 * 2);
+  for (const length of [20000, 10000, 0, 20000]) {
+    mutate(curve, [[0, 0, 0], [0, -length / 3, 0], [0, -2 * length / 3, 0], [0, -length, 0]]);
+    setRootRopeShape(batch, range, curve, 1); finishRootRopeUpdate(batch);
+    assert.ok(!length || range.segments / (length / range.pitch) >= 12);
+    assert.equal(range.radius, rootRopeRadius(1)); assert.equal(range.vineCount, 2);
+    assert.equal(batch.geometry.uuid, id); finite(batch);
+  }
+  batch.geometry.dispose();
+});
+
+test('optional native RGBA preserves geometry and updates alpha independently across replay capacity', () => {
+  const input = [edge('a', straight(12), 3, 0), edge('b', straight(15, -12), 1, 1)];
+  const rgb = createRootRopeBatch(input), rgba = createRootRopeBatch(input, { vertexAlpha: true });
+  assert.equal(rgb.geometry.attributes.color.itemSize, 3);
+  assert.equal(rgba.geometry.attributes.color.itemSize, 4);
+  for (const name of ['position', 'normal']) assert.deepEqual(rgba.geometry.attributes[name].array, rgb.geometry.attributes[name].array);
+  assert.deepEqual(rgba.geometry.index.array, rgb.geometry.index.array);
+  const attribute = rgba.geometry.attributes.color, range = rgba.ranges.get('b');
+  const color = range.color.clone(), positions = rgba.geometry.attributes.position.array.slice();
+  attribute.clearUpdateRanges();
+  setRootRopeColor(rgba, range, color, .18); finishRootRopeUpdate(rgba);
+  assert.equal(range.alpha, .18);
+  assert.deepEqual(attribute.updateRanges, [{ start: range.vertexStart * 4, count: range.vertexCount * 4 }]);
+  for (const record of rgba.ranges.values()) for (let vertex = record.vertexStart; vertex < record.vertexStart + record.vertexCount; vertex++) {
+    near(attribute.array[vertex * 4 + 3], record === range ? .18 : 1);
+    for (let channel = 0; channel < 3; channel++) near(attribute.array[vertex * 4 + channel], rgb.geometry.attributes.color.array[vertex * 3 + channel]);
+  }
+  const version = attribute.version;
+  setRootRopeColor(rgba, range, color, .18); finishRootRopeUpdate(rgba);
+  assert.equal(attribute.version, version, 'unchanged alpha and hue must not trigger another upload');
+  for (const alpha of [.65, 1, .18]) {
+    setRootRopeColor(rgba, range, color, alpha); finishRootRopeUpdate(rgba);
+    near(attribute.array[range.vertexStart * 4 + 3], alpha);
+  }
+  const a = rgba.ranges.get('a');
+  setRootRopeColor(rgba, a, a.color, .18);
+  setRootRopeShape(rgba, a, input[0].curve, 3); finishRootRopeUpdate(rgba);
+  for (const vine of a.vines) near(attribute.array[vine.vertexStart * 4 + 3], .18, 1e-6);
+  assert.deepEqual(rgba.geometry.attributes.position.array.slice(range.vertexStart * 3), positions.slice(range.vertexStart * 3), 'opacity edits never move another strand');
+  const original = rgb.geometry.attributes.color.array.slice();
+  setRootRopeColor(rgb, rgb.ranges.get('a'), rgb.ranges.get('a').color, .18); finishRootRopeUpdate(rgb);
+  assert.deepEqual(rgb.geometry.attributes.color.array, original, 'legacy RGB batches preserve their exact output');
+  finite(rgba); rgb.geometry.dispose(); rgba.geometry.dispose();
+});
