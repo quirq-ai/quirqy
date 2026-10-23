@@ -1,6 +1,7 @@
 import { parseRepositoryUrl } from '../data-lab/github.js';
 import { MAX_README_BYTES, encodeRepositoryPath } from './readme.js';
 import { normalizeRepositoryCount } from './repository-stats.js';
+import { normalizeRepositoryWebsite } from './repository-website.js';
 export const README_CACHE_KEY = 'quirqy.about-readme.v1';
 
 /** Browser caches are optional and untrusted; invalid entries fall through to GitHub. */
@@ -18,6 +19,8 @@ export function readCachedReadme(input, storage) {
         ...expected, name: expected.repo,
         description: typeof saved.repository.description === 'string' ? saved.repository.description.slice(0, 2000) : '',
         defaultBranch: branch,
+        // Absence identifies legacy caches that still need metadata hydration.
+        ...(Object.hasOwn(saved.repository, 'homepage') ? { homepage: normalizeRepositoryWebsite(saved.repository.homepage) } : {}),
         stars: normalizeRepositoryCount(saved.repository.stars),
         forks: normalizeRepositoryCount(saved.repository.forks),
         statsFetchedAt: typeof saved.repository.statsFetchedAt === 'string' && Number.isFinite(Date.parse(saved.repository.statsFetchedAt))

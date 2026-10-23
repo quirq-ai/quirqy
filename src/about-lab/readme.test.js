@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { loadReadme, loadRepositoryStats, MAX_README_BYTES } from './readme.js';
+import { loadReadme, loadRepositoryDetails, MAX_README_BYTES } from './readme.js';
 
 const repository = { full_name: 'owner/repo', name: 'repo', default_branch: 'feature/docs', description: 'Repository description' };
 const content = (text = '# Read me', extra = {}) => ({ type: 'file', path: 'docs/README.md', sha: 'blob123', encoding: 'base64', content: Buffer.from(text).toString('base64'), size: Buffer.byteLength(text), ...extra });
@@ -120,10 +120,10 @@ test('README metadata maps GitHub stars and forks without replacing unknown valu
   }
 });
 
-test('legacy count hydration makes one safe metadata request without downloading a README', async () => {
+test('legacy repository detail hydration makes one safe metadata request without downloading a README', async () => {
   const calls = [];
   const controller = new AbortController();
-  const result = await loadRepositoryStats('https://github.com/owner/repo.git', {
+  const result = await loadRepositoryDetails('https://github.com/owner/repo.git', {
     signal: controller.signal,
     fetcher: async (url, options) => {
       calls.push(url);
@@ -131,27 +131,48 @@ test('legacy count hydration makes one safe metadata request without downloading
       assert.equal(options.signal, controller.signal);
       assert.equal(options.headers.Accept, 'application/vnd.github+json');
       assert.equal(options.headers.Authorization, undefined);
-      return response({ stargazers_count: 0, forks_count: 42 });
+      return response({ stargazers_count: 0, forks_count: 42, homepage: 'example.com/project' });
     },
   });
   assert.deepEqual(calls, ['https://api.github.com/repos/owner/repo']);
   assert.deepEqual([result.stars, result.forks], [0, 42]);
-  assert.deepEqual(Object.keys(result).sort(), ['forks', 'stars', 'statsFetchedAt']);
+  assert.deepEqual(Object.keys(result).sort(), ['forks', 'homepage', 'stars', 'statsFetchedAt']);
+  assert.equal(result.homepage, 'https://example.com/project');
   assert.ok(Number.isFinite(Date.parse(result.statsFetchedAt)));
-  const unknown = await loadRepositoryStats('https://github.com/owner/repo', {
+  const unknown = await loadRepositoryDetails('https://github.com/owner/repo', {
     fetcher: async () => response({ stargazers_count: '0', forks_count: -1 }),
   });
   assert.deepEqual([unknown.stars, unknown.forks], [null, null]);
+  assert.equal(unknown.homepage, null);
 });
 
-test('legacy count hydration propagates failed or cancelled requests without a fabricated result', async () => {
-  await assert.rejects(loadRepositoryStats('https://github.com/owner/repo', {
+test('legacy repository detail hydration propagates failed or cancelled requests without a fabricated result', async () => {
+  await assert.rejects(loadRepositoryDetails('https://github.com/owner/repo', {
     fetcher: async () => response({}, 403),
   }), /limited or denied/);
   const controller = new AbortController();
-  const pending = loadRepositoryStats('https://github.com/owner/repo', {
+  const pending = loadRepositoryDetails('https://github.com/owner/repo', {
     signal: controller.signal, fetcher: () => new Promise(() => {}),
   });
   controller.abort();
   await assert.rejects(pending, { name: 'AbortError' });
+});
+
+
+test('live README and metadata-only hydration share safe normalized GitHub homepage values', async () => {
+  for (const [homepage, expected] of [
+    ['https://example.com/docs', 'https://example.com/docs'],
+    ['example.com', 'https://example.com/'],
+    [undefined, null], [null, null], ['', null],
+    ['javascript:alert(1)', null], ['https://user:pass@example.com', null],
+  ]) {
+    const metadata = { ...repository, homepage, stargazers_count: 26, forks_count: 4 };
+    const fetcher = async address => response(address.includes('/readme?') ? content() : metadata);
+    const loaded = await loadReadme('https://github.com/owner/repo', { fetcher });
+    const details = await loadRepositoryDetails('https://github.com/owner/repo', { fetcher });
+    assert.equal(loaded.repository.homepage, expected);
+    assert.equal(details.homepage, expected);
+    assert.deepEqual([details.stars, details.forks], [26, 4]);
+    assert.equal(loaded.markdown, '# Read me');
+  }
 });

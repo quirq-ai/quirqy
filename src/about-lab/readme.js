@@ -1,5 +1,6 @@
 import { parseRepositoryUrl } from '../data-lab/github.js';
 import { normalizeRepositoryCount } from './repository-stats.js';
+import { normalizeRepositoryWebsite } from './repository-website.js';
 
 export const MAX_README_BYTES = 1024 * 1024;
 const MAX_JSON_BYTES = MAX_README_BYTES * 2;
@@ -109,19 +110,20 @@ export function encodeRepositoryPath(path) {
   return String(path).split('/').map(encodeURIComponent).join('/');
 }
 
-function repositoryStats(metadata) {
+function repositoryDetails(metadata) {
   return {
+    homepage: normalizeRepositoryWebsite(metadata.homepage),
     stars: normalizeRepositoryCount(metadata.stargazers_count),
     forks: normalizeRepositoryCount(metadata.forks_count),
     statsFetchedAt: new Date().toISOString(),
   };
 }
 
-/** Refresh missing cached counts without downloading or replacing the readable README. */
-export async function loadRepositoryStats(input, { signal, fetcher = globalThis.fetch } = {}) {
+/** Refresh cached repository details without downloading or replacing the readable README. */
+export async function loadRepositoryDetails(input, { signal, fetcher = globalThis.fetch } = {}) {
   const parsed = parseRepositoryUrl(input);
   const metadata = await request(`/repos/${encodeURIComponent(parsed.owner)}/${encodeURIComponent(parsed.repo)}`, { signal, fetcher });
-  return repositoryStats(metadata);
+  return repositoryDetails(metadata);
 }
 
 /** Public README from the connected repository's default branch; no source execution or credentials. */
@@ -141,7 +143,7 @@ export async function loadReadme(input, { signal, fetcher = globalThis.fetch, on
     url: canonical.url,
     description: String(metadata.description || ''),
     defaultBranch: String(metadata.default_branch),
-    ...repositoryStats(metadata),
+    ...repositoryDetails(metadata),
   };
   progress('Opening the repository README…');
   const data = await request(`${base}/readme?ref=${encodeURIComponent(repository.defaultBranch)}`, { signal, fetcher, readme: true });

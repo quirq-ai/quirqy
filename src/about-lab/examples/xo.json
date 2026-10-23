@@ -5,6 +5,7 @@
     "url": "https://github.com/quirq-ai/xo",
     "description": "product: xo, the command line for the XO Cloud API",
     "defaultBranch": "main",
+    "homepage": "https://xo.quirq.dev/",
     "stars": 0,
     "forks": 0,
     "statsFetchedAt": "2026-10-23T17:57:03.153Z"

@@ -3,10 +3,11 @@ import { createStage } from '../scene/setup.js';
 import { createRenderScheduler } from '../scene/render-on-demand.js';
 import { connectedRepository, connectRepository } from '../repository/connection.js';
 import { parseRepositoryUrl } from '../data-lab/github.js';
-import { loadReadme, loadRepositoryStats } from './readme.js';
+import { loadReadme, loadRepositoryDetails } from './readme.js';
 import { renderReadme } from './markdown.js';
 import { ReadmeScene } from './scene.js';
 import { normalizeRepositoryCount, formatRepositoryCount } from './repository-stats.js';
+import { normalizeRepositoryWebsite } from './repository-website.js';
 import { readCachedReadme, README_CACHE_KEY } from './cache.js';
 import { ABOUT_EXAMPLES, DEFAULT_ABOUT_REPOSITORY, getReadmeExample } from './examples.js';
 
@@ -56,7 +57,7 @@ export async function mountAboutLab() {
   const source = document.createElement('aside');
   source.id = 'about-panel';
   source.hidden = true;
-  source.innerHTML = `<div class="list-title">About</div><div class="section-title">Repository <span id="about-source-kind"></span></div><div id="about-repository-meta"></div><form id="about-source-form"><div class="about-source-row"><input id="about-repository-url" type="url" placeholder="https://github.com/owner/repo" aria-label="Public GitHub repository URL" required/><button id="about-load" class="btn primary" type="submit">Load</button></div><div class="about-example-choices"></div></form><p id="about-status" role="status"></p><div class="about-source-actions"><button id="about-refresh" class="btn" type="button">Refresh from GitHub</button><button id="about-cancel" class="btn" type="button" hidden>Cancel</button></div><div class="about-view-switch seg"><button class="active" type="button" aria-pressed="true">README</button></div>`;
+  source.innerHTML = `<div class="list-title">About</div><div class="section-title">Repository <span id="about-source-kind"></span></div><div id="about-repository-meta"></div><form id="about-source-form"><div class="about-source-row"><input id="about-repository-url" type="url" placeholder="https://github.com/owner/repo" aria-label="Public GitHub repository URL" required/><button id="about-load" class="btn primary" type="submit">Load</button></div><div class="about-example-choices"></div></form><p id="about-status" role="status"></p><div class="about-source-actions"><button id="about-refresh" class="btn" type="button">Refresh from GitHub</button><button id="about-cancel" class="btn" type="button" hidden>Cancel</button></div><div class="about-view-switch seg"><button class="active" type="button" aria-pressed="true">README</button><a id="about-website-link" target="_blank" rel="noopener noreferrer" hidden><span class="about-website-url"></span><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M11 3h6v6m0-6-8 8M8 4H4v12h12v-4"/></svg></a></div>`;
   const dock = document.createElement('footer');
   dock.id = 'about-timebar'; dock.className = 'panel';
   dock.setAttribute('aria-label', 'About dock');
@@ -163,6 +164,21 @@ export async function mountAboutLab() {
     $('about-repo-stats').hidden = false;
     canvas.setAttribute('aria-label', `Interactive 3D folio of README sections. ${['stars', 'forks'].map(key => normalizeRepositoryCount(repository[key]) === null ? `${key} unavailable` : `${formatRepositoryCount(repository[key])} ${key}`).join(', ')}. Drag to turn, click a page to read. Use the Contents navigation for keyboard access.`);
   }
+  function renderRepositoryWebsite(repository) {
+    const website = normalizeRepositoryWebsite(repository.homepage);
+    const link = $('about-website-link');
+    link.hidden = !website;
+    link.querySelector('.about-website-url').textContent = website ? website.replace(/^https?:\/\//, '').replace(/\/$/, '') : '';
+    if (website) {
+      link.href = website;
+      link.title = `${website} · Opens in a new tab`;
+      link.setAttribute('aria-label', `Visit ${website} (opens in a new tab)`);
+    } else {
+      link.removeAttribute('href');
+      link.removeAttribute('title');
+      link.removeAttribute('aria-label');
+    }
+  }
   function renderDocument(document, sourceLabel) {
     const rendered = renderReadme(document.markdown, document, { document: window.document });
     current = document; sections = rendered.sections; activeSection = null;
@@ -178,6 +194,7 @@ export async function mountAboutLab() {
     $('about-repo-name').textContent = document.repository.name;
     $('about-repo-description').textContent = document.repository.description || document.repository.fullName;
     renderRepositoryStats(document.repository);
+    renderRepositoryWebsite(document.repository);
     $('about-file-path').textContent = document.path;
     $('about-branch').textContent = document.repository.defaultBranch;
     $('about-github-link').href = document.htmlUrl; $('about-github-link').hidden = false;
@@ -229,22 +246,23 @@ export async function mountAboutLab() {
       }
       if (disposed || version !== request || abort.signal.aborted) return;
       renderDocument(document, snapshot ? snapshot.source === 'bundled' ? 'Bundled README snapshot' : 'Saved README snapshot' : 'Live from GitHub');
-      let hydratedStats = false;
-      if (snapshot?.source === 'saved' && ['stars', 'forks'].some(key => normalizeRepositoryCount(document.repository[key]) === null)) {
-        // Older saved READMEs can gain counts without refetching or replacing the document.
+      let hydratedDetails = false;
+      if (snapshot?.source === 'saved' && (document.repository.homepage === undefined || ['stars', 'forks'].some(key => normalizeRepositoryCount(document.repository[key]) === null))) {
+        // Older saved READMEs can gain repository details without replacing the document.
         timeout = setTimeout(() => abort.abort(), 12000);
         try {
-          const stats = await loadRepositoryStats(parsed.url, { signal: abort.signal });
+          const details = await loadRepositoryDetails(parsed.url, { signal: abort.signal });
           if (disposed || version !== request || abort.signal.aborted) return;
-          document.repository = { ...document.repository, ...stats };
+          document.repository = { ...document.repository, ...details };
           renderRepositoryStats(document.repository);
+          renderRepositoryWebsite(document.repository);
           scene.setRepositoryStats(document.repository);
           redraw.invalidate();
-          hydratedStats = true;
-        } catch { /* Keep the saved README and its honest unknown counts usable offline. */ }
+          hydratedDetails = true;
+        } catch { /* Keep the saved README usable offline without inventing metadata. */ }
       }
       if (disposed || version !== request) return;
-      if (!snapshot || hydratedStats) try { localStorage.setItem(README_CACHE_KEY, JSON.stringify({ ...document, source: 'saved' })); } catch { /* Reading still works without cache storage. */ }
+      if (!snapshot || hydratedDetails) try { localStorage.setItem(README_CACHE_KEY, JSON.stringify({ ...document, source: 'saved' })); } catch { /* Reading still works without cache storage. */ }
     } catch (error) {
       if (disposed || version !== request) return;
       const message = abort.signal.aborted ? abort.signal.reason?.message || 'README loading cancelled.' : error.message;
