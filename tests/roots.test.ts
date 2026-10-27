@@ -1,0 +1,44 @@
+import assert from "node:assert/strict";
+import { mkdtemp, mkdir, writeFile, rm } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import { test } from "node:test";
+import { sameOrigin } from "../lib/observation-root";
+import { GET, POST } from "../app/api/roots/route";
+import { GET as workspace } from "../app/api/workspace/route";
+import { GET as preview } from "../app/api/file/route";
+
+test("root picker validates selections, isolates file readers and remembers browser preferences", async t => {
+  assert.equal(sameOrigin(new Request("http://localhost:3210/api/roots", { headers: { host: "127.0.0.1:3210", origin: "http://127.0.0.1:3210" } })), true);
+  assert.equal(sameOrigin(new Request("http://localhost:3210/api/roots", { headers: { host: "127.0.0.1:3210", origin: "http://evil.test" } })), false);
+  const root = await mkdtemp(path.join(os.tmpdir(), "open-chat-roots-"));
+  const previous = { root: process.env.MIRROR_ROOT, browse: process.env.MIRROR_BROWSE_ROOT };
+  t.after(async () => {
+    if (previous.root === undefined) delete process.env.MIRROR_ROOT; else process.env.MIRROR_ROOT = previous.root;
+    if (previous.browse === undefined) delete process.env.MIRROR_BROWSE_ROOT; else process.env.MIRROR_BROWSE_ROOT = previous.browse;
+    await rm(root, { recursive: true, force: true });
+  });
+  process.env.MIRROR_ROOT = path.join(root, "First"); process.env.MIRROR_BROWSE_ROOT = root;
+  await mkdir(path.join(root, "First")); await mkdir(path.join(root, "Empty")); await mkdir(path.join(root, ".hidden"));
+  await writeFile(path.join(root, "First", "note.txt"), "First workspace");
+  await writeFile(path.join(root, "First", "file.pdf"), "%PDF-1.7\n%%EOF");
+  const list = await GET(new Request("http://localhost/api/roots")); const data = await list.json();
+  assert.equal(data.selected, "First"); assert.deepEqual(data.directories.map((x: { name: string }) => x.name), ["Empty", "First"]);
+  const choose = (selected: unknown, origin = "http://localhost") => POST(new Request("http://localhost/api/roots", { method: "POST", headers: { "Content-Type": "application/json", origin }, body: JSON.stringify({ path: selected }) }));
+  for (const invalid of ["../", ".hidden", "First/note.txt", "D:/outside", 5]) assert.notEqual((await choose(invalid)).status, 200);
+  assert.equal((await choose("Empty", "http://evil.test")).status, 403);
+  assert.equal((await GET(new Request("http://localhost/api/roots", { headers: { "sec-fetch-site": "cross-site" } }))).status, 403);
+  const selection = await choose("Empty"); assert.equal(selection.status, 200);
+  const cookie = selection.headers.get("set-cookie")!; assert.match(cookie, /HttpOnly; SameSite=Strict/);
+  const headers = { cookie: cookie.split(";")[0] };
+  const empty = await (await workspace(new Request("http://localhost/api/workspace", { headers }))).json();
+  assert.equal(empty.rootName, "Empty"); assert.deepEqual(empty.directory.entries, []);
+  assert.notEqual((await workspace(new Request("http://localhost/api/workspace?path=note.txt", { headers }))).status, 200);
+  assert.notEqual((await preview(new Request("http://localhost/api/file?path=file.pdf", { headers }))).status, 200);
+  const firstCookie = (await choose("First")).headers.get("set-cookie")!.split(";")[0];
+  const first = await (await workspace(new Request("http://localhost/api/workspace", { headers: { cookie: firstCookie } }))).json();
+  assert.equal(first.rootName, "First"); assert.notEqual(first.rootId, empty.rootId);
+  assert.equal((await preview(new Request("http://localhost/api/file?path=file.pdf", { headers: { cookie: firstCookie } }))).status, 200);
+  assert.equal((await workspace(new Request("http://localhost/api/workspace", { headers: { cookie: "open-chat-root=..%2Foutside" } }))).status, 400);
+  const fallback = await (await workspace(new Request("http://localhost/api/workspace"))).json(); assert.equal(fallback.rootName, "First");
+});

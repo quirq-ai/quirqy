@@ -1,0 +1,34 @@
+{
+  "name": "open-chat",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "predev": "node scripts/prepare-assets.mjs",
+    "dev": "next dev --hostname 127.0.0.1 --port 3210",
+    "prebuild": "node scripts/prepare-assets.mjs",
+    "build": "next build",
+    "start": "next start --hostname 127.0.0.1 --port 3210",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/*.test.ts"
+  },
+  "dependencies": {
+    "@blobatar/react": "^2.7.0",
+    "blobatar": "^2.7.0",
+    "lucide-react": "^0.468.0",
+    "next": "16.4.3",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

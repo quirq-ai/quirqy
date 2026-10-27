@@ -1,0 +1,10 @@
+node_modules/
+.next/
+*.tsbuildinfo
+.env*
+!.env.example
+
+# Observed content is external to this application-only branch.
+/workspace/
+/data/
+/swarm-desktop/
