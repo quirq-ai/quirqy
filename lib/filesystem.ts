@@ -71,7 +71,8 @@ function assertContained(root: string, candidate: string): void {
 
 async function workspaceRoot(configuredRoot?: string): Promise<string> {
   const configured = configuredRoot ?? process.env.MIRROR_ROOT;
-  const root = await realpath(path.resolve(configured || path.join(process.cwd(), "workspace")));
+  // The root is chosen at runtime, so keep Turbopack from tracing the whole project into the server bundle.
+  const root = await realpath(/*turbopackIgnore: true*/ path.resolve(/*turbopackIgnore: true*/ configured || path.join(process.cwd(), "workspace")));
   if (!(await stat(root)).isDirectory()) {
     throw new MirrorError("The configured workspace must be a folder.", 400);
   }
